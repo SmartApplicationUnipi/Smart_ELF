@@ -16,10 +16,12 @@ result = kb.addFact(myid, 'rdf', 3, 50, false,
 );
 
 // should retrieve { $X: 'SmartApplication', $Y: 'teaches' }
-console.log(kb.query({ subject: 'Gervasi', object: '$X', relation: '$Y' }));
+console.log(kb.queryBind({ subject: 'Gervasi', object: '$X', relation: '$Y' }));
 
 // should retrieve 2 solution  { '$X': 'Gervasi', '$Y': 'teaches' }, { '$X': 'Ferrante Francesco', '$Y': 'follows' }
-console.log(kb.query({ subject: '$X', object: 'SmartApplication', relation: '$Y' }));
+console.log(kb.queryBind({ subject: '$X', object: 'SmartApplication', relation: '$Y' }));
+
+console.log(kb.queryFact({subject: 'Gervasi', object: '$obj', relation: 'teaches'}));
 
 result = kb.subscribe(myid, { sessionID: 1, emotion: '$E' },
   (r) => { console.log('subscription callback!'); console.log(r); },
@@ -32,4 +34,4 @@ result = kb.addFact(myid, 'emo', 1, 70, false,
 result = kb.removeFact(myid, { relation: '$r', object: 'SmartApplication' });
 
 // should now retrieve 0 solution
-console.log(kb.query({ object: 'SmartApplication', relation: '$rel' }));
+console.log(kb.queryBind({ object: 'SmartApplication', relation: '$rel' }));

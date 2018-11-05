@@ -10,7 +10,7 @@ const registered = new Array();
 let uniqueid = 0;
 
 export function register() {
-    const newid = (register.length + 1).toString();
+    const newid = 'proto' + (register.length + 1).toString();
     registered.push(newid);
     return newid;
 }
@@ -32,26 +32,26 @@ export function addFact(idSource: string, infoSum: string, TTL: number, reliabil
     return true;
 }
 
-export function query(jreq: object): any[] {
-    // const q = {
-    //     _data: jreq,
-    // };
-    // // TODO: if we add the following key we will return also the "internal data".
-    //  We need to decide how to handle this
-    //  we could allow user to specify as parameters of the query function the internal data to match,
-    //  leading to a query function with a signature similar to addFact
-    //  or we can let them filter by internal data or agree with other modules on specific tags :\
+export function queryFact(jreq: object): any[] {
+    // this function will return the whole object that contains a match
+    const q = {
+        _data: jreq,
+    };
+    return matcher.findMatchesAll(q, Array.from(databaseFact.values()));
+}
 
+export function queryBind(jreq: object): any[] {
+    // this function will return metadata and the bounded values
     const q = {
         _data: jreq,
         _id: '$_id',
-        _infoSum: '$_infos',
-        _reliability: '$_reli',
-        _revisioning: '$_revi',
-        _source: '$_src',
+        _infoSum: '$_infoSum',
+        _reliability: '$_reliability',
+        _revisioning: '$_revisioning',
+        _source: '$_source',
         _ttl: '$_ttl',
     };
-    return matcher.findMatches(q, Array.from(databaseFact.values()));
+    return matcher.findMatchesBind(q, Array.from(databaseFact.values()));
 }
 
 export function subscribe(idSource: string, jreq: object, callback: SubCallback): boolean {
@@ -67,14 +67,14 @@ export function subscribe(idSource: string, jreq: object, callback: SubCallback)
 
 export function getAndSubscribe(idSource: string, jreq: object, callback: SubCallback ) {
     // if (!registered.includes(idSource)) { return false; }
-    const res = query(jreq);
+    const res = queryBind(jreq);
     subscribe(idSource, jreq, callback);
     return res;
 }
 
 export function removeFact(idSource: string, jreq: object): boolean {
     if (!registered.includes(idSource)) { return false; }
-    const res = query(jreq);
+    const res = queryBind(jreq);
     for (const k of res) {
         databaseFact.delete(k.$_id);
     }
@@ -95,15 +95,15 @@ function checkSubscriptions(obj: object) {
     const q = {
         _data: {},
         _id: '$_id',
-        _infoSum: '$_infos',
-        _reliability: '$_reli',
-        _revisioning: '$_revi',
-        _source: '$_src',
+        _infoSum: '$_infoSum',
+        _reliability: '$_reliability',
+        _revisioning: '$_revisioning',
+        _source: '$_source',
         _ttl: '$_ttl',
     };
     subscriptions.forEach((callbArray, k, m) => {
         q._data = k;
-        const r = matcher.findMatches(q, [obj]);
+        const r = matcher.findMatchesBind(q, [obj]);
         if (r.length > 0) { callbArray.forEach((c) => c(r)); }
     });
 }

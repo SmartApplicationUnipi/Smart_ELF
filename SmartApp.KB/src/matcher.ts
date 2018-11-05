@@ -1,10 +1,22 @@
-export function findMatches(query: any, Dataset: any[]) {
+export function findMatchesBind(query: any, Dataset: any[]) {
     const matches = new Array();
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
         const mb = matchBind(query, data, {});
         if (mb.match) {
-            matches.push(mb.binds); // TODO: do we want to deliver the complete json?
+            matches.push(mb.binds);
+        }
+    }
+    return matches;
+}
+
+export function findMatchesAll(query: any, Dataset: any[]) {
+    const matches = new Array();
+    // inefficient lookup with a loop onto dataset array
+    for (const data of Dataset) {
+        const mb = matchBind(query, data, {});
+        if (mb.match) {
+            matches.push(data);
         }
     }
     return matches;
