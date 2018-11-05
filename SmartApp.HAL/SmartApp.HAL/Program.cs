@@ -11,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.IO;
 
 namespace SmartApp.HAL
 {
@@ -40,13 +41,17 @@ namespace SmartApp.HAL
             return serviceProvider;
         }
 
-        private static void RunDemoApplication(IVideoSource videoSource, IAudioSource audioSource)
+
+
+
+
+        private static void runApplication (IVideoSource videoSource, IAudioSource audioSource)
         {
             // Create a simple form with just a button and an image
             var form = new Form()
             {
                 Text = "SmartApp",
-                ClientSize = new Size(640, 550),
+                ClientSize = new Size(640, 480),
                 StartPosition = FormStartPosition.CenterScreen,
                 MinimizeBox = false,
                 MaximizeBox = false,
@@ -63,29 +68,25 @@ namespace SmartApp.HAL
             };
             form.Controls.Add(image);
 
-            // Button to start/stop recording
-            var btn = new Button()
-            {
-                Size = new Size(640, 70),
-                Location = new Point(0, 480),
-                Text = "Keep pressed to record",
-                Font = new Font(FontFamily.GenericSansSerif, 16.0f, FontStyle.Bold)
-            };
-            btn.MouseDown += (_, __) => { videoSource.Start(); audioSource.Start(); };
-            btn.MouseUp += (_, __) => { videoSource.Stop(); audioSource.Stop(); };
-            form.Controls.Add(btn);
+            videoSource.Start();
+            audioSource.Start();
 
             // Draw the rectangles for the faces on the bitmap and show it on the screen
             videoSource.FrameReady += (_, frame) => {
                 using (var g = Graphics.FromImage(buffer))
                 using (var pen = new Pen(Color.Red, 3f))
                 {
-                    g.DrawImage(frame.Image, new Rectangle(0, 0, buffer.Width, buffer.Height));
+                    g.Clear(Color.White);
+
                     foreach (var face in frame.Faces)
                     {
+                        // Bounds : X, Y, Width, Height
+                        var frameFace = (System.Drawing.Image) frame.Image.Clone(face.Bounds, System.Drawing.Imaging.PixelFormat.DontCare);
+                        g.DrawImage(frameFace, face.Bounds);
                         g.DrawRectangle(pen, face.Bounds);
                     }
                 }
+
                 image.Invoke((Action)(() => {
                     image.Refresh();
                 }));
@@ -96,6 +97,10 @@ namespace SmartApp.HAL
             form.ShowDialog();
         }
 
+
+
+
+
         public static void Main(string[] args)
         {
             var serviceProvider = BuildDIContainer();
@@ -105,30 +110,63 @@ namespace SmartApp.HAL
 
             using (var videoSource = serviceProvider.GetRequiredService<IVideoSource>())
             using (var audioSource = serviceProvider.GetRequiredService<IAudioSource>())
-            using (var videoPort = new BufferedPortImageRgb())
+            using (var streamPort = new BufferedPortImageRgb())
+            using (var facesPort = new BufferedPortBottle())
             using (var audioPort = new BufferedPortBottle())
             using (var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480))
             {
                 // Stream the video frames to a yarp port
-                videoPort.open("/camera");
+                streamPort.open("/camera/stream");
+                facesPort.open("/camera/faces");
+
                 videoSource.FrameReady += (_, frame) =>
                 {
-                    using (var msg = videoPort.prepare())
-                    {
-                        // Convert the incoming image which is BGR to RGB
-                        var bits = frame.Image.LockBits(new Rectangle(0, 0, frame.Image.Width, frame.Image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                        using (var videoFrameBgr = new Image<Bgr, byte>(frame.Image.Width, frame.Image.Height, bits.Stride, bits.Scan0))
-                            CvInvoke.CvtColor(videoFrameBgr, videoFrameRgbBuffer, ColorConversion.Bgr2Rgb);
-                        frame.Image.UnlockBits(bits);
+                    // Convert the incoming image which is BGR to RGB
+                    var bits = frame.Image.LockBits(new Rectangle(0, 0, frame.Image.Width, frame.Image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                    using (var videoFrameBgr = new Image<Bgr, byte>(frame.Image.Width, frame.Image.Height, bits.Stride, bits.Scan0))
+                        CvInvoke.CvtColor(videoFrameBgr, videoFrameRgbBuffer, ColorConversion.Bgr2Rgb);
+                    frame.Image.UnlockBits(bits);
 
+
+                    // Sending new the new frame to "/camera/stream"
+                    using (var streamMsg = streamPort.prepare())
+                    {
                         // Send the RGB image over yarp
                         var handle = GCHandle.Alloc(videoFrameRgbBuffer.Bytes, GCHandleType.Pinned);
-                        msg.setExternal(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), (uint)frame.Image.Width, (uint)frame.Image.Height);
-                        videoPort.write();
-                        videoPort.waitForWrite();
+                        streamMsg.setExternal(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), (uint)frame.Image.Width, (uint)frame.Image.Height);
+                        streamPort.write();
+                        streamPort.waitForWrite();
                         handle.Free();
                     }
+
+
+                    // Sending array of faces to "/camera/faces"
+                    using (var bottle = facesPort.prepare())
+                    {
+                        bottle.clear();
+                        bottle.add(Value.makeInt64(new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds()));
+                        bottle.add(Value.makeInt(frame.Faces.Count));
+
+                        foreach (var face in frame.Faces)
+                        {
+                            var clonedFace = (System.Drawing.Image)frame.Image.Clone(face.Bounds, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                            var ms = new MemoryStream();
+                            clonedFace.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                            var bytes = ms.ToArray();
+
+                            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+
+                            bottle.add(Value.makeInt(face.Bounds.Width));
+                            bottle.add(Value.makeInt(face.Bounds.Height));
+                            bottle.add(Value.makeBlob (new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), bytes.Length ));
+                        }
+
+                        facesPort.write();
+                        facesPort.waitForWrite();
+                    }
                 };
+
+
 
                 // Stream the audio samples to a yarp port
                 audioPort.open("/microphone");
@@ -146,7 +184,7 @@ namespace SmartApp.HAL
                 };
 
                 // Run the sample application
-                RunDemoApplication(videoSource, audioSource);
+                runApplication (videoSource, audioSource);
             }
 
             // Explicitely shutdown NLog and Yarp
