@@ -1,0 +1,11 @@
+<emotionml version="1.0" xmlns="http://www.w3.org/2009/10/emotionml" 
+category-set="http://www.w3.org/TR/emotion-voc/xml#everyday-categories">
+
+<emotion><category name="content"/>
+You probably cannot catch the train, but at least you have some time to chat with me.
+</emotion>
+    
+
+</emotionml>
+
+
