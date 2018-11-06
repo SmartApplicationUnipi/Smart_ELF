@@ -19,23 +19,23 @@ This implemetation is in typescript and offers a typescript library and a websoc
 
 
 
-*src/kb.ts* is exporting the typescript module of the knowledge base implementation.
+**src/kb.ts** is exporting the typescript module of the knowledge base implementation.
 
-*src/matcher.ts* contains the implementation of the jsonObject matching
+**src/matcher.ts** contains the implementation of the jsonObject matching.
 
-*src/server.ts* is the websocket server that can run on node.js.
+**src/server.ts** is the websocket server that can run on node.js.
 
-*test/* contains some function call to test the kb.ts and matcher.ts code
+**test/** contains some function call to test the *kb.ts* and *matcher.ts* code.
 
-*package.json* is the npm configuration file
+**package.json** is the npm configuration file.
 
-*tsconfig.json* is the typescript compiler configuration file
+**tsconfig.json** is the typescript compiler configuration file.
 
-*tslint.json* is a configuration for a typescript linter
+**tslint.json** is a configuration for a typescript linter.
 
-*kb.py* is an ugly python3 bind to use the websocketAPI
+**kb.py** is an ugly python3 bind to use the websocketAPI
 
-*kbtest.py* is an ugly test for kb.py library
+**kbtest.py** is an ugly test for *kb.py* library
 
 ## HOW TO
 
@@ -56,7 +56,7 @@ The server awaits for messages in a json-rpc-like format
 ```
 { "method": MNAME, "params": { ... } }
 ```
-please refer [https://docs.google.com/document/d/1Cfxh3eiGwdGtffHhX_c1PB0b6AeNFIb_UyT_d-sOtrU](documentation file] and *kb.py* to a sample of usage.
+please refer [https://docs.google.com/document/d/1Cfxh3eiGwdGtffHhX_c1PB0b6AeNFIb_UyT_d-sOtrU](documentation file) and *kb.py* to a sample of usage.
 
 
 The file *kb.py* gives you a ugly bind in python3 that you can use to invoke kb methods via websocket.
@@ -67,4 +67,3 @@ Setting up python virtualenvironment for a local installation:
 2. create the virtualenvironment: `python3 -m virtualenv venv`
 3. activate the virtualenvironment: `source venv/bin/activate`
 4. install required packages: `pip install -r requirements.txt`
-
