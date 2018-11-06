@@ -26,10 +26,17 @@ This implemetation is in typescript and will export the interface via node.js
 The server accept connection on a websocket at `ws://localhost:5666`
 
 
-
 *kb.ts* is exporting the typescript module 
 
 The file *kb.py* gives you a ugly bind to this mechanism that you can use to invoke kb methods via websocket
+
+Setting up python virtualenvironment for a local installation
+
+1. install virtualenv module: `[sudo] pip install virtualenv`
+2. create the virtualenvironment: `python3 -m virtualenv venv`
+3. activate the virtualenvironment: `source venv/bin/activate`
+4. install required packages: `pip install -r requirements.txt`
+
 
 The websocket server is waiting for messages in a json-rpc-like format 
 ```
