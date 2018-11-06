@@ -22,7 +22,7 @@ wss.on('connection', (ws: WebSocket) => {
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length
-                    kb.addFact(j.params.idSource, j.params.infoSum, j.params.TTL, j.params.reli, j.params.revi, j.params.jsonFact);
+                    kb.addFact(j.params.idSource, j.params.infoSum, j.params.TTL, j.params.reliability, j.params.revisioning, j.params.jsonFact);
                     reply = 'done';
                     break;
                 case 'removeFact':

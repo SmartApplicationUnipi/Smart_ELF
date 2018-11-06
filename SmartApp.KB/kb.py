@@ -17,7 +17,7 @@ def register():
 
 def addFact(idSource: str, infoSum: str, TTL: int, reliability: int, revisioning: bool, jsonFact: map):
 	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "addFact", "params": {"idSource": idSource, "infoSum":infoSum, "TTL": TTL, "reli":reliability, "revi": revisioning, "jsonFact": jsonFact}}
+	req = {"method": "addFact", "params": {"idSource": idSource, "infoSum":infoSum, "TTL": TTL, "reliability":reliability, "revisioning": revisioning, "jsonFact": jsonFact}}
 	ws.send(json.dumps(req))
 	rep = ws.recv()
 	ws.close()
