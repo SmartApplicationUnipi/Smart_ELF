@@ -1,0 +1,22 @@
+[
+{
+	"intent" : "Prof.Meeting",
+	"template" : "You can meet with Professor [Professor] in her office on [Day] at [Daytime]"
+},
+{
+	"intent" : "Prof.Lecture",
+	"template" : "Professor [Professor] is giving classes of the [Lecture] course in room [Classroom] on [Day] at [Daytime]"
+},
+{
+	"intent" : "Lecture.Time",
+	"template" : "You can find the lecture of [Lecture] helded by professor [Professor] is at [Daytime]"
+},
+{
+	"intent" : "Lecture.Place",
+	"template" : "You can find the lecture of [Lecture] helded by professor [Professor] is in [Classroom]"
+},
+{
+	"intent" : "Joke",
+	"template" : "Here I have a joke for you: [joke]"
+}
+]
