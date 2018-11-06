@@ -1,4 +1,2 @@
-websocket
-threading
-json
+websocket-client
 typing
