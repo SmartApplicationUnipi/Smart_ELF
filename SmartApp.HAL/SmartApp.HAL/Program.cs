@@ -110,81 +110,15 @@ namespace SmartApp.HAL
 
             using (var videoSource = serviceProvider.GetRequiredService<IVideoSource>())
             using (var audioSource = serviceProvider.GetRequiredService<IAudioSource>())
-            using (var streamPort = new BufferedPortImageRgb())
-            using (var facesPort = new BufferedPortBottle())
-            using (var audioPort = new BufferedPortBottle())
-            using (var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480))
             {
-                // Stream the video frames to a yarp port
-                streamPort.open("/camera/stream");
-                facesPort.open("/camera/faces");
+                // Creating VideoManager instance
+                var videoManager = new VideoManager(videoSource);
 
-                videoSource.FrameReady += (_, frame) =>
-                {
-                    // Convert the incoming image which is BGR to RGB
-                    var bits = frame.Image.LockBits(new Rectangle(0, 0, frame.Image.Width, frame.Image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                    using (var videoFrameBgr = new Image<Bgr, byte>(frame.Image.Width, frame.Image.Height, bits.Stride, bits.Scan0))
-                        CvInvoke.CvtColor(videoFrameBgr, videoFrameRgbBuffer, ColorConversion.Bgr2Rgb);
-                    frame.Image.UnlockBits(bits);
-
-
-                    // Sending new the new frame to "/camera/stream"
-                    using (var streamMsg = streamPort.prepare())
-                    {
-                        // Send the RGB image over yarp
-                        var handle = GCHandle.Alloc(videoFrameRgbBuffer.Bytes, GCHandleType.Pinned);
-                        streamMsg.setExternal(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), (uint)frame.Image.Width, (uint)frame.Image.Height);
-                        streamPort.write();
-                        streamPort.waitForWrite();
-                        handle.Free();
-                    }
-
-
-                    // Sending array of faces to "/camera/faces"
-                    using (var bottle = facesPort.prepare())
-                    {
-                        bottle.clear();
-                        bottle.add(Value.makeInt64(new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds()));
-                        bottle.add(Value.makeInt(frame.Faces.Count));
-
-                        foreach (var face in frame.Faces)
-                        {
-                            var clonedFace = (System.Drawing.Image)frame.Image.Clone(face.Bounds, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-                            var ms = new MemoryStream();
-                            clonedFace.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                            var bytes = ms.ToArray();
-
-                            var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-
-                            bottle.add(Value.makeInt(face.Bounds.Width));
-                            bottle.add(Value.makeInt(face.Bounds.Height));
-                            bottle.add(Value.makeBlob (new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), bytes.Length ));
-                        }
-
-                        facesPort.write();
-                        facesPort.waitForWrite();
-                    }
-                };
-
-
-
-                // Stream the audio samples to a yarp port
-                audioPort.open("/microphone");
-                audioSource.SampleReady += (_, sample) =>
-                {
-                    using (var bottle = audioPort.prepare())
-                    {
-                        var handle = GCHandle.Alloc(sample.Data, GCHandleType.Pinned);
-                        bottle.clear();
-                        bottle.add(Value.makeBlob(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), sample.Data.Length));
-                        audioPort.write();
-                        audioPort.waitForWrite();
-                        handle.Free();
-                    }
-                };
+                // Creating AudioManager instance
+                var audioManager = new AudioManager(audioSource);
 
                 // Run the sample application
-                runApplication (videoSource, audioSource);
+                runApplication(videoSource, audioSource);
             }
 
             // Explicitely shutdown NLog and Yarp
