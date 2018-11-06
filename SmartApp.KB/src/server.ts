@@ -30,7 +30,7 @@ wss.on('connection', (ws: WebSocket) => {
                         reply = 'done';
                     }
                     break;
-                case 'query':
+                case 'queryBind':
                     const res = kb.queryBind(j.params.jsonReq);
                     reply = JSON.stringify(res);
                     break;
