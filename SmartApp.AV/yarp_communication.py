@@ -1,5 +1,3 @@
-import sys
-sys.path.insert(0, './YARP_py')
 import yarp
 
 yarp.Network.init()
@@ -10,7 +8,7 @@ def receiver(AV_port_name, HW_port_name, queue):
     framework, appending all the message received to a queue.
     :param AV_port_name: name of the receiver port
     :param HW_port_name: name of the sender port
-    :param queue: blocking
+    :param queue: process shared queue
     """
 
     # Create and connect the port
@@ -32,3 +30,4 @@ def receiver(AV_port_name, HW_port_name, queue):
 
     # Cleanup
     AV_port.close()
+

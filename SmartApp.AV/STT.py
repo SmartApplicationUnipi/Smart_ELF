@@ -5,9 +5,9 @@ from multiprocessing import Queue, Process
 
 def speech_to_text(queue):
     """
-
-    :param queue:
-    :return:
+    This function implements the translation from speech to text with online and offline services, and compute the
+    emotion related to the speech
+    :param queue: process shared queue
     """
     r = sr.Recognizer()
     while(True):
@@ -34,6 +34,8 @@ def speech_to_text(queue):
         except sr.RequestError as e:
             print("Could not request results from Google Speech Recognition service; {0}".format(e))
             req_err = True
+
+        #TODO add emoction from speech
 
         if req_err == True:
             print("Insert into KB only Sphinx result")
