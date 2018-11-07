@@ -1,11 +1,13 @@
 import * as matcher from './matcher';
+import { checkRules } from './inferenceStub';
 
 type SubCallback = (r: object[]) => any;
 
-const databaseFact = new Map<number, object>();
-const databaseRule = new Array();
+export const databaseFact = new Map<number, object>();
+export const databaseRule = new Array();
 const subscriptions = new Map<object, SubCallback[]>();
 const registered = new Array();
+registered.push('inference');
 
 let uniqueid = 0;
 
@@ -29,6 +31,7 @@ export function addFact(idSource: string, infoSum: string, TTL: number, reliabil
     };
     databaseFact.set(dataobject._id, dataobject);
     checkSubscriptions(dataobject);
+    checkRules(jsonFact);
     return true;
 }
 
