@@ -1,6 +1,7 @@
 import cv2
 import sys
-import online as API
+from online import FacePlusPlus as API
+import kb_client as kb
 
 def demo(myAPI):
     myAPI.setAttr()
@@ -11,6 +12,7 @@ def demo(myAPI):
         ret, frame = video_capture.read() #np.array
 
         frame = cv2.resize(frame, (320, 240))
+        kb.addFact("vision", "cose a caso", 1, 90, False, {"prova":"vison_prova"})
 
         key = cv2.waitKey(100) & 0xFF
         if  key == ord('q'):

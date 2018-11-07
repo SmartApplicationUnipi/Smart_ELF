@@ -5,7 +5,7 @@ import threading
 
 from websocket import create_connection
 port = 5666
-host = 'ws://localhost'
+host = 'ws://131.114.3.213'
 
 def register():
 	ws = create_connection("%s:%s"%(host,port))
@@ -55,7 +55,7 @@ class subscrThr (threading.Thread):
 		threading.Thread.__init__(self)
 		self.callback = callback
 		self.ws = ws
-	   
+
 	def run(self):
 		try:
 			while(1):

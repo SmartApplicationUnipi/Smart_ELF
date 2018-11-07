@@ -1,4 +1,4 @@
-from .SDK import Facepp_Client
+from online.SDK.face_client import Facepp_Client
 import os
 import cv2
 
@@ -45,7 +45,6 @@ class FacePlusPlus():
         else:
             #all attributes
             self.client.setAttr("all")
-
 
 
 def drawRectFace(image, jsonResult):
