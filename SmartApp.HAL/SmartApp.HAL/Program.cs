@@ -27,6 +27,9 @@ namespace SmartApp.HAL
             services.AddSingleton<IVideoManager, VideoManager>();
             services.AddSingleton<IAudioManager, AudioManager>();
 
+            // User interface
+            services.AddTransient<IUserInterface, WinFormsUI>();
+
             // Configure generic logging services
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
             services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
@@ -41,58 +44,6 @@ namespace SmartApp.HAL
             NLog.LogManager.LoadConfiguration("nlog.config");
 
             return serviceProvider;
-        }
-
-        private static void RunApplication(IVideoSource videoSource, IAudioSource audioSource)
-        {
-            // Create a simple form with just a button and an image
-            var form = new Form()
-            {
-                Text = "SmartApp",
-                ClientSize = new Size(640, 480),
-                StartPosition = FormStartPosition.CenterScreen,
-                MinimizeBox = false,
-                MaximizeBox = false,
-                FormBorderStyle = FormBorderStyle.FixedSingle
-            };
-
-            // Image to render the video
-            var buffer = new Bitmap(640, 480, PixelFormat.Format24bppRgb);
-            var image = new PictureBox()
-            {
-                Size = new Size(640, 480),
-                Location = new Point(0, 0),
-                Image = buffer
-            };
-            form.Controls.Add(image);
-
-            videoSource.Start();
-            audioSource.Start();
-
-            // Draw the rectangles for the faces on the bitmap and show it on the screen
-            videoSource.FrameReady += (_, frame) => {
-                using (var g = Graphics.FromImage(buffer))
-                using (var pen = new Pen(Color.Red, 3f))
-                {
-                    g.Clear(Color.White);
-
-                    foreach (var face in frame.Faces)
-                    {
-                        // Bounds : X, Y, Width, Height
-                        var frameFace = (System.Drawing.Image) frame.Image.Clone(face.Bounds, System.Drawing.Imaging.PixelFormat.DontCare);
-                        g.DrawImage(frameFace, face.Bounds);
-                        g.DrawRectangle(pen, face.Bounds);
-                    }
-                }
-
-                image.Invoke((Action)(() => {
-                    image.Refresh();
-                }));
-            };
-
-            // Show the form and block
-            Application.EnableVisualStyles();
-            form.ShowDialog();
         }
 
         public static void Main(string[] args)
@@ -113,7 +64,7 @@ namespace SmartApp.HAL
                 audioManager.Start();
 
                 // Run the sample application
-                RunApplication(videoSource, audioSource);
+                serviceProvider.GetRequiredService<IUserInterface>().Run();
             }
 
             // Explicitely shutdown NLog and Yarp

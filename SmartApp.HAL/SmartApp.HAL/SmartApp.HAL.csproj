@@ -123,6 +123,7 @@
     <Compile Include="Implementation\AudioManager.cs" />
     <Compile Include="Implementation\LocalCameraSource.cs" />
     <Compile Include="Implementation\LocalMicrophoneSource.cs" />
+    <Compile Include="Implementation\WinFormsUI.cs" />
     <Compile Include="Model\AudioSample.cs" />
     <Compile Include="Model\Face.cs" />
     <Compile Include="Model\VideoFrame.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IAudioManager.cs" />
     <Compile Include="Services\IAudioSource.cs" />
+    <Compile Include="Services\IUserInterface.cs" />
     <Compile Include="Services\IVideoManager.cs" />
     <Compile Include="Services\IVideoSource.cs" />
     <Compile Include="Implementation\VideoManager.cs" />
