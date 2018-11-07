@@ -1,6 +1,8 @@
 import cv2
 import sys
-from online import FacePlusPlus as API
+from online import FacePlusPlus as online
+from offline import offline_interface as offline
+
 import kb_client as kb
 
 def demo(myAPI):
@@ -29,4 +31,5 @@ def demo(myAPI):
     cv2.destroyAllWindows()
 
 
-demo(API.FacePlusPlus())
+# demo(online.FacePlusPlus())
+demo(offline.FaceOffDetect())

@@ -29,7 +29,7 @@ class FacePlusPlus():
         print(r)
         return frame
 
-    def setAttr(self, attributes=None):
+    def setAttr(self, attributes = None):
         """
             set attribute to be returned in the response
             for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
