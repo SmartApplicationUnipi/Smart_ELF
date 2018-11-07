@@ -12,7 +12,7 @@ cam = cv.VideoCapture(0)
 while True:
 	retval, frame = cam.read()
 	
-	model.predict_frame(image=frame)
+	print(model.predict_frame(image=frame))
 
 	cv.imshow('cam', frame)
 	cv.waitKey(1) & 0xFF == ord('q')
