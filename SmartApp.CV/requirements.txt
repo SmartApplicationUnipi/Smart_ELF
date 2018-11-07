@@ -1,0 +1,5 @@
+opencv_python==3.4.3.18
+simplejson==3.16.0
+numpy==1.15.1
+future==0.16.0
+requests==2.20.0
