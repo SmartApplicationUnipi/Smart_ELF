@@ -39,6 +39,14 @@ def queryBind(jsonReq: map):
 	ws.close()
 	return rep
 
+def queryFact(jsonReq: map):
+	ws = create_connection("%s:%s"%(host,port))
+	req = {"method": "queryFact", "params": {"jsonReq": jsonReq}}
+	ws.send(json.dumps(req))
+	rep = json.loads(ws.recv())
+	ws.close()
+	return rep
+
 def removeFact(idSource: str, jsonReq: map):
 	ws = create_connection("%s:%s"%(host,port))
 	req = {"method": "removeFact", "params": {"idSource": idSource, "jsonReq": jsonReq}}

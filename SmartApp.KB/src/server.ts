@@ -43,13 +43,18 @@ wss.on('connection', (ws: WebSocket) => {
                     const res = kb.queryBind(j.params.jsonReq);
                     reply = JSON.stringify(res);
                     break;
+                case 'queryFact':
+                    const res = kb.queryFact(j.params.jsonReq);
+                    reply = JSON.stringify(res);
+                    break;
                 case 'subscribe':
                     // tslint:disable-next-line:max-line-length
                     const callback = (r: any) => {
-                        try { ws.send(JSON.stringify(r));
+                        try {
+                            ws.send(JSON.stringify(r));
                         } catch (e) { console.log(e); }
-                    } ;
-                    if (kb.subscribe(j.params.idSource, j.params.jsonReq, callback )) {
+                    };
+                    if (kb.subscribe(j.params.idSource, j.params.jsonReq, callback)) {
                         reply = 'done';
                     }
                     break;
