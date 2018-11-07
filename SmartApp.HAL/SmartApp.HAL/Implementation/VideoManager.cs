@@ -14,26 +14,31 @@ using System.Windows.Forms;
 using System.IO;
 
 
-namespace SmartApp.HAL
+namespace SmartApp.HAL.Implementation
 {
-    class VideoManager
+    internal class VideoManager : IVideoManager
     {
-        private BufferedPortImageRgb streamPort;
-        private BufferedPortBottle facesPort;
-        private Image<Rgb, byte> videoFrameRgbBuffer;
+        private readonly IVideoSource _source;
+        private readonly ILogger<VideoManager> _logger;
 
-        public VideoManager (Services.IVideoSource source)
+        public VideoManager(IVideoSource source, ILogger<VideoManager> logger)
         {
-            streamPort = new BufferedPortImageRgb();
-            facesPort = new BufferedPortBottle();
-            videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480);
+            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public void Start()
+        {
+            var streamPort = new BufferedPortImageRgb();
+            var facesPort = new BufferedPortBottle();
+            var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480);
            
             
             // Stream the video frames to a yarp port
             streamPort.open("/camera/stream");
             facesPort.open("/camera/faces");
 
-            source.FrameReady += (_, frame) =>
+            _source.FrameReady += (_, frame) =>
             {
                 // Convert the incoming image which is BGR to RGB
                 var bits = frame.Image.LockBits(new Rectangle(0, 0, frame.Image.Width, frame.Image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);

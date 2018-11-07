@@ -120,7 +120,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioManager.cs" />
+    <Compile Include="Implementation\AudioManager.cs" />
     <Compile Include="Implementation\LocalCameraSource.cs" />
     <Compile Include="Implementation\LocalMicrophoneSource.cs" />
     <Compile Include="Model\AudioSample.cs" />
@@ -128,9 +128,11 @@
     <Compile Include="Model\VideoFrame.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IAudioManager.cs" />
     <Compile Include="Services\IAudioSource.cs" />
+    <Compile Include="Services\IVideoManager.cs" />
     <Compile Include="Services\IVideoSource.cs" />
-    <Compile Include="VideoManager.cs" />
+    <Compile Include="Implementation\VideoManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

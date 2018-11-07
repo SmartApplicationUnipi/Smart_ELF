@@ -24,6 +24,8 @@ namespace SmartApp.HAL
             // Audio/Video sources
             services.AddSingleton<IAudioSource, LocalMicrophoneSource>();
             services.AddSingleton<IVideoSource, LocalCameraSource>();
+            services.AddSingleton<IVideoManager, VideoManager>();
+            services.AddSingleton<IAudioManager, AudioManager>();
 
             // Configure generic logging services
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
@@ -41,11 +43,7 @@ namespace SmartApp.HAL
             return serviceProvider;
         }
 
-
-
-
-
-        private static void runApplication (IVideoSource videoSource, IAudioSource audioSource)
+        private static void RunApplication(IVideoSource videoSource, IAudioSource audioSource)
         {
             // Create a simple form with just a button and an image
             var form = new Form()
@@ -97,10 +95,6 @@ namespace SmartApp.HAL
             form.ShowDialog();
         }
 
-
-
-
-
         public static void Main(string[] args)
         {
             var serviceProvider = BuildDIContainer();
@@ -111,14 +105,15 @@ namespace SmartApp.HAL
             using (var videoSource = serviceProvider.GetRequiredService<IVideoSource>())
             using (var audioSource = serviceProvider.GetRequiredService<IAudioSource>())
             {
-                // Creating VideoManager instance
-                var videoManager = new VideoManager(videoSource);
+                // Start the audio and video managers
+                var videoManager = serviceProvider.GetRequiredService<IVideoManager>();
+                var audioManager = serviceProvider.GetRequiredService<IAudioManager>();
 
-                // Creating AudioManager instance
-                var audioManager = new AudioManager(audioSource);
+                videoManager.Start();
+                audioManager.Start();
 
                 // Run the sample application
-                runApplication(videoSource, audioSource);
+                RunApplication(videoSource, audioSource);
             }
 
             // Explicitely shutdown NLog and Yarp
