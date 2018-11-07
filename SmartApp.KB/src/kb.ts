@@ -1,15 +1,16 @@
-import * as matcher from './matcher';
 import { checkRules } from './inferenceStub';
+import * as matcher from './matcher';
 
 type SubCallback = (r: object[]) => any;
 
 export const databaseFact = new Map<number, object>();
-export const databaseRule = new Array();
+export const databaseRule = new Map<number, object>();
 const subscriptions = new Map<object, SubCallback[]>();
 const registered = new Array();
 registered.push('inference');
 
-let uniqueid = 0;
+let uniqueFactId = 0;
+let uniqueRuleId = 0;
 
 export function register() {
     const newid = 'proto' + (register.length + 1).toString();
@@ -22,7 +23,7 @@ export function addFact(idSource: string, infoSum: string, TTL: number, reliabil
     if (!registered.includes(idSource)) { return false; }
     const dataobject = {
         _data: jsonFact,
-        _id: uniqueid_gen(),
+        _id: uniqueFactId_gen(),
         _infoSum: infoSum,
         _reliability: reliability,
         _revisioning: revisioning,
@@ -84,13 +85,36 @@ export function removeFact(idSource: string, jreq: object): boolean {
     return true;
 }
 
+export function addRule(idSource: string, ruleSum: string, jsonRule: any) {
+    // controllo se la regola è valida
+    if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) { return -1; }
+    if (!registered.includes(idSource)) { return -1; }
+    const dataobject = {
+        _data: jsonRule,
+        _id: uniqueRuleId_gen(),
+        _ruleSum: ruleSum,
+        _source: idSource,
+    };
+    databaseRule.set(dataobject._id, dataobject);
+    return dataobject._id;
+}
+
+export function removeRule(idSource: string, idRule: number) {
+    if (!registered.includes(idSource)) { return false; }
+    databaseRule.delete(idRule);
+    return true;
+}
 // TODO: implement these functions!
-// function addRule(idSource:string, ruleSum:string, jsonRule) {}
 // function removeRule(jreq: object) {}
 
-function uniqueid_gen() {
-    uniqueid++;
-    return uniqueid;
+function uniqueFactId_gen() {
+    uniqueFactId++;
+    return uniqueFactId;
+}
+
+function uniqueRuleId_gen() {
+    uniqueRuleId++;
+    return uniqueRuleId;
 }
 
 function checkSubscriptions(obj: object) {

@@ -3,18 +3,21 @@ import { addFact, databaseFact  } from './kb';
 import { findMatchesBind, findMatchesBind2, isPlaceholder} from './matcher';
 
 const databaseRule = [
-    { body: [{subject: '$prof' , relation: 'teaches', object: '$course'  },
+    { _data:
+        { body: [{subject: '$prof' , relation: 'teaches', object: '$course'  },
            {subject: '$course', relation: 'is in room',  object: '$room'}],
-      head: { subject: '$prof', relation: 'is in', object: '$room'},
+        head: { subject: '$prof', relation: 'is in', object: '$room'}, }
     },
-    { body: [ { emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
-      head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n'}},
+    { _data:
+        { body: [ { emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
+          head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n'}},
+        },
     },
 ];
 
 export function checkRules(fact: object) {
     for (const rule of databaseRule) {
-        checkRule(rule.head, rule.body, fact);
+        checkRule(rule._data.head, rule._data.body, fact);
     }
 }
 
