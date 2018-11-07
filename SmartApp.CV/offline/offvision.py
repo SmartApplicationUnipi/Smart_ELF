@@ -51,11 +51,17 @@ while True:
         # update face descriptor
         people[match_id] = face_desc
 
+        # adjust rectangle
+        rrect = {'top': max(rect.top(), 0),
+                'bottom': min(rect.bottom(), frame.shape[0]),
+                'left': max(rect.left(), 0),
+                'right': min(rect.right(), frame.shape[1])}
+        
         # predict emotion
-        emotion = emotion_model.predict_frame(frame[rect.top():rect.bottom(), rect.left():rect.right()])
+        emotion = emotion_model.predict_frame(frame[rrect['top']:rrect['bottom'], rrect['left']:rrect['right']])
         
         # add to detected dictionary
-        detected_people[match_id] = {'rect': rect, 'emo': emotion}
+        detected_people[match_id] = {'rect': rrect, 'emo': emotion}
     
     # this should go to the "presence" module
     print(detected_people)
@@ -64,8 +70,8 @@ while True:
     if SHOW_FRAME_WINDOW:
         for match_id, desc in detected_people.items():
             rect = desc['rect']
-            cv2.rectangle(frame, (rect.left(), rect.top()), (rect.right(), rect.bottom()), (0, 255, 0))
-            cv2.putText(frame, match_id, (rect.left(), rect.top()), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
+            cv2.rectangle(frame, (rect['left'], rect['top']), (rect['right'], rect['bottom']), (0, 255, 0))
+            cv2.putText(frame, match_id, (rect['left'], rect['top']), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
         cv2.imshow('cam', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
