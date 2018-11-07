@@ -30,6 +30,15 @@ wss.on('connection', (ws: WebSocket) => {
                         reply = 'done';
                     }
                     break;
+                case 'addRule':
+                    const r = kb.addRule(j.params.idSource, j.params.ruleSum, j.params.jsonRule);
+                    reply = r.toString();
+                    break;
+                case 'removeRule':
+                    if (kb.removeRule(j.params.idSource, j.params.idRule)) {
+                        reply = 'done';
+                    }
+                    break;
                 case 'queryBind':
                     const res = kb.queryBind(j.params.jsonReq);
                     reply = JSON.stringify(res);
