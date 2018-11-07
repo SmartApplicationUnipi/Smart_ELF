@@ -1,4 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using NAudio.Wave;
+using System;
+using System.IO;
+using System.Runtime.InteropServices;
 
 
 namespace SmartApp.HAL
@@ -7,19 +10,35 @@ namespace SmartApp.HAL
     {
         public AudioManager (Services.IAudioSource source)
         {
-            using (var audioPort = new BufferedPortBottle())
+            var audioSamplesPort = new BufferedPortBottle();
             {
                 // Stream the audio samples to a yarp port
-                audioPort.open("/microphone");
+                audioSamplesPort.open("/microphone/samples");
                 source.SampleReady += (_, sample) =>
                 {
-                    using (var bottle = audioPort.prepare())
+                    byte[] byteWav;
+                    using (var memoryStream = new MemoryStream())
+                    using (WaveFileWriter writer = new WaveFileWriter(memoryStream, sample.WaveFormat))
                     {
-                        var handle = GCHandle.Alloc(sample.Data, GCHandleType.Pinned);
+                        writer.Write(sample.Data, 0, sample.Data.Length);
+                        byteWav = memoryStream.ToArray();
+                        //TEST SU FILE
+                        String now = DateTime.Now.ToString("HH mm ss");
+                        String filename = "C:\\Users\\AleB\\Desktop\\Audiotest\\second" + now + ".wav";
+                        File.WriteAllBytes(filename, byteWav);
+                        //
+                    }
+
+                    using (var bottle = audioSamplesPort.prepare())
+                    {
+                       
+                        var handle = GCHandle.Alloc(byteWav, GCHandleType.Pinned);
                         bottle.clear();
-                        bottle.add(Value.makeBlob(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), sample.Data.Length));
-                        audioPort.write();
-                        audioPort.waitForWrite();
+                        bottle.addInt64(new DateTimeOffset(sample.Timestamp).ToUnixTimeSeconds());
+                        bottle.add(Value.makeBlob(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), byteWav.Length));
+                        audioSamplesPort.write();
+                        audioSamplesPort.waitForWrite();
+
                         handle.Free();
                     }
                 };

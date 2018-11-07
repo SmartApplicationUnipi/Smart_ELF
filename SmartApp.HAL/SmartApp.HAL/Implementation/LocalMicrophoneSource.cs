@@ -19,6 +19,7 @@ namespace SmartApp.HAL.Implementation
         private readonly WaveInEvent _waveIn = new WaveInEvent();
         private readonly byte[] _waveBuffer;
         private int _waveBufferPosition = 0;
+        private DateTime _startRecordTime;
 
         public LocalMicrophoneSource(ILogger<LocalMicrophoneSource> logger)
         {
@@ -45,7 +46,7 @@ namespace SmartApp.HAL.Implementation
             {
                 // Publish the current buffer as a complete sample
                 PublishBuffer();
-
+                _startRecordTime = DateTime.Now;
                 // Reset the buffer and put the new data inside
                 Array.Copy(e.Buffer, _waveBuffer, e.BytesRecorded);
                 _waveBufferPosition = e.BytesRecorded;
@@ -67,8 +68,17 @@ namespace SmartApp.HAL.Implementation
         private void PublishBuffer()
         {
             // Publish a new complete sample
-            _logger.LogTrace("New audio sample.");
-            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, _waveBuffer));
+            _logger.LogTrace("New audio sample with WaveFormat: " + _waveIn.WaveFormat.ToString());
+            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, _waveBuffer, _waveIn.WaveFormat));
+            //TEST SU FILE
+            String now = DateTime.Now.ToString("HH mm ss");
+            String filename = "C:\\Users\\AleB\\Desktop\\Audiotest\\" + now + ".wav";
+            using (WaveFileWriter writer = new WaveFileWriter(filename, _waveIn.WaveFormat))
+            {
+                writer.Write(_waveBuffer, 0, _waveBuffer.Length);
+            }
+            //
+
         }
 
         public event EventHandler<AudioSample> SampleReady;
@@ -76,6 +86,7 @@ namespace SmartApp.HAL.Implementation
         public void Start()
         {
             _waveIn.StartRecording();
+            _startRecordTime = DateTime.Now;
             _logger.LogInformation("Recording started.");
         }
 
