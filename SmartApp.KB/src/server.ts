@@ -40,12 +40,12 @@ wss.on('connection', (ws: WebSocket) => {
                     }
                     break;
                 case 'queryBind':
-                    const res = kb.queryBind(j.params.jsonReq);
-                    reply = JSON.stringify(res);
+                    const rBind = kb.queryBind(j.params.jsonReq);
+                    reply = JSON.stringify(rBind);
                     break;
                 case 'queryFact':
-                    const res = kb.queryFact(j.params.jsonReq);
-                    reply = JSON.stringify(res);
+                    const rFact = kb.queryFact(j.params.jsonReq);
+                    reply = JSON.stringify(rFact);
                     break;
                 case 'subscribe':
                     // tslint:disable-next-line:max-line-length
