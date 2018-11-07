@@ -31,7 +31,7 @@ namespace SmartApp.HAL.Implementation
                     using (var memoryStream = new MemoryStream())
                     using (WaveFileWriter writer = new WaveFileWriter(memoryStream, sample.WaveFormat))
                     {
-                        writer.Write(sample.Data, 0, sample.Data.Length);
+                        writer.Write(sample.Data, 0, sample.BufferLenght);
                         byteWav = memoryStream.ToArray();
                         //TEST SU FILE
                         //String now = DateTime.Now.ToString("HH mm ss");

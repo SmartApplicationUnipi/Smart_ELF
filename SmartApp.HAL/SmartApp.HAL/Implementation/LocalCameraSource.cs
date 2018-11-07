@@ -22,7 +22,6 @@ namespace SmartApp.HAL.Implementation
         private readonly ILogger<LocalCameraSource> _logger;
 
         private readonly VideoCapture _capture = new VideoCapture();
-        private readonly Mat _frame = new Mat();
         private readonly CascadeClassifier _faceDetector = new CascadeClassifier("OpenCV/haarcascade_frontalface_default.xml");
 
         public LocalCameraSource(ILogger<LocalCameraSource> logger)
@@ -36,11 +35,12 @@ namespace SmartApp.HAL.Implementation
 
         private void OnFrameGrabbed(object sender, EventArgs e)
         {
-            // Retrive the frame from the camera
-            _capture.Retrieve(_frame);
-
             using (UMat ugray = new UMat())
+            using (Mat _frame = new Mat())
             {
+                // Retrive the frame from the camera
+                _capture.Retrieve(_frame);
+
                 // Convert to grayscale
                 CvInvoke.CvtColor(_frame, ugray, ColorConversion.Bgr2Gray);
 
@@ -87,7 +87,6 @@ namespace SmartApp.HAL.Implementation
             // Stop the capture and release all the resources
             Stop();
             _capture.Dispose();
-            _frame.Dispose();
             _faceDetector.Dispose();
         }
     }
