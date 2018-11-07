@@ -1,5 +1,6 @@
-from kb import *
+from kb import addFact
 import sys
+import json
 
 idSource = sys.argv[1]
 infoSum = sys.argv[2]
@@ -8,4 +9,4 @@ reliability = 100
 revisioning = True
 jsonFact = sys.argv[3]
 
-addFact(idSource, infoSum, 1, 100, True, jsonFact)
+print(addFact(idSource, infoSum, 1, 100, True, json.loads(jsonFact)))

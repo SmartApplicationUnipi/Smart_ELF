@@ -1,5 +1,6 @@
-import * from kb
+from kb import queryFact
 import sys
+import json
 
-print(queryFact(sys.argv[1]))
+print(queryFact(json.loads(sys.argv[1])))
 
