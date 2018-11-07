@@ -1,5 +1,4 @@
-from EmoPy.src.fermodel import FERModel
-from pkg_resources import resource_filename
+from emopy import FERModel
 import cv2 as cv
 
 # these are all the emotions but there are pretrained models only for subsets
