@@ -5,27 +5,39 @@ import sys
 
 sys.path.insert(0, '../SmartApp.KB/')
 
-from kb import *
-from KB_hook import read_from_ELF, write_to_ELF
-from user_emotion import extract_emotion
+import kb
+from tte import extract_emotion
+from constants import TAG_USER_TRANSCRIPT, TAG_USER_EMOTION
 
-#READ FROM KB
-TAG_USER_TRANSCRIPT = "text_f_audio" # user query transcript
-TAG_ANSWER = "ERASMUS_TODO" # nlp answer to provide AFTER addition of emotions
+global myID
 
-# WRITE TO ELF
-TAG_COLORED_ANSWER = "ENLP_EMOTIVE_ANSWER" # answer to provide with added emotion
-TAG_USER_EMOTION = "ENLP_USER_EMOTION" # our guess for user emotion
-TAG_ELF_EMOTION = "ENLP_ELF_EMOTION" # our guess for elf internal status
+def read_from_KB(pattern):
+	"""
+    Read a tuple from the KB
+    """
+	# not needed here
+    return
 
-def get_user_emotion(param):
+def write_to_KB(fact):
+    """
+    Post a tuple to the KB
+    """
+    kb.addFact(myID, TAG_USER_EMOTION, 1, 100, False, fact)
+    return
 
-    sentence = read_from_ELF(param)
+def callback(param):
+	"""
+	Assess user emotion fro a given sentence
+	"""
+    sentence = param[0]["$input"]
     fact = extract_emotion(sentence)
-    write_to_ELF(fact)
+    write_to_KB(fact)
 
 def __main__():
-    myID = register()
-    subscribe(myID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, get_user_emotion) #from the 'text to speech' module
+	"""
+	Registers the module and subscribe to transcripts tuples
+	"""
+    myID = kb.register()
+    kb.subscribe(myID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, callback) #from the 'text to speech' module
 
 __main__()

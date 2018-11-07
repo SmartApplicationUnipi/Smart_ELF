@@ -1,6 +1,5 @@
 import paralleldots
-from coords import EMOTIONS_COORD
-from KB_hook import read_from_ELF, write_to_ELF
+from constants import EMOTIONS_COORD, TAG_USER_EMOTION
 
 key='bCXPeaKixa4dsKkMgX6s0kXott7oXTaZDBJ9XrxaZI8'
 
@@ -59,31 +58,18 @@ def analyze_sentence(sentence):
     '''
     Return softmaxed probability vector of sentence emotions.
     '''
-
     paralleldots.set_api_key(key)
     result = paralleldots.emotion(sentence)
-
+	
     return result['emotion']['probabilities']
 
-def get_user_emotion(param):
-
-    sentence = read_from_ELF(param)
+def extract_emotion(sentence):
     vector = analyze_sentence(sentence)
-    print(vector)
     point = vector_to_circumplex(vector)
-    print("point is:", point)
     fact = {
-        "TIME_STAMP": 2,
+        "TIME_STAMP": 2, #fix this!!!!!
         "VALENCE": point[0],
         "AROUSAL": point[1],
-        "TAG": "ENLP_USER_EMOTION"
+        "TAG": TAG_USER_EMOTION
     }
-    write_to_ELF(fact)
-
-
-# tests
-"""print(emotion_to_circumplex('Happy'))
-print(emotion_to_circumplex('dkla'))
-
-print(vector_to_circumplex({'Happy':0.1, 'Sad': 0.4, 'Bored':0.5}))
-vector_to_circumplex({'Happy':0.1, 'Sad': 0.4, 'da':0.5})"""
+    return fact
