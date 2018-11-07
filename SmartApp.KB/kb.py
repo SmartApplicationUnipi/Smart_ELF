@@ -23,6 +23,14 @@ def addFact(idSource: str, infoSum: str, TTL: int, reliability: int, revisioning
 	ws.close()
 	return rep
 
+def addRule(idSource: str, ruleSum: str, jsonRule: map):
+        ws = create_connection("%s:%s"%(host,port))
+        req = {"method": "addRule", "params": {"idSource": idSource, "ruleSum": ruleSum, "jsonRule": jsonRule}}
+        ws.send(json.dumps(req))
+        rep = ws.recv()
+        ws.close()
+        return rep        
+
 def queryBind(jsonReq: map):
 	ws = create_connection("%s:%s"%(host,port))
 	req = {"method": "queryBind", "params": {"jsonReq": jsonReq}}
@@ -34,6 +42,14 @@ def queryBind(jsonReq: map):
 def removeFact(idSource: str, jsonReq: map):
 	ws = create_connection("%s:%s"%(host,port))
 	req = {"method": "removeFact", "params": {"idSource": idSource, "jsonReq": jsonReq}}
+	ws.send(json.dumps(req))
+	rep = ws.recv()
+	ws.close()
+	return rep
+
+def removeRule(idSource: str, idRule: int):
+	ws = create_connection("%s:%s"%(host,port))
+	req = {"method": "removeRule", "params": {"idSource": idSource, "idRule": idRule}}
 	ws.send(json.dumps(req))
 	rep = ws.recv()
 	ws.close()
