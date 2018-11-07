@@ -50,9 +50,6 @@ namespace SmartApp.HAL
         {
             var serviceProvider = BuildDIContainer();
 
-            // Initialize Yarp
-            Network.init();
-
             using (var videoSource = serviceProvider.GetRequiredService<IVideoSource>())
             using (var audioSource = serviceProvider.GetRequiredService<IAudioSource>())
             {
@@ -67,8 +64,7 @@ namespace SmartApp.HAL
                 serviceProvider.GetRequiredService<IUserInterface>().Run();
             }
 
-            // Explicitely shutdown NLog and Yarp
-            Network.fini();
+            // Explicitely shutdown NLog
             NLog.LogManager.Shutdown();
         }
     }

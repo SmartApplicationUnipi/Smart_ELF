@@ -40,6 +40,9 @@
     <Reference Include="Emgu.CV.World, Version=3.4.3.3016, Culture=neutral, PublicKeyToken=7281126722ab4438, processorArchitecture=MSIL">
       <HintPath>..\packages\EMGU.CV.3.4.3.3016\lib\net35\Emgu.CV.World.dll</HintPath>
     </Reference>
+    <Reference Include="Google.Protobuf, Version=3.6.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.6.1\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Extensions.Configuration, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Configuration.2.1.1\lib\netstandard2.0\Microsoft.Extensions.Configuration.dll</HintPath>
     </Reference>
@@ -120,6 +123,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Protobuf\CSharp\AudioPacket.cs">
+      <Link>Model\AudioPacket.cs</Link>
+    </Compile>
+    <Compile Include="..\Protobuf\CSharp\VideoPacket.cs">
+      <Link>Model\VideoPacket.cs</Link>
+    </Compile>
     <Compile Include="Implementation\AudioManager.cs" />
     <Compile Include="Implementation\LocalCameraSource.cs" />
     <Compile Include="Implementation\LocalMicrophoneSource.cs" />
@@ -147,12 +156,6 @@
     <Content Include="OpenCV\haarcascade_frontalface_default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\YarpBindings\YarpBindings.csproj">
-      <Project>{91e035cf-0f45-4fd3-8c50-ba5c5ec33317}</Project>
-      <Name>YarpBindings</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\EMGU.CV.3.4.3.3016\build\EMGU.CV.targets" Condition="Exists('..\packages\EMGU.CV.3.4.3.3016\build\EMGU.CV.targets')" />

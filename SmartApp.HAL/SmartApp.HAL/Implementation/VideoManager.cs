@@ -12,7 +12,8 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
-
+using SmartApp.HAL.Model;
+using Google.Protobuf;
 
 namespace SmartApp.HAL.Implementation
 {
@@ -29,60 +30,30 @@ namespace SmartApp.HAL.Implementation
 
         public void Start()
         {
-            var streamPort = new BufferedPortImageRgb();
-            var facesPort = new BufferedPortBottle();
-            var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480);
-           
-            
-            // Stream the video frames to a yarp port
-            streamPort.open("/camera/stream");
-            facesPort.open("/camera/faces");
-
             _source.FrameReady += (_, frame) =>
             {
+                var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480);
+
                 // Convert the incoming image which is BGR to RGB
                 var bits = frame.Image.LockBits(new Rectangle(0, 0, frame.Image.Width, frame.Image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
                 using (var videoFrameBgr = new Image<Bgr, byte>(frame.Image.Width, frame.Image.Height, bits.Stride, bits.Scan0))
                     CvInvoke.CvtColor(videoFrameBgr, videoFrameRgbBuffer, ColorConversion.Bgr2Rgb);
                 frame.Image.UnlockBits(bits);
 
-
-                // Sending new the new frame to "/camera/stream"
-                using (var streamMsg = streamPort.prepare())
+                // Prepare the packet to send over the wire
+                var packet = new VideoPacket() {
+                    Timestamp = (ulong) DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                };
+                foreach (var face in frame.Faces)
                 {
-                    // Send the RGB image over yarp
-                    var handle = GCHandle.Alloc(videoFrameRgbBuffer.Bytes, GCHandleType.Pinned);
-                    streamMsg.setExternal(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), (uint)frame.Image.Width, (uint)frame.Image.Height);
-                    streamPort.write();
-                    streamPort.waitForWrite();
-                    handle.Free();
+                    var faceBits = frame.Image.LockBits(face.Bounds, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                    var bytes = new byte[faceBits.Stride * faceBits.Height];
+                    Marshal.Copy(faceBits.Scan0, bytes, 0, bytes.Length);
+                    frame.Image.UnlockBits(faceBits);
+
+                    packet.Faces.Add(ByteString.CopyFrom(bytes));
                 }
 
-
-                // Sending array of faces to "/camera/faces"
-                using (var bottle = facesPort.prepare())
-                {
-                    bottle.clear();
-                    bottle.add(Value.makeInt64(new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds()));
-                    bottle.add(Value.makeInt(frame.Faces.Count));
-
-                    foreach (var face in frame.Faces)
-                    {
-                        var clonedFace = (System.Drawing.Image)frame.Image.Clone(face.Bounds, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-                        var ms = new MemoryStream();
-                        clonedFace.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                        var bytes = ms.ToArray();
-
-                        var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-
-                        bottle.add(Value.makeInt(face.Bounds.Width));
-                        bottle.add(Value.makeInt(face.Bounds.Height));
-                        bottle.add(Value.makeBlob(new SWIGTYPE_p_void(handle.AddrOfPinnedObject(), true), bytes.Length));
-                    }
-
-                    facesPort.write();
-                    facesPort.waitForWrite();
-                }
             };
         }
     }
