@@ -4,6 +4,8 @@ import dlib
 import numpy as np
 import uuid
 
+from emopy import FERModel
+
 # load configuration parameters
 from conf import *
 
@@ -12,8 +14,9 @@ cam = cv2.VideoCapture(0)
 
 # load pre-trained models
 detector = dlib.get_frontal_face_detector()
-shape_pred = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
-face_rec = dlib.face_recognition_model_v1('dlib_face_recognition_resnet_model_v1.dat')
+shape_pred = dlib.shape_predictor('models/shape_predictor_68_face_landmarks.dat')
+face_rec = dlib.face_recognition_model_v1('models/dlib_face_recognition_resnet_model_v1.dat')
+emotion_model = FERModel(TARGET_EMOTIONS, verbose=True)
 
 # dictionary containing id->face associations
 people = {}
@@ -47,18 +50,28 @@ while True:
         
         # update face descriptor
         people[match_id] = face_desc
+
+        # adjust rectangle
+        rrect = {'top': max(rect.top(), 0),
+                'bottom': min(rect.bottom(), frame.shape[0]),
+                'left': max(rect.left(), 0),
+                'right': min(rect.right(), frame.shape[1])}
+        
+        # predict emotion
+        emotion = emotion_model.predict_frame(frame[rrect['top']:rrect['bottom'], rrect['left']:rrect['right']])
         
         # add to detected dictionary
-        detected_people[match_id] = rect
+        detected_people[match_id] = {'rect': rrect, 'emo': emotion}
     
     # this should go to the "presence" module
     print(detected_people)
 
     # visualize matches in this frame, if requested
     if SHOW_FRAME_WINDOW:
-        for match_id, rect in detected_people.items():
-            cv2.rectangle(frame, (rect.left(), rect.top()), (rect.right(), rect.bottom()), (0, 255, 0))
-            cv2.putText(frame, match_id, (rect.left(), rect.top()), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
+        for match_id, desc in detected_people.items():
+            rect = desc['rect']
+            cv2.rectangle(frame, (rect['left'], rect['top']), (rect['right'], rect['bottom']), (0, 255, 0))
+            cv2.putText(frame, match_id, (rect['left'], rect['top']), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255))
         cv2.imshow('cam', frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
