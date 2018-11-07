@@ -63,18 +63,27 @@ def analyze_sentence(sentence):
     paralleldots.set_api_key(key)
     result = paralleldots.emotion(sentence)
 
-    return result
+    return result['emotion']['probabilities']
 
-def callback():
-    sentence = read_from_ELF()
+def get_user_emotion(param):
+
+    sentence = read_from_ELF(param)
     vector = analyze_sentence(sentence)
+    print(vector)
     point = vector_to_circumplex(vector)
-    write_to_ELF(point)
+    print("point is:", point)
+    fact = {
+        "TIME_STAMP": 2,
+        "VALENCE": point[0],
+        "AROUSAL": point[1],
+        "TAG": "ENLP_USER_EMOTION"
+    }
+    write_to_ELF(fact)
 
 
 # tests
-print(emotion_to_circumplex('Happy'))
+"""print(emotion_to_circumplex('Happy'))
 print(emotion_to_circumplex('dkla'))
 
 print(vector_to_circumplex({'Happy':0.1, 'Sad': 0.4, 'Bored':0.5}))
-vector_to_circumplex({'Happy':0.1, 'Sad': 0.4, 'da':0.5})
+vector_to_circumplex({'Happy':0.1, 'Sad': 0.4, 'da':0.5})"""

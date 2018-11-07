@@ -11,10 +11,10 @@ def valence_2_emo(valence, arousal):
     """
     emotion_coord = (valence, arousal)
     distancies = []
-    print('Current point(valence, arousal) -> ' + str(emotion_coord)) #debug
+    #print('Current point(valence, arousal) -> ' + str(emotion_coord)) #debug
     for emotion in EMOTIONS_COORD:
         distance = _distance(EMOTIONS_COORD[emotion], emotion_coord)
-        print('emotion:' + emotion + '\tdistance: ' + str(distance))
+        #print('emotion:' + emotion + '\tdistance: ' + str(distance))
         curr_dist = (distance, emotion)
         distancies.append(curr_dist)
     print(min(distancies)[1]) #debug
@@ -32,9 +32,9 @@ def _distance(a,b):
 
 
 def put_imperative(text,language):
-	"""
-	Changes verbs to imperative form, typical of angry sentences
-	"""
+    """
+    Changes verbs to imperative form, typical of angry sentences
+    """
 
     if (language == "it"):
         imperative_text = text#do something in Italian
@@ -48,9 +48,9 @@ def put_imperative(text,language):
     return "uff..." + imperative_text + "!"
 
 def add_sarcasm(text,language): #TODO: add random negations or "probably" here or there
-	"""
-	Adds some ironic nonsense typical of sarcasm
-	"""
+    """
+    Adds some ironic nonsense typical of sarcasm
+    """
     if (language == "it"):
         sarcastic_text = text#do something in Italian
     elif (language == "en"):
@@ -63,10 +63,10 @@ def add_sarcasm(text,language): #TODO: add random negations or "probably" here o
     return sarcastic_text
 
 def color_answer(answer, emotion, language="en"):
-	"""
-	Changes the text of the answer with the emotion described by
-	the given valence and arousal
-	"""
+    """
+    Changes the text of the answer with the emotion described by
+    the given valence and arousal
+    """
 
     if(emotion=='sad' or emotion=='bored'):
         colored_answer = "ok..." + answer
@@ -90,9 +90,9 @@ def color_answer(answer, emotion, language="en"):
     return colored_answer
 
 def emotion_from_ELF():
-	"""
-	Assess the emotion that ELF needs to use given its state (tuples)
-	"""
+    """
+    Assess the emotion that ELF needs to use given its state (tuples)
+    """
     #read tuples from ELF state, use DBI to assess valence and arousal values that ELF needs to answer
     import random #remove bipolarism!!!!!
     valence = random.uniform(-1.0, 1.0) #remove bipolarism!!!!!
@@ -101,32 +101,40 @@ def emotion_from_ELF():
     return valence_2_emo(valence, arousal)
 
 def correct_grammar(answer):
-	"""
-	Hard-coded corrections for first-test templates
-	"""
+    """
+    Hard-coded corrections for first-test templates
+    """
     answer = answer.replace("helded","held")
     answer = answer.replace("is in","in")
     answer = answer.replace("is at","at")
 
     return answer
 
-def prepareanswer():#to be used as callback
-	"""
-	Offers the service of eTT, consisting in manipulating an answer
-	to the user in order to transform it with respect to some emotion
-	extrapolated by ELF internal state (tuples)
-	"""
-    answer, language = read_from_ELF()
+def prepare_answer(param):#to be used as callback
+    """
+    Offers the service of eTT, consisting in manipulating an answer
+    to the user in order to transform it with respect to some emotion
+    extrapolated by ELF internal state (tuples)
+    """
+    #print(param)
+    answer = read_from_ELF(param)
     emotion = emotion_from_ELF()
     answer = answer.lower() #go lowercase
     answer = correct_grammar(answer) #just for first templates, remove later!!!!
-    colored_answer = color_answer(answer, emotion, language)
-    write_to_ELF(colored_answer,emotion)
-    return
+    colored_answer = color_answer(answer, emotion, "en")
+    fact = {
+        "TIME_STAMP": 3,
+        "text": colored_answer,
+        "emotion": emotion,
+        "TAG": "ENLP_EMOTIVE_ANSWER"
+    }
+    write_to_ELF(fact)
 
-def __main__():
+
+
+"""def __main__():
     point_1 = (0.9, 1)
     print("TESTING DISTANCIES")
     valence_2_emo(point_1[0],point_1[1])
 
-__main__()
+__main__()"""
