@@ -7,7 +7,7 @@ sys.path.insert(0, '../SmartApp.KB/')
 
 import kb
 from tte import extract_emotion
-from constants import TAG_USER_TRANSCRIPT, TAG_USER_EMOTION
+from interface_tags import TAG_USER_TRANSCRIPT, TAG_USER_EMOTION
 
 def read_from_KB(pattern):
     """

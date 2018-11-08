@@ -7,7 +7,7 @@ sys.path.insert(0, '../SmartApp.KB/')
 
 import kb
 from ett import prepare_answer
-from constants import TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
+from interface_tags import TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
 
 def read_from_KB(pattern):
     """

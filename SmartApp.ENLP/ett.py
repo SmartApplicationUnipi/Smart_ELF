@@ -1,34 +1,5 @@
-from math import sqrt
-from constants import EMOTIONS_COORD, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
-
-def valence_2_emo(valence, arousal):
-    """
-    This functions convert valence and arousal values to the most probable
-    emotion of the 6 emotions model
-    To do this we first calculate the distance between all 6 emotions point,then
-    we return the minimum, that is the nearest emotion
-    """
-    emotion_coord = (valence, arousal)
-    distancies = []
-    #print('Current point(valence, arousal) -> ' + str(emotion_coord)) #debug
-    for emotion in EMOTIONS_COORD:
-        distance = _distance(EMOTIONS_COORD[emotion], emotion_coord)
-        #print('emotion:' + emotion + '\tdistance: ' + str(distance))
-        curr_dist = (distance, emotion)
-        distancies.append(curr_dist)
-    print(min(distancies)[1]) #debug
-    return min(distancies)[1]
-
-def _distance(a,b):
-    """
-    Calculate distance between a and b.
-    a and b are tuple with two coordinates.
-    Pitagora to the rescue.
-    """
-    x_dist = a[0] - b[0]
-    y_dist = a[1] - b[1]
-    return sqrt(x_dist**2 + y_dist**2)
-
+from interface_tags import TAG_ELF_EMOTION, TAG_COLORED_ANSWER
+from emotion_conversion import circumplex_to_emotion
 
 def put_imperative(text,language):
     """
@@ -97,7 +68,7 @@ def emotion_from_ELF():
     valence = random.uniform(-1.0, 1.0) #remove bipolarism!!!!!
     arousal = random.uniform(-1.0, 1.0) #remove bipolarism!!!!!
 
-    return valence_2_emo(valence, arousal), valence, arousal
+    return circumplex_to_emotion(valence, arousal), valence, arousal
 
 def correct_grammar(answer):
     """
@@ -109,7 +80,7 @@ def correct_grammar(answer):
 
     return answer
 
-def prepare_answer(answer):#to be used as callback
+def prepare_answer(answer):
     """
     Offers the service of eTT, consisting in manipulating an answer
     to the user in order to transform it with respect to some emotion
