@@ -6,4 +6,4 @@ import json
 idSource = sys.argv[1]
 jsonReq = sys.argv[2]
 # TODO: maybe add some type checking
-print(kb.removeFact(idSource, json.loads(jsonReq)))
+print(removeFact(idSource, json.loads(jsonReq)))
