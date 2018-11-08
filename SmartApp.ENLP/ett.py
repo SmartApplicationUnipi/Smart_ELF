@@ -1,4 +1,4 @@
-import math
+from math import sqrt
 from constants import EMOTIONS_COORD, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
 
 def valence_2_emo(valence, arousal):
@@ -27,7 +27,7 @@ def _distance(a,b):
     """
     x_dist = a[0] - b[0]
     y_dist = a[1] - b[1]
-    return math.sqrt(x_dist**2 + y_dist**2)
+    return sqrt(x_dist**2 + y_dist**2)
 
 
 def put_imperative(text,language):
@@ -97,7 +97,7 @@ def emotion_from_ELF():
     valence = random.uniform(-1.0, 1.0) #remove bipolarism!!!!!
     arousal = random.uniform(-1.0, 1.0) #remove bipolarism!!!!!
 
-    return valence_2_emo(valence, arousal)
+    return valence_2_emo(valence, arousal), valence, arousal
 
 def correct_grammar(answer):
     """
@@ -115,19 +115,21 @@ def prepare_answer(answer):#to be used as callback
     to the user in order to transform it with respect to some emotion
     extrapolated by ELF internal state (tuples)
     """
-    emotion = emotion_from_ELF()
+    emotion, valence, arousal = emotion_from_ELF()
     answer = answer.lower() #go lowercase
     answer = correct_grammar(answer) #just for first templates, remove later!!!!
     colored_answer = color_answer(answer, emotion, "en")
     answer_fact = {
         "TIME_STAMP": 3, #fix this!!!!!
         "text": colored_answer,
-        "emotion": emotion,
+        "VALENCE": valence,
+        "AROUSAL" : arousal,
         "TAG": TAG_COLORED_ANSWER
     }
     emotion_fact = {
         "TIME_STAMP": 3, #fix this!!!!!
-        "emotion": emotion,
+        "VALENCE" : valence,
+        "AROUSAL" : arousal,
         "TAG": TAG_ELF_EMOTION
     }
     return answer_fact, emotion_fact
