@@ -125,7 +125,7 @@ def prepare_answer(answer):#to be used as callback
         "emotion": emotion,
         "TAG": TAG_COLORED_ANSWER
     }
-	emotion_fact = {
+    emotion_fact = {
         "TIME_STAMP": 3, #fix this!!!!!
         "emotion": emotion,
         "TAG": TAG_ELF_EMOTION
