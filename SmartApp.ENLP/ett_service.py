@@ -10,10 +10,10 @@ from ett import prepare_answer
 from constants import TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
 
 def read_from_KB(pattern):
-	"""
+    """
     Read a tuple from the KB
     """
-	# needed to query kb for tuples on which assess ELF's emotion for the answer
+    # needed to query kb for tuples on which assess ELF's emotion for the answer
     return
 
 def write_to_KB(fact, tag):
@@ -36,8 +36,8 @@ def callback(param):
 
 
 def __main__():
-	global myID
-    myID = register()
-    subscribe(myID, {TAG_ANSWER: "$input"}, callback) # from the 'gnlp' module
+    global myID
+    myID = kb.register()
+    kb.subscribe(myID, {TAG_ANSWER: "$input"}, callback) # from the 'gnlp' module
 
 __main__()
