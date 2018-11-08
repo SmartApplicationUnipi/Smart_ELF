@@ -24,24 +24,29 @@ namespace SmartApp.HAL.Model {
     static VideoPacketReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFWaWRlb1BhY2tldC5wcm90byIvCgtWaWRlb1BhY2tldBIRCgl0aW1lc3Rh",
-            "bXAYASABKAQSDQoFZmFjZXMYAiADKAxCFaoCElNtYXJ0QXBwLkhBTC5Nb2Rl",
-            "bGIGcHJvdG8z"));
+            "ChFWaWRlb1BhY2tldC5wcm90byKOAQoSVmlkZW9Db250cm9sUGFja2V0EkMK",
+            "EGZyYW1lcmF0ZVJlcXVlc3QYASABKAsyJy5WaWRlb0NvbnRyb2xQYWNrZXQu",
+            "U2V0RnJhbWVyYXRlUmVxdWVzdEgAGigKE1NldEZyYW1lcmF0ZVJlcXVlc3QS",
+            "EQoJZnJhbWVyYXRlGAEgASgNQgkKB1JlcXVlc3QibAoPVmlkZW9EYXRhUGFj",
+            "a2V0EhEKCXRpbWVzdGFtcBgBIAEoBBIkCgVmYWNlcxgCIAMoCzIVLlZpZGVv",
+            "RGF0YVBhY2tldC5GYWNlGiAKBEZhY2USCgoCaWQYASABKAMSDAoEZGF0YRgC",
+            "IAEoDEIVqgISU21hcnRBcHAuSEFMLk1vZGVsYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoPacket), global::SmartApp.HAL.Model.VideoPacket.Parser, new[]{ "Timestamp", "Faces" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoControlPacket), global::SmartApp.HAL.Model.VideoControlPacket.Parser, new[]{ "FramerateRequest" }, new[]{ "Request" }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest), global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest.Parser, new[]{ "Framerate" }, null, null, null)}),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket), global::SmartApp.HAL.Model.VideoDataPacket.Parser, new[]{ "Timestamp", "Faces" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket.Types.Face), global::SmartApp.HAL.Model.VideoDataPacket.Types.Face.Parser, new[]{ "Id", "Data" }, null, null, null)})
           }));
     }
     #endregion
 
   }
   #region Messages
-  public sealed partial class VideoPacket : pb::IMessage<VideoPacket> {
-    private static readonly pb::MessageParser<VideoPacket> _parser = new pb::MessageParser<VideoPacket>(() => new VideoPacket());
+  public sealed partial class VideoControlPacket : pb::IMessage<VideoControlPacket> {
+    private static readonly pb::MessageParser<VideoControlPacket> _parser = new pb::MessageParser<VideoControlPacket>(() => new VideoControlPacket());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<VideoPacket> Parser { get { return _parser; } }
+    public static pb::MessageParser<VideoControlPacket> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -54,22 +59,323 @@ namespace SmartApp.HAL.Model {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public VideoPacket() {
+    public VideoControlPacket() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public VideoPacket(VideoPacket other) : this() {
+    public VideoControlPacket(VideoControlPacket other) : this() {
+      switch (other.RequestCase) {
+        case RequestOneofCase.FramerateRequest:
+          FramerateRequest = other.FramerateRequest.Clone();
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public VideoControlPacket Clone() {
+      return new VideoControlPacket(this);
+    }
+
+    /// <summary>Field number for the "framerateRequest" field.</summary>
+    public const int FramerateRequestFieldNumber = 1;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest FramerateRequest {
+      get { return requestCase_ == RequestOneofCase.FramerateRequest ? (global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest) request_ : null; }
+      set {
+        request_ = value;
+        requestCase_ = value == null ? RequestOneofCase.None : RequestOneofCase.FramerateRequest;
+      }
+    }
+
+    private object request_;
+    /// <summary>Enum of possible cases for the "Request" oneof.</summary>
+    public enum RequestOneofCase {
+      None = 0,
+      FramerateRequest = 1,
+    }
+    private RequestOneofCase requestCase_ = RequestOneofCase.None;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public RequestOneofCase RequestCase {
+      get { return requestCase_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void ClearRequest() {
+      requestCase_ = RequestOneofCase.None;
+      request_ = null;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as VideoControlPacket);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(VideoControlPacket other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(FramerateRequest, other.FramerateRequest)) return false;
+      if (RequestCase != other.RequestCase) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (requestCase_ == RequestOneofCase.FramerateRequest) hash ^= FramerateRequest.GetHashCode();
+      hash ^= (int) requestCase_;
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (requestCase_ == RequestOneofCase.FramerateRequest) {
+        output.WriteRawTag(10);
+        output.WriteMessage(FramerateRequest);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (requestCase_ == RequestOneofCase.FramerateRequest) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(FramerateRequest);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(VideoControlPacket other) {
+      if (other == null) {
+        return;
+      }
+      switch (other.RequestCase) {
+        case RequestOneofCase.FramerateRequest:
+          if (FramerateRequest == null) {
+            FramerateRequest = new global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest();
+          }
+          FramerateRequest.MergeFrom(other.FramerateRequest);
+          break;
+      }
+
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest subBuilder = new global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest();
+            if (requestCase_ == RequestOneofCase.FramerateRequest) {
+              subBuilder.MergeFrom(FramerateRequest);
+            }
+            input.ReadMessage(subBuilder);
+            FramerateRequest = subBuilder;
+            break;
+          }
+        }
+      }
+    }
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the VideoControlPacket message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static partial class Types {
+      public sealed partial class SetFramerateRequest : pb::IMessage<SetFramerateRequest> {
+        private static readonly pb::MessageParser<SetFramerateRequest> _parser = new pb::MessageParser<SetFramerateRequest>(() => new SetFramerateRequest());
+        private pb::UnknownFieldSet _unknownFields;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public static pb::MessageParser<SetFramerateRequest> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::SmartApp.HAL.Model.VideoControlPacket.Descriptor.NestedTypes[0]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public SetFramerateRequest() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public SetFramerateRequest(SetFramerateRequest other) : this() {
+          framerate_ = other.framerate_;
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public SetFramerateRequest Clone() {
+          return new SetFramerateRequest(this);
+        }
+
+        /// <summary>Field number for the "framerate" field.</summary>
+        public const int FramerateFieldNumber = 1;
+        private uint framerate_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public uint Framerate {
+          get { return framerate_; }
+          set {
+            framerate_ = value;
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override bool Equals(object other) {
+          return Equals(other as SetFramerateRequest);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public bool Equals(SetFramerateRequest other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if (Framerate != other.Framerate) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override int GetHashCode() {
+          int hash = 1;
+          if (Framerate != 0) hash ^= Framerate.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void WriteTo(pb::CodedOutputStream output) {
+          if (Framerate != 0) {
+            output.WriteRawTag(8);
+            output.WriteUInt32(Framerate);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public int CalculateSize() {
+          int size = 0;
+          if (Framerate != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Framerate);
+          }
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void MergeFrom(SetFramerateRequest other) {
+          if (other == null) {
+            return;
+          }
+          if (other.Framerate != 0) {
+            Framerate = other.Framerate;
+          }
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void MergeFrom(pb::CodedInputStream input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+            switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 8: {
+                Framerate = input.ReadUInt32();
+                break;
+              }
+            }
+          }
+        }
+
+      }
+
+    }
+    #endregion
+
+  }
+
+  public sealed partial class VideoDataPacket : pb::IMessage<VideoDataPacket> {
+    private static readonly pb::MessageParser<VideoDataPacket> _parser = new pb::MessageParser<VideoDataPacket>(() => new VideoDataPacket());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<VideoDataPacket> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::SmartApp.HAL.Model.VideoPacketReflection.Descriptor.MessageTypes[1]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public VideoDataPacket() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public VideoDataPacket(VideoDataPacket other) : this() {
       timestamp_ = other.timestamp_;
       faces_ = other.faces_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public VideoPacket Clone() {
-      return new VideoPacket(this);
+    public VideoDataPacket Clone() {
+      return new VideoDataPacket(this);
     }
 
     /// <summary>Field number for the "timestamp" field.</summary>
@@ -85,21 +391,21 @@ namespace SmartApp.HAL.Model {
 
     /// <summary>Field number for the "faces" field.</summary>
     public const int FacesFieldNumber = 2;
-    private static readonly pb::FieldCodec<pb::ByteString> _repeated_faces_codec
-        = pb::FieldCodec.ForBytes(18);
-    private readonly pbc::RepeatedField<pb::ByteString> faces_ = new pbc::RepeatedField<pb::ByteString>();
+    private static readonly pb::FieldCodec<global::SmartApp.HAL.Model.VideoDataPacket.Types.Face> _repeated_faces_codec
+        = pb::FieldCodec.ForMessage(18, global::SmartApp.HAL.Model.VideoDataPacket.Types.Face.Parser);
+    private readonly pbc::RepeatedField<global::SmartApp.HAL.Model.VideoDataPacket.Types.Face> faces_ = new pbc::RepeatedField<global::SmartApp.HAL.Model.VideoDataPacket.Types.Face>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<pb::ByteString> Faces {
+    public pbc::RepeatedField<global::SmartApp.HAL.Model.VideoDataPacket.Types.Face> Faces {
       get { return faces_; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as VideoPacket);
+      return Equals(other as VideoDataPacket);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(VideoPacket other) {
+    public bool Equals(VideoDataPacket other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -153,7 +459,7 @@ namespace SmartApp.HAL.Model {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(VideoPacket other) {
+    public void MergeFrom(VideoDataPacket other) {
       if (other == null) {
         return;
       }
@@ -183,6 +489,170 @@ namespace SmartApp.HAL.Model {
         }
       }
     }
+
+    #region Nested types
+    /// <summary>Container for nested types declared in the VideoDataPacket message type.</summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static partial class Types {
+      public sealed partial class Face : pb::IMessage<Face> {
+        private static readonly pb::MessageParser<Face> _parser = new pb::MessageParser<Face>(() => new Face());
+        private pb::UnknownFieldSet _unknownFields;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public static pb::MessageParser<Face> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::SmartApp.HAL.Model.VideoDataPacket.Descriptor.NestedTypes[0]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public Face() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public Face(Face other) : this() {
+          id_ = other.id_;
+          data_ = other.data_;
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public Face Clone() {
+          return new Face(this);
+        }
+
+        /// <summary>Field number for the "id" field.</summary>
+        public const int IdFieldNumber = 1;
+        private long id_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public long Id {
+          get { return id_; }
+          set {
+            id_ = value;
+          }
+        }
+
+        /// <summary>Field number for the "data" field.</summary>
+        public const int DataFieldNumber = 2;
+        private pb::ByteString data_ = pb::ByteString.Empty;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public pb::ByteString Data {
+          get { return data_; }
+          set {
+            data_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override bool Equals(object other) {
+          return Equals(other as Face);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public bool Equals(Face other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if (Id != other.Id) return false;
+          if (Data != other.Data) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override int GetHashCode() {
+          int hash = 1;
+          if (Id != 0L) hash ^= Id.GetHashCode();
+          if (Data.Length != 0) hash ^= Data.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void WriteTo(pb::CodedOutputStream output) {
+          if (Id != 0L) {
+            output.WriteRawTag(8);
+            output.WriteInt64(Id);
+          }
+          if (Data.Length != 0) {
+            output.WriteRawTag(18);
+            output.WriteBytes(Data);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public int CalculateSize() {
+          int size = 0;
+          if (Id != 0L) {
+            size += 1 + pb::CodedOutputStream.ComputeInt64Size(Id);
+          }
+          if (Data.Length != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeBytesSize(Data);
+          }
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void MergeFrom(Face other) {
+          if (other == null) {
+            return;
+          }
+          if (other.Id != 0L) {
+            Id = other.Id;
+          }
+          if (other.Data.Length != 0) {
+            Data = other.Data;
+          }
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void MergeFrom(pb::CodedInputStream input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+            switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 8: {
+                Id = input.ReadInt64();
+                break;
+              }
+              case 18: {
+                Data = input.ReadBytes();
+                break;
+              }
+            }
+          }
+        }
+
+      }
+
+    }
+    #endregion
 
   }
 

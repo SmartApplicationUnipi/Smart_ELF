@@ -2,7 +2,23 @@ syntax = "proto3";
 
 option csharp_namespace = "SmartApp.HAL.Model";
 
-message VideoPacket {
+message VideoControlPacket {
+	
+	message SetFramerateRequest {
+		uint32 framerate = 1;
+	}
+
+	oneof Request {
+		SetFramerateRequest framerateRequest = 1;
+	}
+}
+
+message VideoDataPacket {
+	message Face {
+		int64 id = 1;
+		bytes data = 2;
+	}
+
 	uint64 timestamp = 1;
-	repeated bytes faces = 2;
+	repeated Face faces = 2;
 }

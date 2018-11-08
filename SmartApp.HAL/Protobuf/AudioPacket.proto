@@ -2,13 +2,10 @@ syntax = "proto3";
 
 option csharp_namespace = "SmartApp.HAL.Model";
 
-message AudioPacket {
+message AudioDataPacket {
 	uint64 timestamp = 1;
-	bytes wavData = 2;
-
-	// uint32 sampleRate = 2;
-	// uint32 channels = 3;
-	// uint32 bitsPerSample = 4;
-	// bytes data = 5;
-
+	uint32 sampleRate = 2;
+	uint32 channels = 3;
+	uint32 bitsPerSample = 4;
+	bytes data = 5;
 }

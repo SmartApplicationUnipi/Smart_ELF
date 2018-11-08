@@ -24,24 +24,25 @@ namespace SmartApp.HAL.Model {
     static AudioPacketReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChFBdWRpb1BhY2tldC5wcm90byIxCgtBdWRpb1BhY2tldBIRCgl0aW1lc3Rh",
-            "bXAYASABKAQSDwoHd2F2RGF0YRgCIAEoDEIVqgISU21hcnRBcHAuSEFMLk1v",
-            "ZGVsYgZwcm90bzM="));
+            "ChFBdWRpb1BhY2tldC5wcm90byJvCg9BdWRpb0RhdGFQYWNrZXQSEQoJdGlt",
+            "ZXN0YW1wGAEgASgEEhIKCnNhbXBsZVJhdGUYAiABKA0SEAoIY2hhbm5lbHMY",
+            "AyABKA0SFQoNYml0c1BlclNhbXBsZRgEIAEoDRIMCgRkYXRhGAUgASgMQhWq",
+            "AhJTbWFydEFwcC5IQUwuTW9kZWxiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.AudioPacket), global::SmartApp.HAL.Model.AudioPacket.Parser, new[]{ "Timestamp", "WavData" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.AudioDataPacket), global::SmartApp.HAL.Model.AudioDataPacket.Parser, new[]{ "Timestamp", "SampleRate", "Channels", "BitsPerSample", "Data" }, null, null, null)
           }));
     }
     #endregion
 
   }
   #region Messages
-  public sealed partial class AudioPacket : pb::IMessage<AudioPacket> {
-    private static readonly pb::MessageParser<AudioPacket> _parser = new pb::MessageParser<AudioPacket>(() => new AudioPacket());
+  public sealed partial class AudioDataPacket : pb::IMessage<AudioDataPacket> {
+    private static readonly pb::MessageParser<AudioDataPacket> _parser = new pb::MessageParser<AudioDataPacket>(() => new AudioDataPacket());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<AudioPacket> Parser { get { return _parser; } }
+    public static pb::MessageParser<AudioDataPacket> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -54,22 +55,25 @@ namespace SmartApp.HAL.Model {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public AudioPacket() {
+    public AudioDataPacket() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public AudioPacket(AudioPacket other) : this() {
+    public AudioDataPacket(AudioDataPacket other) : this() {
       timestamp_ = other.timestamp_;
-      wavData_ = other.wavData_;
+      sampleRate_ = other.sampleRate_;
+      channels_ = other.channels_;
+      bitsPerSample_ = other.bitsPerSample_;
+      data_ = other.data_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public AudioPacket Clone() {
-      return new AudioPacket(this);
+    public AudioDataPacket Clone() {
+      return new AudioDataPacket(this);
     }
 
     /// <summary>Field number for the "timestamp" field.</summary>
@@ -83,24 +87,57 @@ namespace SmartApp.HAL.Model {
       }
     }
 
-    /// <summary>Field number for the "wavData" field.</summary>
-    public const int WavDataFieldNumber = 2;
-    private pb::ByteString wavData_ = pb::ByteString.Empty;
+    /// <summary>Field number for the "sampleRate" field.</summary>
+    public const int SampleRateFieldNumber = 2;
+    private uint sampleRate_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pb::ByteString WavData {
-      get { return wavData_; }
+    public uint SampleRate {
+      get { return sampleRate_; }
       set {
-        wavData_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        sampleRate_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "channels" field.</summary>
+    public const int ChannelsFieldNumber = 3;
+    private uint channels_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public uint Channels {
+      get { return channels_; }
+      set {
+        channels_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "bitsPerSample" field.</summary>
+    public const int BitsPerSampleFieldNumber = 4;
+    private uint bitsPerSample_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public uint BitsPerSample {
+      get { return bitsPerSample_; }
+      set {
+        bitsPerSample_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "data" field.</summary>
+    public const int DataFieldNumber = 5;
+    private pb::ByteString data_ = pb::ByteString.Empty;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pb::ByteString Data {
+      get { return data_; }
+      set {
+        data_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as AudioPacket);
+      return Equals(other as AudioDataPacket);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(AudioPacket other) {
+    public bool Equals(AudioDataPacket other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -108,7 +145,10 @@ namespace SmartApp.HAL.Model {
         return true;
       }
       if (Timestamp != other.Timestamp) return false;
-      if (WavData != other.WavData) return false;
+      if (SampleRate != other.SampleRate) return false;
+      if (Channels != other.Channels) return false;
+      if (BitsPerSample != other.BitsPerSample) return false;
+      if (Data != other.Data) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -116,7 +156,10 @@ namespace SmartApp.HAL.Model {
     public override int GetHashCode() {
       int hash = 1;
       if (Timestamp != 0UL) hash ^= Timestamp.GetHashCode();
-      if (WavData.Length != 0) hash ^= WavData.GetHashCode();
+      if (SampleRate != 0) hash ^= SampleRate.GetHashCode();
+      if (Channels != 0) hash ^= Channels.GetHashCode();
+      if (BitsPerSample != 0) hash ^= BitsPerSample.GetHashCode();
+      if (Data.Length != 0) hash ^= Data.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -134,9 +177,21 @@ namespace SmartApp.HAL.Model {
         output.WriteRawTag(8);
         output.WriteUInt64(Timestamp);
       }
-      if (WavData.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteBytes(WavData);
+      if (SampleRate != 0) {
+        output.WriteRawTag(16);
+        output.WriteUInt32(SampleRate);
+      }
+      if (Channels != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(Channels);
+      }
+      if (BitsPerSample != 0) {
+        output.WriteRawTag(32);
+        output.WriteUInt32(BitsPerSample);
+      }
+      if (Data.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteBytes(Data);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -149,8 +204,17 @@ namespace SmartApp.HAL.Model {
       if (Timestamp != 0UL) {
         size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Timestamp);
       }
-      if (WavData.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeBytesSize(WavData);
+      if (SampleRate != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SampleRate);
+      }
+      if (Channels != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Channels);
+      }
+      if (BitsPerSample != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BitsPerSample);
+      }
+      if (Data.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeBytesSize(Data);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -159,15 +223,24 @@ namespace SmartApp.HAL.Model {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(AudioPacket other) {
+    public void MergeFrom(AudioDataPacket other) {
       if (other == null) {
         return;
       }
       if (other.Timestamp != 0UL) {
         Timestamp = other.Timestamp;
       }
-      if (other.WavData.Length != 0) {
-        WavData = other.WavData;
+      if (other.SampleRate != 0) {
+        SampleRate = other.SampleRate;
+      }
+      if (other.Channels != 0) {
+        Channels = other.Channels;
+      }
+      if (other.BitsPerSample != 0) {
+        BitsPerSample = other.BitsPerSample;
+      }
+      if (other.Data.Length != 0) {
+        Data = other.Data;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -184,8 +257,20 @@ namespace SmartApp.HAL.Model {
             Timestamp = input.ReadUInt64();
             break;
           }
-          case 18: {
-            WavData = input.ReadBytes();
+          case 16: {
+            SampleRate = input.ReadUInt32();
+            break;
+          }
+          case 24: {
+            Channels = input.ReadUInt32();
+            break;
+          }
+          case 32: {
+            BitsPerSample = input.ReadUInt32();
+            break;
+          }
+          case 42: {
+            Data = input.ReadBytes();
             break;
           }
         }
