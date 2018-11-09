@@ -1,5 +1,6 @@
 export function findMatchesBind(query: any, Dataset: any[]) {
     const matches = new Array();
+    console.log(sort(query["_data"]));
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
         const mb = matchBind(query, data, {});
@@ -90,6 +91,85 @@ function matchBind(q: any, d: any, initBinds: any): any {
         i++;
     }
     return {match, binds};
+}
+
+function sort(j: any) : object {
+    const keys = Object.keys(j);
+    let result = new Map<number, string>();
+    let counter = 0;
+    let stack = new Map<number, Array<any>>();
+
+    // idea is to put in different stacks with priorities
+    // all pairs that aren't (atom, atom).
+    // This code doesn't work because 'hasOwnProperty' always return false
+    // causing  all arrays to be reinitalized every time
+    // and the merge part is skipped
+
+    // I added a console.log(sort(..)) in findMatchesBind to test.
+    // (i'm trying on a local server to se logs)
+
+    // try with this query, so you can see the problem
+    // of reinitializing array with the array 0 (caused by "ob":{}, "ob2":{})
+    // ./query '{"ph":"$a", "ob":{}, "ob2":{}, "$a":"$a", "vaiprima":"oh si", "$lasss":{}, "last":"$nope"}'
+
+    // expected output should be:
+    // { 0 => 'vaiprima',
+    //   1 => 'ob',
+    //   2 => 'ob2',
+    //   3 => 'ph',
+    //   4 => 'last',
+    //   5 => '$lass',
+    //   6 => '$a'}
+
+    for (const k of keys) {
+        console.log('Examine key: ' + k);
+        if (isAtom(k)) {
+            if (isAtom(j[k])) {
+                result.set(counter, k);
+            } else if (isObject(j[k])) {
+                if (!stack.hasOwnProperty(0)) {
+                    stack.set(0, new Array());
+                }
+                stack.get(0).push(k);
+            } else if (isPlaceholder(j[k])) {
+                if (!stack.hasOwnProperty(1)) {
+                    stack.set(1, new Array());
+                }
+                stack.get(1).push(k);
+            }
+            counter += 1;
+        } else {
+            if (isAtom(j[k])) {
+                if (!stack.hasOwnProperty(2)) {
+                    stack.set(2, new Array());
+                }
+                stack.get(2).push(k);
+            } else if (isObject(j[k])) {
+                if (!stack.hasOwnProperty(3)) {
+                    stack.set(3, new Array());
+                }
+                stack.get(3).push(k);
+            } else if (isPlaceholder(j[k])) {
+                if (!stack.hasOwnProperty(4)) {
+                    stack.set(4, new Array());
+                }
+                stack.get(4).push(k);
+            }
+        }
+    }
+    console.log('STACK');
+    console.log(stack);
+    for (let i = 0; i <= 5; ++i) {
+        console.log(i))
+        console.log(stack.hasOwnProperty(i))
+        if (stack.hasOwnProperty(i)) {
+            for (const k of stack.get(i)) {
+                result.set(counter, k);
+                counter += 1;
+            }
+        }
+    }
+    return result;
 }
 
 export function isPlaceholder(v: any) {
