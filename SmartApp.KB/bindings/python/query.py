@@ -1,6 +1,6 @@
-from kb import queryFact
+from kb import queryBind
 import sys
 import json
 
-print(queryFact(json.loads(sys.argv[1])))
+print(queryBind(json.loads(sys.argv[1])))
 
