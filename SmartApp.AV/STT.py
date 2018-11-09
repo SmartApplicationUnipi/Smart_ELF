@@ -1,7 +1,7 @@
 import io
 import speech_recognition as sr
 from multiprocessing import Queue, Process
-
+from hashlib import md5
 
 def speech_to_text(queue):
     """
@@ -14,8 +14,8 @@ def speech_to_text(queue):
         # Data is a list with:
         #   - timestamp
         #   - string that represent the wav audio
-        data = queue.get()
-        raw_audio = io.BytesIO(data[1])
+        timestamp, raw_audio = queue.get()
+        raw_audio = io.BytesIO(raw_audio)
         audio = r.record(sr.AudioFile(raw_audio))
 
         try:
@@ -36,7 +36,7 @@ def speech_to_text(queue):
             req_err = True
 
         #TODO add emoction from speech
-
+        id = md5(timestamp.to_bytes(4, 'big')).hexdigest()
         if req_err == True:
             print("Insert into KB only Sphinx result")
             #TODO add to KB Sphinx result with timestamp in data[0]
