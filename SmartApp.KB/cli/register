@@ -1,5 +1,6 @@
 #!/bin/bash
-source ../venv/bin/activate
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-python ../bindings/python/register.py
+source $DIR/../venv/bin/activate
+python $DIR/../bindings/python/register.py
 deactivate
