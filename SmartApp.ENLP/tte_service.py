@@ -30,8 +30,10 @@ def callback(param):
     Assess user emotion fro a given sentence
     """
     sentence = param[0]["$input"]
+    print("Received ", sentence)
     fact = extract_emotion(sentence)
     write_to_KB(fact)
+    print("Written ", fact)
     return
 
 def __main__():
