@@ -30,17 +30,31 @@ wss.on('connection', (ws: WebSocket) => {
                         reply = 'done';
                     }
                     break;
+                case 'addRule':
+                    const r = kb.addRule(j.params.idSource, j.params.ruleSum, j.params.jsonRule);
+                    reply = r.toString();
+                    break;
+                case 'removeRule':
+                    if (kb.removeRule(j.params.idSource, j.params.idRule)) {
+                        reply = 'done';
+                    }
+                    break;
                 case 'queryBind':
-                    const res = kb.queryBind(j.params.jsonReq);
-                    reply = JSON.stringify(res);
+                    const rBind = kb.queryBind(j.params.jsonReq);
+                    reply = JSON.stringify(rBind);
+                    break;
+                case 'queryFact':
+                    const rFact = kb.queryFact(j.params.jsonReq);
+                    reply = JSON.stringify(rFact);
                     break;
                 case 'subscribe':
                     // tslint:disable-next-line:max-line-length
                     const callback = (r: any) => {
-                        try { ws.send(JSON.stringify(r));
+                        try {
+                            ws.send(JSON.stringify(r));
                         } catch (e) { console.log(e); }
-                    } ;
-                    if (kb.subscribe(j.params.idSource, j.params.jsonReq, callback )) {
+                    };
+                    if (kb.subscribe(j.params.idSource, j.params.jsonReq, callback)) {
                         reply = 'done';
                     }
                     break;
