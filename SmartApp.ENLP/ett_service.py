@@ -2,8 +2,9 @@
 This is the entry point of the eTT module
 """
 import sys
+from interface_tags import PATH_TO_KB_MODULE
 
-sys.path.insert(0, '../SmartApp.KB/')
+sys.path.insert(0, PATH_TO_KB_MODULE)
 
 import kb
 from ett import prepare_answer
