@@ -10,6 +10,7 @@ using Emgu.CV.CvEnum;
 using System.Drawing;
 using System.Linq;
 using Emgu.CV.Structure;
+using System.Timers;
 
 namespace SmartApp.HAL.Implementation
 {
@@ -20,6 +21,8 @@ namespace SmartApp.HAL.Implementation
     internal class LocalCameraSource : IVideoSource
     {
         private readonly ILogger<LocalCameraSource> _logger;
+        private readonly Timer _timer;
+        private int _framerate = 10; // fps
 
         private readonly VideoCapture _capture = new VideoCapture();
         private readonly CascadeClassifier _faceDetector = new CascadeClassifier("OpenCV/haarcascade_frontalface_default.xml");
@@ -29,20 +32,27 @@ namespace SmartApp.HAL.Implementation
             _logger = logger;
             _logger.LogInformation("Local camera source loaded.");
 
-            // Starts the video capture
-            _capture.ImageGrabbed += OnFrameGrabbed;
+            // Starts the timer
+            _timer = new Timer(1000.0 / _framerate) { AutoReset = true, Enabled = false };
+            _timer.Elapsed += OnTimerTick;
         }
 
-        private void OnFrameGrabbed(object sender, EventArgs e)
+        private void OnTimerTick(object sender, EventArgs e)
         {
             using (UMat ugray = new UMat())
-            using (Mat _frame = new Mat())
+            using (Mat frame = _capture.QueryFrame())
             {
-                // Retrive the frame from the camera
-                _capture.Retrieve(_frame);
+                if (frame == null)
+                {
+                    _logger.LogWarning("Frame not ready from camera. Maybe framerate is too high?");
+                    return;
+                }
+
+                // Resize the frame
+                CvInvoke.ResizeForFrame(frame, frame, new Size(640, 480), Inter.Cubic, scaleDownOnly: true);
 
                 // Convert to grayscale
-                CvInvoke.CvtColor(_frame, ugray, ColorConversion.Bgr2Gray);
+                CvInvoke.CvtColor(frame, ugray, ColorConversion.Bgr2Gray);
 
                 // Normalizes brightness and increases contrast of the image
                 CvInvoke.EqualizeHist(ugray, ugray);
@@ -63,7 +73,7 @@ namespace SmartApp.HAL.Implementation
                 FrameReady?.Invoke(this, new VideoFrame(
                     DateTime.Now,
                     faceBounds.Select(bounds => new VideoFrame.Face(bounds)).ToList(),
-                    _frame.Bitmap
+                    frame.ToImage<Bgr, byte>().ToBitmap()
                 ));
             }
         }
@@ -72,20 +82,41 @@ namespace SmartApp.HAL.Implementation
 
         public void Start()
         {
-            _capture.Start();
+            _timer.Start();
             _logger.LogInformation("Capture started.");
         }
 
         public void Stop()
         {
-            _capture.Stop();
+            _timer.Stop();
             _logger.LogInformation("Capture stopped.");
+        }
+
+        public int Framerate
+        {
+            get
+            {
+                lock (this)
+                {
+                    return _framerate;
+                }
+            }
+            set
+            {
+                lock (this)
+                {
+                    _framerate = value;
+                    _timer.Interval = 1000.0 / value;
+                    _logger.LogInformation("New framerate: {0} fps.", value);
+                }
+            }
         }
 
         public void Dispose()
         {
             // Stop the capture and release all the resources
             Stop();
+            _timer.Dispose();
             _capture.Dispose();
             _faceDetector.Dispose();
         }

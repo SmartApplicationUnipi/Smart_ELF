@@ -62,8 +62,9 @@ namespace SmartApp.HAL
         {
             var serviceProvider = BuildDIContainer();
 
-            using (var videoSource = serviceProvider.GetRequiredService<IVideoSource>())
-            using (var audioSource = serviceProvider.GetRequiredService<IAudioSource>())
+            using (serviceProvider.GetRequiredService<INetwork>())
+            using (serviceProvider.GetRequiredService<IVideoSource>())
+            using (serviceProvider.GetRequiredService<IAudioSource>())
             {
                 // Start the audio and video managers
                 serviceProvider.GetRequiredService<IVideoManager>().Start();

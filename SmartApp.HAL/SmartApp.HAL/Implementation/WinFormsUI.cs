@@ -39,6 +39,7 @@ namespace SmartApp.HAL.Implementation
 
             // Image to render the video
             var buffer = new Bitmap(640, 480, PixelFormat.Format24bppRgb);
+            var latestTimestamp = DateTime.Now;
             var image = new PictureBox()
             {
                 Size = new Size(640, 480),
@@ -48,7 +49,8 @@ namespace SmartApp.HAL.Implementation
             form.Controls.Add(image);
 
             // Button
-            var btn = new Button() {
+            var btn = new Button()
+            {
                 Size = new Size(640, 50),
                 Location = new Point(0, 480),
                 Text = "Press and hold to record",
@@ -60,21 +62,29 @@ namespace SmartApp.HAL.Implementation
             
             // Draw the rectangles for the faces on the bitmap and show it on the screen
             _videoSource.FrameReady += (_, frame) => {
-                using (var g = Graphics.FromImage(buffer))
-                using (var pen = new Pen(Color.Red, 3f))
-                {
-                    g.Clear(Color.White);
-
-                    foreach (var face in frame.Faces)
-                    {
-                        // Bounds : X, Y, Width, Height
-                        var frameFace = (System.Drawing.Image)frame.Image.Clone(face.Bounds, System.Drawing.Imaging.PixelFormat.DontCare);
-                        g.DrawImage(frameFace, face.Bounds);
-                        g.DrawRectangle(pen, face.Bounds);
-                    }
-                }
-
                 image.Invoke((Action)(() => {
+
+                    if (latestTimestamp >= frame.Timestamp)
+                    {
+                        return;
+                    }
+
+                    using (var g = Graphics.FromImage(buffer))
+                    using (var pen = new Pen(Color.Red, 3f))
+                    using (var fpsFont = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
+                    {
+                        g.Clear(Color.LightGray);
+
+                        foreach (var face in frame.Faces)
+                        {
+                            g.DrawImage(frame.Image, face.Bounds, face.Bounds, GraphicsUnit.Pixel);
+                            g.DrawRectangle(pen, face.Bounds);
+                        }
+
+                        g.DrawString($"{_videoSource.Framerate} fps", fpsFont, Brushes.Red, 0, 0);
+                    }
+
+                    latestTimestamp = frame.Timestamp;
                     image.Refresh();
                 }));
             };

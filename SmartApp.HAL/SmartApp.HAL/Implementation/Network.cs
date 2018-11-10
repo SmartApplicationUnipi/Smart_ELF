@@ -15,6 +15,7 @@ namespace SmartApp.HAL.Implementation
     internal class Network : INetwork
     {
         private readonly ILogger<Network> _logger;
+        private bool _isDisposed = false;
 
         private readonly TcpListener _audioListener;
         private readonly Thread _audioAcceptThread;
@@ -39,8 +40,10 @@ namespace SmartApp.HAL.Implementation
             // Starts the listening sockets
             _audioListener = new TcpListener(options.BindToAddress, options.AudioPort);
             _audioListener.Start();
+            _logger.LogInformation("Started audio socket on {0}:{1}", options.BindToAddress, options.AudioPort);
             _videoListener = new TcpListener(options.BindToAddress, options.VideoPort);
             _videoListener.Start();
+            _logger.LogInformation("Started video socket on {0}:{1}", options.BindToAddress, options.VideoPort);
 
             // Starts the two threads for the broadcasting of messages
             _audioBroadcastThread = new Thread(() => BroadcastThreadMain(_audioOutgoingPackets, _audioClients));
@@ -67,6 +70,14 @@ namespace SmartApp.HAL.Implementation
 
         public void Dispose()
         {
+            _isDisposed = true;
+
+            // Close the listener sockets
+            _audioListener.Stop();
+            _logger.LogInformation("Audio socket closed.");
+            _videoListener.Stop();
+            _logger.LogInformation("Video socket closed.");
+
             // Terminate all the threads
             var threads = new Thread[] { _audioAcceptThread, _audioBroadcastThread, _videoAcceptThread, _videoBroadcastThread };
             foreach (var t in threads)
@@ -75,18 +86,16 @@ namespace SmartApp.HAL.Implementation
                 t.Join();
             }
 
-            // Close all the sockets
+            // Close all the remaining client sockets
             foreach (var client in _audioClients.Concat(_videoClients))
             {
                 client.Close();
             }
-            _audioListener.Stop();
-            _videoListener.Stop();
         }
 
         private void AcceptThreadMain(TcpListener listener, List<TcpClient> clients)
         {
-            while (true)
+            while (!_isDisposed)
             {
                 try
                 {
@@ -102,6 +111,11 @@ namespace SmartApp.HAL.Implementation
                 }
                 catch (Exception e)
                 {
+                    if (_isDisposed && (e is SocketException || e is ThreadInterruptedException))
+                    {
+                        // The listening socket was closed, so just exit the thread
+                        return;
+                    }
                     _logger.LogError(e, "Error accepting connection.");
                 }
             }
@@ -110,30 +124,45 @@ namespace SmartApp.HAL.Implementation
         private void BroadcastThreadMain<TPacket>(BlockingCollection<TPacket> outgoingPackets, List<TcpClient> clients)
             where TPacket : IMessage
         {
-            while (true)
+            while (!_isDisposed)
             {
-                // Wait for a packet to send
-                var packet = outgoingPackets.Take();
-
-                // Send it to all the clients
-                lock (clients)
+                try
                 {
-                    var i = 0;
-                    while (i < clients.Count)
-                    {
-                        try
-                        {
-                            packet.WriteDelimitedTo(clients[i].GetStream());
-                            i++;
-                        }
-                        catch (Exception)
-                        {
-                            _logger.LogInformation("Client {0} disconnected.", clients[i].Client.RemoteEndPoint);
-                            clients.RemoveAt(i);
-                        }
-                    }
+                    // Wait for a packet to send
+                    var packet = outgoingPackets.Take();
 
-                    _logger.LogTrace("Packet sent to {0} clients.", i);
+                    // Send it to all the clients
+                    lock (clients)
+                    {
+
+                        // Do nothing if no one is connected
+                        if (clients.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        var i = 0;
+                        while (i < clients.Count)
+                        {
+                            try
+                            {
+                                packet.WriteDelimitedTo(clients[i].GetStream());
+                                i++;
+                            }
+                            catch (Exception)
+                            {
+                                _logger.LogInformation("Client {0} disconnected.", clients[i].Client.RemoteEndPoint);
+                                clients.RemoveAt(i);
+                            }
+                        }
+
+                        _logger.LogTrace("Packet sent to {0} clients.", i);
+                    }
+                }
+                catch (ThreadInterruptedException) when (_isDisposed)
+                {
+                    // We just got interrupted, so exit immediately
+                    return;
                 }
             }
         }
