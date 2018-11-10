@@ -12,6 +12,8 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
+using System.Net;
+using SmartApp.HAL.Model;
 
 namespace SmartApp.HAL
 {
@@ -21,6 +23,13 @@ namespace SmartApp.HAL
         {
             var services = new ServiceCollection();
 
+            // Default option values
+            services.AddSingleton(new Options() {
+                BindToAddress = IPAddress.Any,
+                AudioPort = 2001,
+                VideoPort = 2002
+            });
+
             // Audio/Video sources
             services.AddSingleton<IAudioSource, LocalMicrophoneSource>();
             services.AddSingleton<IVideoSource, LocalCameraSource>();
@@ -28,7 +37,10 @@ namespace SmartApp.HAL
             services.AddSingleton<IAudioManager, AudioManager>();
 
             // User interface
-            services.AddTransient<IUserInterface, WinFormsUI>();
+            services.AddSingleton<IUserInterface, WinFormsUI>();
+
+            // Network
+            services.AddSingleton<INetwork, Network>();
 
             // Configure generic logging services
             services.AddSingleton<ILoggerFactory, LoggerFactory>();
@@ -54,11 +66,8 @@ namespace SmartApp.HAL
             using (var audioSource = serviceProvider.GetRequiredService<IAudioSource>())
             {
                 // Start the audio and video managers
-                var videoManager = serviceProvider.GetRequiredService<IVideoManager>();
-                var audioManager = serviceProvider.GetRequiredService<IAudioManager>();
-
-                videoManager.Start();
-                audioManager.Start();
+                serviceProvider.GetRequiredService<IVideoManager>().Start();
+                serviceProvider.GetRequiredService<IAudioManager>().Start();
 
                 // Run the sample application
                 serviceProvider.GetRequiredService<IUserInterface>().Run();

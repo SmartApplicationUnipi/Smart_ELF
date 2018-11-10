@@ -20,11 +20,13 @@ namespace SmartApp.HAL.Implementation
     internal class VideoManager : IVideoManager
     {
         private readonly IVideoSource _source;
+        private readonly INetwork _network;
         private readonly ILogger<VideoManager> _logger;
 
-        public VideoManager(IVideoSource source, ILogger<VideoManager> logger)
+        public VideoManager(IVideoSource source, INetwork network, ILogger<VideoManager> logger)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
+            _network = network ?? throw new ArgumentNullException(nameof(network));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -32,6 +34,12 @@ namespace SmartApp.HAL.Implementation
         {
             _source.FrameReady += (_, frame) =>
             {
+                // Exit immediately if we did not find any face
+                if (frame.Faces.Count == 0)
+                {
+                    return;
+                }
+
                 var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480);
 
                 // Convert the incoming image which is BGR to RGB
@@ -40,9 +48,9 @@ namespace SmartApp.HAL.Implementation
                     CvInvoke.CvtColor(videoFrameBgr, videoFrameRgbBuffer, ColorConversion.Bgr2Rgb);
                 frame.Image.UnlockBits(bits);
 
-                // Prepare the packet to send over the wire
-                var packet = new VideoPacket() {
-                    Timestamp = (ulong) DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                // Prepare the packet to send over the net
+                var packet = new VideoDataPacket() {
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 };
                 foreach (var face in frame.Faces)
                 {
@@ -51,8 +59,13 @@ namespace SmartApp.HAL.Implementation
                     Marshal.Copy(faceBits.Scan0, bytes, 0, bytes.Length);
                     frame.Image.UnlockBits(faceBits);
 
-                    packet.Faces.Add(ByteString.CopyFrom(bytes));
+                    packet.Faces.Add(new VideoDataPacket.Types.Face() {
+                        Id = -1,
+                        Data = ByteString.CopyFrom(bytes)
+                    });
                 }
+
+                _network.SendPacket(packet);
 
             };
         }

@@ -5,7 +5,7 @@ option csharp_namespace = "SmartApp.HAL.Model";
 message VideoControlPacket {
 	
 	message SetFramerateRequest {
-		uint32 framerate = 1;
+		int32 framerate = 1;
 	}
 
 	oneof Request {
@@ -19,6 +19,6 @@ message VideoDataPacket {
 		bytes data = 2;
 	}
 
-	uint64 timestamp = 1;
+	int64 timestamp = 1;
 	repeated Face faces = 2;
 }

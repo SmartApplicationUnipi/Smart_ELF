@@ -13,11 +13,13 @@ namespace SmartApp.HAL.Implementation
     internal class AudioManager : IAudioManager
     {
         private readonly IAudioSource _source;
+        private readonly INetwork _network;
         private readonly ILogger<AudioManager> _logger;
 
-        public AudioManager(IAudioSource source, ILogger<AudioManager> logger)
+        public AudioManager(IAudioSource source, INetwork network, ILogger<AudioManager> logger)
         {
             _source = source ?? throw new ArgumentNullException(nameof(source));
+            _network = network ?? throw new ArgumentNullException(nameof(network));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -25,21 +27,15 @@ namespace SmartApp.HAL.Implementation
         {
             _source.SampleReady += (_, sample) =>
             {
-                // Encode the sample in a complete WAV
-                byte[] byteWav;
-                using (var memoryStream = new MemoryStream())
-                using (WaveFileWriter writer = new WaveFileWriter(memoryStream, sample.WaveFormat))
+                // Prepare a packet and send it over the network
+                _network.SendPacket(new AudioDataPacket()
                 {
-                    writer.Write(sample.Data, 0, sample.BufferLenght);
-                    byteWav = memoryStream.ToArray();
-                }
-
-                // Prepare a packet and send it over the wire
-                var packet = new AudioPacket() {
-                    Timestamp = (ulong) DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                    WavData = ByteString.CopyFrom(byteWav)
-                };
-
+                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                    SampleRate = sample.WaveFormat.SampleRate,
+                    BitsPerSample = sample.WaveFormat.BitsPerSample,
+                    Channels = sample.WaveFormat.Channels,
+                    Data = ByteString.CopyFrom(sample.Data, 0, sample.BufferLength)
+                });
             };
         }
     }

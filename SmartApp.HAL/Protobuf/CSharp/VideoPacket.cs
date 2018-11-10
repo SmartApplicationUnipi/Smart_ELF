@@ -27,8 +27,8 @@ namespace SmartApp.HAL.Model {
             "ChFWaWRlb1BhY2tldC5wcm90byKOAQoSVmlkZW9Db250cm9sUGFja2V0EkMK",
             "EGZyYW1lcmF0ZVJlcXVlc3QYASABKAsyJy5WaWRlb0NvbnRyb2xQYWNrZXQu",
             "U2V0RnJhbWVyYXRlUmVxdWVzdEgAGigKE1NldEZyYW1lcmF0ZVJlcXVlc3QS",
-            "EQoJZnJhbWVyYXRlGAEgASgNQgkKB1JlcXVlc3QibAoPVmlkZW9EYXRhUGFj",
-            "a2V0EhEKCXRpbWVzdGFtcBgBIAEoBBIkCgVmYWNlcxgCIAMoCzIVLlZpZGVv",
+            "EQoJZnJhbWVyYXRlGAEgASgFQgkKB1JlcXVlc3QibAoPVmlkZW9EYXRhUGFj",
+            "a2V0EhEKCXRpbWVzdGFtcBgBIAEoAxIkCgVmYWNlcxgCIAMoCzIVLlZpZGVv",
             "RGF0YVBhY2tldC5GYWNlGiAKBEZhY2USCgoCaWQYASABKAMSDAoEZGF0YRgC",
             "IAEoDEIVqgISU21hcnRBcHAuSEFMLk1vZGVsYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
@@ -245,9 +245,9 @@ namespace SmartApp.HAL.Model {
 
         /// <summary>Field number for the "framerate" field.</summary>
         public const int FramerateFieldNumber = 1;
-        private uint framerate_;
+        private int framerate_;
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-        public uint Framerate {
+        public int Framerate {
           get { return framerate_; }
           set {
             framerate_ = value;
@@ -290,7 +290,7 @@ namespace SmartApp.HAL.Model {
         public void WriteTo(pb::CodedOutputStream output) {
           if (Framerate != 0) {
             output.WriteRawTag(8);
-            output.WriteUInt32(Framerate);
+            output.WriteInt32(Framerate);
           }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(output);
@@ -301,7 +301,7 @@ namespace SmartApp.HAL.Model {
         public int CalculateSize() {
           int size = 0;
           if (Framerate != 0) {
-            size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Framerate);
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(Framerate);
           }
           if (_unknownFields != null) {
             size += _unknownFields.CalculateSize();
@@ -329,7 +329,7 @@ namespace SmartApp.HAL.Model {
                 _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
                 break;
               case 8: {
-                Framerate = input.ReadUInt32();
+                Framerate = input.ReadInt32();
                 break;
               }
             }
@@ -380,9 +380,9 @@ namespace SmartApp.HAL.Model {
 
     /// <summary>Field number for the "timestamp" field.</summary>
     public const int TimestampFieldNumber = 1;
-    private ulong timestamp_;
+    private long timestamp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ulong Timestamp {
+    public long Timestamp {
       get { return timestamp_; }
       set {
         timestamp_ = value;
@@ -420,7 +420,7 @@ namespace SmartApp.HAL.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Timestamp != 0UL) hash ^= Timestamp.GetHashCode();
+      if (Timestamp != 0L) hash ^= Timestamp.GetHashCode();
       hash ^= faces_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -435,9 +435,9 @@ namespace SmartApp.HAL.Model {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Timestamp != 0UL) {
+      if (Timestamp != 0L) {
         output.WriteRawTag(8);
-        output.WriteUInt64(Timestamp);
+        output.WriteInt64(Timestamp);
       }
       faces_.WriteTo(output, _repeated_faces_codec);
       if (_unknownFields != null) {
@@ -448,8 +448,8 @@ namespace SmartApp.HAL.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Timestamp != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Timestamp);
+      if (Timestamp != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Timestamp);
       }
       size += faces_.CalculateSize(_repeated_faces_codec);
       if (_unknownFields != null) {
@@ -463,7 +463,7 @@ namespace SmartApp.HAL.Model {
       if (other == null) {
         return;
       }
-      if (other.Timestamp != 0UL) {
+      if (other.Timestamp != 0L) {
         Timestamp = other.Timestamp;
       }
       faces_.Add(other.faces_);
@@ -479,7 +479,7 @@ namespace SmartApp.HAL.Model {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Timestamp = input.ReadUInt64();
+            Timestamp = input.ReadInt64();
             break;
           }
           case 18: {

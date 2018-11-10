@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=_b('\252\002\022SmartApp.HAL.Model'),
-  serialized_pb=_b('\n\x11\x41udioPacket.proto\"o\n\x0f\x41udioDataPacket\x12\x11\n\ttimestamp\x18\x01 \x01(\x04\x12\x12\n\nsampleRate\x18\x02 \x01(\r\x12\x10\n\x08\x63hannels\x18\x03 \x01(\r\x12\x15\n\rbitsPerSample\x18\x04 \x01(\r\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\x42\x15\xaa\x02\x12SmartApp.HAL.Modelb\x06proto3')
+  serialized_pb=_b('\n\x11\x41udioPacket.proto\"o\n\x0f\x41udioDataPacket\x12\x11\n\ttimestamp\x18\x01 \x01(\x03\x12\x12\n\nsampleRate\x18\x02 \x01(\x05\x12\x10\n\x08\x63hannels\x18\x03 \x01(\x05\x12\x15\n\rbitsPerSample\x18\x04 \x01(\x05\x12\x0c\n\x04\x64\x61ta\x18\x05 \x01(\x0c\x42\x15\xaa\x02\x12SmartApp.HAL.Modelb\x06proto3')
 )
 
 
@@ -34,28 +34,28 @@ _AUDIODATAPACKET = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='timestamp', full_name='AudioDataPacket.timestamp', index=0,
-      number=1, type=4, cpp_type=4, label=1,
+      number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='sampleRate', full_name='AudioDataPacket.sampleRate', index=1,
-      number=2, type=13, cpp_type=3, label=1,
+      number=2, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='channels', full_name='AudioDataPacket.channels', index=2,
-      number=3, type=13, cpp_type=3, label=1,
+      number=3, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
       name='bitsPerSample', full_name='AudioDataPacket.bitsPerSample', index=3,
-      number=4, type=13, cpp_type=3, label=1,
+      number=4, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,

@@ -25,8 +25,8 @@ namespace SmartApp.HAL.Model {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "ChFBdWRpb1BhY2tldC5wcm90byJvCg9BdWRpb0RhdGFQYWNrZXQSEQoJdGlt",
-            "ZXN0YW1wGAEgASgEEhIKCnNhbXBsZVJhdGUYAiABKA0SEAoIY2hhbm5lbHMY",
-            "AyABKA0SFQoNYml0c1BlclNhbXBsZRgEIAEoDRIMCgRkYXRhGAUgASgMQhWq",
+            "ZXN0YW1wGAEgASgDEhIKCnNhbXBsZVJhdGUYAiABKAUSEAoIY2hhbm5lbHMY",
+            "AyABKAUSFQoNYml0c1BlclNhbXBsZRgEIAEoBRIMCgRkYXRhGAUgASgMQhWq",
             "AhJTbWFydEFwcC5IQUwuTW9kZWxiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
@@ -78,9 +78,9 @@ namespace SmartApp.HAL.Model {
 
     /// <summary>Field number for the "timestamp" field.</summary>
     public const int TimestampFieldNumber = 1;
-    private ulong timestamp_;
+    private long timestamp_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ulong Timestamp {
+    public long Timestamp {
       get { return timestamp_; }
       set {
         timestamp_ = value;
@@ -89,9 +89,9 @@ namespace SmartApp.HAL.Model {
 
     /// <summary>Field number for the "sampleRate" field.</summary>
     public const int SampleRateFieldNumber = 2;
-    private uint sampleRate_;
+    private int sampleRate_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public uint SampleRate {
+    public int SampleRate {
       get { return sampleRate_; }
       set {
         sampleRate_ = value;
@@ -100,9 +100,9 @@ namespace SmartApp.HAL.Model {
 
     /// <summary>Field number for the "channels" field.</summary>
     public const int ChannelsFieldNumber = 3;
-    private uint channels_;
+    private int channels_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public uint Channels {
+    public int Channels {
       get { return channels_; }
       set {
         channels_ = value;
@@ -111,9 +111,9 @@ namespace SmartApp.HAL.Model {
 
     /// <summary>Field number for the "bitsPerSample" field.</summary>
     public const int BitsPerSampleFieldNumber = 4;
-    private uint bitsPerSample_;
+    private int bitsPerSample_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public uint BitsPerSample {
+    public int BitsPerSample {
       get { return bitsPerSample_; }
       set {
         bitsPerSample_ = value;
@@ -155,7 +155,7 @@ namespace SmartApp.HAL.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      if (Timestamp != 0UL) hash ^= Timestamp.GetHashCode();
+      if (Timestamp != 0L) hash ^= Timestamp.GetHashCode();
       if (SampleRate != 0) hash ^= SampleRate.GetHashCode();
       if (Channels != 0) hash ^= Channels.GetHashCode();
       if (BitsPerSample != 0) hash ^= BitsPerSample.GetHashCode();
@@ -173,21 +173,21 @@ namespace SmartApp.HAL.Model {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      if (Timestamp != 0UL) {
+      if (Timestamp != 0L) {
         output.WriteRawTag(8);
-        output.WriteUInt64(Timestamp);
+        output.WriteInt64(Timestamp);
       }
       if (SampleRate != 0) {
         output.WriteRawTag(16);
-        output.WriteUInt32(SampleRate);
+        output.WriteInt32(SampleRate);
       }
       if (Channels != 0) {
         output.WriteRawTag(24);
-        output.WriteUInt32(Channels);
+        output.WriteInt32(Channels);
       }
       if (BitsPerSample != 0) {
         output.WriteRawTag(32);
-        output.WriteUInt32(BitsPerSample);
+        output.WriteInt32(BitsPerSample);
       }
       if (Data.Length != 0) {
         output.WriteRawTag(42);
@@ -201,17 +201,17 @@ namespace SmartApp.HAL.Model {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      if (Timestamp != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(Timestamp);
+      if (Timestamp != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Timestamp);
       }
       if (SampleRate != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SampleRate);
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SampleRate);
       }
       if (Channels != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Channels);
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Channels);
       }
       if (BitsPerSample != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(BitsPerSample);
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(BitsPerSample);
       }
       if (Data.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeBytesSize(Data);
@@ -227,7 +227,7 @@ namespace SmartApp.HAL.Model {
       if (other == null) {
         return;
       }
-      if (other.Timestamp != 0UL) {
+      if (other.Timestamp != 0L) {
         Timestamp = other.Timestamp;
       }
       if (other.SampleRate != 0) {
@@ -254,19 +254,19 @@ namespace SmartApp.HAL.Model {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Timestamp = input.ReadUInt64();
+            Timestamp = input.ReadInt64();
             break;
           }
           case 16: {
-            SampleRate = input.ReadUInt32();
+            SampleRate = input.ReadInt32();
             break;
           }
           case 24: {
-            Channels = input.ReadUInt32();
+            Channels = input.ReadInt32();
             break;
           }
           case 32: {
-            BitsPerSample = input.ReadUInt32();
+            BitsPerSample = input.ReadInt32();
             break;
           }
           case 42: {

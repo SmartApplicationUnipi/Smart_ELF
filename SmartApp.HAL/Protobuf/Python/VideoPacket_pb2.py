@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=_b('\252\002\022SmartApp.HAL.Model'),
-  serialized_pb=_b('\n\x11VideoPacket.proto\"\x8e\x01\n\x12VideoControlPacket\x12\x43\n\x10\x66ramerateRequest\x18\x01 \x01(\x0b\x32\'.VideoControlPacket.SetFramerateRequestH\x00\x1a(\n\x13SetFramerateRequest\x12\x11\n\tframerate\x18\x01 \x01(\rB\t\n\x07Request\"l\n\x0fVideoDataPacket\x12\x11\n\ttimestamp\x18\x01 \x01(\x04\x12$\n\x05\x66\x61\x63\x65s\x18\x02 \x03(\x0b\x32\x15.VideoDataPacket.Face\x1a \n\x04\x46\x61\x63\x65\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x42\x15\xaa\x02\x12SmartApp.HAL.Modelb\x06proto3')
+  serialized_pb=_b('\n\x11VideoPacket.proto\"\x8e\x01\n\x12VideoControlPacket\x12\x43\n\x10\x66ramerateRequest\x18\x01 \x01(\x0b\x32\'.VideoControlPacket.SetFramerateRequestH\x00\x1a(\n\x13SetFramerateRequest\x12\x11\n\tframerate\x18\x01 \x01(\x05\x42\t\n\x07Request\"l\n\x0fVideoDataPacket\x12\x11\n\ttimestamp\x18\x01 \x01(\x03\x12$\n\x05\x66\x61\x63\x65s\x18\x02 \x03(\x0b\x32\x15.VideoDataPacket.Face\x1a \n\x04\x46\x61\x63\x65\x12\n\n\x02id\x18\x01 \x01(\x03\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x42\x15\xaa\x02\x12SmartApp.HAL.Modelb\x06proto3')
 )
 
 
@@ -34,7 +34,7 @@ _VIDEOCONTROLPACKET_SETFRAMERATEREQUEST = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='framerate', full_name='VideoControlPacket.SetFramerateRequest.framerate', index=0,
-      number=1, type=13, cpp_type=3, label=1,
+      number=1, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -135,7 +135,7 @@ _VIDEODATAPACKET = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='timestamp', full_name='VideoDataPacket.timestamp', index=0,
-      number=1, type=4, cpp_type=4, label=1,
+      number=1, type=3, cpp_type=2, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
