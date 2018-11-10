@@ -1,6 +1,9 @@
+import sys
+from interface_tags import TAG_USER_TRANSCRIPT, TAG_USER_EMOTION, PATH_TO_KB_MODULE
+sys.path.insert(0, PATH_TO_KB_MODULE)
 import kb
 from tte import extract_emotion
-from interface_tags import TAG_USER_TRANSCRIPT, TAG_USER_EMOTION
+
 
 class TteService:
 
@@ -36,7 +39,8 @@ class TteService:
     def start_service(self):
         kb.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.callback) #from the 'text to speech' module
 
-    if __name__ == "__main__":
-        global myID
-        myID = kb.register()
-        kb.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.callback) #from the 'text to speech' module
+if __name__ == "__main__":
+    global myID
+    myID = kb.register()
+    tte = TteService(myID)
+    tte.start_service()
