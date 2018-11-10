@@ -1,6 +1,8 @@
+import sys
+from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
+sys.path.insert(0, PATH_TO_KB_MODULE)
 import kb
 from ett import prepare_answer
-from interface_tags import TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
 
 class EttService:
 
@@ -39,7 +41,9 @@ class EttService:
         kb.subscribe(self.kb_ID, {TAG_ANSWER: "$input"}, self.callback) # from the 'gnlp' module
 
 
-    if __name__ == "__main__":
-        global myID
-        myID = kb.register()
-        kb.subscribe(kb_ID, {TAG_ANSWER: "$input"}, self.callback) # from the 'gnlp' module
+if __name__ == "__main__":
+    global myID
+    myID = kb.register()
+    ett = EttService(myID)
+    ett.start_service()
+    #kb.subscribe(kb_ID, {TAG_ANSWER: "$input"}, self.callback) # from the 'gnlp' module
