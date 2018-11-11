@@ -142,14 +142,14 @@ namespace SmartApp.HAL.Implementation
                 _isDisposed = true;
 
                 // Terminate the main threads
+                _listener.Stop();
                 _listenerThread.Interrupt();
                 _broadcastThread.Interrupt();
                 _listenerThread.Join();
                 _broadcastThread.Join();
-
-                // Close all the sockets
-                _listener.Stop();
                 _logger.LogTrace("Socket closed.");
+
+                // Close all the client sockets
                 lock (_connections)
                 {
                     foreach (var c in _connections)

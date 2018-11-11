@@ -68,7 +68,7 @@ namespace SmartApp.HAL.Implementation
         private void PublishBuffer()
         {
             // Publish a new complete sample
-            _logger.LogTrace("New audio sample with WaveFormat: " + _waveIn.WaveFormat.ToString());
+            _logger.LogTrace("New audio sample with WaveFormat: " + _waveIn.WaveFormat);
             SampleReady?.Invoke(this, new AudioSample(DateTime.Now, _waveBuffer, _waveBufferPosition, _waveIn.WaveFormat));
         }
 

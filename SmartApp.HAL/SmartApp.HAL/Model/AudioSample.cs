@@ -1,15 +1,15 @@
-﻿using NAudio.Wave;
-using System;
+﻿using System;
+using NAudio.Wave;
 
 namespace SmartApp.HAL.Model
 {
     public class AudioSample
     {
-        public AudioSample(DateTime timestamp, byte[] data, int bufferlength, WaveFormat waveFormat)
+        public AudioSample(DateTime timestamp, byte[] data, int bufferLength, WaveFormat waveFormat)
         {
             Timestamp = timestamp;
             Data = data ?? throw new ArgumentNullException(nameof(data));
-            BufferLength = bufferlength < 0 ? throw new ArgumentOutOfRangeException(nameof(bufferlength), "Must be positive") : bufferlength;
+            BufferLength = bufferLength < 0 ? throw new ArgumentOutOfRangeException(nameof(bufferLength), "Must be positive") : bufferLength;
             WaveFormat = waveFormat ?? throw new ArgumentNullException(nameof(waveFormat));
         }
 
