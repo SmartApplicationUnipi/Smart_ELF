@@ -31,7 +31,6 @@ class FacePlusPlus():
     def setAttr(self, *args, **kwargs):
         self.client.setParamsDetect(*args, **kwargs)
 
-
 def drawRectFace(image, jsonResult):
     faces = jsonResult["faces"]
     img_h, img_w, _ = image.shape

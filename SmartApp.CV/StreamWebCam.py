@@ -21,7 +21,6 @@ def demo(myAPI, *args, **kwargs):
         elif key == ord('r'):
             pass
         frame = myAPI.simple_demo(frame)
-        kb.addFact("vision", "cose a caso", 1, 90, False, {"prova":"vison_prova"})
 
         # Display the resulting frame
         cv2.imshow('Video', frame)
