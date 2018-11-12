@@ -19,6 +19,15 @@ input_file = "data_audio/Trump_We_will_build_a_great_wall.wav"
 model = "svm"
 model_name ="pyAudioAnalysis/pyAudioAnalysis/data/svmSpeechEmotion"
 
+
+def my_regressionFileWrapper(inputFile, model_type, model_name):
+    if not os.path.isfile(inputFile):
+        raise Exception("Input audio file not found!")
+
+    R, regressionNames = aT.fileRegression(inputFile, model_name, model_type)
+
+    return (R[0],R[1])
+
 a = my_regressionFileWrapper(input_file, model, model_name)
 
 #a = my_vokaturi(input_file)
