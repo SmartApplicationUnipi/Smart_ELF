@@ -2,7 +2,7 @@ import unittest
 import pytest
 import cv2
 import os
-from API_Class import FacePlusPlus
+from online.FacePlusPlus import FacePlusPlus
 
 
 class Test(unittest.TestCase):

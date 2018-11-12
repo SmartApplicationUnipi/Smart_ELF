@@ -1,9 +1,12 @@
 import cv2
 import sys
-import online as API
+from online import FacePlusPlus as online
+# from offline import offline_interface as offline
 
-def demo(myAPI):
-    myAPI.setAttr()
+import kb_client as kb
+
+def demo(myAPI, *args, **kwargs):
+    myAPI.setAttr(*args, **kwargs)
     video_capture = cv2.VideoCapture(0)
     print("Press q to quit: ")
     while True:
@@ -27,4 +30,5 @@ def demo(myAPI):
     cv2.destroyAllWindows()
 
 
-demo(API.FacePlusPlus())
+demo(online.FacePlusPlus(), return_landmark = 1)
+# demo(offline.FaceOffDetect())

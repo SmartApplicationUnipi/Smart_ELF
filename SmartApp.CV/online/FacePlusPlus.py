@@ -1,4 +1,4 @@
-from .SDK import Facepp_Client
+from online.SDK.face_client import Facepp_Client
 import os
 import cv2
 
@@ -26,27 +26,10 @@ class FacePlusPlus():
         response = self.client.detect(frame = frame)
         r = self.client.search(image_file = cv2.imencode('.jpg', frame)[1], outer_id = 'fiss')
         frame = drawRectFace(frame, response)
-        print(r)
         return frame
 
-    def setAttr(self, attributes=None):
-        """
-            set attribute to be returned in the response
-            for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
-
-            params:
-                attributes: list of attributes to return
-        """
-        if attributes is not None:
-            if type(attributes) is str:
-                self.client.setAttr(attributes)
-            else:
-                raise TypeError("attributes should be a str. You've provided a " + type(attributes).__name__ + ", instead.")
-        else:
-            #all attributes
-            self.client.setAttr("all")
-
-
+    def setAttr(self, *args, **kwargs):
+        self.client.setParamsDetect(*args, **kwargs)
 
 def drawRectFace(image, jsonResult):
     faces = jsonResult["faces"]
@@ -59,9 +42,10 @@ def drawRectFace(image, jsonResult):
         cv2.rectangle(image, (x, y), end_face, (0,255,0), 3)
 
         # Draw Landmarks
-        fl = face["landmark"]
-        for key, pos in fl.items():
-            xy = (int(pos["x"]), int(pos["y"]))
-            cv2.circle(image, xy, 1, (0,0,255), -1)
+        fl = face.get("landmark")
+        if fl:
+            for key, pos in fl.items():
+                xy = (int(pos["x"]), int(pos["y"]))
+                cv2.circle(image, xy, 1, (0,0,255), -1)
 
     return image

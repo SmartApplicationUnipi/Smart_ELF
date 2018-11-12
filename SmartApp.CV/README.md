@@ -6,9 +6,10 @@ ELF Agent Vision Module
 ## Highlights
 
 APIs integration with:
-- *Azure Face*
-- *Skybiometrics*
 - *Face++*
+- *Azure Face*
+- *Skybiometrics*  
+for last tow see https://github.com/michelecafagna26/ELFVisionModule.git
 
 that provides the following features:
 - Face detection and recognition
@@ -52,4 +53,3 @@ SKYBIOMETRICS:
 FACE++:
 - FACEpp_KEY
 - FACEpp_SECRET
-
