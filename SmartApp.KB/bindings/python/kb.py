@@ -2,10 +2,22 @@ import websocket
 import json
 import typing
 import threading
+import configparser
+import os
 
 from websocket import create_connection
-port = 5666
-host = 'ws://localhost'
+
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+cParser = configparser.RawConfigParser()
+configFilePath = r'./config'
+
+
+
+cParser.read(os.path.join(base_dir, configFilePath))
+
+port = cParser.get('host-config','port')
+host = cParser.get('host-config','host-name')
 
 def register():
 	ws = create_connection("%s:%s"%(host,port))
@@ -29,11 +41,19 @@ def addRule(idSource: str, ruleSum: str, jsonRule: map):
         ws.send(json.dumps(req))
         rep = ws.recv()
         ws.close()
-        return rep        
+        return rep
 
 def queryBind(jsonReq: map):
 	ws = create_connection("%s:%s"%(host,port))
 	req = {"method": "queryBind", "params": {"jsonReq": jsonReq}}
+	ws.send(json.dumps(req))
+	rep = json.loads(ws.recv())
+	ws.close()
+	return rep
+
+def queryFact(jsonReq: map):
+	ws = create_connection("%s:%s"%(host,port))
+	req = {"method": "queryFact", "params": {"jsonReq": jsonReq}}
 	ws.send(json.dumps(req))
 	rep = json.loads(ws.recv())
 	ws.close()
