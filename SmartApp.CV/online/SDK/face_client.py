@@ -283,7 +283,7 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params)
 
-    def getFacesetDetail(self, outer_id = None, faceset_token = None,  start = 1):
+    def getFacesetDetail(self, outer_id = None, faceset_token = None, start = 1):
         url = API_HOST + 'faceset/getdetail'
         params = self.url_params
 
@@ -306,6 +306,8 @@ class Facepp_Client(object):
             raise AttributeError('start should be a int. You provided a ' + type(faceset_token).__name__ + 'instead.')
         elif start < 1 or start > 10000:
             raise AttributeError('start must be between 1 and 10.000 .')
+        else:
+            params.update({'start': start})
 
         return self._sendRequest(url, params = params)
 
