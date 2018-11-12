@@ -1,6 +1,6 @@
 export function findMatchesBind(query: any, Dataset: any[]) {
     const matches = new Array();
-    console.log(sort(query._data));
+    const sorted = sort(query._data);
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
         const mb = matchBind(query, data, {});
@@ -40,12 +40,11 @@ function matchBind(query: any, data: any, initBinds: any): any {
     const queryKeys = Object.keys(query);
     let binds = Object.assign({}, initBinds);
     let match = true;
-
     let i = 0;
+
     while (i < queryKeys.length && match) {
         const queryKey = queryKeys[i];
-
-        // console.log('analyzing key: ' + queryKey);
+        console.log('analyzing key: ' + queryKey);
 
         if (isAtom(queryKey)) {
             // the object d is good if contains all the keys in q
@@ -79,11 +78,51 @@ function matchBind(query: any, data: any, initBinds: any): any {
                     binds = result.binds;
                 }
             } else {
-                // console.log('finale fail');
-                match = false; }
+                return {match : false, binds : {}};
+            }
         }
         if (isPlaceholder(queryKey)) {
-            
+            let success = false;
+            const queryValue = query[queryKey];
+            console.log(data);
+            const dataKeys = Object.keys(data);
+            for (const dataKey of dataKeys) {
+                const dataValue = data[dataKey];
+                if (isAtom(queryValue)) {
+                    console.log('case placeholder : atom');
+                    if (isAtom(dataValue) && queryValue === dataValue) {
+                        console.log('values are equal, so we bind ' + queryKey  + ' to ' + dataKey);
+                        // TODO
+                    }
+                }
+                if (isPlaceholder(queryValue)) {
+                    console.log('case placeholder : placeholder');
+                    if (binds.hasOwnProperty(queryValue)) {
+                        // caso: queryValue è già bindata
+                        // MI SONO PERSOOOOOOOOOOOOOO
+                        // non va un cazzo
+                        // voglio morire
+                    } else {
+                        if (queryKey === queryValue) {
+                            if (dataKey === dataValue) {
+                                console.log('che schifo! Bind' + queryKey + ' to ' + dataKey);
+                            }
+                        } else {
+                            console.log('bind ' + queryKey + ' to ' + dataKey);
+                            // FIXME: dataValue can be an atom or an object...
+                            console.log('bind ' + queryValue + ' to ' + dataValue);
+                        }
+                    }
+                }
+                if (isObject(queryValue) && isObject(dataValue)) {
+                    console.log('case placeholder : object');
+                    const result = matchBind(queryValue, dataValue, binds);
+                    if (result.match) {
+                        console.log('object match hoooray, so we bind ' + queryKey  + ' to ' + dataKey);
+                        console.log('and also the inner binds')
+                    }
+                }
+            }
         }
         i++;
     }
