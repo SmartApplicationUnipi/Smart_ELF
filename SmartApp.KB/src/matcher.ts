@@ -36,57 +36,54 @@ export function findMatchesAll(query: any, Dataset: any[]) {
     return matches;
 }
 
-function matchBind(q: any, d: any, initBinds: any): any {
-    const ksq = Object.keys(q);
+function matchBind(query: any, data: any, initBinds: any): any {
+    const queryKeys = Object.keys(query);
     let binds = Object.assign({}, initBinds);
     let match = true;
 
     let i = 0;
-    while (i < ksq.length && match) {
-        const kq = ksq[i];
+    while (i < queryKeys.length && match) {
+        const queryKey = queryKeys[i];
 
-        // console.log('analyzing key: ' + kq);
+        // console.log('analyzing key: ' + queryKey);
 
-        if (isAtom(kq)) {
+        if (isAtom(queryKey)) {
             // the object d is good if contains all the keys in q
-            if (d.hasOwnProperty(kq)) {
-                const vq = q[kq];
-                const vd = d[kq];
+            if (data.hasOwnProperty(queryKey)) {
+                const queryValue = query[queryKey];
+                const dataValue = data[queryKey];
 
-                // console.log('try to match/bind key vaulues ' + vq + ' and ' + vd);
+                // console.log('try to match/bind key vaulues ' + queryValue + ' and ' + dataValue);
 
-                if (isAtom(vq)) {
+                if (isAtom(queryValue)) {
                 // the value of the current query key is an atom, so we need the value of the data key to be equal
-                    if (vq !== vd) {
+                    if (queryValue !== dataValue) {
                         // console.log('is atom fail');
                         match = false;
                     }
                 }
-                if (isPlaceholder(vq)) {
+                if (isPlaceholder(queryValue)) {
                 // the value of the current query key is a placeholder,
                 // so we need to check if we can bind the value to it
-                    if (binds.hasOwnProperty(vq) && binds[vq] !== vd) {
+                    if (binds.hasOwnProperty(queryValue) && binds[queryValue] !== dataValue) {
                         // console.log('binding fail');
                         match = false;
-                    } else { binds[vq] = vd; }
+                    } else { binds[queryValue] = dataValue; }
                 }
-                if (isObject(vq)) {
+                if (isObject(queryValue)) {
 
                 // the value of the current query key is an object,
                 // so we can do recursive call to check if they can be matched
-                    const r = matchBind(vq, vd, binds);
-                    match = r.match;
-                    binds = r.binds;
+                    const result = matchBind(queryValue, dataValue, binds);
+                    match = result.match;
+                    binds = result.binds;
                 }
             } else {
                 // console.log('finale fail');
                 match = false; }
         }
-        if (isPlaceholder(kq)) {
-            // TODO: implement this case.
-            // The idea is: for each possible key assignemt do a recursive call.
-            // possible problems could be in binds object?
-            match = false;
+        if (isPlaceholder(queryKey)) {
+            
         }
         i++;
     }
@@ -94,6 +91,9 @@ function matchBind(q: any, d: any, initBinds: any): any {
 }
 
 function sort(j: any): object {
+    if (!j) {
+        return {}
+    }
     const keys = Object.keys(j);
     const stack = new Map<number, string[]>();
 
