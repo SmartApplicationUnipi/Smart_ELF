@@ -3,12 +3,6 @@ import cv2
 import os
 from online.SDK.face_client import Facepp_Client
 
-@pytest.fixture
-def client():
-    client = Facepp_Client()
-    client.setParamsDetect()
-    return client
-
 def test_setParamsDetect(client):
 
     with pytest.raises(AttributeError):
@@ -36,4 +30,4 @@ def test_setParamsDetect(client):
 def test_detect(client):
 
     with pytest.raises(AttributeError):
-        client.setParamsDetect(return_landmark = "c")
+        client.detect()
