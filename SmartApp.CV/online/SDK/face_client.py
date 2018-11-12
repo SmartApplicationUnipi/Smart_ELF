@@ -293,18 +293,18 @@ class Facepp_Client(object):
         if outer_id and faceset_token:
             raise AttributeError('You must define only one between outer_id and faceset_token.')
 
-        if outer_id and isinstance(outer_id, str):
+        if isinstance(outer_id, str):
             params.update({'outer_id': outer_id})
-        else:
-            raise AttributeError('outer_id should be a str. You provided a ' + type(outer_id).__name__ + 'instead.')
+        elif not outer_id is None:
+            raise AttributeError('tags should be a str. You provided a ' + type(outer_id).__name__ + ' instead.')
 
-        if faceset_token and isinstance(faceset_token, str):
+        if isinstance(faceset_token, str):
             params.update({'faceset_token': faceset_token})
-        else:
-            raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + 'instead.')
+        elif not faceset_token is None:
+            raise AttributeError('tags should be a str. You provided a ' + type(faceset_token).__name__ + ' instead.')
 
         if not isinstance(start, int):
-            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + 'instead.')
+            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
         elif start < 1 or start > 10000:
             raise AttributeError('start must be between 1 and 10.000 .')
         else:
@@ -319,10 +319,10 @@ class Facepp_Client(object):
         if isinstance(tags, str):
             params.update({'tags': tags})
         elif not tags is None:
-            raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + 'instead.')
+            raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + ' instead.')
 
         if not isinstance(start, int):
-            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + 'instead.')
+            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
         elif start < 1:
             raise AttributeError('start must be at least one.')
         else:
