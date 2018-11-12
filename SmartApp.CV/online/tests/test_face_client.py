@@ -32,3 +32,8 @@ def test_setParamsDetect(client):
     }
 
     assert client.detect_params == correct_params
+
+def test_detect(client):
+
+    with pytest.raises(AttributeError):
+        client.setParamsDetect(return_landmark = "c")

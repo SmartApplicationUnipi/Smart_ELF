@@ -73,9 +73,12 @@ class Facepp_Client(object):
                 json object
         """
         url = API_HOST + 'detect'
+        params = self.url_params
 
-        if self.detect_params == {}:
-            self.setParamsDetect(return_landmark, return_attributes, calculate_all, face_rectangle)
+        if not frame and not file:
+                raise AttributeError("Missing frame or file argument. At least one must be set.")
+
+        self.setParamsDetect(return_landmark, return_attributes, calculate_all, face_rectangle)
 
         if frame is not None:
             data = cv2.imencode('.jpg', frame)[1]
@@ -86,7 +89,7 @@ class Facepp_Client(object):
             else:
                 data = file
 
-        return self._sendRequest(url, params = self.url_params, data = self.detect_params, files = {'image_file': data})
+        return self._sendRequest(url, params = params, files = {'image_file': data})
 
     def search(self, face_token = None, image_url = None, image_file = None, image_base64 = None, faceset_token = None, outer_id = None, return_result_count = 1):
         url = API_HOST + "search"
@@ -164,6 +167,7 @@ class Facepp_Client(object):
                 face_tokens(str or list(str)):
                     if this string passed "RemoveAllFaceTokens", all the face_token within FaceSet will be removed.
         """
+
         url = API_HOST + "faceset/removeface"
         params = self.url_params
 
@@ -209,12 +213,37 @@ class Facepp_Client(object):
             raise AttributeError('user_id should be a str. You provided a ' + type(user_id).__name__ + 'instead.')
 
         return self._sendRequest(url, params = params)
+
     """
     --------------------API to manage Facesets---------------------------------
     """
+    
     def addFace(self, face_tokens, faceset_token = None, outer_id = None):
         url = API_HOST + "faceset/addface"
         params = self.url_params
+
+        if not faceset_token and not outer_id:
+            raise AttributeError('Missing faceset_token or outer_id argument. At least one must be set.')
+
+        if face_tokens:
+            if isinstance(face_tokens, list):
+                if len(face_tokens) < 5:
+                    params.update({'face_tokens': ",".join(face_tokens)})
+                else:
+                    raise AttributeError('face_tokens array must be length at most 5.')
+            elif isinstance(face_tokens, str):
+                params.update({'face_tokens': face_tokens})
+            else:
+                raise AttributeError('face_tokens should be a string or a list of string. You provided a ' + type(face_tokens).__name__ + 'instead.')
+
+        if outer_id:
+            params.update({'outer_id': outer_id})
+        elif faceset_token:
+            params.update({'faceset_token': faceset_token})
+        else:
+            raise AttributeError('You must define a unique outer_id or face_token.')
+
+        return self._sendRequest(url, params = params)
 
     def deleteFaceSet(self, outer_id = None, faceset_token = None ):
         url = API_HOST + 'faceset/delete'
@@ -251,7 +280,7 @@ class Facepp_Client(object):
             else:
                 raise AttributeError('face_tokens should be a string or a list of string. You provided a ' + type(face_tokens).__name__ + 'instead.')
 
-        return json.loads(requests.post(url, params = params).text)
+        return self._sendRequest(url, params = params)
 
     def getFacesetDetail(self, outer_id = None, faceset_token = None ):
         url = API_HOST + 'faceset/getdetail'
