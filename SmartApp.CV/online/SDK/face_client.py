@@ -48,9 +48,9 @@ class Facepp_Client(object):
             raise TypeError("return_attributes should be a str.")
         else: self.detect_params.update({"return_attributes": _all if return_attributes.lower() == "all" else return_attributes })
 
-        if not isinstance(calculate_all, int) or not calculate_all in range(1):
+        if not isinstance(calculate_all, int) or not calculate_all in range(2):
             raise AttributeError("calculate_all must be an int between 0 and 1. See docs for meaning of value.")
-        elif calculate_all != 0:
+        else:
             self.detect_params.update({"calculate_all": calculate_all})
 
         if face_rectangle:

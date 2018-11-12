@@ -1,0 +1,5 @@
+{
+  "SmartApp.CV/online/tests/test_Facepp_old.py::Test::test_detect_different_attributes": true,
+  "SmartApp.CV/online/tests/test_Facepp_old.py::Test::test_detect_with_path": true,
+  "SmartApp.CV/online/tests/test_Facepp_old.py::Test::test_face_frame_only": true
+}
