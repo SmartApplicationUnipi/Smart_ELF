@@ -283,12 +283,14 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params)
 
-    def getFacesetDetail(self, outer_id = None, faceset_token = None ):
+    def getFacesetDetail(self, outer_id = None, faceset_token = None,  start = 1):
         url = API_HOST + 'faceset/getdetail'
         params = self.url_params
 
         if not outer_id and not faceset_token:
             raise AttributeError('You must define a unique outer_id or faceset_token.')
+        if outer_id and faceset_token:
+            raise AttributeError('You must define only one between outer_id and faceset_token.')
 
         if outer_id and isinstance(outer_id, str):
             params.update({'outer_id': outer_id})
@@ -299,6 +301,11 @@ class Facepp_Client(object):
             params.update({'faceset_token': faceset_token})
         else:
             raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + 'instead.')
+
+        if not isinstance(start, int):
+            raise AttributeError('start should be a int. You provided a ' + type(faceset_token).__name__ + 'instead.')
+        elif start < 1 or start > 10000:
+            raise AttributeError('start must be between 1 and 10.000 .')
 
         return self._sendRequest(url, params = params)
 
