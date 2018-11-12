@@ -283,7 +283,7 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params)
 
-    def getFacesetDetail(self, outer_id = None, faceset_token = None, start = 1):
+    def getFaceSetDetail(self, outer_id = None, faceset_token = None, start = 1):
         url = API_HOST + 'faceset/getdetail'
         params = self.url_params
 
@@ -303,9 +303,27 @@ class Facepp_Client(object):
             raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + 'instead.')
 
         if not isinstance(start, int):
-            raise AttributeError('start should be a int. You provided a ' + type(faceset_token).__name__ + 'instead.')
+            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + 'instead.')
         elif start < 1 or start > 10000:
             raise AttributeError('start must be between 1 and 10.000 .')
+        else:
+            params.update({'start': start})
+
+        return self._sendRequest(url, params = params)
+
+    def getFaceSets(self, tags = None, start = 1):
+        url = API_HOST + 'faceset/getfacesets'
+        params = self.url_params
+
+        if isinstance(tags, str):
+            params.update({'tags': tags})
+        elif not tags is None:
+            raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + 'instead.')
+
+        if not isinstance(start, int):
+            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + 'instead.')
+        elif start < 1:
+            raise AttributeError('start must be at least one.')
         else:
             params.update({'start': start})
 
