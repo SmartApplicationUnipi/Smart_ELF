@@ -19,10 +19,15 @@ class FERModelEnsemble:
             self.models.append(FERModel(subset, verbose=False))
 
     def predict_frame(self, image):
-        results = []  # list of dictionaries, each containing the predictions of one FER model
-        for model in self.models:
-            results.append(model.predict_frame(image))
+        # list of dictionaries, each containing the predictions of one FER model
+        results = [model.predict_frame(image) for model in self.models]
 
+        predictions = self.combine_predictions(results)
+
+        return predictions
+
+    def combine_predictions(self, results):
+        # TODO: combine results in a smarter way [maybe taking into account the size of each subset]
         # combine the results and normalize
         predictions = {e: 0 for e in self.emotions}
         for res_dict in results:
@@ -32,7 +37,6 @@ class FERModelEnsemble:
         # normalize
         sum_ = sum(predictions.values())
         predictions = {k: v / sum_ for k, v in predictions.items()}
-
         return predictions
 
 
