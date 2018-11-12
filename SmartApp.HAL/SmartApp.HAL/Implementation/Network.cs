@@ -8,7 +8,9 @@ using System.Threading;
 using Google.Protobuf;
 using System.Linq;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net;
+using ThreadInterruptedException = System.Threading.ThreadInterruptedException;
 
 namespace SmartApp.HAL.Implementation
 {
@@ -201,7 +203,7 @@ namespace SmartApp.HAL.Implementation
                     }
                     catch (Exception e)
                     {
-                        if (_isDisposed && (e is SocketException || e is ThreadInterruptedException))
+                        if (_isDisposed && (e is IOException || e is SocketException || e is ThreadInterruptedException))
                         {
                             // The listening socket was closed, so just exit the thread
                             break;
@@ -236,7 +238,7 @@ namespace SmartApp.HAL.Implementation
                                 {
                                     packet.WriteDelimitedTo(conn.Client.GetStream());
                                 }
-                                catch (SocketException)
+                                catch (Exception)
                                 {
                                     // Close the client socket and interrupt its thread
                                     conn.Client.Close();
@@ -291,9 +293,20 @@ namespace SmartApp.HAL.Implementation
                 }
                 connection.Client.Close();
                 connection.Client.Dispose();
-                lock (_connections)
+                while (true)
                 {
-                    _connections.Remove(connection);
+                    try
+                    {
+                        lock (_connections)
+                        {
+                            _connections.Remove(connection);
+                        }
+                        break;
+                    }
+                    catch (ThreadInterruptedException)
+                    {
+                        // Keep on trying
+                    }
                 }
             }
         }
