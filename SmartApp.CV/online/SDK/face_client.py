@@ -22,8 +22,15 @@ class Facepp_Client(object):
         self.api_secret = api_secret
 
         self.url_params = { 'api_key': api_key, 'api_secret': api_secret}
+        self.detect_params = {}
 
-    def setAttr(self, attributes = None):
+    def _sendRequest(self, *args, **kwargs):
+        jr = json.loads(requests.post(*args, **kwargs).text)
+        err = jr.get("error_message")
+        if err: raise ValueError(err)
+        return jr
+
+    def setParamsDetect(self, return_landmark = 0, return_attributes = "gender,age,smiling,emotion", calculate_all = 0, face_rectangle = None):
         """
             set attribute to be returned in the response
             for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
@@ -31,21 +38,28 @@ class Facepp_Client(object):
             params:
                 attributes: list of attributes to return
         """
+        _all = "gender,age,smiling,headpose,facequality,blur,eyestatus,emotion,ethnicity,beauty,mouthstatus,eyegaze,skinstatus"
 
-        self.url_params.update({"return_attributes": "gender,age,smiling,headpose,facequality,blur,eyestatus,emotion,ethnicity,beauty,mouthstatus,eyegaze,skinstatus", "return_landmark": 2})
+        if not isinstance(return_landmark, int) or return_landmark < 0 or return_landmark > 2:
+            raise AttributeError("return_landmark must be an int between 0 and 2. See docs for meaning of value.")
+        else: self.detect_params.update({"return_landmark": return_landmark})
 
-        if attributes is not None:
-            if type(attributes) is str:
-                if attributes != "all":
-                    self.url_params.update({"return_attributes": attributes})
+        if not isinstance(return_attributes, str):
+            raise TypeError("return_attributes should be a str.")
+        else: self.detect_params.update({"return_attributes": _all if return_attributes.lower() == "all" else return_attributes })
+
+        if not isinstance(calculate_all, int) or not calculate_all in range(1):
+            raise AttributeError("calculate_all must be an int between 0 and 1. See docs for meaning of value.")
+        elif calculate_all != 0:
+            self.detect_params.update({"calculate_all": calculate_all})
+
+        if face_rectangle:
+            if not isinstance(face_rectangle, str):
+                raise TypeError("face_rectangle should be a str.")
             else:
-                raise TypeError("Attributes should be a str. You've provided a " + type(attributes).__name__ + ", instead.")
+                self.detect_params.update({"face_rectangle": face_rectangle})
 
-    """
-    ------------------------API to manage Faces---------------------------------
-    """
-
-    def detect(self, frame = None, file = None, attributes = None):
+    def detect(self, frame = None, file = None, return_landmark = 0, return_attributes = "gender,age,smiling,emotion", calculate_all = 0, face_rectangle = None):
         """
             Face detection
             for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
@@ -60,10 +74,8 @@ class Facepp_Client(object):
         """
         url = API_HOST + 'detect'
 
-        if attributes is not None:
-            self.setAttr(attributes = attributes)
-        else:
-            self.setAttr(attributes = "gender,age,smiling,emotion")
+        if self.detect_params == {}:
+            self.setParamsDetect(return_landmark, return_attributes, calculate_all, face_rectangle)
 
         if frame is not None:
             data = cv2.imencode('.jpg', frame)[1]
@@ -74,8 +86,7 @@ class Facepp_Client(object):
             else:
                 data = file
 
-        r = requests.post(url, params = self.url_params, files = {'image_file': data})
-        return json.loads(r.text)
+        return self._sendRequest(url, params = self.url_params, data = self.detect_params, files = {'image_file': data})
 
     def search(self, face_token = None, image_url = None, image_file = None, image_base64 = None, faceset_token = None, outer_id = None, return_result_count = 1):
         url = API_HOST + "search"
@@ -118,7 +129,7 @@ class Facepp_Client(object):
         else:
             params.update({'return_result_count': return_result_count})
 
-        return json.loads(requests.post(url, params = params, files = file).text)
+        return self._sendRequest(url, params = params, files = file)
 
     def addFace(self, face_tokens, faceset_token = None, outer_id = None):
         url = API_HOST + "faceset/addface"
@@ -145,7 +156,7 @@ class Facepp_Client(object):
         else:
             raise AttributeError('You must define a unique outer_id or face_token.')
 
-        return json.loads(requests.post(url, params = params).text)
+        return self._sendRequest(url, params = params)
 
     def removeFace(self, face_tokens, faceset_token = None, outer_id = None):
         """
@@ -166,7 +177,6 @@ class Facepp_Client(object):
                 params.update({'face_tokens': face_tokens})
             else:
                 raise AttributeError('face_tokens should be a string or a list of string. You provided a ' + type(face_tokens).__name__ + 'instead.')
-
         if outer_id:
             params.update({'outer_id': outer_id})
         elif faceset_token:
@@ -174,7 +184,7 @@ class Facepp_Client(object):
         else:
             raise AttributeError('You must define a unique outer_id or face_token.')
 
-        return json.loads(requests.post(url, params = params).text)
+        return self._sendRequest(url, params = params)
 
     def setUserID(self, face_token, faceset_token = None, user_id = None):
         url = API_HOST + "faceset/setuserid"
@@ -198,11 +208,13 @@ class Facepp_Client(object):
         else:
             raise AttributeError('user_id should be a str. You provided a ' + type(user_id).__name__ + 'instead.')
 
-        return json.loads(requests.post(url, params = params).text)
-
+        return self._sendRequest(url, params = params)
     """
     --------------------API to manage Facesets---------------------------------
     """
+    def addFace(self, face_tokens, faceset_token = None, outer_id = None):
+        url = API_HOST + "faceset/addface"
+        params = self.url_params
 
     def deleteFaceSet(self, outer_id = None, faceset_token = None ):
         url = API_HOST + 'faceset/delete'
@@ -215,7 +227,7 @@ class Facepp_Client(object):
         else:
             raise AttributeError('You must define a unique outer_id or face_token.')
 
-        return json.loads(requests.post(url, params = params).text)
+        return self._sendRequest(url, params = params)
 
     def createFaceSet(self, display_name = None, outer_id = None, face_tokens = None ):
         url = API_HOST + 'faceset/create'
@@ -258,7 +270,7 @@ class Facepp_Client(object):
         else:
             raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + 'instead.')
 
-        return json.loads(requests.post(url, params = params).text)
+        return self._sendRequest(url, params = params)
 
     def updateFaceSet(self, outer_id = None, faceset_token = None, new_outer_id=None, display_name=None, user_data=None, tags=None):
 
@@ -301,4 +313,4 @@ class Facepp_Client(object):
         else:
             raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + 'instead.')
 
-        return json.loads(requests.post(url, params = params).text)
+        return self._sendRequest(url, params = params)
