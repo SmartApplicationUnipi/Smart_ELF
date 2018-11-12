@@ -79,6 +79,7 @@ class Facepp_Client(object):
                 raise AttributeError("Missing frame or file argument. At least one must be set.")
 
         self.setParamsDetect(return_landmark, return_attributes, calculate_all, face_rectangle)
+        params.update(self.detect_params)
 
         if frame is not None:
             data = cv2.imencode('.jpg', frame)[1]
@@ -217,7 +218,7 @@ class Facepp_Client(object):
     """
     --------------------API to manage Facesets---------------------------------
     """
-    
+
     def addFace(self, face_tokens, faceset_token = None, outer_id = None):
         url = API_HOST + "faceset/addface"
         params = self.url_params
