@@ -30,7 +30,7 @@ class Facepp_Client(object):
         if err: raise ValueError(err)
         return jr
 
-    def setParamsDetect(self, return_landmark = 0, return_attributes = "gender,age,smiling,emotion", calculate_all = 0, face_rectangle = None):
+    def setParamsDetect(self, return_landmark = 0, return_attributes = "gender,age,smiling,emotion", calculate_all = None, face_rectangle = None):
         """
             set attribute to be returned in the response
             for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
@@ -48,10 +48,11 @@ class Facepp_Client(object):
             raise TypeError("return_attributes should be a str.")
         else: self.detect_params.update({"return_attributes": _all if return_attributes.lower() == "all" else return_attributes })
 
-        if not isinstance(calculate_all, int) or not calculate_all in range(2):
-            raise AttributeError("calculate_all must be an int between 0 and 1. See docs for meaning of value.")
-        else:
-            self.detect_params.update({"calculate_all": calculate_all})
+        if calculate_all:
+            if not isinstance(calculate_all, int) or not calculate_all in range(2):
+                raise AttributeError("calculate_all must be an int between 0 and 1. See docs for meaning of value.")
+            else:
+                self.detect_params.update({"calculate_all": calculate_all})
 
         if face_rectangle:
             if not isinstance(face_rectangle, str):
@@ -75,7 +76,7 @@ class Facepp_Client(object):
         url = API_HOST + 'detect'
         params = self.url_params
 
-        if not frame and not file:
+        if frame is None and not file:
                 raise AttributeError("Missing frame or file argument. At least one must be set.")
 
         self.setParamsDetect(return_landmark, return_attributes, calculate_all, face_rectangle)
@@ -113,7 +114,7 @@ class Facepp_Client(object):
         elif not image_file is None:
             if isinstance(image_file, str):
                 try:
-                    file = {'image_file': open(file, 'rb')}
+                    file = {'image_file': open(image_file, 'rb')}
                 except OSError:
                     raise AttributeError("There was an error during opening file, check if path is valid.")
             else:
@@ -126,7 +127,7 @@ class Facepp_Client(object):
         elif faceset_token:
             params.update({'faceset_token': faceset_token})
         else:
-            raise AttributeError('You must define a unique outer_id or face_token.')
+            raise AttributeError('You must define a unique outer_id or faceset_token.')
 
         if return_result_count <= 0 or return_result_count > 5:
             raise AttributeError('return_result_count can be between [1,5]. The default value is 1.')

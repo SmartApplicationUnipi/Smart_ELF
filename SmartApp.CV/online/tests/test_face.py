@@ -27,7 +27,52 @@ def test_setParamsDetect(client):
 
     assert client.detect_params == correct_params
 
-def test_detect(client):
+def test_detect(client, filepath):
 
+    #check filepath
+    response = client.detect(file = filepath)
+    assert "error_message" not in response
+
+    #check frame
+    frame = cv2.imread(filepath , -1)
+    response = client.detect(frame = frame)
+    assert "error_message" not in response
+
+    #check file
+    file = open(filepath, 'rb')
+    response = client.detect(file = file)
+    file.close()
+    assert "error_message" not in response
+
+    #check invalid parameters
     with pytest.raises(AttributeError):
         client.detect()
+
+def test_search(client, filepath):
+
+    #TODO OUTER_ID SHOULD BE REAL!!!
+    outer_id = 'fake'
+
+    #check filepath
+    response = client.search(image_file = filepath, outer_id = outer_id)
+    assert "error_message" not in response
+
+    #check frame
+    frame = cv2.imread(filepath , -1)
+    response = client.search(image_file = frame,  outer_id = outer_id)
+    assert "error_message" not in response
+
+    #check file
+    file = open(filepath, 'rb')
+    response = client.detect(image_file = file,  outer_id = outer_id)
+    file.close()
+    assert "error_message" not in response
+
+    #check face_token
+    response = client.detect(face_token = 'fake_token',  outer_id = outer_id)
+    file.close()
+    assert "error_message" not in response
+
+    #check invalid parameters
+    with pytest.raises(AttributeError):
+        client.search()

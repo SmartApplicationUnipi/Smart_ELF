@@ -6,3 +6,7 @@ def client():
     client = Facepp_Client()
     client.setParamsDetect()
     return client
+
+@pytest.fixture
+def filepath():
+    return "online/tests/faces/f1.PNG"
