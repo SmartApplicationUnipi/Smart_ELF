@@ -1,6 +1,8 @@
+import {security} from '../src/config';
 import * as kb from '../src/kb';
 
-const myid = kb.register();
+const myid = kb.register(security.token);
+
 let result;
 
 result = kb.addFact(myid, 'rdf', 3, 90,
@@ -16,13 +18,13 @@ result = kb.addFact(myid, 'rdf', 3, 50,
 );
 
 // should retrieve { $X: 'SmartApplication', $Y: 'teaches' }
-console.log(kb.queryBind({ subject: 'Gervasi', object: '$X', relation: '$Y' }));
+console.log(kb.queryBind(myid, { subject: 'Gervasi', object: '$X', relation: '$Y' }));
 
 // should retrieve 2 solution  { '$X': 'Gervasi', '$Y': 'teaches' }, { '$X': 'Ferrante Francesco', '$Y': 'follows' }
-console.log(kb.queryBind({ subject: '$X', object: 'SmartApplication', relation: '$Y' }));
+console.log(kb.queryBind(myid, { subject: '$X', object: 'SmartApplication', relation: '$Y' }));
 
 // should retrieve the whole document that matches the query
-console.log(kb.queryFact({subject: 'Gervasi', object: '$obj', relation: 'teaches'}));
+console.log(kb.queryFact(myid, {subject: 'Gervasi', object: '$obj', relation: 'teaches'}));
 
 result = kb.subscribe(myid, { sessionID: 1, emotion: '$E' },
   (r) => { console.log('subscription callback!'); console.log(r); },
@@ -36,7 +38,7 @@ result = kb.addFact(myid, 'emo', 1, 70,
 result = kb.removeFact(myid, { relation: '$r', object: 'SmartApplication' });
 
 // should now retrieve 0 solution
-console.log(kb.queryBind({ object: 'SmartApplication', relation: '$rel' }));
+console.log(kb.queryBind(myid, { object: 'SmartApplication', relation: '$rel' }));
 
 kb.addFact(myid, 'emo', 1, 70,
   { x: {a: 1, y: 2}, y: 2 },
@@ -51,5 +53,5 @@ kb.addFact(myid, 'emo', 1, 70,
 );
 
 console.log();
-console.log(kb.queryBind({x: '$x', y: '$y'}));
-console.log(kb.queryBind({x: { a: 1, y: '$y'}, y: '$z'}));
+console.log(kb.queryBind(myid, {x: '$x', y: '$y'}));
+console.log(kb.queryBind(myid, {x: { a: 1, y: '$y'}, y: '$z'}));

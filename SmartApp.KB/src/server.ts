@@ -1,7 +1,8 @@
 import * as WebSocket from 'ws';
+import { security, server } from './config';
 import * as kb from './kb';
 
-const port = 5666;
+const port = server.port ;
 
 // initialize the WebSocket server instance
 const wss = new WebSocket.Server({ port });
@@ -18,12 +19,11 @@ wss.on('connection', (ws: WebSocket) => {
             const j = JSON.parse(message);
             switch (j.method) {
                 case 'register':
-                    reply = kb.register();
+                    reply = kb.register(j.params.token);
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length
-                    kb.addFact(j.params.idSource, j.params.infoSum, j.params.TTL, j.params.reliability, j.params.jsonFact);
-                    reply = 'done';
+                    reply = (kb.addFact(j.params.idSource, j.params.infoSum, j.params.TTL, j.params.reliability, j.params.jsonFact)).toString();
                     break;
                 case 'removeFact':
                     if (kb.removeFact(j.params.idSource, j.params.jsonReq)) {
@@ -31,8 +31,7 @@ wss.on('connection', (ws: WebSocket) => {
                     }
                     break;
                 case 'addRule':
-                    const r = kb.addRule(j.params.idSource, j.params.ruleSum, j.params.jsonRule);
-                    reply = r.toString();
+                    reply = (kb.addRule(j.params.idSource, j.params.ruleSum, j.params.jsonRule)).toString();
                     break;
                 case 'removeRule':
                     if (kb.removeRule(j.params.idSource, j.params.idRule)) {
@@ -40,18 +39,18 @@ wss.on('connection', (ws: WebSocket) => {
                     }
                     break;
                 case 'queryBind':
-                    const rBind = kb.queryBind(j.params.jsonReq);
+                    const rBind = kb.queryBind(j.params.idSource, j.params.jsonReq);
                     reply = JSON.stringify(rBind);
                     break;
                 case 'queryFact':
-                    const rFact = kb.queryFact(j.params.jsonReq);
+                    const rFact = kb.queryFact(j.params.idSource, j.params.jsonReq);
                     reply = JSON.stringify(rFact);
                     break;
                 case 'subscribe':
                     // tslint:disable-next-line:max-line-length
-                    const callback = (r: any) => {
+                    const callback = (re: any) => {
                         try {
-                            ws.send(JSON.stringify(r));
+                            ws.send(JSON.stringify(re));
                         } catch (e) { console.log(e); }
                     };
                     if (kb.subscribe(j.params.idSource, j.params.jsonReq, callback)) {

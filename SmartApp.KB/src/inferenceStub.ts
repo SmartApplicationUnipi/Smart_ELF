@@ -105,7 +105,7 @@ function checkRule(head: object, body: object[], fact: object) {
             };
             // tslint:disable-next-line:max-line-length
             // addFact('inference', 'infoSum', 1, 100, true, {subject: b.$prof, relation: 'is in room', object: b.$room});
-            addFact('inference', 'infoSum', 1, 100, true, magia(head));
+            addFact('inference', 'infoSum', 1, 100, magia(head));
         }
     }
 }

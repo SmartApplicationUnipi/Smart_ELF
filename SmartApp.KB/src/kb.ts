@@ -1,7 +1,9 @@
+import { security } from './config';
 import { checkRules } from './inferenceStub';
 import * as matcher from './matcher';
 
 type SubCallback = (r: object[]) => any;
+const TOKEN = security.token;
 
 export const databaseFact = new Map<number, object>();
 export const databaseRule = new Map<number, object>();
@@ -13,11 +15,11 @@ let uniqueFactId = 0;
 let uniqueRuleId = 0;
 
 class Metadata {
-    idSource: string;
-    info : string;
-    TTL : number;
-    reliability: number;
-    timestamp: number;
+    public idSource: string;
+    public info: string;
+    public timestamp: number;
+    public TTL: number;
+    public reliability: number;
 
     constructor(idSource: string, info: string, timestamp: number, TTL: number, reliability: number) {
         this.idSource = idSource;
@@ -28,10 +30,13 @@ class Metadata {
     }
 }
 
-export function register() {
-    const newid = 'proto' + (registered.length + 1).toString();
-    registered.push(newid);
-    return newid;
+export function register(token: string): string {
+    if (token === TOKEN) {
+        const newid = 'proto' + (registered.length + 1).toString();
+        registered.push(newid);
+        return newid;
+    }
+    return '';
 }
 
 // tslint:disable-next-line:max-line-length
@@ -39,8 +44,8 @@ export function addFact(idSource: string, infoSum: string, TTL: number, reliabil
     if (!registered.includes(idSource)) { return false; }
     const metadata = new Metadata(idSource, infoSum, Date.now(), TTL, reliability);
     const dataobject = {
-        _id: uniqueFactId_gen(),
         _data: jsonFact,
+        _id: uniqueFactId_gen(),
         _meta: metadata,
     };
     databaseFact.set(dataobject._id, dataobject);
@@ -49,24 +54,25 @@ export function addFact(idSource: string, infoSum: string, TTL: number, reliabil
     return true;
 }
 
-export function updateFactbyId(id:number, idSource: string, infoSum: string, TTL: number, reliability: number, jsonFact:object): boolean {
+// tslint:disable-next-line:max-line-length
+export function updateFactbyId(id: number, idSource: string, infoSum: string, TTL: number, reliability: number, jsonFact: object): boolean {
     if (!registered.includes(idSource)) { return false; }
-    //TODO (forse): X può aggiornare i dati di Y o ne voglio limitare l'aggiornamento al solo Y? 
-    if(!databaseFact.has(id)){
+    // TODO (forse): X può aggiornare i dati di Y o ne voglio limitare l'aggiornamento al solo Y?
+    if (!databaseFact.has(id)) {
         return false;
     }
 
     const metadata = new Metadata(idSource, infoSum, Date.now(), TTL, reliability);
     const dataobject = {
-        _id: id,
         _data: jsonFact,
+        _id: id,
         _meta: metadata,
     };
-    databaseFact.set(id, dataobject)
+    databaseFact.set(id, dataobject);
     return true;
 }
 
-export function queryFact(jreq: object): any[] {
+export function queryFact(idSource: string, jreq: object): any[] {
     // this function will return the whole object that contains a match
     const q = {
         _data: jreq,
@@ -74,18 +80,18 @@ export function queryFact(jreq: object): any[] {
     return matcher.findMatchesAll(q, Array.from(databaseFact.values()));
 }
 
-export function queryBind(jreq: object): any[] {
+export function queryBind(idSource: string, jreq: object): any[] {
     // this function will return metadata and the bounded values
     const q = {
-        _id: '$_id',
         _data: jreq,
+        _id: '$_id',
         _meta: '$_metadata',
     };
     return matcher.findMatchesBind(q, Array.from(databaseFact.values()));
 }
 
 export function subscribe(idSource: string, jreq: object, callback: SubCallback): boolean {
-    if (!registered.includes(idSource)) { return false; }
+    if (registered.includes(idSource) === false) { return false; }
     // the idea is that this will be the original signature. Will then wrap this into the communication protocol
     if (!subscriptions.has(jreq)) {
         subscriptions.set(jreq, [callback]);
@@ -97,14 +103,14 @@ export function subscribe(idSource: string, jreq: object, callback: SubCallback)
 
 export function getAndSubscribe(idSource: string, jreq: object, callback: SubCallback ) {
     // if (!registered.includes(idSource)) { return false; }
-    const res = queryBind(jreq);
+    const res = queryBind(idSource, jreq);
     subscribe(idSource, jreq, callback);
     return res;
 }
 
 export function removeFact(idSource: string, jreq: object): boolean {
     if (!registered.includes(idSource)) { return false; }
-    const res = queryBind(jreq);
+    const res = queryBind(idSource, jreq);
     for (const k of res) {
         databaseFact.delete(k._id);
     }
@@ -117,8 +123,8 @@ export function addRule(idSource: string, ruleSum: string, jsonRule: any) {
     if (!registered.includes(idSource)) { return -1; }
     const metadata = new Metadata(idSource, ruleSum, Date.now(), 0, 0);
     const dataobject = {
-        _id: uniqueRuleId_gen(),
         _data: jsonRule,
+        _id: uniqueRuleId_gen(),
         _meta: metadata,
     };
     databaseRule.set(dataobject._id, dataobject);
@@ -136,7 +142,7 @@ function checkSubscriptions(obj: object) {
     const q = {
         _data: {},
         _id: '$_id',
-        _meta: '$_metadata'
+        _meta: '$_metadata',
     };
     subscriptions.forEach((callbArray, k, m) => {
         q._data = k;

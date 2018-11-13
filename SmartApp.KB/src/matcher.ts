@@ -81,49 +81,7 @@ function matchBind(query: any, data: any, initBinds: any): any {
                 return {match : false, binds : {}};
             }
         }
-        if (isPlaceholder(queryKey)) {
-            let success = false;
-            const queryValue = query[queryKey];
-            console.log(data);
-            const dataKeys = Object.keys(data);
-            for (const dataKey of dataKeys) {
-                const dataValue = data[dataKey];
-                if (isAtom(queryValue)) {
-                    console.log('case placeholder : atom');
-                    if (isAtom(dataValue) && queryValue === dataValue) {
-                        console.log('values are equal, so we bind ' + queryKey  + ' to ' + dataKey);
-                        // TODO
-                    }
-                }
-                if (isPlaceholder(queryValue)) {
-                    console.log('case placeholder : placeholder');
-                    if (binds.hasOwnProperty(queryValue)) {
-                        // caso: queryValue è già bindata
-                        // MI SONO PERSOOOOOOOOOOOOOO
-                        // non va un cazzo
-                        // voglio morire
-                    } else {
-                        if (queryKey === queryValue) {
-                            if (dataKey === dataValue) {
-                                console.log('che schifo! Bind' + queryKey + ' to ' + dataKey);
-                            }
-                        } else {
-                            console.log('bind ' + queryKey + ' to ' + dataKey);
-                            // FIXME: dataValue can be an atom or an object...
-                            console.log('bind ' + queryValue + ' to ' + dataValue);
-                        }
-                    }
-                }
-                if (isObject(queryValue) && isObject(dataValue)) {
-                    console.log('case placeholder : object');
-                    const result = matchBind(queryValue, dataValue, binds);
-                    if (result.match) {
-                        console.log('object match hoooray, so we bind ' + queryKey  + ' to ' + dataKey);
-                        console.log('and also the inner binds')
-                    }
-                }
-            }
-        }
+        if (isPlaceholder(queryKey)) {}
         i++;
     }
     return {match, binds};
@@ -131,7 +89,7 @@ function matchBind(query: any, data: any, initBinds: any): any {
 
 function sort(j: any): object {
     if (!j) {
-        return {}
+        return {};
     }
     const keys = Object.keys(j);
     const stack = new Map<number, string[]>();

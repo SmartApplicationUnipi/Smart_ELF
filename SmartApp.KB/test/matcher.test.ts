@@ -31,3 +31,11 @@ console.log();
 matches = matcher.findMatchesAll({ grado: '$grado' }, dataset);
 console.log(matches);
 console.log();
+
+matches = matcher.findMatchesBind({ $X: '$Y' }, dataset);
+console.log(matches);
+console.log();
+
+matches = matcher.findMatchesBind({ $X: 'magistrale'}, dataset);
+console.log(matches);
+console.log();

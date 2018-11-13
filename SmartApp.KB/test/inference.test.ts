@@ -1,6 +1,7 @@
+import { security } from '../src/config';
 import * as kb from '../src/kb';
 
-const myid = kb.register();
+const myid = kb.register(security.token);
 
 const rule1 = {
   body: [{subject: '$prof' , relation: 'teaches', object: '$course'  },
