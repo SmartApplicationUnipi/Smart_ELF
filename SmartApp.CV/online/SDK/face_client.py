@@ -163,10 +163,10 @@ class Facepp_Client(object):
     --------------------API to manage Facesets---------------------------------
     """
 
-    def _validate_str(var, name):
+    def _validate_str(var, name, illegals_char = "^@,&=*\'\""):
         if isinstance(var, str):
-            if any(s in var for s in list("^@,&=*\'\"")):
-                raise AttributeError(name + " cannot contain any of this ^ @ , & = * \' \".")
+            if any(s in var for s in list(illegals_char)):
+                raise AttributeError(name + " cannot contain any of this " + " ".join(illegals_char) + ".")
             return {name: var}
         else:
             raise AttributeError(name + " must be a string. You provided a " + type(var).__name__ + " instead.")
@@ -299,13 +299,18 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params)
 
-    def createFaceSet(self, display_name = None, outer_id = None, face_tokens = None ):
+    def createFaceSet(self, display_name = None, outer_id = None, tags = None, face_tokens = None):
         url = API_HOST + 'faceset/create'
         params = self.url_params
 
-        if not outer_id or not isinstance(outer_id, str):
-            raise AttributeError('You must define a unique outer_id')
-        params.update({'outer_id': outer_id})
+        if outer_id is not None:
+            params.update(Facepp_Client._validate_str(outer_id, "outer_id"))
+        else:
+            raise AttributeError("outer_id cannot be a None. Insert a value.")
+        if tags is not None:
+            if isinstance(tags, list):
+                tags = ",".join(tags)
+            params.update(Facepp_Client._validate_str(tags, "tags", illegals_char = "^@&=*\'\""))
 
         if display_name:
             params.update({'display_name': display_name})
