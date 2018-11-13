@@ -93,34 +93,33 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params, files = {'image_file': data})
 
-    def search(self, face_token = None, image_url = None, image_file = None, image_base64 = None, faceset_token = None, outer_id = None, return_result_count = 1):
+    def search(self, face_token = None, frame = None, file = None, image_url = None, faceset_token = None, outer_id = None, return_result_count = 1):
         url = API_HOST + "search"
         params = self.url_params
-        file = None
+        data = None
 
-        if not face_token and not image_url and image_file is None and not image_base64:
-            raise AttributeError('Missing face_token or image_url or image_file or image_base64 argument. At least one must be set.')
+        if face_token is None and frame is None and file is None and image_url is None:
+            raise AttributeError('Missing face_token or frame or file or image_url argument. At least one must be set.')
 
-        if face_token:
+        if face_token is not None:
             if isinstance(face_token, str):
                 params.update({'face_token': face_token})
             else:
                 raise AttributeError("face_token must be a string.")
-        elif image_url:
+        if image_url is not None:
             if isinstance(image_url, str):
                 params.update({'image_url': image_url})
             else:
                 raise AttributeError("face_token must be a string.")
-        elif not image_file is None:
-            if isinstance(image_file, str):
-                try:
-                    file = {'image_file': open(image_file, 'rb')}
-                except OSError:
-                    raise AttributeError("There was an error during opening file, check if path is valid.")
+        if file is not None:
+            if isinstance(file, str):
+                data = open(file, 'rb')
             else:
-                file = {'image_file': image_file}
-        else:
-            raise AttributeError("image_base64 not yet implement.")
+                data = file
+
+            data = {'image_file': data}
+        if frame is not None: 
+            data = {'image_file': cv2.imencode('.jpg', frame)[1]}
 
         if outer_id:
             params.update({'outer_id': outer_id})
@@ -134,7 +133,7 @@ class Facepp_Client(object):
         else:
             params.update({'return_result_count': return_result_count})
 
-        return self._sendRequest(url, params = params, files = file)
+        return self._sendRequest(url, params = params, files = data)
 
     def setUserID(self, face_token, faceset_token = None, user_id = None):
         url = API_HOST + "faceset/setuserid"
@@ -180,7 +179,7 @@ class Facepp_Client(object):
         if isinstance(faceset_token, str):
             params.update({'faceset_token': faceset_token})
         elif not faceset_token is None:
-            raise AttributeError('tags should be a str. You provided a ' + type(faceset_token).__name__ + ' instead.')
+            raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + ' instead.')
 
         return params
 

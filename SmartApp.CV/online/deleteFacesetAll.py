@@ -4,10 +4,10 @@ client = Facepp_Client()
 client.setParamsDetect()
 
 response = client.getFaceSets()
-for faceset_token in response['facesets']:
-    client.deleteFaceSet(faceset_token = faceset_token)
+for faceset in response['facesets']:
+    client.deleteFaceSet(faceset_token = faceset['faceset_token'])
 
-print("delete ALl facesets!\n")
+print("delete all facesets!\n")
 
 response = client.getFaceSets()
 print(response['facesets'])
