@@ -45,31 +45,95 @@ def test_getFaceSetDetail(client):
 
     # print(client.getFaceSetDetail(faceset_token = "aca2e06780a707b8cac736a71be546b0"))
 
-def test_updateFaceSet(client):
-    pass
+def test_updateFaceSet(client, filepath):
 
-def test_getFaceSets(client):
+    # check if pass nothig
+    with pytest.raises(AttributeError):
+        client.updateFaceSet()
 
+    with pytest.raises(AttributeError):
+        client.getFaceSetDetail(outer_id = "fiss", faceset_token = "aca2e06780a707b8cac736a71be546b0")
+
+    #create fake FaceSet
+    res = client.detect(file = filepath)
+    fake_face_token = res['faces'][0]['face_token']
+    fake_outer_id = 'fakeSet'
+    client.createFaceSet(outer_id = fake_outer_id, face_tokens = [fake_face_token])
+
+    faceSet = client.getFaceSetDetail(outer_id = fake_outer_id)
+    new_outer_id = "new_Fake_id"
+    faceSet.update({"outer_id": new_outer_id})
+
+    client.updateFaceSet(outer_id = fake_outer_id, new_outer_id = new_outer_id)
+    assert client.getFaceSetDetail(outer_id = "new_Fake_id") == faceSet
+
+
+    #delete created FaceSet
+    client.deleteFaceSet(outer_id = fake_outer_id)
+
+def test_getFaceSets(client, filepath):
+    #check tags attribute
     with pytest.raises(AttributeError):
         client.getFaceSets(tags = 10)
 
+    #check start attribute
     with pytest.raises(AttributeError):
         client.getFaceSets(start = -1)
 
+    #check start attribute
     with pytest.raises(AttributeError):
         client.getFaceSets(start = "100")
 
+    #check if facesets is void
+    assert client.getFaceSets()["facesets"] == []
 
+    #check if information retrived is valid
+    #create fake FaceSet
+    res = client.detect(file = filepath)
+    fake_face_token = res['faces'][0]['face_token']
+    fake_outer_id = 'fakeSet'
+    client.createFaceSet(outer_id = fake_outer_id, face_tokens = [fake_face_token])
 
-    assert len(client.getFaceSets(tags = "no-one")["facesets"]) == 0
+    assert client.getFaceSets()["outer_id"] == fake_outer_id
+
+    assert len(client.getFaceSets()["facesets"]) == 1
+
     assert len(client.getFaceSets(start = 2)["facesets"]) == 0
 
-    # facesets = []
-    # assert client.getFaceSets()["facesets"] == facesets
-    # print(client.getFaceSets())
+    #delete created FaceSet
+    client.deleteFaceSet(outer_id = fake_outer_id)
 
-def test_addFace(client):
-    pass
+def test_add_remove_Face(client, filepath):
+    #detect a face
+    res = client.detect(file = filepath)
+    #get token
+    fake_face_token = res['faces'][0]['face_token']
+    fake_outer_id = 'fakeSet'
 
-def test_removeFace(client):
-    pass
+    #create a faceset and add the detected token
+    client.createFaceSet(outer_id = fake_outer_id)
+    response = client.addFace(outer_id = fake_outer_id, face_tokens = [fake_face_token])
+
+    #check face_token if successfully added
+    assert response['face_added'] == 1
+
+    response = client.removeFace(outer_id = fake_outer_id, face_tokens = [fake_face_token])
+
+    #check face_token if successfully removed
+    assert response['face_removed'] == 1
+
+    #delete created FaceSet
+    client.deleteFaceSet(outer_id = fake_outer_id)
+
+    with pytest.raises(AttributeError):
+        client.addFace()
+
+    with pytest.raises(AttributeError):
+        client.addFace(face_tokens = [fake_face_token, fake_face_token, fake_face_token, fake_face_token, fake_face_token, fake_face_token])
+
+    with pytest.raises(AttributeError):
+        client.removeFace()
+
+    l = ["a" for i in range(1002)]
+    with pytest.raises(AttributeError):
+        client.removeFace(face_tokens = l)
