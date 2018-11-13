@@ -164,7 +164,7 @@ class Facepp_Client(object):
     --------------------API to manage Facesets---------------------------------
     """
 
-    def _validate(outer_id, face_token):
+    def _validate_FaceSet_Identifier(outer_id, faceset_token):
         params = {}
 
         if not outer_id and not faceset_token:
@@ -206,9 +206,14 @@ class Facepp_Client(object):
         url = API_HOST + 'faceset/delete'
         params = self.url_params
 
-        params.update(_validate(outer_id, face_token))
+        params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
-        # TODO: check check_empty
+        if not isinstance(check_empty, int):
+            raise AttributeError('check_empty should be a int. You provided a ' + type(check_empty).__name__ + ' instead.')
+        elif check_empty < 0 or check_empty > 1:
+            raise AttributeError('check_empty must be 0 or 1 .')
+        else:
+            params.update({'check_empty': check_empty})
 
         return self._sendRequest(url, params = params)
 
@@ -216,7 +221,7 @@ class Facepp_Client(object):
         url = API_HOST + 'faceset/getdetail'
         params = self.url_params
 
-        params.update(_validate(outer_id, face_token))
+        params.update(Facepp_Client._validate(outer_id, faceset_token))
 
         if not isinstance(start, int):
             raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
@@ -232,7 +237,7 @@ class Facepp_Client(object):
         url = API_HOST + 'faceset/update'
         params = self.url_params
 
-        params.update(_validate(outer_id, face_token))
+        params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
         if not new_outer_id and not display_name and not user_data and not tags:
             raise AttributeError('You must define at least one of the following params: new_outer_id, display_name, user_data, user_data')
@@ -259,7 +264,7 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params)
 
-    def removeFace(self, face_tokens, faceset_token = None, outer_id = None):
+    def removeFace(self, face_tokens, outer_id = None, faceset_token = None):
         """
             params:
                 face_tokens(str or list(str)):
@@ -268,6 +273,8 @@ class Facepp_Client(object):
 
         url = API_HOST + "faceset/removeface"
         params = self.url_params
+
+        params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
         if face_tokens:
             if isinstance(face_tokens, list):
@@ -279,20 +286,14 @@ class Facepp_Client(object):
                 params.update({'face_tokens': face_tokens})
             else:
                 raise AttributeError('face_tokens should be a string or a list of string. You provided a ' + type(face_tokens).__name__ + 'instead.')
-        if outer_id:
-            params.update({'outer_id': outer_id})
-        elif faceset_token:
-            params.update({'faceset_token': faceset_token})
-        else:
-            raise AttributeError('You must define a unique outer_id or face_token.')
 
         return self._sendRequest(url, params = params)
 
-    def addFace(self, face_tokens, faceset_token = None, outer_id = None):
+    def addFace(self, face_tokens, outer_id = None, faceset_token = None):
         url = API_HOST + "faceset/addface"
         params = self.url_params
 
-        params.update(_validate(outer_id, face_token))
+        params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
         if face_tokens:
             if isinstance(face_tokens, list):

@@ -17,6 +17,24 @@ def test_getFaceSets(client):
 
     # facesets = []
     # assert client.getFaceSets()["facesets"] == facesets
+    # print(client.getFaceSets())
+
+def test_deleteFaceSet(client):
+
+    with pytest.raises(AttributeError):
+        client.deleteFaceSet()
+
+    with pytest.raises(AttributeError):
+        client.deleteFaceSet(outer_id = "fiss", faceset_token = "aca2e06780a707b8cac736a71be546b0")
+
+    with pytest.raises(AttributeError):
+        client.deleteFaceSet(outer_id = "fiss", check_empty = "-1")
+
+    with pytest.raises(AttributeError):
+        client.deleteFaceSet(outer_id = "fiss", check_empty = -1)
+
+    with pytest.raises(AttributeError):
+        client.deleteFaceSet(outer_id = "fiss", check_empty = 2)
 
 
 def test_getFaceSetDetail(client):
@@ -37,16 +55,3 @@ def test_getFaceSetDetail(client):
         client.getFaceSetDetail(faceset_token = "aca2e06780a707b8cac736a71be546b0", start = "10001")
 
     # print(client.getFaceSetDetail(faceset_token = "aca2e06780a707b8cac736a71be546b0"))
-    # {
-    #     'faceset_token': 'aca2e06780a707b8cac736a71be546b0',
-    #     'tags': '',
-    #     'time_used': 84,
-    #     'user_data': '',
-    #     'display_name': '',
-    #     'face_tokens': [
-    #         '1a5df659f8d32ab66a20f42453e23f3c',
-    #         '5ad5f16b598562f68da33c64eb2c069e'
-    #     ],
-    #     'face_count': 2,
-    #     'request_id': '1542063583,4e2e8d05-dc7b-47b3-b63b-1657282bb992',
-    #     'outer_id': 'fiss'}
