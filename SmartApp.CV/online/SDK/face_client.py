@@ -93,27 +93,34 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params, files = {'image_file': data})
 
-    def search(self, face_token = None, frame = None, file = None faceset_token = None, outer_id = None, return_result_count = 1):
+    def search(self, face_token = None, image_url = None, image_file = None, image_base64 = None, faceset_token = None, outer_id = None, return_result_count = 1):
         url = API_HOST + "search"
         params = self.url_params
         file = None
+
+        if not face_token and not image_url and image_file is None and not image_base64:
+            raise AttributeError('Missing face_token or image_url or image_file or image_base64 argument. At least one must be set.')
 
         if face_token:
             if isinstance(face_token, str):
                 params.update({'face_token': face_token})
             else:
                 raise AttributeError("face_token must be a string.")
-
-        elif frame is not None:
-            data = cv2.imencode('.jpg', frame)[1]
-
-        elif file is not None:
-            if isinstance(file, str):
-                data = open(file, 'rb')
+        elif image_url:
+            if isinstance(image_url, str):
+                params.update({'image_url': image_url})
             else:
-                data = file
+                raise AttributeError("face_token must be a string.")
+        elif not image_file is None:
+            if isinstance(image_file, str):
+                try:
+                    file = {'image_file': open(image_file, 'rb')}
+                except OSError:
+                    raise AttributeError("There was an error during opening file, check if path is valid.")
+            else:
+                file = {'image_file': image_file}
         else:
-            raise AttributeError("Missing frame or file or face_token argument. At least one must be set.")
+            raise AttributeError("image_base64 not yet implement.")
 
         if outer_id:
             params.update({'outer_id': outer_id})
@@ -127,32 +134,128 @@ class Facepp_Client(object):
         else:
             params.update({'return_result_count': return_result_count})
 
-        return self._sendRequest(url, params = params, files = {'image_file': data})
+        return self._sendRequest(url, params = params, files = file)
 
-    def addFace(self, face_tokens, faceset_token = None, outer_id = None):
-        url = API_HOST + "faceset/addface"
+    def setUserID(self, face_token, faceset_token = None, user_id = None):
+        url = API_HOST + "faceset/setuserid"
         params = self.url_params
 
-        if not faceset_token and not outer_id:
-            raise AttributeError('Missing faceset_token or outer_id argument. At least one must be set.')
+        if not face_token and not faceset_token and not user_id:
+            raise AttributeError('You must define all the params')
 
-        if face_tokens:
-            if isinstance(face_tokens, list):
-                if len(face_tokens) < 5:
-                    params.update({'face_tokens': ",".join(face_tokens)})
-                else:
-                    raise AttributeError('face_tokens array must be length at most 5.')
-            elif isinstance(face_tokens, str):
-                params.update({'face_tokens': face_tokens})
-            else:
-                raise AttributeError('face_tokens should be a string or a list of string. You provided a ' + type(face_tokens).__name__ + 'instead.')
+        if isinstance(face_token, str):
+            params.update({'face_token': face_token})
+        else:
+            raise AttributeError('face_token should be a str. You provided a ' + type(face_token).__name__ + 'instead.')
 
-        if outer_id:
-            params.update({'outer_id': outer_id})
-        elif faceset_token:
+        if isinstance(faceset_token, str):
             params.update({'faceset_token': faceset_token})
         else:
-            raise AttributeError('You must define a unique outer_id or face_token.')
+            raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + 'instead.')
+
+        if isinstance(user_id, str):
+            params.update({'user_id': user_id})
+        else:
+            raise AttributeError('user_id should be a str. You provided a ' + type(user_id).__name__ + 'instead.')
+
+        return self._sendRequest(url, params = params)
+
+    """
+    --------------------API to manage Facesets---------------------------------
+    """
+
+    def _validate(outer_id, face_token):
+        params = {}
+
+        if not outer_id and not faceset_token:
+            raise AttributeError('You must define a unique outer_id or faceset_token.')
+        if outer_id and faceset_token:
+            raise AttributeError('You must define only one between outer_id and faceset_token.')
+
+        if isinstance(outer_id, str):
+            params.update({'outer_id': outer_id})
+        elif not outer_id is None:
+            raise AttributeError('tags should be a str. You provided a ' + type(outer_id).__name__ + ' instead.')
+
+        if isinstance(faceset_token, str):
+            params.update({'faceset_token': faceset_token})
+        elif not faceset_token is None:
+            raise AttributeError('tags should be a str. You provided a ' + type(faceset_token).__name__ + ' instead.')
+
+        return params
+
+    def getFaceSets(self, tags = None, start = 1):
+        url = API_HOST + 'faceset/getfacesets'
+        params = self.url_params
+
+        if isinstance(tags, str):
+            params.update({'tags': tags})
+        elif not tags is None:
+            raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + ' instead.')
+
+        if not isinstance(start, int):
+            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
+        elif start < 1:
+            raise AttributeError('start must be at least one.')
+        else:
+            params.update({'start': start})
+
+        return self._sendRequest(url, params = params)
+
+    def deleteFaceSet(self, outer_id = None, faceset_token = None, check_empty = 1):
+        url = API_HOST + 'faceset/delete'
+        params = self.url_params
+
+        params.update(_validate(outer_id, face_token))
+
+        # TODO: check check_empty
+
+        return self._sendRequest(url, params = params)
+
+    def getFaceSetDetail(self, outer_id = None, faceset_token = None, start = 1):
+        url = API_HOST + 'faceset/getdetail'
+        params = self.url_params
+
+        params.update(_validate(outer_id, face_token))
+
+        if not isinstance(start, int):
+            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
+        elif start < 1 or start > 10000:
+            raise AttributeError('start must be between 1 and 10.000 .')
+        else:
+            params.update({'start': start})
+
+        return self._sendRequest(url, params = params)
+
+    def updateFaceSet(self, outer_id = None, faceset_token = None, new_outer_id=None, display_name=None, user_data=None, tags=None):
+
+        url = API_HOST + 'faceset/update'
+        params = self.url_params
+
+        params.update(_validate(outer_id, face_token))
+
+        if not new_outer_id and not display_name and not user_data and not tags:
+            raise AttributeError('You must define at least one of the following params: new_outer_id, display_name, user_data, user_data')
+
+        if new_outer_id and isinstance(new_outer_id, str):
+            params.update({'new_outer_id': new_outer_id})
+        else:
+            raise AttributeError('new_outer_id should be a str. You provided a ' + type(new_outer_id).__name__ + 'instead.')
+
+        if display_name and isinstance(display_name, str):
+            params.update({'display_name': display_name})
+        else:
+            raise AttributeError('display_name should be a str. You provided a ' + type(display_name).__name__ + 'instead.')
+
+        if user_data and isinstance(user_data, str):
+            params.update({'user_data': user_data})
+        else:
+            raise AttributeError('user_data should be a str. You provided a ' + type(user_data).__name__ + 'instead.')
+
+        if tags and isinstance(tags, str):
+            params.update({'tags': user_data})
+        else:
+            raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + 'instead.')
 
         return self._sendRequest(url, params = params)
 
@@ -185,40 +288,11 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params)
 
-    def setUserID(self, face_token, faceset_token = None, user_id = None):
-        url = API_HOST + "faceset/setuserid"
-        params = self.url_params
-
-        if not face_token and not faceset_token and not user_id:
-            raise AttributeError('You must define all the params')
-
-        if isinstance(face_token, str):
-            params.update({'face_token': face_token})
-        else:
-            raise AttributeError('face_token should be a str. You provided a ' + type(face_token).__name__ + 'instead.')
-
-        if isinstance(faceset_token, str):
-            params.update({'faceset_token': faceset_token})
-        else:
-            raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + 'instead.')
-
-        if isinstance(user_id, str):
-            params.update({'user_id': user_id})
-        else:
-            raise AttributeError('user_id should be a str. You provided a ' + type(user_id).__name__ + 'instead.')
-
-        return self._sendRequest(url, params = params)
-
-    """
-    --------------------API to manage Facesets---------------------------------
-    """
-
     def addFace(self, face_tokens, faceset_token = None, outer_id = None):
         url = API_HOST + "faceset/addface"
         params = self.url_params
 
-        if not faceset_token and not outer_id:
-            raise AttributeError('Missing faceset_token or outer_id argument. At least one must be set.')
+        params.update(_validate(outer_id, face_token))
 
         if face_tokens:
             if isinstance(face_tokens, list):
@@ -231,25 +305,6 @@ class Facepp_Client(object):
             else:
                 raise AttributeError('face_tokens should be a string or a list of string. You provided a ' + type(face_tokens).__name__ + 'instead.')
 
-        if outer_id:
-            params.update({'outer_id': outer_id})
-        elif faceset_token:
-            params.update({'faceset_token': faceset_token})
-        else:
-            raise AttributeError('You must define a unique outer_id or face_token.')
-
-        return self._sendRequest(url, params = params)
-
-    def deleteFaceSet(self, outer_id = None, faceset_token = None ):
-        url = API_HOST + 'faceset/delete'
-        params = self.url_params
-
-        if outer_id:
-            params.update({'outer_id': outer_id})
-        elif faceset_token:
-            params.update({'faceset_token': faceset_token})
-        else:
-            raise AttributeError('You must define a unique outer_id or face_token.')
 
         return self._sendRequest(url, params = params)
 
@@ -274,94 +329,5 @@ class Facepp_Client(object):
                 params.update({'face_tokens': face_tokens})
             else:
                 raise AttributeError('face_tokens should be a string or a list of string. You provided a ' + type(face_tokens).__name__ + 'instead.')
-
-        return self._sendRequest(url, params = params)
-
-    def getFaceSetDetail(self, outer_id = None, faceset_token = None, start = 1):
-        url = API_HOST + 'faceset/getdetail'
-        params = self.url_params
-
-        if not outer_id and not faceset_token:
-            raise AttributeError('You must define a unique outer_id or faceset_token.')
-        if outer_id and faceset_token:
-            raise AttributeError('You must define only one between outer_id and faceset_token.')
-
-        if isinstance(outer_id, str):
-            params.update({'outer_id': outer_id})
-        elif not outer_id is None:
-            raise AttributeError('tags should be a str. You provided a ' + type(outer_id).__name__ + ' instead.')
-
-        if isinstance(faceset_token, str):
-            params.update({'faceset_token': faceset_token})
-        elif not faceset_token is None:
-            raise AttributeError('tags should be a str. You provided a ' + type(faceset_token).__name__ + ' instead.')
-
-        if not isinstance(start, int):
-            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
-        elif start < 1 or start > 10000:
-            raise AttributeError('start must be between 1 and 10.000 .')
-        else:
-            params.update({'start': start})
-
-        return self._sendRequest(url, params = params)
-
-    def getFaceSets(self, tags = None, start = 1):
-        url = API_HOST + 'faceset/getfacesets'
-        params = self.url_params
-
-        if isinstance(tags, str):
-            params.update({'tags': tags})
-        elif not tags is None:
-            raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + ' instead.')
-
-        if not isinstance(start, int):
-            raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
-        elif start < 1:
-            raise AttributeError('start must be at least one.')
-        else:
-            params.update({'start': start})
-
-        return self._sendRequest(url, params = params)
-
-    def updateFaceSet(self, outer_id = None, faceset_token = None, new_outer_id=None, display_name=None, user_data=None, tags=None):
-
-        url = API_HOST + 'faceset/update'
-        params = self.url_params
-
-        if not outer_id and not faceset_token:
-            raise AttributeError('You must define a unique outer_id or faceset_token.')
-
-        if outer_id and isinstance(outer_id, str):
-            params.update({'outer_id': outer_id})
-        else:
-            raise AttributeError('outer_id should be a str. You provided a ' + type(outer_id).__name__ + 'instead.')
-
-        if faceset_token and isinstance(faceset_token, str):
-            params.update({'faceset_token': faceset_token})
-        else:
-            raise AttributeError('faceset_token should be a str. You provided a ' + type(faceset_token).__name__ + 'instead.')
-
-        if not new_outer_id and not display_name and not user_data and not tags:
-            raise AttributeError('You must define at least one of the following params: new_outer_id, display_name, user_data, user_data')
-
-        if new_outer_id and isinstance(new_outer_id, str):
-            params.update({'new_outer_id': new_outer_id})
-        else:
-            raise AttributeError('new_outer_id should be a str. You provided a ' + type(new_outer_id).__name__ + 'instead.')
-
-        if display_name and isinstance(display_name, str):
-            params.update({'display_name': display_name})
-        else:
-            raise AttributeError('display_name should be a str. You provided a ' + type(display_name).__name__ + 'instead.')
-
-        if user_data and isinstance(user_data, str):
-            params.update({'user_data': user_data})
-        else:
-            raise AttributeError('user_data should be a str. You provided a ' + type(user_data).__name__ + 'instead.')
-
-        if tags and isinstance(tags, str):
-            params.update({'tags': user_data})
-        else:
-            raise AttributeError('tags should be a str. You provided a ' + type(tags).__name__ + 'instead.')
 
         return self._sendRequest(url, params = params)
