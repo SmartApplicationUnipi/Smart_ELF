@@ -202,7 +202,7 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params)
 
-    def deleteFaceSet(self, outer_id = None, faceset_token = None, check_empty = 1):
+    def deleteFaceSet(self, outer_id = None, faceset_token = None, check_empty = 0):
         url = API_HOST + 'faceset/delete'
         params = self.url_params
 

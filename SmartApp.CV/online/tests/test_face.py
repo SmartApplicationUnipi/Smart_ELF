@@ -49,30 +49,43 @@ def test_detect(client, filepath):
         client.detect()
 
 def test_search(client, filepath):
-    #this test will fail
-    #TODO OUTER_ID SHOULD BE REAL!!!
-    outer_id = 'fake'
+
+    #detect a face
+    res = client.detect(file = filepath)
+    #get token
+    face_token = res['faces'][0]['face_token']
+    fake_outer_id = 'fakeSet'
+
+    #create a faceset and add the detected token
+    client.createFaceSet(outer_id = fake_outer_id, face_tokens = [face_token])
 
     #check filepath
-    response = client.search(image_file = filepath, outer_id = outer_id)
+    response = client.search(image_file = filepath, outer_id = fake_outer_id)
     assert "error_message" not in response
+    assert len(response['faces']) > 0
 
     #check frame
     frame = cv2.imread(filepath , -1)
-    response = client.search(image_file = frame,  outer_id = outer_id)
+    response = client.search(image_file = frame,  outer_id = fake_outer_id)
     assert "error_message" not in response
+    assert len(response['faces']) > 0
 
     #check file
     file = open(filepath, 'rb')
-    response = client.detect(image_file = file,  outer_id = outer_id)
+    response = client.search(image_file = file,  outer_id = fake_outer_id)
     file.close()
     assert "error_message" not in response
+    assert len(response['faces']) > 0
 
     #check face_token
-    response = client.detect(face_token = 'fake_token',  outer_id = outer_id)
+    response = client.search(face_token = 'fake_token',  outer_id = fake_outer_id)
     file.close()
     assert "error_message" not in response
+    assert len(response['faces']) > 0
 
     #check invalid parameters
     with pytest.raises(AttributeError):
         client.search()
+
+    #delete created FaceSet
+    client.deleteFaceSet(outer_id = fake_outer_id)
