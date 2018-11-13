@@ -1,7 +1,9 @@
+import { security } from './config';
 import { checkRules } from './inferenceStub';
 import * as matcher from './matcher';
 
 type SubCallback = (r: object[]) => any;
+const TOKEN = security.token;
 
 export const databaseFact = new Map<number, object>();
 export const databaseRule = new Map<number, object>();
@@ -9,8 +11,8 @@ const subscriptions = new Map<object, SubCallback[]>();
 
 const registered = new Array();
 
-export const tagMap = new Map<string, string>(); //map <tag, description>
-export const docMap = new Map<string, string>(); //map <tag, documentation>
+export const tagMap = new Map<string, string>(); // map <tag, description>
+export const docMap = new Map<string, string>(); // map <tag, documentation>
 
 registered.push('inference');
 
@@ -19,7 +21,7 @@ let uniqueRuleId = 0;
 
 export class Response {
     success: boolean;
-    details: any;     //se success=false, spiego l'errore. Altrimenti restituisco l'eventuale risultato (es:idSource)
+    details: any;     // se success=false, spiego l'errore. Altrimenti restituisco l'eventuale risultato (es:idSource)
 
     constructor(success: boolean, details: any) {
         this.success = success;
@@ -27,6 +29,7 @@ export class Response {
     }
 }
 
+// tslint:disable-next-line:max-classes-per-file
 class Metadata {
     idSource: string;
     tag: string;
@@ -44,15 +47,16 @@ class Metadata {
 }
 
 export function register(tags: any) {
-    var keys = Object.keys(tags);
-    var errors : string[] = [];
+    const keys = Object.keys(tags);
+    const errors: string[] = [];
     for (const tag of keys) {
-        if (tagMap.has(tag))
+        if (tagMap.has(tag)) {
             errors.push(tag);
+        }
     }
 
     if (errors.length > 0) {
-        return new Response(false, errors); 
+        return new Response(false, errors);
     }
 
     for (const tag of keys) {
@@ -64,30 +68,30 @@ export function register(tags: any) {
 }
 
 export function registerTagDocumentation(tags: any) {
-    var keys = Object.keys(tags);
-    var res : string[] = [];
+    const keys = Object.keys(tags);
+    const res: string[] = [];
     for (const k of keys) {
         if (tagMap.has(k)) {
             docMap.set(k, tags[k]);
-            res.push(k)
+            res.push(k);
         }
     }
-    if(!res.length) {
+    if (!res.length) {
         return new Response(false, []);
     }
     return new Response(true, res);
 }
 
 export function getTagDoc(tags: string[]) {
-    let res: any = {};
-    let found : boolean = false;
-    tags.forEach(tag => {
-        if(docMap.has(tag)){
+    const res: any = {};
+    let found: boolean = false;
+    tags.forEach((tag) => {
+        if (docMap.has(tag)) {
             res[tag] = docMap.get(tag);
             found = true;
         }
     });
-    if(!found) {
+    if (!found) {
         return new Response(false, {});
     }
     return new Response(true, res);
@@ -95,12 +99,12 @@ export function getTagDoc(tags: string[]) {
 
 // tslint:disable-next-line:max-line-length
 export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered"); }
+    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered'); }
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
     const dataobject = {
-        _id: currentFactId,
         _data: jsonFact,
+        _id: currentFactId,
         _meta: metadata,
     };
     if (!tagMap.has(tag)) {
@@ -112,19 +116,20 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
     return new Response(true, currentFactId);
 }
 
+// tslint:disable-next-line:max-line-length
 export function updateFactbyId(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
+    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     if (!databaseFact.has(id)) {
         return new Response(false, id);
     }
 
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const dataobject = {
-        _id: id,
         _data: jsonFact,
+        _id: id,
         _meta: metadata,
     };
-    databaseFact.set(id, dataobject)
+    databaseFact.set(id, dataobject);
     return new Response(true, id);
 }
 
@@ -137,14 +142,13 @@ export function queryBind(jreq: object) {
 }
 
 export function subscribe(idSource: string, jreq: object, callback: SubCallback) {
-    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
-    // the idea is that this will be the original signature. Will then wrap this into the communication protocol
+    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     if (!subscriptions.has(jreq)) {
         subscriptions.set(jreq, [callback]);
     } else {
         subscriptions.get(jreq).push(callback);
     }
-    return new Response(true, "Subscribed");
+    return new Response(true, 'Subscribed');
 }
 
 export function getAndSubscribe(idSource: string, jreq: object, callback: SubCallback) {
@@ -157,7 +161,7 @@ export function getAndSubscribe(idSource: string, jreq: object, callback: SubCal
 }
 
 export function removeFact(idSource: string, jreq: object) {
-    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
+    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     const removedFactsId: number[] = [];
     const res = queryFact(jreq);
     for (const k of res.details) {
@@ -168,7 +172,7 @@ export function removeFact(idSource: string, jreq: object) {
 }
 
 export function removeFactById(idSource: string, idFact: number) {
-    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
+    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     databaseFact.delete(idFact);
     return new Response(true, idFact);
 }
@@ -176,13 +180,13 @@ export function removeFactById(idSource: string, idFact: number) {
 export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
     // controllo se la regola è valida
     if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
-        return new Response(false, "Rules must have a 'head' and a 'body'");
+        return new Response(false, 'Rules must have a \'head\' and a \'body\'');
     }
-    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
+    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     const metadata = new Metadata(idSource, ruleTag, Date.now(), 0, 0);
     const dataobject = {
-        _id: uniqueRuleId_gen(),
         _data: jsonRule,
+        _id: uniqueRuleId_gen(),
         _meta: metadata,
     };
     databaseRule.set(dataobject._id, dataobject);
@@ -190,9 +194,9 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
 }
 
 export function removeRule(idSource: string, idRule: number) {
-    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
+    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     if (!databaseRule.delete(idRule)) {
-        return new Response(false, "Rule " + idRule + "not found.")
+        return new Response(false, 'Rule ' + idRule + ' not found.');
     }
     return new Response(true, idRule);
 }
@@ -202,7 +206,7 @@ function checkSubscriptions(obj: object) {
     const q = {
         _data: {},
         _id: '$_id',
-        _meta: '$_metadata'
+        _meta: '$_metadata',
     };
     subscriptions.forEach((callbArray, k, m) => {
         q._data = k;

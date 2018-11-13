@@ -1,19 +1,21 @@
 import json
 
-from kb import *
-      
-myID = register()
+from kb import KnowledgeBaseClient
 
-print(addFact(myID, "test", 1, 50, 'false', {"prova": 1}))
-print(addFact(myID, "test", 1, 50, 'false', {"prova": 2}))
-print(addFact(myID, "test", 1, 50, 'false', {"prova": 3}))
+k = KnowledgeBaseClient(True)
 
-print(removeFact(myID, {"prova": 2}))
-print(queryBind({"prova": "$x"}))
+myID = k.register()
+
+print(k.addFact(myID, "test", 1, 50, 'false', {"prova": 1}))
+print(k.addFact(myID, "test", 1, 50, 'false', {"prova": 2}))
+print(k.addFact(myID, "test", 1, 50, 'false', {"prova": 3}))
+
+print(k.removeFact(myID, {"prova": 2}))
+print(k.queryBind({"prova": "$x"}))
 
 def callbfun(res):
     print("callback:")
     print(res)
 
-subscribe(myID, {"prova": "$x"}, callbfun)
-addFact(myID, "test", 1, 50, 'false', {"prova": "callb"})
+k.subscribe(myID, {"prova": "$x"}, callbfun)
+k.addFact(myID, "test", 1, 50, 'false', {"prova": "callb"})

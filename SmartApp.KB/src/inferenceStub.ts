@@ -2,14 +2,14 @@ import { isObject } from 'util';
 import { addFact, databaseFact } from './kb';
 import { findMatchesBind, findMatchesBind2, isPlaceholder } from './matcher';
 
-const INFERENCE_TAG = 'INFERENCE'
+const INFERENCE_TAG = 'INFERENCE';
 const databaseRule = [
     {
         _data:
         {
             body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
             { subject: '$course', relation: 'is in room', object: '$room' }],
-            head: { subject: '$prof', relation: 'is in', object: '$room' }
+            head: { subject: '$prof', relation: 'is in', object: '$room' },
         },
     },
     {
