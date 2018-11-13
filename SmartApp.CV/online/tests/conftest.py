@@ -10,3 +10,13 @@ def client():
 @pytest.fixture
 def filepath():
     return "online/tests/faces/f1.PNG"
+
+@pytest.fixture
+def getFacesetInstance(arg):
+
+    class FaceSetFactory():
+
+        __init__():
+        
+
+    return

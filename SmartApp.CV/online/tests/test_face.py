@@ -49,7 +49,7 @@ def test_detect(client, filepath):
         client.detect()
 
 def test_search(client, filepath):
-
+    #this test will fail
     #TODO OUTER_ID SHOULD BE REAL!!!
     outer_id = 'fake'
 

@@ -93,34 +93,27 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params, files = {'image_file': data})
 
-    def search(self, face_token = None, image_url = None, image_file = None, image_base64 = None, faceset_token = None, outer_id = None, return_result_count = 1):
+    def search(self, face_token = None, frame = None, file = None faceset_token = None, outer_id = None, return_result_count = 1):
         url = API_HOST + "search"
         params = self.url_params
         file = None
-
-        if not face_token and not image_url and image_file is None and not image_base64:
-            raise AttributeError('Missing face_token or image_url or image_file or image_base64 argument. At least one must be set.')
 
         if face_token:
             if isinstance(face_token, str):
                 params.update({'face_token': face_token})
             else:
                 raise AttributeError("face_token must be a string.")
-        elif image_url:
-            if isinstance(image_url, str):
-                params.update({'image_url': image_url})
+
+        elif frame is not None:
+            data = cv2.imencode('.jpg', frame)[1]
+
+        elif file is not None:
+            if isinstance(file, str):
+                data = open(file, 'rb')
             else:
-                raise AttributeError("face_token must be a string.")
-        elif not image_file is None:
-            if isinstance(image_file, str):
-                try:
-                    file = {'image_file': open(image_file, 'rb')}
-                except OSError:
-                    raise AttributeError("There was an error during opening file, check if path is valid.")
-            else:
-                file = {'image_file': image_file}
+                data = file
         else:
-            raise AttributeError("image_base64 not yet implement.")
+            raise AttributeError("Missing frame or file or face_token argument. At least one must be set.")
 
         if outer_id:
             params.update({'outer_id': outer_id})
@@ -134,7 +127,7 @@ class Facepp_Client(object):
         else:
             params.update({'return_result_count': return_result_count})
 
-        return self._sendRequest(url, params = params, files = file)
+        return self._sendRequest(url, params = params, files = {'image_file': data})
 
     def addFace(self, face_tokens, faceset_token = None, outer_id = None):
         url = API_HOST + "faceset/addface"
