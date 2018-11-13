@@ -1,3 +1,10 @@
+const DEBUG = 100;
+
+function clog(msg: any, level: number) {
+    if (level < DEBUG)
+        console.log(msg);
+}
+
 export function findMatchesBind(query: any, Dataset: any[]) {
     const matches = new Array();
     const sorted = sort(query);
@@ -17,7 +24,7 @@ export function findMatchesBind2(query: any, Dataset: any[], initBinds: any[]) {
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
         const mb = matchBind(query, sorted, 0, 0, data, initBinds);
-        // console.log(mb);
+        // clog(mb);
         if (mb.match) {
             matches.push(mb.binds);
         }
@@ -44,138 +51,135 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
     let match = true;
 
     // TODO check sugli indici
-    console.log('Query:');
-    console.log(query);
-    //    console.log('Sorted:');
-    //    console.log(sorted);
+    // clog('Query:', 10);
+    // clog(query, 10);
+    //    clog('Sorted:');
+    //    clog(sorted);
 
     // binds : list of map <placeholder : bind>
-
+    clog('', 1);
     for ( let i = listIndex; i < sorted.size; ++i) {
-        //console.log('index ' + i);
         switch (i) {
             case 0: {
                 // atom : atom
-                console.log('Working on atom : atom');
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case atom : atom', 5);
                 for (const queryKey of sorted.get(i)) {
-                    console.log('key: ' + queryKey);
+                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
                     if (!data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]) {
-                        console.log('FAIL: !data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]');
+                        clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]', 2);
                         return {match: false, binds: []};
                     }
                 }
-                console.log('FINITO 0');
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Exit case atom : atom', 5);
                 break;
             }
             case 1: {
                 // atom : object
-                console.log('Working on atom : object');
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case atom : object', 5);
                 for (const queryKey of sorted.get(i)) {
-                    console.log('key: ' + queryKey);
+                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
                     if (!data.hasOwnProperty(queryKey) || !isObject(data[queryKey])) {
                         // Se non ha la chiave, o ha la chiave ma non è un oggetto ESPLODI
-                        console.log('FAIL: !data.hasOwnProperty(queryKey) || !isObject(data[queryKey])');
+                        clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey) || !isObject(data[queryKey])', 2);
                         return {match: false, binds: []};
                     }
-                    const innerSorted = sort(query[queryKey]);
-                    let newBinds = new Array();
-                    let success = false;
-                    for (let k = 0; k < binds.length; ++k) {
-                        const innerBind = Object.assign({}, binds[k]);
-                        innerBind[queryKey] = data[queryKey];
-                        const result = matchBind(query[queryKey], innerSorted, 0, 0, data[queryKey], innerBind);
-                        if (!result.match) {
-                            console.log('FAIL: !result.match');
-                        } else {
-                            success = true;
-                            for (const resBind of result.binds) {
-                                newBinds.push(resBind); //???
-                            }
-                        }
+                    const innerSorted = sort(query[queryKey]); // TODO remove
+                    const result = matchBind(query[queryKey], innerSorted, 0, 0, data[queryKey], binds);
+                    if (!result.match) {
+                        clog('\x1b[1;31mFAIL('+i+')\x1b[0m: inner objects are different.', 2);
+                        return {match: false, bind: [] };
+                    } else {
+                        // TODO prove it is correct
+                        binds = [...result.binds];
                     }
-                    if (!success) {
-                        return {match: false, binds: []};
-                    }
-                    binds = newBinds;
                 }
-                console.log('FINITO 1');
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case atom : object', 5);
                 break;
             }
             case 2: {
                 // atom : placeholder
-                console.log('Working on atom : placeholder');
+                clog('\x1b[1;34mINFO('+i+')\x1b[0m Enter case atom : placeholder', 5);
                 for (const queryKey of sorted.get(i)) {
-                    console.log('key: ' + queryKey);
+                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
                     if (!data.hasOwnProperty(queryKey)) {
-                        console.log('FAIL: !data.hasOwnProperty(queryKey)');
+                        clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey)', 2);
                         return {match: false, binds: {}};
                     }
-                    
                     if (binds.length === 0) {
-                        console.log('length è giusto');
+                        clog('\x1b[1;32mINFO('+i+')\x1b[0m: It\'s the first bind', 5);
                         const b:any = {};
                         b[query[queryKey]] = data[queryKey];
                         binds.push(b);
                     } else {
                         for (let k = 0; k < binds.length; ++k) {
-                            console.log('sono dentro');
                             if (binds[k].hasOwnProperty(query[queryKey])) {
                                 if (binds[k][query[queryKey]] != data[queryKey]) {
-                                    console.log('FAIL: binds[query[queryKey]] != data[queryKey]');
+                                    clog('\x1b[1;31mFAIL('+i+')\x1b[0m: binds[query[queryKey]] != data[queryKey]', 2);
                                     delete binds[k];
                                 continue;
                                 } else {
-                                    console.log('OK');
+                                    clog('\x1b[1;32mOK('+i+'): \x1b[0m OK', 3);
                                 }
                             } else {
-                                console.log('binds[query[queryKey]] = data[queryKey]');
+                                clog('\x1b[1;31mFAIL('+i+'): \x1b[0m binds[query[queryKey]] = data[queryKey]', 2);
                             binds[k][query[queryKey]] = data[queryKey];
                             }
                         }
                     }
-                    console.log(binds);
-                }
-                console.log('FINITO 2');
-                break;
-            }
-            case 3: {
-                
-                // placeholder : atom
-                console.log('Working on placeholder : atom');
-                /*
-                const list = sorted.get(i);
-                const dataKeys = Object.keys(data);
-                for(let j = index; j < list.size; ++j) {
-                    for (const bind of binds) {
-                        if (!(bind.hasOwnProperty(list[j]) && data.hasOwnProperty(bind[list[j]]) &&
-                              query[list[j]] === data[bind[list[j]]])) {
-                            console.log('FAIL query[list[j]] === data[binds[list[j]]]');
-                            // return {match: false, binds: {}};
-                            // TODO: togli bind da binds
-                        }
-                        for (const dataKey of dataKeys) {
-                            if (query[list[j]] === data[dataKey]) {
-                                let newBinds = Object.assign({}, bind);
-                                newBinds[list[j]] = dataKey;
-                                const result = matchBind(query, sorted, i, j+1, data, newBinds);
-                                if (result.match) {
-                                    // TODO per ogni bind in result.Binds, lo aggiungo a binds
-                                    //resultBinds = resultBinds.concat(result.binds);
-                                }
-                            }
-                        }
-                    }
-                    if (binds.length == 0) {
+                    binds = binds.filter(el => {return el != null});
+                    if (binds.length === 0) {
+                        clog('\x1b[1;33mEXIT('+i+'): \x1b[0m binds.length === 0', 4);
                         return {match: false, binds: {}};
                     }
                 }
-                */
-                break; 
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Exit case atom : placeholder', 5);
+                break;
+            }
+            case 3: {
+                // placeholder : atom
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case placeholder : atom', 5);
+                const list = sorted.get(i);
+                const dataKeys = Object.keys(data);
+                for(let j = index; j < list.length; ++j) {
+                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + list[j], 5);
+                    const newBinds = [...binds]
+                    for (let k = 0; k < newBinds.length || k == 0; ++k) {
+                        if (newBinds[k] && !(newBinds[k].hasOwnProperty(list[j]) && data.hasOwnProperty(newBinds[k][list[j]]) &&
+                              query[list[j]] === data[newBinds[k][list[j]]])) {
+                            clog('\x1b[1;31mFAIL(3): \x1b[0m query[list[j]] === data[binds[list[j]]]', 2);
+                            delete binds[k];
+                            continue;
+                        }
+                        if (newBinds[k] && newBinds[k].hasOwnProperty(list[j]) && data.hasOwnProperty(newBinds[k][list[k]]) &&
+                            query[list[j]] === data[newBinds[k][list[j]]]) {
+                            clog('\x1b[1;32mOK(3):\x1b[0m bind già esistente', 3);
+                            continue;
+                        }
+                        for (const dataKey of dataKeys) {
+                            if (query[list[j]] === data[dataKey]) {
+                                clog('\x1b[1;32mOK(3):\x1b[0m match and new branch', 3);
+                                delete binds[k];
+                                let tmp:any = {...newBinds[k]};
+                                tmp[list[j]] = dataKey;
+                                binds.push(tmp);
+                            } else {
+                                clog('\x1b[1;32mOK(3):\x1b[0m No match here', 3);
+                            }
+                        }
+                    }
+                    binds = binds.filter(el => {return el != null});
+                    if (binds.length === 0) {
+                        clog('\x1b[1;33mEXIT(3): \x1b[0m binds.length === 0', 4);
+                        return {match: false, binds: {}};
+                    }
+                }
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Exit case placeholder : atom', 5);
+                break;
             }
             case 4: {
                 
                 // placeholder : object
-                console.log('Working on placeholder : object');
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case placeholder : object', 5);
                 /*
                 const list = sorted.get(i);
                 const dataKeys = Object.keys(data);
@@ -183,7 +187,7 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                     for (const bind of binds) {
                         if (!(bind.hasOwnProperty(list[j]) && data.hasOwnProperty(bind[list[j]]) &&
                               isObject(data[bind[list[j]]]))) {
-                            console.log('FAIL: isObject(data[binds[list[j]]]')
+                            clog('\x1b[1;31mFAIL('+i+')\x1b[0m: isObject(data[binds[list[j]]]')
                             //return {match: false, binds: {}};
                             // TODO: togli bind da binds
                         }
@@ -192,7 +196,7 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                             const innerBind = Object.assing({}, bind);
                             const result = matchBind(query[list[j]], innerSorted, 0, 0, data[bind[list[j]]], innerBind);
                             if (!result.match) {
-                                console.log('FAIL: !result.match');
+                                clog('FAIL: !result.match');
                                 //return {match: false, binds: {}};
                                 // TODO: togli bind da binds
                             }
@@ -210,14 +214,14 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                             const result = matchBind(query[list[j]], innerSorted, 0, 0, data[dataKey], innerBind);
                             if (!result.match) {
                                 // TODO: togli bind da binds
-                                console.log('FAIL: !result.match');
+                                clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !result.match');
                                 continue;
                             }
                             for (const resultBind of result.binds) {
                                 const nextResult = matchBind(query, sorted, i, j+1, data, resultBinds);
                                 if (!nextResult.match) {
                                     // TODO: togli bind da binds
-                                    console.log('FAIL: !nextResult.match');
+                                    clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !nextResult.match');
                                     continue;
                                 }
                                 // TODO per ogni bind in nextResult.Binds, lo aggiungo a binds
@@ -232,17 +236,19 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                     }
                 }
                 */
+                clog('\x1b[1;34mINFO('+i+')\x1b[0m Exit case placeholder : object', 5);
                 break;
                 
             }
             case 5: {
-                console.log('Working on placeholder : placeholder');
+                clog('\x1b[1;34mINFO('+i+')\x1b[0m Enter case placeholder : placeholder', 5);
                 // placeholder : placeholder
                 // TODO 
+                clog('\x1b[1;34mINFO('+i+')\x1b[0m Exit case placeholder : placeholder', 5);
                 break;
             }
             default: {
-                console.log ('sei proprio un ritardato');
+                clog ('sei proprio un ritardato', 0);
                 break;
             }
         } // end switch
@@ -257,7 +263,7 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
 
     while (i < queryKeys.length && match) {
         const queryKey = queryKeys[i];
-        console.log('analyzing key: ' + queryKey);
+        clog('analyzing key: ' + queryKey);
 
         if (isAtom(queryKey)) {
             // the object d is good if contains all the keys in q
@@ -265,12 +271,12 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 const queryValue = query[queryKey];
                 const dataValue = data[queryKey];
 
-                // console.log('try to match/bind key vaulues ' + queryValue + ' and ' + dataValue);
+                // clog('try to match/bind key vaulues ' + queryValue + ' and ' + dataValue);
 
                 if (isAtom(queryValue)) {
                 // the value of the current query key is an atom, so we need the value of the data key to be equal
                     if (queryValue !== dataValue) {
-                        // console.log('is atom fail');
+                        // clog('is atom fail');
                         match = false;
                     }
                 }
@@ -278,7 +284,7 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 // the value of the current query key is a placeholder,
                 // so we need to check if we can bind the value to it
                     if (binds.hasOwnProperty(queryValue) && binds[queryValue] !== dataValue) {
-                        // console.log('binding fail');
+                        // clog('binding fail');
                         match = false;
                     } else { binds[queryValue] = dataValue; }
                 }
@@ -297,19 +303,19 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
         if (isPlaceholder(queryKey)) {
             let success = false;
             const queryValue = query[queryKey];
-            console.log(data);
+            clog(data);
             const dataKeys = Object.keys(data);
             for (const dataKey of dataKeys) {
                 const dataValue = data[dataKey];
                 if (isAtom(queryValue)) {
-                    console.log('case placeholder : atom');
+                    clog('case placeholder : atom');
                     if (isAtom(dataValue) && queryValue === dataValue) {
-                        console.log('values are equal, so we bind ' + queryKey  + ' to ' + dataKey);
+                        clog('values are equal, so we bind ' + queryKey  + ' to ' + dataKey);
                         // TODO
                     }
                 }
                 if (isPlaceholder(queryValue)) {
-                    console.log('case placeholder : placeholder');
+                    clog('case placeholder : placeholder');
                     if (binds.hasOwnProperty(queryValue)) {
                         // caso: queryValue è già bindata
                         // MI SONO PERSOOOOOOOOOOOOOO
@@ -318,21 +324,21 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                     } else {
                         if (queryKey === queryValue) {
                             if (dataKey === dataValue) {
-                                console.log('che schifo! Bind' + queryKey + ' to ' + dataKey);
+                                clog('che schifo! Bind' + queryKey + ' to ' + dataKey);
                             }
                         } else {
-                            console.log('bind ' + queryKey + ' to ' + dataKey);
+                            clog('bind ' + queryKey + ' to ' + dataKey);
                             // FIXME: dataValue can be an atom or an object...
-                            console.log('bind ' + queryValue + ' to ' + dataValue);
+                            clog('bind ' + queryValue + ' to ' + dataValue);
                         }
                     }
                 }
                 if (isObject(queryValue) && isObject(dataValue)) {
-                    console.log('case placeholder : object');
+                    clog('case placeholder : object');
                     const result = matchBind(queryValue, dataValue, binds);
                     if (result.match) {
-                        console.log('object match hoooray, so we bind ' + queryKey  + ' to ' + dataKey);
-                        console.log('and also the inner binds')
+                        clog('object match hoooray, so we bind ' + queryKey  + ' to ' + dataKey);
+                        clog('and also the inner binds')
                     }
                 }
             }
