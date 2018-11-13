@@ -1,23 +1,13 @@
 import pytest
 
+def test_createFaceSet(client):
 
-def test_getFaceSets(client):
-
+    # check if pass nothig
     with pytest.raises(AttributeError):
-        client.getFaceSets(tags = 10)
+        client.createFaceSet()
 
-    with pytest.raises(AttributeError):
-        client.getFaceSets(start = -1)
+    # check if FaceSet is created
 
-    with pytest.raises(AttributeError):
-        client.getFaceSets(start = "100")
-
-    assert len(client.getFaceSets(tags = "no-one")["facesets"]) == 0
-    assert len(client.getFaceSets(start = 2)["facesets"]) == 0
-
-    # facesets = []
-    # assert client.getFaceSets()["facesets"] == facesets
-    # print(client.getFaceSets())
 
 def test_deleteFaceSet(client):
 
@@ -35,7 +25,6 @@ def test_deleteFaceSet(client):
 
     with pytest.raises(AttributeError):
         client.deleteFaceSet(outer_id = "fiss", check_empty = 2)
-
 
 def test_getFaceSetDetail(client):
 
@@ -55,3 +44,32 @@ def test_getFaceSetDetail(client):
         client.getFaceSetDetail(faceset_token = "aca2e06780a707b8cac736a71be546b0", start = "10001")
 
     # print(client.getFaceSetDetail(faceset_token = "aca2e06780a707b8cac736a71be546b0"))
+
+def test_updateFaceSet(client):
+    pass
+
+def test_getFaceSets(client):
+
+    with pytest.raises(AttributeError):
+        client.getFaceSets(tags = 10)
+
+    with pytest.raises(AttributeError):
+        client.getFaceSets(start = -1)
+
+    with pytest.raises(AttributeError):
+        client.getFaceSets(start = "100")
+
+
+
+    assert len(client.getFaceSets(tags = "no-one")["facesets"]) == 0
+    assert len(client.getFaceSets(start = 2)["facesets"]) == 0
+
+    # facesets = []
+    # assert client.getFaceSets()["facesets"] == facesets
+    # print(client.getFaceSets())
+
+def test_addFace(client):
+    pass
+
+def test_removeFace(client):
+    pass
