@@ -1,6 +1,7 @@
 import cv2
 import sys
 from online import FacePlusPlus as online
+from controller import Controller
 # from offline import offline_interface as offline
 
 import kb_client as kb
@@ -30,5 +31,6 @@ def demo(myAPI, *args, **kwargs):
     cv2.destroyAllWindows()
 
 
-demo(online.FacePlusPlus(), return_landmark = 1)
-# demo(offline.FaceOffDetect())
+#demo(online.FacePlusPlus(), return_landmark = 1)
+#demo(offline.FaceOffDetect())
+demo(Controller())

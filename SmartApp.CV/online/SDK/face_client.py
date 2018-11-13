@@ -105,12 +105,12 @@ class Facepp_Client(object):
             if isinstance(face_token, str):
                 params.update({'face_token': face_token})
             else:
-                raise AttributeError("face_token must be a string. You provided a " + type(outer_id).__name__ + " instead.")
+                raise AttributeError("face_token must be a string. You provided a " + type(face_token).__name__ + " instead.")
         if image_url is not None:
             if isinstance(image_url, str):
                 params.update({'image_url': image_url})
             else:
-                raise AttributeError("face_token must be a string.  You provided a " + type(outer_id).__name__ + " instead.")
+                raise AttributeError("face_token must be a string.  You provided a " + type(image_url).__name__ + " instead.")
         if file is not None:
             if isinstance(file, str):
                 data = open(file, 'rb')
@@ -118,6 +118,7 @@ class Facepp_Client(object):
                 data = file
 
             data = {'image_file': data}
+
         if frame is not None:
             data = {'image_file': cv2.imencode('.jpg', frame)[1]}
 
