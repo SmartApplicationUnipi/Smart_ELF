@@ -102,11 +102,72 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 break;
             }
             case 3: {
-                
+                const list = sorted.get(i);
+                const dataKeys = Object.keys(data);
+                for(let j = index; j < list.size; ++j) {
+                    if (!(binds.hasOwnProperty(list[j]) && data.hasOwnProperty(binds[list[j]]) &&
+                          query[list[j]] === data[binds[list[j]]])) {
+                        console.log('FAIL query[list[j]] === data[binds[list[j]]]');
+                        return {match: false, binds: {}};
+                    }
+                    for (const dataKey of dataKeys) {
+                        if (query[list[j]] === data[dataKey]) {
+                            let newBinds = binds;
+                            newBinds[list[j]] = dataKey;
+                            const result = matchBind(query, sorted, i, j+1, data, newBinds);
+                            if (result.match) {
+                                resultBinds = resultBinds.concat(result.binds);
+                            }
+                        }
+                    }
+                }
                 break;
             }
             case 4: {
-                
+                const list = sorted.get(i);
+                const dataKeys = Object.keys(data);
+                for(let j = index; j < list.size; ++j) {
+                    if (!(binds.hasOwnProperty(list[j]) && data.hasOwnProperty(binds[list[j]]) &&
+                          isObject(data[binds[list[j]]]))) {
+                        console.log('FAIL: isObject(data[binds[list[j]]]')
+                        return {match: false, binds: {}};
+                    }
+                    if (binds.hasOwnProperty(list[j]) && data.hasOwnProperty(binds[list[j]])) {
+                        const innerSorted = sort(query[list[j]]);
+                        const result = matchBind(query[list[j]], innerSorted, 0, 0, data[binds[list[j]]], binds);
+                        if (!result.match) {
+                            console.log('FAIL: !result.match');
+                            return {match: false, binds: {}};
+                        }
+                        binds = result.binds; // è un'unione
+                        continue;
+                    }
+                    for (const dataKey of dataKeys) {
+                        if (!isObject(dataKey)) {
+                            continue;
+                        }
+                        const innerSorted = sort(query[list[j]]);
+                        const result = matchBind(query[list[j]], innerSorted, 0, 0, data[dataKey], binds);
+                        if (!result.match) {
+                            console.log('FAIL: !result.match');
+                            continue;
+                        }
+                        // TODO: fare copie vere
+                        let newBinds = binds;
+                        newBinds += result.binds;
+                        newBinds[list[j]] = dataKey;
+                        const result2 = matchBind(query, sorted, i, j+1, data, newBinds);
+                        if (result.match) {
+                            resultBinds = resultBinds.concat(result.binds);
+                        }
+
+                        // TODO: incrementare j da qualche parte
+                        // TODO: capire cosa succede fra liste e liste di liste
+                        // TODO fare dei for each da qualhe parte
+                        // TODO: pregare
+                        // TODO: controllare che non vengano vettori di vettori di vettori....
+                    }
+                }
                 break;
             }
             case 5: {
@@ -120,7 +181,8 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
         } // end switch
     } // end for
 
-    return { match: true, binds };
+    resultBinds = resultBinds.concat(binds);
+    return { match: true, binds: resultBinds };
 
 
     /*
