@@ -3,7 +3,7 @@ export function findMatchesBind(query: any, Dataset: any[]) {
     const sorted = sort(query);
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
-        const mb = matchBind(query, sorted, 0, 0, data, {});
+        const mb = matchBind(query, sorted, 0, 0, data, []);
         if (mb.match) {
             matches.push(mb.binds);
         }
@@ -11,9 +11,9 @@ export function findMatchesBind(query: any, Dataset: any[]) {
     return matches;
 }
 
-export function findMatchesBind2(query: any, Dataset: any[], initBinds: object) {
+export function findMatchesBind2(query: any, Dataset: any[], initBinds: any[]) {
     const matches = new Array();
-    const sorted = sort(query._data);
+    const sorted = sort(query);
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
         const mb = matchBind(query, sorted, 0, 0, data, initBinds);
@@ -27,10 +27,10 @@ export function findMatchesBind2(query: any, Dataset: any[], initBinds: object) 
 
 export function findMatchesAll(query: any, Dataset: any[]) {
     const matches = new Array();
-    const sorted = sort(query._data);
+    const sorted = sort(query);
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
-        const mb = matchBind(query, sorted, 0, 0, data, {});
+        const mb = matchBind(query, sorted, 0, 0, data, []);
         if (mb.match) {
             matches.push(data);
         }
@@ -38,140 +38,207 @@ export function findMatchesAll(query: any, Dataset: any[]) {
     return matches;
 }
 
-function matchBind(query: any, sorted: any, listIndex: number, index: number, data: any, initBinds: any): any {
+function matchBind(query: any, sorted: any, listIndex: number, index: number, data: any, initBinds: any[]): any {
     const queryKeys = Object.keys(query);
-    let binds = Object.assign({}, initBinds);
+    let binds = initBinds.map(x => Object.assign({}, x));
     let match = true;
 
     // TODO check sugli indici
-//    console.log('Query:');
-//    console.log(query);
-//    console.log('Sorted:');
-//    console.log(sorted);
+    console.log('Query:');
+    console.log(query);
+    //    console.log('Sorted:');
+    //    console.log(sorted);
+
+    // binds : list of map <placeholder : bind>
+
     for ( let i = listIndex; i < sorted.size; ++i) {
         //console.log('index ' + i);
         switch (i) {
             case 0: {
+                // atom : atom
+                console.log('Working on atom : atom');
                 for (const queryKey of sorted.get(i)) {
                     console.log('key: ' + queryKey);
                     if (!data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]) {
                         console.log('FAIL: !data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]');
-                        return {match: false, binds: {}};
+                        return {match: false, binds: []};
                     }
                 }
                 console.log('FINITO 0');
                 break;
             }
             case 1: {
+                // atom : object
+                console.log('Working on atom : object');
                 for (const queryKey of sorted.get(i)) {
                     console.log('key: ' + queryKey);
                     if (!data.hasOwnProperty(queryKey) || !isObject(data[queryKey])) {
                         // Se non ha la chiave, o ha la chiave ma non è un oggetto ESPLODI
                         console.log('FAIL: !data.hasOwnProperty(queryKey) || !isObject(data[queryKey])');
-                        return {match: false, binds: {}};
+                        return {match: false, binds: []};
                     }
                     const innerSorted = sort(query[queryKey]);
-                    const result = matchBind(query[queryKey], innerSorted, 0, 0, data[queryKey], binds);
-                    if (!result.match) {
-                        console.log('FAIL: !result.match');
-                        return {match: false, binds: {}};
+                    let newBinds = new Array();
+                    let success = false;
+                    for (let k = 0; k < binds.length; ++k) {
+                        const innerBind = Object.assign({}, binds[k]);
+                        innerBind[queryKey] = data[queryKey];
+                        const result = matchBind(query[queryKey], innerSorted, 0, 0, data[queryKey], innerBind);
+                        if (!result.match) {
+                            console.log('FAIL: !result.match');
+                        } else {
+                            success = true;
+                            for (const resBind of result.binds) {
+                                newBinds.push(resBind); //???
+                            }
+                        }
                     }
-                    binds = result.binds; // è un'unione
+                    if (!success) {
+                        return {match: false, binds: []};
+                    }
+                    binds = newBinds;
                 }
                 console.log('FINITO 1');
                 break;
             }
             case 2: {
+                // atom : placeholder
+                console.log('Working on atom : placeholder');
                 for (const queryKey of sorted.get(i)) {
                     console.log('key: ' + queryKey);
                     if (!data.hasOwnProperty(queryKey)) {
                         console.log('FAIL: !data.hasOwnProperty(queryKey)');
                         return {match: false, binds: {}};
                     }
-                    if (binds.hasOwnProperty(query[queryKey])) {
-                        if (binds[query[queryKey]] != data[queryKey]) {
-                            console.log('FAIL: binds[query[queryKey]] != data[queryKey]');
-                            return {match: false, binds: {}};
-                        }
+                    
+                    if (binds.length === 0) {
+                        console.log('length è giusto');
+                        const b:any = {};
+                        b[query[queryKey]] = data[queryKey];
+                        binds.push(b);
                     } else {
-                        console.log('binds[query[queryKey]] = data[queryKey]');
-                        binds[query[queryKey]] = data[queryKey];
+                        for (let k = 0; k < binds.length; ++k) {
+                            console.log('sono dentro');
+                            if (binds[k].hasOwnProperty(query[queryKey])) {
+                                if (binds[k][query[queryKey]] != data[queryKey]) {
+                                    console.log('FAIL: binds[query[queryKey]] != data[queryKey]');
+                                    delete binds[k];
+                                continue;
+                                } else {
+                                    console.log('OK');
+                                }
+                            } else {
+                                console.log('binds[query[queryKey]] = data[queryKey]');
+                            binds[k][query[queryKey]] = data[queryKey];
+                            }
+                        }
                     }
+                    console.log(binds);
                 }
                 console.log('FINITO 2');
                 break;
             }
             case 3: {
+                
+                // placeholder : atom
+                console.log('Working on placeholder : atom');
+                /*
                 const list = sorted.get(i);
                 const dataKeys = Object.keys(data);
                 for(let j = index; j < list.size; ++j) {
-                    if (!(binds.hasOwnProperty(list[j]) && data.hasOwnProperty(binds[list[j]]) &&
-                          query[list[j]] === data[binds[list[j]]])) {
-                        console.log('FAIL query[list[j]] === data[binds[list[j]]]');
-                        return {match: false, binds: {}};
-                    }
-                    for (const dataKey of dataKeys) {
-                        if (query[list[j]] === data[dataKey]) {
-                            let newBinds = binds;
-                            newBinds[list[j]] = dataKey;
-                            const result = matchBind(query, sorted, i, j+1, data, newBinds);
-                            if (result.match) {
-                                resultBinds = resultBinds.concat(result.binds);
+                    for (const bind of binds) {
+                        if (!(bind.hasOwnProperty(list[j]) && data.hasOwnProperty(bind[list[j]]) &&
+                              query[list[j]] === data[bind[list[j]]])) {
+                            console.log('FAIL query[list[j]] === data[binds[list[j]]]');
+                            // return {match: false, binds: {}};
+                            // TODO: togli bind da binds
+                        }
+                        for (const dataKey of dataKeys) {
+                            if (query[list[j]] === data[dataKey]) {
+                                let newBinds = Object.assign({}, bind);
+                                newBinds[list[j]] = dataKey;
+                                const result = matchBind(query, sorted, i, j+1, data, newBinds);
+                                if (result.match) {
+                                    // TODO per ogni bind in result.Binds, lo aggiungo a binds
+                                    //resultBinds = resultBinds.concat(result.binds);
+                                }
                             }
                         }
                     }
+                    if (binds.length == 0) {
+                        return {match: false, binds: {}};
+                    }
                 }
-                break;
+                */
+                break; 
             }
             case 4: {
+                
+                // placeholder : object
+                console.log('Working on placeholder : object');
+                /*
                 const list = sorted.get(i);
                 const dataKeys = Object.keys(data);
                 for(let j = index; j < list.size; ++j) {
-                    if (!(binds.hasOwnProperty(list[j]) && data.hasOwnProperty(binds[list[j]]) &&
-                          isObject(data[binds[list[j]]]))) {
-                        console.log('FAIL: isObject(data[binds[list[j]]]')
-                        return {match: false, binds: {}};
-                    }
-                    if (binds.hasOwnProperty(list[j]) && data.hasOwnProperty(binds[list[j]])) {
-                        const innerSorted = sort(query[list[j]]);
-                        const result = matchBind(query[list[j]], innerSorted, 0, 0, data[binds[list[j]]], binds);
-                        if (!result.match) {
-                            console.log('FAIL: !result.match');
-                            return {match: false, binds: {}};
+                    for (const bind of binds) {
+                        if (!(bind.hasOwnProperty(list[j]) && data.hasOwnProperty(bind[list[j]]) &&
+                              isObject(data[bind[list[j]]]))) {
+                            console.log('FAIL: isObject(data[binds[list[j]]]')
+                            //return {match: false, binds: {}};
+                            // TODO: togli bind da binds
                         }
-                        binds = result.binds; // è un'unione
-                        continue;
-                    }
-                    for (const dataKey of dataKeys) {
-                        if (!isObject(dataKey)) {
+                        if (bind.hasOwnProperty(list[j]) && data.hasOwnProperty(bind[list[j]])) {
+                            const innerSorted = sort(query[list[j]]);
+                            const innerBind = Object.assing({}, bind);
+                            const result = matchBind(query[list[j]], innerSorted, 0, 0, data[bind[list[j]]], innerBind);
+                            if (!result.match) {
+                                console.log('FAIL: !result.match');
+                                //return {match: false, binds: {}};
+                                // TODO: togli bind da binds
+                            }
+                            //                            binds = result.binds; // è un'unione
+                            // TODO per ogni bind in result.Binds, lo aggiungo a binds
                             continue;
                         }
-                        const innerSorted = sort(query[list[j]]);
-                        const result = matchBind(query[list[j]], innerSorted, 0, 0, data[dataKey], binds);
-                        if (!result.match) {
-                            console.log('FAIL: !result.match');
-                            continue;
-                        }
-                        // TODO: fare copie vere
-                        let newBinds = binds;
-                        newBinds += result.binds;
-                        newBinds[list[j]] = dataKey;
-                        const result2 = matchBind(query, sorted, i, j+1, data, newBinds);
-                        if (result.match) {
-                            resultBinds = resultBinds.concat(result.binds);
-                        }
+                        for (const dataKey of dataKeys) {
+                            if (!isObject(dataKey)) {
+                                continue;
+                            }
+                            const innerSorted = sort(query[list[j]]);
+                            const innerBind = Object.assing({}, bind);
+                            innerBind[list[j]] = dataKey;
+                            const result = matchBind(query[list[j]], innerSorted, 0, 0, data[dataKey], innerBind);
+                            if (!result.match) {
+                                // TODO: togli bind da binds
+                                console.log('FAIL: !result.match');
+                                continue;
+                            }
+                            for (const resultBind of result.binds) {
+                                const nextResult = matchBind(query, sorted, i, j+1, data, resultBinds);
+                                if (!nextResult.match) {
+                                    // TODO: togli bind da binds
+                                    console.log('FAIL: !nextResult.match');
+                                    continue;
+                                }
+                                // TODO per ogni bind in nextResult.Binds, lo aggiungo a binds
+                            }
 
-                        // TODO: incrementare j da qualche parte
-                        // TODO: capire cosa succede fra liste e liste di liste
-                        // TODO fare dei for each da qualhe parte
-                        // TODO: pregare
-                        // TODO: controllare che non vengano vettori di vettori di vettori....
+                            // TODO: incrementare j da qualche parte
+                            // TODO: capire cosa succede fra liste e liste di liste
+                            // TODO fare dei for each da qualhe parte
+                            // TODO: pregare
+                            // TODO: controllare che non vengano vettori di vettori di vettori....
+                        }
                     }
                 }
+                */
                 break;
+                
             }
             case 5: {
-                
+                console.log('Working on placeholder : placeholder');
+                // placeholder : placeholder
+                // TODO 
                 break;
             }
             default: {
@@ -181,8 +248,8 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
         } // end switch
     } // end for
 
-    resultBinds = resultBinds.concat(binds);
-    return { match: true, binds: resultBinds };
+//    resultBinds = resultBinds.concat(binds);
+    return { match: true, binds };
 
 
     /*
