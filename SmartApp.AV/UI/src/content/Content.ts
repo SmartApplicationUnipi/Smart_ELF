@@ -18,6 +18,20 @@ export class GenericContent implements IContent {
 }
 
 /**
+ * Represent an content that should be displayed by the UI
+ */
+export class TextContent implements IContent {
+    constructor(private text: string) { }
+
+    /**
+     * Returns the text
+     */
+    public getText(): string {
+        return this.text;
+    }
+}
+
+/**
  * Represent an content that should be spoken by the UI
  */
 export class SpeechContent implements IContent {

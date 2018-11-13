@@ -51,6 +51,12 @@ class ColorfulContentFactory implements Content.ContentFactory {
 						console.error("Cannot get data from speech content", data[key], ex);
 					}
 					break;
+				case "text":
+					let text = data[key];
+					if(text) {
+						contents.push(new Content.TextContent(text));
+					}
+					break;
 				default:
 					let d = {};
 					d[key] = data[key];
