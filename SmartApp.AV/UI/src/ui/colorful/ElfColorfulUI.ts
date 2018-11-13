@@ -31,45 +31,6 @@ class TextUIWidget implements UIWidget.UIWidget {
 	}
 }
 
-class ColorfulContentFactory implements Content.ContentFactory {
-
-	create(event: ElfUIEvent.ElfUIEvent): Array<Content.IContent> {
-		let data = event.getAny(ElfUIEvent.KEY_CONTENT);
-
-		let contents = [];
-		for (var key in data) {
-			switch (key) {
-				case "speech":
-					try {
-						let text = data[key]['text'], emotion = data[key]['emotion'];
-						if (text && emotion) {
-							contents.push(new Content.SpeechContent(text, emotion));
-						} else {
-							console.error("Cannot get all data from speech content", data[key]);
-						}
-					} catch (ex) {
-						console.error("Cannot get data from speech content", data[key], ex);
-					}
-					break;
-				case "text":
-					let text = data[key];
-					if(text) {
-						contents.push(new Content.TextContent(text));
-					}
-					break;
-				default:
-					let d = {};
-					d[key] = data[key];
-					contents.push(new Content.GenericContent(d));
-					break;
-			}
-		}
-
-		return contents;
-	}
-
-}
-
 class ColorfulUIWidgetFactory implements UIWidget.UIWidgetFactory {
 	create(content: Content.IContent): Array<UIWidget.UIWidget> {
 		if (content instanceof Content.SpeechContent) {
@@ -92,7 +53,7 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 
 	private face: UIWidget.EmotionalWidget;
 
-	private contentFactory: Content.ContentFactory = new ColorfulContentFactory();
+	private contentFactory: Content.ContentFactory = new Content.DefaultContentFactory();
 	private widgetFactory: UIWidget.UIWidgetFactory = new ColorfulUIWidgetFactory();
 
 	constructor(rootElement: HTMLElement) {

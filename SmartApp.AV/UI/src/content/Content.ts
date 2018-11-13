@@ -56,5 +56,51 @@ export class SpeechContent implements IContent {
  * Factory class to build IContent objects
  */
 export interface ContentFactory {
+    /**
+     * Create content objects out of an event
+     * @param event The event to be processed
+     */
     create(event: ElfUIEvent.ElfUIEvent): Array<IContent>;
+}
+
+/**
+ * Default implementation of ContentFactory
+ */
+export class DefaultContentFactory implements ContentFactory {
+
+	create(event: ElfUIEvent.ElfUIEvent): Array<IContent> {
+		let data = event.getAny(ElfUIEvent.KEY_CONTENT);
+
+		let contents = [];
+		for (var key in data) {
+			switch (key) {
+				case "speech":
+					try {
+						let text = data[key]['text'], emotion = data[key]['emotion'];
+						if (text && emotion) {
+							contents.push(new SpeechContent(text, emotion));
+						} else {
+							console.error("Cannot get all data from speech content", data[key]);
+						}
+					} catch (ex) {
+						console.error("Cannot get data from speech content", data[key], ex);
+					}
+					break;
+				case "text":
+					let text = data[key];
+					if(text) {
+						contents.push(new TextContent(text));
+					}
+					break;
+				default:
+					let d = {};
+					d[key] = data[key];
+					contents.push(new GenericContent(d));
+					break;
+			}
+		}
+
+		return contents;
+	}
+
 }
