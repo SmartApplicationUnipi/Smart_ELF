@@ -79,7 +79,6 @@ def test_search(client, filepath):
 
     #check face_token
     response = client.search(face_token = fake_face_token,  outer_id = fake_outer_id)
-    file.close()
     assert "error_message" not in response
     assert len(response['results']) > 0
 

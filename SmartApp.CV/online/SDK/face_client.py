@@ -118,7 +118,7 @@ class Facepp_Client(object):
                 data = file
 
             data = {'image_file': data}
-        if frame is not None: 
+        if frame is not None:
             data = {'image_file': cv2.imencode('.jpg', frame)[1]}
 
         if outer_id:
@@ -277,7 +277,7 @@ class Facepp_Client(object):
 
         if face_tokens:
             if isinstance(face_tokens, list):
-                if len(face_tokens) < 1000:
+                if len(face_tokens) <= 1000:
                     params.update({'face_tokens': ",".join(face_tokens)})
                 else:
                     raise AttributeError('face_tokens array must be length at most 1000.')
@@ -296,7 +296,7 @@ class Facepp_Client(object):
 
         if face_tokens:
             if isinstance(face_tokens, list):
-                if len(face_tokens) < 5:
+                if len(face_tokens) <= 5:
                     params.update({'face_tokens': ",".join(face_tokens)})
                 else:
                     raise AttributeError('face_tokens array must be length at most 5.')
