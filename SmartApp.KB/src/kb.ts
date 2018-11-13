@@ -11,8 +11,13 @@ const subscriptions = new Map<object, SubCallback[]>();
 
 const registered = new Array();
 
+<<<<<<< HEAD
 export const tagMap = new Map<string, string>(); // map <tag, description>
 export const docMap = new Map<string, string>(); // map <tag, documentation>
+=======
+export const tagList = new Map<string, string>(); // map <tag, description>
+export const docList = new Map<string, string>(); // map <tag, documentation>
+>>>>>>> kb: add token to api
 
 registered.push('inference');
 
@@ -46,6 +51,7 @@ class Metadata {
     }
 }
 
+<<<<<<< HEAD
 export function register(tags: any) {
     const keys = Object.keys(tags);
     const errors: string[] = [];
@@ -65,11 +71,34 @@ export function register(tags: any) {
     const newid = 'proto' + (registered.length + 1).toString();
     registered.push(newid);
     return new Response(true, newid);
+=======
+export function register(token: string, tags: any): string {
+    if (token === TOKEN) {
+        const newid = 'proto' + (registered.length + 1).toString();
+        const keys = Object.keys(tags);
+        for (const k of keys) {
+            if (tagList.has(k)) {
+                // ragionare su come restituire l'errore.
+                // Oggetto con campi {'result': 'fail', 'details': 'tag "emo" already present'}?
+                return '';
+            }
+            for (const kk of keys) {
+                tagList.set(kk, tags[kk]);
+            }
+            registered.push(newid);
+            return newid;
+        }
+    }
+    return '';
+>>>>>>> kb: add token to api
 }
 
 export function registerTagDocumentation(tags: any) {
     const keys = Object.keys(tags);
+<<<<<<< HEAD
     const res: string[] = [];
+=======
+>>>>>>> kb: add token to api
     for (const k of keys) {
         if (tagMap.has(k)) {
             docMap.set(k, tags[k]);
@@ -117,8 +146,14 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 }
 
 // tslint:disable-next-line:max-line-length
+<<<<<<< HEAD
 export function updateFactbyId(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
+=======
+export function updateFactbyId(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object): number {
+    if (!registered.includes(idSource)) { return -1; }
+    // TODO (forse): X può aggiornare i dati di Y o ne voglio limitare l'aggiornamento al solo Y?
+>>>>>>> kb: add token to api
     if (!databaseFact.has(id)) {
         return new Response(false, id);
     }
@@ -130,6 +165,7 @@ export function updateFactbyId(idSource: string, id: number, tag: string, TTL: n
         _meta: metadata,
     };
     databaseFact.set(id, dataobject);
+<<<<<<< HEAD
     return new Response(true, id);
 }
 
@@ -143,6 +179,32 @@ export function queryBind(jreq: object) {
 
 export function subscribe(idSource: string, jreq: object, callback: SubCallback) {
     if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
+=======
+    return id;
+}
+
+export function queryFact(idSource: string, jreq: object): any[] {
+    // this function will return the whole object that contains a match
+    // const q = {
+    //     _data: jreq,
+    // };
+    return matcher.findMatchesAll(jreq, Array.from(databaseFact.values()));
+}
+
+export function queryBind(idSource: string, jreq: object): any[] {
+    // this function will return metadata and the bounded values
+    // const q = {
+    //     _id: '$_id',
+    //     _data: jreq,
+    //     _meta: '$_metadata',
+    // };
+    return matcher.findMatchesBind(jreq, Array.from(databaseFact.values()));
+}
+
+export function subscribe(idSource: string, jreq: object, callback: SubCallback): boolean {
+    if (registered.includes(idSource) === false) { return false; }
+    // the idea is that this will be the original signature. Will then wrap this into the communication protocol
+>>>>>>> kb: add token to api
     if (!subscriptions.has(jreq)) {
         subscriptions.set(jreq, [callback]);
     } else {
@@ -152,19 +214,31 @@ export function subscribe(idSource: string, jreq: object, callback: SubCallback)
 }
 
 export function getAndSubscribe(idSource: string, jreq: object, callback: SubCallback) {
+<<<<<<< HEAD
     const res = queryBind(jreq);
     const subres = subscribe(idSource, jreq, callback);
     if (!subres.success) {
         return subres;
     }
     return new Response(true, res);
+=======
+    // if (!registered.includes(idSource)) { return false; }
+    const res = queryBind(idSource, jreq);
+    subscribe(idSource, jreq, callback);
+    return res;
+>>>>>>> kb: add token to api
 }
 
 export function removeFact(idSource: string, jreq: object) {
     if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     const removedFactsId: number[] = [];
+<<<<<<< HEAD
     const res = queryFact(jreq);
     for (const k of res.details) {
+=======
+    const res = queryBind(idSource, jreq);
+    for (const k of res) {
+>>>>>>> kb: add token to api
         removedFactsId.push(k._id);
         databaseFact.delete(k._id);
     }

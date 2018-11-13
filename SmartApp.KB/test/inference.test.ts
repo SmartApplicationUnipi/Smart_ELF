@@ -1,7 +1,11 @@
 import { security } from '../src/config';
 import * as kb from '../src/kb';
 
+<<<<<<< HEAD
 const myid = kb.register({ rdf: 'desc1', tag2: 'desc2' }).details;
+=======
+const myid = kb.register(security.token, { rdf: 'desc1', tag2: 'desc2' });
+>>>>>>> kb: add token to api
 
 const rule1 = {
     body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
