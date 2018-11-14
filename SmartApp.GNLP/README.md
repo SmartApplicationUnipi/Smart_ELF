@@ -40,8 +40,8 @@ The output is of the following format:
 ```
 {
   "TAG" : "NLP_Answer",
-	"TEXT": answer,
-	"USER_QUERY": question,
-	"TIME_STAMP": 1 # TODO
+  "TEXT": answer,
+  "USER_QUERY": question,
+  "TIME_STAMP": 1 # TODO
 }
 ```
