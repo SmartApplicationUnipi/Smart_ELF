@@ -18,10 +18,10 @@ print(NLP_Understand("At which time Prof Poloni has lecture?"))
 {'entities': [{'endIndex': 24,                
 'entity': 'poloni',
 'score': 0.959523439,
-'startIndex': 19, 
+'startIndex': 19,
 'type': 'Professor'}],
-'query': 'At which time Prof Poloni has lecture?', 
-'topScoringIntent': {'intent': 'Lecture.Time', 
+'query': 'At which time Prof Poloni has lecture?',
+'topScoringIntent': {'intent': 'Lecture.Time',
 'score': 0.5547177}}
 ```
 
@@ -34,5 +34,16 @@ JSON_Response = {
         "Lecture"   : "Math",
         "Professor" : "Poloni",
         "Daytime"   : "Tuesday from 14 to 16"
+}
+```
+
+## Service Documentation
+The output is of the following format:
+```
+{
+  "TAG" : "NLP_Answer",
+  "TEXT": answer,
+  "USER_QUERY": question,
+  "TIME_STAMP": 1 # TODO
 }
 ```
