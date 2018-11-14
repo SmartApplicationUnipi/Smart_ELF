@@ -11,6 +11,7 @@ sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from EttService_c import EttService
 from TteService_c import TteService
+from IESService_c import IESService
 import kb
 import threading
 
@@ -32,6 +33,15 @@ class EttThread (threading.Thread):
     def run(self):
         self.ett_obj.start_service()
 
+class IESThread (threading.Thread):
+    """ Thread class for ett service"""
+    def __init__(self, ies_obj):
+        threading.Thread.__init__(self)
+        self.ies_obj = ies_obj
+
+    def run(self):
+        self.ies_obj.start_service()
+
 def __main__():
     global kb_ID
     kb_ID = kb.register()
@@ -41,8 +51,12 @@ def __main__():
     t1 = EttThread(ett_service)
     t1.start()
 
-    tte_service = TteService(kb_ID);
+    tte_service = TteService(kb_ID)
     t2 = TteThread(tte_service)
     t2.start()
+
+    ies_service = IESService(kb_ID)
+    t3 = IESThread(ies_service)
+    t3.start()
 
 __main__()
