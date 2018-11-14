@@ -6,32 +6,36 @@ from os import path
 import datetime
 import sys
 import time
-
 import json
 
-
+from sentimental_analizer import *
 
 sys.path.insert(0, '../SmartApp.KB/')
 
 from kb import *
       
-myID = register()
 
 
 AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "demo/Trump_We_will_build_a_great_wall.wav")
+from_wave = True
 
 
+
+
+myID = register()
+
 r = sr.Recognizer()
-with sr.AudioFile(AUDIO_FILE) as source:
-    audio = r.record(source)  # read the entire audio file
-# recognize speech using Google Speech Recognition
-'''
-r = sr.Recognizer()
-with sr.Microphone() as source:
-    r.adjust_for_ambient_noise(source)  # listen for 1 second to calibrate the energy threshold for ambient noise levels
-    print("Say something!")
-    audio = r.listen(source)
-'''
+
+
+if(from_wave):
+	with sr.AudioFile(AUDIO_FILE) as source:
+	    audio = r.record(source)  # read the entire audio file
+else:
+	with sr.Microphone() as source:
+	    r.adjust_for_ambient_noise(source)  # listen for 1 second to calibrate the energy threshold for ambient noise levels
+	    print("Say something!")
+	    audio = r.listen(source)
+
 
 
 	
@@ -45,17 +49,21 @@ except sr.RequestError as e:
 
 
 # salvare nella kb il testo  prodotto da un audio
-
 #text_f_audio nome della tupla
-
 # 2 rimane per due giorni
 #50 reliability
 # false: the data culd not be modified in future
 
 ts = time.time()
 
-#print(addFact(myID, "test", 1, 50, 'false', {"prova": 1}))
+detect_language= "en-US"
 
-print(addFact(myID, "text_f_audio", 2, 50, 'false', {"TAG":"text_f_audio","text": ts, "emotion": text_transcribed}))
+#print(addFact(myID, "text_f_audio", 2, 50, 'false', {"TAG":"AV_IN_TRANSC_EMOTION","text": ts, "emotion": text_transcribed}))
+
+emotion = my_regressionFileWrapper(input_file, model, model_name)
+
+print(addFact(myID, "text_f_audio", 2, 50, 'false', 
+				{"TAG":"AV_IN_TRANSC_EMOTION","id": ts, "timestamp": ts, 
+						"text":text_transcribed,"language":detect_language,"valence":emotion[0],"arousal":emotion[1]}))
 
 
