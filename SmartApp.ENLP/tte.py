@@ -18,8 +18,8 @@ def extract_emotion(sentence):
     point = vector_to_circumplex(vector)
     fact = {
         "TIME_STAMP": 2, #fix this!!!!!
-        "VALENCE": point[0],
-        "AROUSAL": point[1],
+        "valence": point[0],
+        "arousal": point[1],
         "TAG": TAG_USER_EMOTION
     }
     return fact

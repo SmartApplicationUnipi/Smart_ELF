@@ -38,7 +38,7 @@ class EttService:
 
     def start_service(self):
         """Subscribe and wait for data"""
-        kb.subscribe(self.kb_ID, {TAG_ANSWER: "$input"}, self.callback) # from the 'gnlp' module
+        kb.subscribe(self.kb_ID, {"TAG":TAG_ANSWER, "text": "$input"}, self.callback) # from the 'gnlp' module
 
 
 if __name__ == "__main__":
