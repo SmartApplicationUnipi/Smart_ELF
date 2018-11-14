@@ -1,15 +1,13 @@
 import requests
 import re
 import json
-import numpy as np
-
 
 def NLP_GetTemplate(intent):
     with open('templates.json') as f:
         data = json.load(f)
 
     templates = list(filter(lambda x: x['intent'] == intent, data))
-    template = templates[np.random.randint(len(templates))]['template']
+    template = templates[0]['template']
     regex = "\[\w*\]"
     processor = re.compile(regex)
     placeholders = processor.findall(template)
