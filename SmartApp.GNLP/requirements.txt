@@ -1,2 +1,4 @@
+websocket-client
+typing
 requests
 spacy
