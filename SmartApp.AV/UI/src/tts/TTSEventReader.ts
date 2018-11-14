@@ -2,7 +2,7 @@ import * as EventReader from '../reader/EventReader';
 import * as ElfUIEvent from '../ui/event/ElfUIEvent';
 import * as Logger from '../log/Logger';
 
-const TTS_URL: string = "ws://10.101.21.184:65432" // Remote TTS Service
+const TTS_URL: string = "ws://10.101.21.194:65432" // Remote TTS Service
 // const TTS_URL: string = "ws://localhost:65432" // Local TTS Service
 
 /**
