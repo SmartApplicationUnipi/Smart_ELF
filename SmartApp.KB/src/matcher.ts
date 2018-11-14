@@ -81,54 +81,24 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
     for ( let i = listIndex; i < sorted.size; ++i) {
         switch (i) {
             case ID_AA: {
+                // atom : atom
                 if (!matchAllAtomAtom(query, sorted, data)) {
                     return {match : false, binds: []};
                 }
                 break;
             }
             case ID_AO: {
+                // atom : object
                 if (!matchAllAtomObject(query, sorted, data, binds)) {
                     return {match : false, binds: []};
                 }
                 break;
             }
-            case 2: {
+            case ID_AP: {
                 // atom : placeholder
-                clog_old('\x1b[1;34mINFO('+i+')\x1b[0m Enter case atom : placeholder', 5);
-                for (const queryKey of sorted.get(i)) {
-                    clog_old('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
-                    if (!data.hasOwnProperty(queryKey)) {
-                        clog_old('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey)', 2);
-                        return {match: false, binds: {}};
-                    }
-                    if (binds.length === 0) {
-                        clog_old('\x1b[1;32mINFO('+i+')\x1b[0m: It\'s the first bind', 5);
-                        const b:any = {};
-                        b[query[queryKey]] = data[queryKey];
-                        binds.push(b);
-                    } else {
-                        for (let k = 0; k < binds.length; ++k) {
-                            if (binds[k].hasOwnProperty(query[queryKey])) {
-                                if (binds[k][query[queryKey]] != data[queryKey]) {
-                                    clog_old('\x1b[1;31mFAIL('+i+')\x1b[0m: binds[query[queryKey]] != data[queryKey]', 2);
-                                    delete binds[k];
-                                continue;
-                                } else {
-                                    clog_old('\x1b[1;32mOK('+i+'): \x1b[0m OK', 3);
-                                }
-                            } else {
-                                clog_old('\x1b[1;31mFAIL('+i+'): \x1b[0m binds[query[queryKey]] = data[queryKey]', 2);
-                            binds[k][query[queryKey]] = data[queryKey];
-                            }
-                        }
-                    }
-                    binds = binds.filter(el => {return el != null});
-                    if (binds.length === 0) {
-                        clog_old('\x1b[1;33mEXIT('+i+'): \x1b[0m binds.length === 0', 4);
-                        return {match: false, binds: {}};
-                    }
+                if (!matchAllAtomPlaceholder(query, sorted, data, binds)) {
+                    return {match : false, binds: []};
                 }
-                clog_old('\x1b[1;34mINFO(' + i +')\x1b[0m Exit case atom : placeholder', 5);
                 break;
             }
             case 3: {
@@ -292,6 +262,17 @@ function matchAllAtomObject(query: any, sorted: any, data: any, binds: any[]) : 
     return true;
 }
 
+function matchAllAtomPlaceholder(query: any, sorted: any, data: any, binds: any[]) : boolean {
+    clog(BLUE, 'INFO', ID_AP, '', 'Enter case Atom : Placeholder', 5);
+    for (const queryKey of sorted.get(ID_AP)) {
+        if (!matchAtomPlaceholder(queryKey, query[queryKey], data, binds)) {
+            return false;
+        }
+    }
+    clog(BLUE, 'INFO', ID_AP, '', 'Exit case Atom : Placeholder', 5);
+    return true;
+}
+
 function matchAtomAtom(queryKey: string, queryValue: string, data: any, ) : boolean {
     clog(PINK, 'INFO', ID_AA, '', 'key =>' + queryKey, 5);
     if (!data.hasOwnProperty(queryKey) || queryValue !== data[queryKey]) {
@@ -319,6 +300,41 @@ function matchAtomObject(queryKey: string, queryValue: object, data: any, binds:
     } else {
         // TODO prove it is correct
         binds = [...result.binds];
+    }
+    return true;
+}
+
+function matchAtomPlaceholder(queryKey: string, queryValue: string, data: any, binds: any[]): boolean {
+    clog(PINK, 'INFO', ID_AP, '', 'key => ' + queryKey, 5);
+    if (!data.hasOwnProperty(queryKey)) {
+        clog(RED, 'FAIL', ID_AP, '', 'Key is not in the data', 2);
+        return false;
+    }
+    if (binds.length === 0) {
+        clog(BLUE, 'INFO', ID_AP, '', 'It\'s thefirst bind', 5);
+        const b:any = {};
+        b[queryValue] = data[queryKey];
+        binds.push(b);
+    } else {
+        for (let k = 0; k < binds.length; ++k) {
+            if (binds[k].hasOwnProperty(queryValue)) {
+                if (binds[k][queryValue] != data[queryKey]) {
+                    clog(RED, 'FAIL', ID_AP, '', 'invalid bind', 2);
+                    delete binds[k];
+                    continue;
+                } else {
+                    clog(GREEN, 'OK', ID_AP, '', 'already bound', 3);
+                }
+            } else {
+                clog(GREEN, 'OK', ID_AP, '', 'add new bind in current bind list', 2);
+                binds[k][queryValue] = data[queryKey];
+            }
+        }
+    }
+    binds = binds.filter(el => {return el != null});
+    if (binds.length === 0) {
+        clog(YELLOW, 'EXIT', ID_AP, '', 'No more possible binds!', 4);
+        return false;
     }
     return true;
 }
