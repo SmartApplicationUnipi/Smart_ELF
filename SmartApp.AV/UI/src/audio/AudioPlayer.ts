@@ -1,3 +1,5 @@
+import * as Logger from '../log/Logger';
+
 /**
  * Interface that represent an audio player that can play and stop an audio
  */
@@ -10,6 +12,8 @@ export interface IAudioPlayer {
  * Default implementation of IAudioPlayer
  */
 export class AudioPlayer {
+    private logger: Logger.ILogger = Logger.getInstance();
+
     /**
      * True if the player is currently playing.
      */
@@ -43,7 +47,7 @@ export class AudioPlayer {
             });
 
         } catch (ex) {
-            console.error(ex);
+            this.logger.log(Logger.LEVEL.ERROR, ex);
         }
     }
 

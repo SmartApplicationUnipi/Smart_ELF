@@ -1,6 +1,7 @@
 import * as EventReader from '../reader/EventReader';
 import * as Message from './Message';
 import * as ElfUIEvent from '../ui/event/ElfUIEvent';
+import * as Logger from '../log/Logger';
 
 // const KB_URL: string = "ws://localhost:5666" // Local KB
 const KB_URL: string = "ws://10.101.58.58:5666" // Remote KB
@@ -9,6 +10,12 @@ const KB_URL: string = "ws://10.101.58.58:5666" // Remote KB
  * This class implements an BaseEventReader that receives messages from the KB.
  */
 export class KBEventReader extends EventReader.BaseEventReader {
+
+	private logger: Logger.ILogger = Logger.getInstance();
+
+	/**
+	 * Current session Id with the knowledge base.
+	 */
 	private sessionId: string = null;
 
 	/**
@@ -36,13 +43,13 @@ export class KBEventReader extends EventReader.BaseEventReader {
 			this.socket = new WebSocket(KB_URL);
 
 			this.socket.onclose = () => {
-				console.log("KBEventReader: Socket closed...");
+				this.logger.log(Logger.LEVEL.INFO, "KBEventReader: Socket closed...");
 				this.socket = null;
 			}
 
 			var first = true;
 			this.socket.onmessage = message => {
-				console.log("KBEventReader:", message);
+				this.logger.log(Logger.LEVEL.INFO, "KBEventReader:", message);
 
 				if (first) {
 					// First message is the response of registration.
@@ -50,7 +57,7 @@ export class KBEventReader extends EventReader.BaseEventReader {
 
 					this.sessionId = message.data;
 
-					console.log("SessionID set", this.sessionId);
+					this.logger.log(Logger.LEVEL.INFO, "SessionID set", this.sessionId);
 
 					// Now subscribe to the events
 					this.eventToSubscribe.forEach(obj => this.subscribeKB(obj));
@@ -67,7 +74,7 @@ export class KBEventReader extends EventReader.BaseEventReader {
 					if (this.sessionId) {
 						try {
 							let data = JSON.parse(message.data);
-							console.log(data);
+							this.logger.log(Logger.LEVEL.INFO, data);
 
 							let event = this.buildEvent(data);
 							if (event) {
@@ -76,30 +83,30 @@ export class KBEventReader extends EventReader.BaseEventReader {
 						} catch (ex) {
 							switch (message.data) {
 								case "done":
-									console.log("Last operation is successful.");
+								this.logger.log(Logger.LEVEL.INFO, "Last operation is successful.");
 									break;
 								case "fail":
-									console.log("Last operation is successful.");
+								this.logger.log(Logger.LEVEL.INFO, "Last operation is successful.");
 									break;
 								default:
-									console.warn("cannot parse JSON:", message.data);
+									this.logger.log(Logger.LEVEL.WARNING, "cannot parse JSON:", message.data);
 									break;
 							}
 						}
 					} else {
-						console.warn("No SessionID set");
+						this.logger.log(Logger.LEVEL.WARNING, "No SessionID set");
 					}
 				}
 			}
 
 			this.socket.onopen = () => {
-				console.log("KBEventReader: Socket opened...");
+				this.logger.log(Logger.LEVEL.INFO, "KBEventReader: Socket opened...");
 
 				// Register the client to the KB first
 				this.registerKB();
 			}
 		} catch (ex) {
-			console.error(ex);
+			this.logger.log(Logger.LEVEL.ERROR, ex);
 			if (this.socket) this.socket.close();
 			this.socket = null;
 		}

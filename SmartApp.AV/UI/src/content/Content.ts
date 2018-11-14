@@ -1,5 +1,6 @@
 import * as ElfUIEvent from '../ui/event/ElfUIEvent';
 import * as Emotion from '../emotion/Emotion';
+import * as Logger from '../log/Logger';
 
 let base64js = require('base64-js');
 
@@ -107,6 +108,7 @@ export interface ContentFactory {
  * Default implementation of ContentFactory
  */
 export class DefaultContentFactory implements ContentFactory {
+    private logger: Logger.ILogger = Logger.getInstance();
 
     create(event: ElfUIEvent.ElfUIEvent): Array<IContent> {
         let data = event.getAny(ElfUIEvent.KEY_CONTENT);
@@ -122,7 +124,7 @@ export class DefaultContentFactory implements ContentFactory {
 
                         contents.push(new AudioContent(emotion, audioB64));
                     } catch (ex) {
-                        console.error("Cannot elaborate audio file", data, ex);
+                        this.logger.log(Logger.LEVEL.ERROR, "Cannot elaborate audio file", data, ex);
                     }
                     break;
                 case "speech":
@@ -131,10 +133,10 @@ export class DefaultContentFactory implements ContentFactory {
                         if (text && emotion) {
                             contents.push(new SpeechContent(text, emotion));
                         } else {
-                            console.error("Cannot get all data from speech content", data[key]);
+                            this.logger.log(Logger.LEVEL.ERROR, "Cannot get all data from speech content", data[key]);
                         }
                     } catch (ex) {
-                        console.error("Cannot get data from speech content", data[key], ex);
+                        this.logger.log(Logger.LEVEL.ERROR, "Cannot get data from speech content", data[key], ex);
                     }
                     break;
                 case "text":
