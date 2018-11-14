@@ -10,6 +10,19 @@ export function findMatchesBind(query: any, Dataset: any[]) {
     return matches;
 }
 
+export function findMatchesBind2(query: any, Dataset: any[], initBinds: object) {
+    const matches = new Array();
+    // inefficient lookup with a loop onto dataset array
+    for (const data of Dataset) {
+        const mb = matchBind(query, data, initBinds);
+        // console.log(mb);
+        if (mb.match) {
+            matches.push(mb.binds);
+        }
+    }
+    return matches;
+}
+
 export function findMatchesAll(query: any, Dataset: any[]) {
     const matches = new Array();
     // inefficient lookup with a loop onto dataset array
@@ -43,21 +56,30 @@ function matchBind(q: any, d: any, initBinds: any): any {
 
                 if (isAtom(vq)) {
                 // the value of the current query key is an atom, so we need the value of the data key to be equal
-                    if (vq !== vd) { match = false; }
+                    if (vq !== vd) {
+                        // console.log('is atom fail');
+                        match = false;
+                    }
                 }
                 if (isPlaceholder(vq)) {
                 // the value of the current query key is a placeholder,
                 // so we need to check if we can bind the value to it
-                    if (binds.hasOwnProperty(kq) && binds[kq] !== vd) { match = false; } else { binds[vq] = vd; }
+                    if (binds.hasOwnProperty(vq) && binds[vq] !== vd) {
+                        // console.log('binding fail');
+                        match = false;
+                    } else { binds[vq] = vd; }
                 }
                 if (isObject(vq)) {
+
                 // the value of the current query key is an object,
                 // so we can do recursive call to check if they can be matched
                     const r = matchBind(vq, vd, binds);
                     match = r.match;
                     binds = r.binds;
                 }
-            } else { match = false; }
+            } else {
+                // console.log('finale fail');
+                match = false; }
         }
         if (isPlaceholder(kq)) {
             // TODO: implement this case.
@@ -70,10 +92,10 @@ function matchBind(q: any, d: any, initBinds: any): any {
     return {match, binds};
 }
 
-function isPlaceholder(v: any) {
+export function isPlaceholder(v: any) {
     return (typeof (v) === 'string' && v.charAt(0) === '$');
 }
-function isObject(v: any) {
+function isObject(v: any) { // TODO: import {isObject} from util
     return (typeof (v) === 'object');
 }
 function isAtom(v: any) {
