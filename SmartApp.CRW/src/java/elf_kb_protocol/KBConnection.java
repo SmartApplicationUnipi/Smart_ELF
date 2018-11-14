@@ -1,7 +1,6 @@
 package elf_kb_protocol;
 
 import com.google.gson.Gson;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
@@ -133,7 +132,7 @@ public class KBConnection {
      */
     public void addFact(Fact f) throws Exception {
         if (f.getReliability() < 0 || f.getReliability() > 100)
-            throw new ValueException("Fact reliability must be a value between 0 and 100.");
+            throw new Exception("Fact reliability must be a value between 0 and 100.");
 
         f.setIdSource(this.idSource);
         String factJson = gson.toJson(new KBMethod(ADD_FACT_METHOD, f));
