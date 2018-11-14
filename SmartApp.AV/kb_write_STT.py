@@ -10,13 +10,13 @@ import json
 
 from sentimental_analizer import *
 
-sys.path.insert(0, '../SmartApp.KB/')
+sys.path.insert(0, '../SmartApp.KB//bindings/python')
 
 from kb import *
       
 
 
-from_wave = True
+from_wave = False
 
 
 
