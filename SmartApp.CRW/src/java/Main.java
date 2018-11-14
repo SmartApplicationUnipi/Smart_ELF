@@ -22,7 +22,6 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         int processors = Runtime.getRuntime().availableProcessors();
-        ExecutorService executor = Executors.newFixedThreadPool(processors);
         System.err.println("Using " + processors + " threads");
 
         Set<String> urlSet = readURLSet("url-set.json");
