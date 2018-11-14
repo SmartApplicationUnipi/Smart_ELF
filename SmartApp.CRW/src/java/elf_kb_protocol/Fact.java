@@ -1,14 +1,14 @@
 package elf_kb_protocol;
 
 public class Fact {
-    private String sessionID;
+    private String idSource;
     private String infoSum;
     private KBTTL TTL;
     private int reliability;
     private boolean revisioning;
-    private String jsonFact;
+    private Object jsonFact;
 
-    public Fact(String infoSum, KBTTL TTL, int reliability, boolean revisioning, String jsonFact) {
+    public Fact(String infoSum, KBTTL TTL, int reliability, boolean revisioning, Object jsonFact) {
         this.infoSum = infoSum;
         this.TTL = TTL;
         this.reliability = reliability;
@@ -32,12 +32,12 @@ public class Fact {
         return revisioning;
     }
 
-    public String getJsonFact() {
+    public Object getJsonFact() {
         return jsonFact;
     }
 
-    protected void setSessionID(String sessionID)
+    protected void setIdSource(String idSource)
     {
-        this.sessionID = sessionID;
+        this.idSource = idSource;
     }
 }

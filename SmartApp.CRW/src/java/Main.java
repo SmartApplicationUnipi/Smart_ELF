@@ -41,8 +41,12 @@ public class Main {
         KBConnection con = new KBConnection("ws://131.114.3.213", 5666);
         con.register();
         for (DataEntry d: dataEntries) {
-            System.out.println(d);
-            con.addFact(new Fact(CrawlingManager.CRAWLER_DATA_ENTRY_TAG, KBTTL.DAY, 70, true, gson.toJson(d)));
+
+            // TODO check why d is null
+            if (d == null) continue;
+
+            d.setTag(CrawlingManager.CRAWLER_DATA_ENTRY_TAG);
+            con.addFact(new Fact(CrawlingManager.CRAWLER_DATA_ENTRY_TAG, KBTTL.DAY, 70, true, d));
         }
 
         con.closeConnection();

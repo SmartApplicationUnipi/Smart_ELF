@@ -2,22 +2,11 @@ package elf_kb_protocol;
 
 import com.google.gson.Gson;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.StatusCode;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 /**
@@ -44,7 +33,7 @@ public class KBConnection {
     private int port;
     private WebSocketClient client;
     private KBSocket socket;
-    private String sessionID;
+    private String idSource;
 
     /**
      * Creates a new KBConnection using the default localhost
@@ -133,7 +122,7 @@ public class KBConnection {
 
         String regJson = "{\"method\": \"register\", \"params\": {}}";
         this.socket.sendString(regJson);
-        this.sessionID = this.socket.getNextMessage();
+        this.idSource = this.socket.getNextMessage();
     }
 
     /**
@@ -146,8 +135,9 @@ public class KBConnection {
         if (f.getReliability() < 0 || f.getReliability() > 100)
             throw new ValueException("Fact reliability must be a value between 0 and 100.");
 
-        f.setSessionID(this.sessionID);
+        f.setIdSource(this.idSource);
         String factJson = gson.toJson(new KBMethod(ADD_FACT_METHOD, f));
+        System.out.println(factJson);
         this.socket.sendString(factJson);
         this.socket.getNextMessage();
     }
