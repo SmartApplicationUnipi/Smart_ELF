@@ -37,14 +37,14 @@ class OffVision:
         for rect in detected_faces:
             face_desc = self.compute_face_descriptor(frame, rect)
             # find the closest match, within threshold
-            max_distance = float('inf')
+            min_distance = float('inf')
             match_id = None
             for person_id, person_desc in self.people.items():
                 distance = np.linalg.norm(person_desc - face_desc)
-                if distance < max_distance:
-                    max_distance = distance
+                if distance < min_distance:
+                    min_distance = distance
                     match_id = person_id
-            if max_distance > self.match_dist_threshold:
+            if min_distance > self.match_dist_threshold:
                 # no match, assign a new identifier
                 match_id = str(uuid.uuid4())
             # update face descriptor
