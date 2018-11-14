@@ -18,7 +18,7 @@ wss.on('connection', (ws: WebSocket) => {
             const j = JSON.parse(message);
             switch (j.method) {
                 case 'register':
-                    reply = kb.register();
+                    reply = kb.register(j.params.tags);
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length

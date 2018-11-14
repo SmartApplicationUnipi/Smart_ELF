@@ -1,16 +1,22 @@
 import { isObject } from 'util';
-import { addFact, databaseFact  } from './kb';
-import { findMatchesBind, findMatchesBind2, isPlaceholder} from './matcher';
+import { addFact, databaseFact } from './kb';
+import { findMatchesBind, findMatchesBind2, isPlaceholder } from './matcher';
 
+const INFERENCE_TAG = 'INFERENCE'
 const databaseRule = [
-    { _data:
-        { body: [{subject: '$prof' , relation: 'teaches', object: '$course'  },
-           {subject: '$course', relation: 'is in room',  object: '$room'}],
-        head: { subject: '$prof', relation: 'is in', object: '$room'} },
+    {
+        _data:
+        {
+            body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
+            { subject: '$course', relation: 'is in room', object: '$room' }],
+            head: { subject: '$prof', relation: 'is in', object: '$room' }
+        },
     },
-    { _data:
-        { body: [ { emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
-          head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n'}},
+    {
+        _data:
+        {
+            body: [{ emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
+            head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n' } },
         },
     },
 ];
@@ -26,11 +32,9 @@ function checkRule(head: object, body: object[], fact: object) {
     console.log('Sono dentro.');
     console.log(fact);
     console.log();
-
     // let binds;
     // tslint:disable-next-line:max-line-length
     // const matchedBodyPred = body.findIndex( (b) => { binds = findMatchesBind(b, [fact]);  return binds.length > 0; });
-
     let binds;
     for (const pred of body) {
         // console.log('guardo il predicato');
@@ -43,7 +47,6 @@ function checkRule(head: object, body: object[], fact: object) {
         // console.log('primo match ha length');
         // console.log(binds.length);
         // console.log();
-
         if (binds.length > 0) {
             break;
         }
@@ -66,7 +69,7 @@ function checkRule(head: object, body: object[], fact: object) {
                 // console.log(bi);
                 // console.log();
 
-                const b = findMatchesBind2({_data: pred }, Array.from(databaseFact.values()), bi);
+                const b = findMatchesBind2({ _data: pred }, Array.from(databaseFact.values()), bi);
                 // b se non è vuoto contiene i nuovi bindings (che contengono bi)
                 // console.log('trovo la soluzione');
                 // console.log(b);
@@ -76,7 +79,7 @@ function checkRule(head: object, body: object[], fact: object) {
             }
             binds = tempbinds;
             if (binds.length === 0) {
-                 // ho fallito e la regola non va applicata() vai alla prossima REGOLA)
+                // ho fallito e la regola non va applicata() vai alla prossima REGOLA)
                 // console.log('NON HO SOLUZIONI');
                 // console.log();
 
@@ -105,7 +108,7 @@ function checkRule(head: object, body: object[], fact: object) {
             };
             // tslint:disable-next-line:max-line-length
             // addFact('inference', 'infoSum', 1, 100, true, {subject: b.$prof, relation: 'is in room', object: b.$room});
-            addFact('inference', 'infoSum', 1, 100, true, magia(head));
+            addFact('inference', INFERENCE_TAG, 1, 100, magia(head));
         }
     }
 }

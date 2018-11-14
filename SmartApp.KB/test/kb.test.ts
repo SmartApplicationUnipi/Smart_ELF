@@ -1,18 +1,22 @@
 import * as kb from '../src/kb';
 
-const myid = kb.register();
+const myid = kb.register({ 'rdf': 'desc1', 'tag2': 'desc2' });
 let result;
 
-result = kb.addFact(myid, 'rdf', 3, 90,
-  { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' },
-);
+console.log("\x1b[1;32KBTEST\x1b[0m")
+
+console.log(
+    kb.addFact(myid, 'rdf', 3, 90,
+        { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' },
+    ));
+
 
 result = kb.addFact(myid, 'rdf', 7, 100,
-  { relation: 'follows', subject: 'Ferrante Francesco', object: 'SmartApplication' },
+    { relation: 'follows', subject: 'Ferrante Francesco', object: 'SmartApplication' },
 );
 
 result = kb.addFact(myid, 'rdf', 3, 50,
-  { relation: 'isIn', object: 'Aula L', subject: 'SmartApplication' },
+    { relation: 'isIn', object: 'Aula L', subject: 'SmartApplication' },
 );
 
 // should retrieve { $X: 'SmartApplication', $Y: 'teaches' }
@@ -22,15 +26,15 @@ console.log(kb.queryBind({ subject: 'Gervasi', object: '$X', relation: '$Y' }));
 console.log(kb.queryBind({ subject: '$X', object: 'SmartApplication', relation: '$Y' }));
 
 // should retrieve the whole document that matches the query
-console.log(kb.queryFact({subject: 'Gervasi', object: '$obj', relation: 'teaches'}));
+console.log(kb.queryFact({ subject: 'Gervasi', object: '$obj', relation: 'teaches' }));
 
 result = kb.subscribe(myid, { sessionID: 1, emotion: '$E' },
-  (r) => { console.log('subscription callback!'); console.log(r); },
+    (r) => { console.log('subscription callback!'); console.log(r); },
 );
 
 // should trigger the registered callback
 result = kb.addFact(myid, 'emo', 1, 70,
-  { sessionID: 1, emotion: 'neutral', emoCoords: { angry: 10, neutral: 90, happy: 10 } },
+    { sessionID: 1, emotion: 'neutral', emoCoords: { angry: 10, neutral: 90, happy: 10 } },
 );
 
 result = kb.removeFact(myid, { relation: '$r', object: 'SmartApplication' });
@@ -39,17 +43,19 @@ result = kb.removeFact(myid, { relation: '$r', object: 'SmartApplication' });
 console.log(kb.queryBind({ object: 'SmartApplication', relation: '$rel' }));
 
 kb.addFact(myid, 'emo', 1, 70,
-  { x: {a: 1, y: 2}, y: 2 },
+    { x: { a: 1, y: 2 }, y: 2 },
 );
 
 kb.addFact(myid, 'emo', 1, 70,
-  { x: {a: 1, y: 2}, y: 3 },
+    { x: { a: 1, y: 2 }, y: 3 },
 );
 
 kb.addFact(myid, 'emo', 1, 70,
-  { x: {a: 1, y: 2}, z: 2  },
+    { x: { a: 1, y: 2 }, z: 2 },
 );
 
 console.log();
-console.log(kb.queryBind({x: '$x', y: '$y'}));
-console.log(kb.queryBind({x: { a: 1, y: '$y'}, y: '$z'}));
+console.log(kb.queryBind({ x: '$x', y: '$y' }));
+console.log(kb.queryBind({ x: { a: 1, y: '$y' }, y: '$z' }));
+
+console.log(kb.queryBind({ _meta: { info: '$cazzo' } }))
