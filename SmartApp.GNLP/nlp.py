@@ -4,23 +4,29 @@ import json
 import numpy as np
 
 
-def NLP_Generate (JSON_Object):
-
+def NLP_GetTemplate(intent):
     with open('templates.json') as f:
         data = json.load(f)
-        
-    templates = list(filter(lambda x: x['intent'] == JSON_Object['intent'], data))
+
+    templates = list(filter(lambda x: x['intent'] == intent, data))
     template = templates[np.random.randint(len(templates))]['template']
-    
     regex = "\[\w*\]"
     processor = re.compile(regex)
     placeholders = processor.findall(template)
+
+    return (placeholders,template)
+
+def NLP_Generate (JSON_Object):
+
+    placeholders, template = NLP_GetTemplate(JSON_Object['intent']) 
     for el in placeholders:
 
         key = el[1:-1]
         template = template.replace(el, JSON_Object[key])
 
     return template
+
+
 
 def NLP_Understand (string, language = "en"): 
 
