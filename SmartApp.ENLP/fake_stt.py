@@ -13,7 +13,7 @@ def __main__():
     myID = kb.register()
     obj_from_stt = {
 	"TAG": TAG_USER_TRANSCRIPT,
-	"text": "We will build a great wall"
+	"TEXT": "We will build a great wall"
 	}
     kb.addFact(myID, TAG_USER_TRANSCRIPT, 1, 100, False, obj_from_stt)
 

@@ -93,14 +93,14 @@ def prepare_answer(answer):
     answer_fact = {
         "TIME_STAMP": 3, #fix this!!!!!
         "text": colored_answer,
-        "VALENCE": valence,
-        "AROUSAL" : arousal,
+        "valence": valence,
+        "arousal" : arousal,
         "TAG": TAG_COLORED_ANSWER
     }
     emotion_fact = {
         "TIME_STAMP": 3, #fix this!!!!!
-        "VALENCE" : valence,
-        "AROUSAL" : arousal,
+        "valence" : valence,
+        "arousal" : arousal,
         "TAG": TAG_ELF_EMOTION
     }
     return answer_fact, emotion_fact
