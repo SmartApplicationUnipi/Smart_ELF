@@ -36,6 +36,8 @@ JSON_Response = {
         "Daytime"   : "Tuesday from 14 to 16"
 }
 ```
+
+## Service Documentation
 The output is of the following format:
 ```
 {
