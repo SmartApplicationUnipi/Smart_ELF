@@ -86,15 +86,21 @@ def make_audio(txt1):
     wf = wave.open('output_wav.wav')
     p = pyaudio.PyAudio()
     chunk = 1024
+    print("---")
+
     stream = p.open(format =
                     p.get_format_from_width(wf.getsampwidth()),
                     channels = wf.getnchannels(),
                     rate = wf.getframerate(),
                     output = True)
     data = wf.readframes(chunk)
+    print("---")
+
     while data != '':
         stream.write(data)
         data = wf.readframes(chunk)
+        #print()
+    print("---")
 
 
 # to do with arausand and valency
@@ -121,7 +127,6 @@ def callbfun(res):
 
     print("callback:")
 
-    print()
 
 #    ttm = make_marry_text(res[0]['$x'],res[0]['$v'],res[0]['$a'])
     ttm = make_marry_text(res[0]['$x'],0.5,0.5)
@@ -136,7 +141,8 @@ def callbfun(res):
 
 
 
+subscribe(myID, {"TAG":"ENLP_EMOTIVE_ANSWER","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
 
-subscribe(myID, {"TAG":"AV_IN_TRANSC_EMOTION","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
+#subscribe(myID, {"TAG":"AV_IN_TRANSC_EMOTION","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
 
 print("\n waiting...")

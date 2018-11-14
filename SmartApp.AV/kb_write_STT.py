@@ -16,13 +16,15 @@ from kb import *
       
 
 
-AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "demo/Trump_We_will_build_a_great_wall.wav")
 from_wave = True
 
 
 
 
 myID = register()
+
+
+AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "demo/Trump_We_will_build_a_great_wall.wav")
 
 r = sr.Recognizer()
 
