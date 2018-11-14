@@ -101,47 +101,11 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 }
                 break;
             }
-            case 3: {
+            case ID_PA: {
                 // placeholder : atom
-                clog_old('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case placeholder : atom', 5);
-                const list = sorted.get(i);
-                const dataKeys = Object.keys(data);
-                for(let j = index; j < list.length; ++j) {
-                    clog_old('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + list[j], 5);
-                    const newBinds = [...binds]
-                    for (let k = 0; k < newBinds.length || k == 0; ++k) {
-                        if (newBinds[k] && newBinds[k].hasOwnProperty(list[j]) && data.hasOwnProperty(newBinds[k][list[j]]) &&
-                            !(query[list[j]] === data[newBinds[k][list[j]]])) {
-                            clog_old('\x1b[1;31mFAIL(3): \x1b[0m query[list[j]] === data[binds[list[j]]]', 2);
-                            delete binds[k];
-                            continue;
-                        }
-                        if (newBinds[k] && newBinds[k].hasOwnProperty(list[j]) && data.hasOwnProperty(newBinds[k][list[k]]) &&
-                            query[list[j]] === data[newBinds[k][list[j]]]) {
-                            clog_old('\x1b[1;32mOK(3):\x1b[0m bind già esistente', 3);
-                            continue;
-                        }
-                        for (const dataKey of dataKeys) {
-                            if (query[list[j]] === data[dataKey]) {
-                                clog_old('\x1b[1;32mOK(3):\x1b[0m match and new branch', 3);
-                                let tmp:any = {...newBinds[k]};
-                                tmp[list[j]] = dataKey;
-                                binds.push(tmp);
-                            } else {
-                                clog_old('\x1b[1;32mOK(3):\x1b[0m No match here', 3);
-                            }
-                            if (newBinds[k]) {
-                                delete binds[k];
-                            }
-                        }
-                    }
-                    binds = binds.filter(el => {return el != null});
-                    if (binds.length === 0) {
-                        clog_old('\x1b[1;33mEXIT(3): \x1b[0m binds.length === 0', 4);
-                        return {match: false, binds: {}};
-                    }
+                if (!matchAllPlaceholderAtom(query, sorted, data, binds)) {
+                    return {match : false, binds: []};
                 }
-                clog_old('\x1b[1;34mINFO(' + i +')\x1b[0m Exit case placeholder : atom', 5);
                 break;
             }
             case 4: {
@@ -273,6 +237,25 @@ function matchAllAtomPlaceholder(query: any, sorted: any, data: any, binds: any[
     return true;
 }
 
+function matchAllPlaceholderAtom(query: any, sorted: any, data: any, binds: any[]): boolean {
+    clog(BLUE, 'INFO', ID_PA, '', 'Enter case Placeholder : Atom', 5);
+    for (const queryKey of sorted.get(ID_PA)) {
+        if (!matchPlaceholderAtom(queryKey, query[queryKey], data, binds)) {
+            return false;
+        }
+    }
+    clog(BLUE, 'INFO', ID_PA, '', 'Exit case Placeholder : Atom', 5);
+    return true;
+}
+
+function matchAllPlaceholderObject(query: any, sorted: any, data: any, binds: any[]): boolean {
+    return true;
+}
+
+function matchAllPlaceholderPlaceholder(query: any, sorted: any, data: any, binds: any[]): boolean {
+    return true;
+}
+
 function matchAtomAtom(queryKey: string, queryValue: string, data: any, ) : boolean {
     clog(PINK, 'INFO', ID_AA, '', 'key =>' + queryKey, 5);
     if (!data.hasOwnProperty(queryKey) || queryValue !== data[queryKey]) {
@@ -334,6 +317,46 @@ function matchAtomPlaceholder(queryKey: string, queryValue: string, data: any, b
     binds = binds.filter(el => {return el != null});
     if (binds.length === 0) {
         clog(YELLOW, 'EXIT', ID_AP, '', 'No more possible binds!', 4);
+        return false;
+    }
+    return true;
+}
+
+function matchPlaceholderAtom(queryKey: string, queryValue: string, data: any, binds: any[]): boolean {
+    clog(PINK, 'INFO', ID_PA, '', 'key => ' + queryKey, 5);
+    const newBinds = [...binds];
+    const dataKeys = Object.keys(data);
+    for (let k = 0; k < newBinds.length || k == 0; ++k) {
+        if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
+            && data.hasOwnProperty(newBinds[k][queryKey]) &&
+            !(queryValue === data[newBinds[k][queryKey]])) {
+            clog(RED, 'FAIL', ID_PA, '', 'this bind is invalid', 2);
+            delete binds[k];
+            continue;
+        }
+        if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
+            && data.hasOwnProperty(newBinds[k][queryKey]) &&
+            queryValue === data[newBinds[k][queryKey]]) {
+            clog(GREEN, 'OK', ID_PA, '', 'bind already existent and correct', 3);
+            continue;
+        }
+        for (const dataKey of dataKeys) {
+            if (queryValue === data[dataKey]) {
+                clog(GREEN, 'OK', ID_PA, '', 'match and new branch', 3);
+                let tmp:any = {...newBinds[k]};
+                tmp[queryKey] = dataKey;
+                binds.push(tmp);
+            } else {
+                clog(GREEN, 'OK', ID_PA, '', 'no match here', 3);
+            }
+            if (newBinds[k]) {
+                delete binds[k];
+            }
+        }
+    }
+    binds = binds.filter(el => {return el != null});
+    if (binds.length === 0) {
+        clog(YELLOW, 'EXIT', ID_PA, '', 'No more possible bind!', 4);
         return false;
     }
     return true;
