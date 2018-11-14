@@ -47,3 +47,9 @@ The output is of the following format:
   "TIME_STAMP": 1 # TODO
 }
 ```
+
+## Usage
+```
+pip install -r requirements.txt
+python -m spacy download en_core_web_sm
+```
