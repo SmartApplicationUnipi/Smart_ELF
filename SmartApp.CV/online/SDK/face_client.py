@@ -1,6 +1,7 @@
 import os
 import cv2
 import requests
+from copy import deepcopy
 try:
     import json
 except ImportError:
@@ -41,7 +42,7 @@ class Facepp_Client(object):
     def _validate_FaceSet_Identifier(outer_id, faceset_token):
         params = {}
 
-        if not outer_id and not faceset_token:
+        if outer_id is None and faceset_token is None:
             raise AttributeError('You must define a unique outer_id or faceset_token.')
         if outer_id and faceset_token:
             raise AttributeError('You must define only one between outer_id and faceset_token.')
@@ -98,7 +99,7 @@ class Facepp_Client(object):
                 json object
         """
         url = API_HOST + 'detect'
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         if frame is None and not file:
                 raise AttributeError("Missing frame or file argument. At least one must be set.")
@@ -119,7 +120,7 @@ class Facepp_Client(object):
 
     def search(self, face_token = None, frame = None, file = None, image_url = None, faceset_token = None, outer_id = None, return_result_count = 1):
         url = API_HOST + "search"
-        params = self.url_params
+        params = deepcopy(self.url_params)
         data = None
 
         if face_token is None and frame is None and file is None and image_url is None:
@@ -163,7 +164,7 @@ class Facepp_Client(object):
 
     def setUserID(self, face_token, faceset_token = None, user_id = None):
         url = API_HOST + "faceset/setuserid"
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         if not face_token and not faceset_token and not user_id:
             raise AttributeError('You must define all the params')
@@ -191,7 +192,7 @@ class Facepp_Client(object):
 
     def getFaceSets(self, tags = None, start = 1):
         url = API_HOST + 'faceset/getfacesets'
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         if isinstance(tags, str):
             params.update({'tags': tags})
@@ -209,7 +210,7 @@ class Facepp_Client(object):
 
     def deleteFaceSet(self, outer_id = None, faceset_token = None, check_empty = 0):
         url = API_HOST + 'faceset/delete'
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
@@ -224,10 +225,10 @@ class Facepp_Client(object):
 
     def getFaceSetDetail(self, outer_id = None, faceset_token = None, start = 1):
         url = API_HOST + 'faceset/getdetail'
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
-
+        
         if not isinstance(start, int):
             raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
         elif start < 1 or start > 10000:
@@ -240,7 +241,7 @@ class Facepp_Client(object):
     def updateFaceSet(self, outer_id = None, faceset_token = None, new_outer_id = None, display_name = None, user_data = None, tags = None):
 
         url = API_HOST + 'faceset/update'
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
@@ -266,7 +267,7 @@ class Facepp_Client(object):
         """
 
         url = API_HOST + "faceset/removeface"
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
@@ -285,7 +286,7 @@ class Facepp_Client(object):
 
     def addFace(self, face_tokens, outer_id = None, faceset_token = None):
         url = API_HOST + "faceset/addface"
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
 
@@ -304,7 +305,7 @@ class Facepp_Client(object):
 
     def createFaceSet(self, display_name = None, outer_id = None, tags = None, face_tokens = None):
         url = API_HOST + 'faceset/create'
-        params = self.url_params
+        params = deepcopy(self.url_params)
 
         if outer_id is not None:
             params.update(Facepp_Client._validate_str(outer_id, "outer_id"))
