@@ -15,8 +15,8 @@ myID = register()
 
 
 
-addFact(myID, "test", 1, 50, 'false', {"text_f_audio": {
+addFact(myID, "test", 1, 50, 'false', {"TAG": "AV_IN_TRANSC_EMOTION", 
 									   "time_stamp": "here an integer with the time",
-									   "text": "At which time Prof Poloni has lecture?"} })
+									   "text": "At which time Prof Poloni has lecture?"} )
 		
 		

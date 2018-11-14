@@ -20,8 +20,10 @@ class GNLP_Service:
 		TODO: Handle the different intents and querys the KB for the
 			needed informations
 		'''
+		print("Callback")
 		
-		question = res[0]["$input"]["text"]
+		
+		question = res[0]["$input"]
 		analysis = NLP_Understand(question)
 
 		query = queryBind({"INFO": "JOKE",
@@ -37,12 +39,13 @@ class GNLP_Service:
 		
 		addFact(self.ID, "NLP_Answer", 1, 50, 'false', { "TAG" : "NLP_Answer",
 													  "TEXT": answer,
+													  "PARSING": analysis,
 													  "USER_QUERY": question,
 													  "TIME_STAMP": 1 # TODO
 													  })
 		
 		# Logging some infos
-		print("Callback")
+		
 		pp = pprint.PrettyPrinter()
 		pp.pprint(analysis)
 		print("str: ", end="")
@@ -51,7 +54,10 @@ class GNLP_Service:
 		
 	def start_service(self):
 		
-		subscribe(self.ID, {"text_f_audio": "$input"}, self.callback)
+		TAG_USER_TRANSCRIPT = "AV_IN_TRANSC_EMOTION"
+		subscribe(self.ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.callback)
+		
+		#subscribe(self.ID, {"text_f_audio": "$input"}, self.callback)
 		print("Subscribed to the KB")
 
 
