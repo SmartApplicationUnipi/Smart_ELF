@@ -1,7 +1,7 @@
 import os
 
 from online.SDK.face_client import Facepp_Client as online
-from offline.offvision import OffVision as offline
+#from offline.offvision import OffVision as offline
 
 import kb_client as kb
 
@@ -25,7 +25,7 @@ class Controller():
             self.faceset_token = res['faceset_token']
 
         # Initialization of Offline Module
-        self.offline_client = offline()
+        #self.offline_client = offline()
         return
 
 
@@ -103,8 +103,8 @@ class Controller():
             face.update({"TAG": "VISION"})
             kb.addFact(self.kbID, info, 1, confidence, True, face)
 
-    def _offline_module(self, frame):
-        return self.offline_client.analyze_frame(frame)
+    # def _offline_module(self, frame):
+    #     return self.offline_client.analyze_frame(frame)
 
 
     def setAttr(self,*args, **kwargs):
@@ -116,6 +116,6 @@ class Controller():
         #     self._online_module(frame)
         # else:
         #     self._offline_module(frame)
-        self._online_recognition_module(frame)
+        self._online_module(frame)
 
         return frame

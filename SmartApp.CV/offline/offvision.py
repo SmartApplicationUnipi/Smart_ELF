@@ -23,7 +23,7 @@ class OffVision:
         self.emotion_model = FERModel(self.target_emotions, verbose=True)
         # dictionary containing id->face associations
         self.people = {}
-    
+
     def analyze_frame(self, frame):
         """
         Analyzes and performs detection+matching on a single frame
@@ -51,7 +51,7 @@ class OffVision:
             # add to detected dictionary
             detected_people[assigned_id] = {'rect': rrect, 'emo': emotion}
         return detected_people
-    
+
     def analyze_face(self, face_frame):
         """
         Analyzes and performs matching on a single face image
@@ -112,7 +112,7 @@ class OffVision:
             rect = dlib.rectangle(top=rect['top'], left=rect['left'], bottom=rect['bottom'], right=rect['right'])
             # set person face descriptor
             self.people[match_id] = self.compute_face_descriptor(frame, rect)
-    
+
     def bootstrap_from_faceset(self, faceset):
         """
         Bootstraps the face matching forma a face set
@@ -121,7 +121,7 @@ class OffVision:
         self.people = {}
         for person_id, face_frame in faceset.items():
             self.people[person_id] = self.compute_face_descriptor(face_frame)
-    
+
     def remove_person(self, person_id):
         """
         Removes a person from known faces
