@@ -58,3 +58,10 @@ If ACTION_COUNT field is not defined, the UI starts a timer to collect the data.
 ## Channels (TBD)
 
 Channels provide a way to specify a "priority" for a certain event or action.
+
+## TODO
+
+- Support for actions.
+- Support for channels
+- Design an awesome UI
+- Support for error reporting and logs
