@@ -30,7 +30,7 @@ class KnowledgeBaseClient():
 		return port, host, token
 
 	def create_ws(self):
-		if(self.persistence): # controllo se persistente E se e' viva
+		if(self.persistence): # TODO: controllo se persistente E se e' viva
 			return self.ws
 		self.ws = create_connection("%s:%s"%(self.host, self.port))
 		return self.ws
@@ -39,41 +39,41 @@ class KnowledgeBaseClient():
 		if(not self.persistence):
 			self.ws.close()
 
-	def register(self):
+	def register(self, tags: map):
 		ws = self.create_ws()
-		req = {"method": "register", "params": { "token": self.token }}
+		req = {"method": "register", "params": { "token": self.token, "tags": tags }}
 		ws.send(json.dumps(req))
 		rep = ws.recv()
 		self.close_ws()
 		return rep		
 
-	def addFact(self, idSource: str, infoSum: str, TTL: int, reliability: int, revisioning: bool, jsonFact: map):
+	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
 		ws = self.create_ws()
-		req = {"method": "addFact", "params": {"idSource": idSource, "infoSum":infoSum, "TTL": TTL, "reliability":reliability, "revisioning": revisioning, "jsonFact": jsonFact}}
+		req = {"method": "addFact", "params": {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability":reliability, "jsonFact": jsonFact}}
 		ws.send(json.dumps(req))
 		rep = ws.recv()
 		self.close_ws()
 		return rep
 
-	def addRule(self, idSource: str, ruleSum: str, jsonRule: map):
+	def addRule(self, idSource: str, tag: str, jsonRule: map):
 	    ws = self.create_ws()
-	    req = {"method": "addRule", "params": {"idSource": idSource, "ruleSum": ruleSum, "jsonRule": jsonRule}}
+	    req = {"method": "addRule", "params": {"idSource": idSource, "tag": tag, "jsonRule": jsonRule}}
 	    ws.send(json.dumps(req))
 	    rep = ws.recv()
 	    self.close_ws()
 	    return rep
 
-	def queryBind(self, jsonReq: map):
+	def queryBind(self, idSource: str, jsonReq: map):
 		ws = self.create_ws()
-		req = {"method": "queryBind", "params": {"jsonReq": jsonReq}}
+		req = {"method": "queryBind", "params": { "idSource": idSource, "jsonReq": jsonReq}}
 		ws.send(json.dumps(req))
 		rep = json.loads(ws.recv())
 		self.close_ws()
 		return rep
 
-	def queryFact(self, jsonReq: map):
+	def queryFact(self, idSource: str, jsonReq: map):
 		ws = self.create_ws()
-		req = {"method": "queryFact", "params": {"jsonReq": jsonReq}}
+		req = {"method": "queryFact", "params": {"idSource": idSource, "jsonReq": jsonReq}}
 		ws.send(json.dumps(req))
 		rep = json.loads(ws.recv())
 		self.close_ws()

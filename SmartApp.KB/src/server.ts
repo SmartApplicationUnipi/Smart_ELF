@@ -54,6 +54,15 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'removeRule':
                     reply = JSON.stringify(kb.removeRule(j.params.idSource, j.params.idRule));
                     break;
+                case 'removeFact':
+                    reply = (kb.removeFact(j.params.idSource, j.params.jsonReq)).toString();
+                    break;
+                case 'removeFactById':
+                    reply = (kb.removeFactById(j.params.idSource, j.params.idFact)).toString();
+                    break;
+                case 'removeRule':
+                    reply = (kb.removeRule(j.params.idSource, j.params.idRule)).toString();
+                    break;
                 case 'subscribe':
                     const callback = (re: any) => {
                         try {
