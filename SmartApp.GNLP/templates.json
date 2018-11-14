@@ -9,11 +9,11 @@
 },
 {
 	"intent" : "Lecture.Time",
-	"template" : "You can find the lecture of [Lecture] helded by professor [Professor] is at [Daytime]"
+	"template" : "You can find the '[Lecture]' class, helded by professor [Professor], at [Daytime]"
 },
 {
 	"intent" : "Lecture.Place",
-	"template" : "You can find the lecture of [Lecture] helded by professor [Professor] is in [Classroom]"
+	"template" : "You can find the '[Lecture]', helded by professor [Professor], in [Classroom]"
 },
 {
 	"intent" : "Joke",
