@@ -46,4 +46,3 @@ if __name__ == "__main__":
     myID = kb.register()
     ett = EttService(myID)
     ett.start_service()
-    #kb.subscribe(kb_ID, {TAG_ANSWER: "$input"}, self.callback) # from the 'gnlp' module
