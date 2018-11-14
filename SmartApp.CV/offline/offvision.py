@@ -46,9 +46,10 @@ class OffVision:
                     'left': max(rect.left(), 0),
                     'right': min(rect.right(), frame.shape[1])}
             # predict emotion
-            emotion = self.emotion_model.predict_frame(frame[rrect['top']:rrect['bottom'], rrect['left']:rrect['right']])
+            face = frame[rrect['top']:rrect['bottom'], rrect['left']:rrect['right']]
+            emotion = self.emotion_model.predict_frame(face)
             # add to detected dictionary
-            detected_people[match_id] = {'rect': rrect, 'emo': emotion}
+            detected_people[assigned_id] = {'rect': rrect, 'emo': emotion}
         return detected_people
 
     def face_matching(self, face_desc):
