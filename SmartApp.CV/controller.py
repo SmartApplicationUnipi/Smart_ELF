@@ -30,6 +30,7 @@ class Controller():
 
 
     def _thereIsNet(self):
+        import urllib
         """
             Check there is an Internet connection.
 
@@ -40,8 +41,11 @@ class Controller():
                 thereIsNet (bool):
                     True if there is False otherwise
         """
-        response = os.system("ping -n 1 www.api-eu.faceplusplus.com")
-        return response == 0
+        try:
+            urllib.request.urlopen("http://api-eu.faceplusplus.com", timeout=1)
+            return True
+        except urllib.request.URLError:
+            return False
 
     def _online_module(self,frame):
         """
@@ -112,10 +116,11 @@ class Controller():
         #self.offline.setParamsDetect(*args, **kwargs)
 
     def simple_demo(self,frame):
-        # if self._thereIsNet():
+        if self._thereIsNet():
+            self._online_module(frame)
         #     self._online_module(frame)
         # else:
         #     self._offline_module(frame)
-        self._online_module(frame)
+
 
         return frame
