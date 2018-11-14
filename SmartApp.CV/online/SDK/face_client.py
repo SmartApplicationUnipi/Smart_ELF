@@ -30,6 +30,30 @@ class Facepp_Client(object):
         if err: raise ValueError(err)
         return jr
 
+    def _validate_str(var, name, illegals_char = "^@,&=*\'\""):
+        if isinstance(var, str):
+            if any(s in var for s in list(illegals_char)):
+                raise AttributeError(name + " cannot contain any of this " + " ".join(illegals_char) + ".")
+            return {name: var}
+        else:
+            raise AttributeError(name + " must be a string. You provided a " + type(var).__name__ + " instead.")
+
+    def _validate_FaceSet_Identifier(outer_id, faceset_token):
+        params = {}
+
+        if not outer_id and not faceset_token:
+            raise AttributeError('You must define a unique outer_id or faceset_token.')
+        if outer_id and faceset_token:
+            raise AttributeError('You must define only one between outer_id and faceset_token.')
+
+        if outer_id is not None:
+            params.update(Facepp_Client._validate_str(outer_id, "outer_id"))
+        if faceset_token is not None:
+            params.update(Facepp_Client._validate_str(faceset_token, "faceset_token"))
+
+        return params
+
+
     def setParamsDetect(self, return_landmark = 0, return_attributes = "gender,age,smiling,emotion", calculate_all = None, face_rectangle = None):
         """
             set attribute to be returned in the response
@@ -122,12 +146,13 @@ class Facepp_Client(object):
         if frame is not None:
             data = {'image_file': cv2.imencode('.jpg', frame)[1]}
 
-        if outer_id:
-            params.update({'outer_id': outer_id})
-        elif faceset_token:
-            params.update({'faceset_token': faceset_token})
-        else:
-            raise AttributeError('You must define a unique outer_id or faceset_token.')
+        params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
+        # if outer_id:
+        #     params.update({'outer_id': outer_id})
+        # elif faceset_token:
+        #     params.update({'faceset_token': faceset_token})
+        # else:
+        #     raise AttributeError('You must define a unique outer_id or faceset_token.')
 
         if return_result_count <= 0 or return_result_count > 5:
             raise AttributeError('return_result_count can be between [1,5]. The default value is 1.')
@@ -163,29 +188,6 @@ class Facepp_Client(object):
     """
     --------------------API to manage Facesets---------------------------------
     """
-
-    def _validate_str(var, name, illegals_char = "^@,&=*\'\""):
-        if isinstance(var, str):
-            if any(s in var for s in list(illegals_char)):
-                raise AttributeError(name + " cannot contain any of this " + " ".join(illegals_char) + ".")
-            return {name: var}
-        else:
-            raise AttributeError(name + " must be a string. You provided a " + type(var).__name__ + " instead.")
-
-    def _validate_FaceSet_Identifier(outer_id, faceset_token):
-        params = {}
-
-        if not outer_id and not faceset_token:
-            raise AttributeError('You must define a unique outer_id or faceset_token.')
-        if outer_id and faceset_token:
-            raise AttributeError('You must define only one between outer_id and faceset_token.')
-
-        if outer_id is not None:
-            params.update(Facepp_Client._validate_str(outer_id, "outer_id"))
-        if faceset_token is not None:
-            params.update(Facepp_Client._validate_str(faceset_token, "faceset_token"))
-
-        return params
 
     def getFaceSets(self, tags = None, start = 1):
         url = API_HOST + 'faceset/getfacesets'

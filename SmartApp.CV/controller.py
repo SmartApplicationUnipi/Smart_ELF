@@ -9,7 +9,7 @@ import kb_client as kb
 class Controller():
     def __init__(self):
         self.kbID = kb.register()
-        self.faceset_outer_id = "Fibonacci"
+        self.faceset_outer_id = "Fibonacci_FaceSet_0001"
         self.faceset_token = ""
 
         # Initialization of Online Module
@@ -17,7 +17,7 @@ class Controller():
         res = self.client.getFaceSets()
         for faceset in res['facesets']:
             if faceset['outer_id'] == self.faceset_outer_id:
-                self.faceset_token = faceset['face_token']
+                self.faceset_token = faceset['faceset_token']
                 break
 
         if self.faceset_token == "":
