@@ -1,0 +1,11 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+if [[ $# -ne 3 ]];
+then echo "Wrong usage"
+     exit 1
+fi
+
+source $DIR/../venv/bin/activate
+python $DIR/../bindings/python/store.py "$1" "$2" "$3"
+deactivate

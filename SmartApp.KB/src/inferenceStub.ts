@@ -3,24 +3,26 @@ import { addFact, databaseFact  } from './kb';
 import { findMatchesBind, findMatchesBind2, isPlaceholder} from './matcher';
 
 const databaseRule = [
-    { body: [{subject: '$prof' , relation: 'teaches', object: '$course'  },
+    { _data:
+        { body: [{subject: '$prof' , relation: 'teaches', object: '$course'  },
            {subject: '$course', relation: 'is in room',  object: '$room'}],
-      head: { subject: '$prof', relation: 'is in', object: '$room'},
+        head: { subject: '$prof', relation: 'is in', object: '$room'} },
     },
-    { body: [ { emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
-      head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n'}},
+    { _data:
+        { body: [ { emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
+          head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n'}},
+        },
     },
 ];
 
 export function checkRules(fact: object) {
     for (const rule of databaseRule) {
-        checkRule(rule.head, rule.body, fact);
+        checkRule(rule._data.head, rule._data.body, fact);
     }
 }
 
 function checkRule(head: object, body: object[], fact: object) {
     // se il fatto è uno dei predicati nel body della regola
-    
     console.log('Sono dentro.');
     console.log(fact);
     console.log();
@@ -31,7 +33,6 @@ function checkRule(head: object, body: object[], fact: object) {
 
     let binds;
     for (const pred of body) {
-        
         // console.log('guardo il predicato');
         // console.log(pred);
         // console.log();
@@ -76,7 +77,6 @@ function checkRule(head: object, body: object[], fact: object) {
             binds = tempbinds;
             if (binds.length === 0) {
                  // ho fallito e la regola non va applicata() vai alla prossima REGOLA)
-                
                 // console.log('NON HO SOLUZIONI');
                 // console.log();
 
