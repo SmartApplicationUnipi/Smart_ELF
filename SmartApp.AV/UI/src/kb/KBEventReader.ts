@@ -2,8 +2,8 @@ import * as EventReader from '../reader/EventReader';
 import * as Message from './Message';
 import * as ElfUIEvent from '../ui/event/ElfUIEvent';
 
-const KB_URL: string = "ws://localhost:5666" // Local KB
-// const KB_URL: string = "ws://10.101.58.58:5666" // Remote KB
+// const KB_URL: string = "ws://localhost:5666" // Local KB
+const KB_URL: string = "ws://10.101.58.58:5666" // Remote KB
 
 /**
  * This class implements an BaseEventReader that receives messages from the KB.

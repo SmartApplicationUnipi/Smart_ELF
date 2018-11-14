@@ -1,9 +1,11 @@
 import * as ElfUI from '../ElfUI';
 import * as Emotion from '../../emotion/Emotion';
-import * as ElfUIEvent from '../event/ElfUIEvent';
 import * as UIWidget from '../widget/UIWidget';
 import * as Face from './face/Face';
 import * as Content from '../../content/Content';
+import * as AudioPlayer from '../../audio/AudioPlayer';
+
+var _ = require('lodash');
 
 /**
  * Default widget that displays raw data.
@@ -53,11 +55,15 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 
 	private face: UIWidget.EmotionalWidget;
 
+	private audioPlayer: AudioPlayer.AudioPlayer;
+
 	private contentFactory: Content.ContentFactory = new Content.DefaultContentFactory();
 	private widgetFactory: UIWidget.UIWidgetFactory = new ColorfulUIWidgetFactory();
 
-	constructor(rootElement: HTMLElement) {
+	constructor(rootElement: HTMLElement, window: Window) {
 		super(rootElement);
+
+		this.audioPlayer = new AudioPlayer.AudioPlayer(AudioPlayer.getContext(window));
 	}
 
 	onCreateView(root: HTMLElement): void {
@@ -83,7 +89,7 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 	public onContentChanged(contents: Array<Content.IContent>): void {
 		console.log("onContentChanged", contents);
 
-		let document = this.getRootElement().ownerDocument
+		let audioContents = contents.filter(content => content instanceof Content.AudioContent);
 
 		this.resetView();
 
@@ -103,6 +109,10 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 					console.error("Pair discarded: no matching type.", pair);
 				}
 			});
+
+		audioContents.forEach(audioContent => {
+			this.audioPlayer.play((audioContent as Content.AudioContent).getAudioBytes());
+		})
 	}
 
 	public getTemplate(): string {
@@ -141,9 +151,9 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 
 export class ElfColorfulUIFactory implements ElfUI.ElfUIFactory {
 
-	constructor(private root: HTMLElement) { }
+	constructor(private root: HTMLElement, private window: Window) { }
 
 	create(): ElfUI.ElfUI {
-		return new ElfColorfulUI(this.root);
+		return new ElfColorfulUI(this.root, this.window);
 	}
 }

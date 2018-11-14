@@ -1,15 +1,15 @@
 import * as ElfUI from './ui/ElfUI';
 import * as ElfColorfulUI from './ui/colorful/ElfColorfulUI';
-import * as Message from './kb/Message';
 import * as KBEventReader from './kb/KBEventReader';
-import * as TTSEventReader from './audio/TTSEventReader';
+import * as TTSEventReader from './tts/TTSEventReader';
 import * as Test from './test/Test';
+import * as Message from './kb/Message';
 
-const DEBUG = true;
+const DEBUG = false;
 
 let elem = document.getElementById("content");
 
-let factory = new ElfColorfulUI.ElfColorfulUIFactory(elem);
+let factory = new ElfColorfulUI.ElfColorfulUIFactory(elem, window);
 
 let kbEventReader = new KBEventReader.KBEventReader();
 let readers = [
