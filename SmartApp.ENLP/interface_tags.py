@@ -1,5 +1,5 @@
 #READ FROM KB
-TAG_USER_TRANSCRIPT = "text_f_audio" # user query transcript
+TAG_USER_TRANSCRIPT = "AV_IN_TRANSC_EMOTION" # user query transcript
 TAG_ANSWER = "NLP_Answer" # nlp answer to provide BEFORE addition of emotions
 
 # WRITE TO KB

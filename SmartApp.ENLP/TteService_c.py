@@ -37,7 +37,7 @@ class TteService:
         return
 
     def start_service(self):
-        kb.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.callback) #from the 'text to speech' module
+        kb.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "TEXT": "$input"}, self.callback) #from the 'text to speech' module
 
 if __name__ == "__main__":
     global myID
