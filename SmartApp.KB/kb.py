@@ -5,7 +5,7 @@ import threading
 
 from websocket import create_connection
 port = 5666
-host = 'ws://localhost'
+host = 'ws://131.114.3.213'
 
 def register():
 	ws = create_connection("%s:%s"%(host,port))
