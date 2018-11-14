@@ -1,4 +1,4 @@
-const DEBUG = 100;
+const DEBUG = 0;
 
 function clog(msg: any, level: number) {
     if (level < DEBUG)
@@ -64,7 +64,7 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 // atom : atom
                 clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case atom : atom', 5);
                 for (const queryKey of sorted.get(i)) {
-                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
+                    clog('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
                     if (!data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]) {
                         clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]', 2);
                         return {match: false, binds: []};
@@ -77,14 +77,16 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 // atom : object
                 clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case atom : object', 5);
                 for (const queryKey of sorted.get(i)) {
-                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
+                    clog('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
                     if (!data.hasOwnProperty(queryKey) || !isObject(data[queryKey])) {
                         // Se non ha la chiave, o ha la chiave ma non è un oggetto ESPLODI
                         clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey) || !isObject(data[queryKey])', 2);
                         return {match: false, binds: []};
                     }
-                    const innerSorted = sort(query[queryKey]); // TODO remove
+                    const innerSorted = sort(query[queryKey]); // TODO remove!
+                    clog('\t\x1b[1;34mINFO(' + i +')\x1b[0m Entering recursion', 5);
                     const result = matchBind(query[queryKey], innerSorted, 0, 0, data[queryKey], binds);
+                    clog('\t\x1b[1;34mINFO(' + i +')\x1b[0m Exit recursion', 5);
                     if (!result.match) {
                         clog('\x1b[1;31mFAIL('+i+')\x1b[0m: inner objects are different.', 2);
                         return {match: false, bind: [] };
@@ -93,14 +95,14 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                         binds = [...result.binds];
                     }
                 }
-                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case atom : object', 5);
+                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Exit case atom : object', 5);
                 break;
             }
             case 2: {
                 // atom : placeholder
                 clog('\x1b[1;34mINFO('+i+')\x1b[0m Enter case atom : placeholder', 5);
                 for (const queryKey of sorted.get(i)) {
-                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
+                    clog('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
                     if (!data.hasOwnProperty(queryKey)) {
                         clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey)', 2);
                         return {match: false, binds: {}};
@@ -141,11 +143,11 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 const list = sorted.get(i);
                 const dataKeys = Object.keys(data);
                 for(let j = index; j < list.length; ++j) {
-                    clog('\x1b[1;34mINFO(' + i +')\x1b[0m key => ' + list[j], 5);
+                    clog('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + list[j], 5);
                     const newBinds = [...binds]
                     for (let k = 0; k < newBinds.length || k == 0; ++k) {
-                        if (newBinds[k] && !(newBinds[k].hasOwnProperty(list[j]) && data.hasOwnProperty(newBinds[k][list[j]]) &&
-                              query[list[j]] === data[newBinds[k][list[j]]])) {
+                        if (newBinds[k] && newBinds[k].hasOwnProperty(list[j]) && data.hasOwnProperty(newBinds[k][list[j]]) &&
+                            !(query[list[j]] === data[newBinds[k][list[j]]])) {
                             clog('\x1b[1;31mFAIL(3): \x1b[0m query[list[j]] === data[binds[list[j]]]', 2);
                             delete binds[k];
                             continue;
@@ -158,12 +160,14 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                         for (const dataKey of dataKeys) {
                             if (query[list[j]] === data[dataKey]) {
                                 clog('\x1b[1;32mOK(3):\x1b[0m match and new branch', 3);
-                                delete binds[k];
                                 let tmp:any = {...newBinds[k]};
                                 tmp[list[j]] = dataKey;
                                 binds.push(tmp);
                             } else {
                                 clog('\x1b[1;32mOK(3):\x1b[0m No match here', 3);
+                            }
+                            if (newBinds[k]) {
+                                delete binds[k];
                             }
                         }
                     }
@@ -177,68 +181,84 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 break;
             }
             case 4: {
-                
                 // placeholder : object
                 clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case placeholder : object', 5);
-                /*
                 const list = sorted.get(i);
                 const dataKeys = Object.keys(data);
-                for(let j = index; j < list.size; ++j) {
-                    for (const bind of binds) {
-                        if (!(bind.hasOwnProperty(list[j]) && data.hasOwnProperty(bind[list[j]]) &&
-                              isObject(data[bind[list[j]]]))) {
-                            clog('\x1b[1;31mFAIL('+i+')\x1b[0m: isObject(data[binds[list[j]]]')
-                            //return {match: false, binds: {}};
-                            // TODO: togli bind da binds
-                        }
-                        if (bind.hasOwnProperty(list[j]) && data.hasOwnProperty(bind[list[j]])) {
-                            const innerSorted = sort(query[list[j]]);
-                            const innerBind = Object.assing({}, bind);
-                            const result = matchBind(query[list[j]], innerSorted, 0, 0, data[bind[list[j]]], innerBind);
-                            if (!result.match) {
-                                clog('FAIL: !result.match');
-                                //return {match: false, binds: {}};
-                                // TODO: togli bind da binds
-                            }
-                            //                            binds = result.binds; // è un'unione
-                            // TODO per ogni bind in result.Binds, lo aggiungo a binds
+                for(let j = index; j < list.length; ++j) {
+                    clog('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + list[j], 5);
+                    const newBinds = [...binds];
+                    let flag = false;
+                    if (newBinds.length > 0) {
+                        flag = true;
+                    }
+                    for (let k = 0; k < newBinds.length || k == 0; ++k) {
+                        // already bound to a non object
+                        if (newBinds[k] && newBinds[k].hasOwnProperty(list[j])
+                            && data.hasOwnProperty(newBinds[k][list[j]])
+                            && !isObject(data[newBinds[k][list[j]]])) {
+                            clog('\x1b[1;31mFAIL('+i+')\x1b[0m: isObject(data[binds[list[j]]]', 2)
+                            delete binds[k];
                             continue;
                         }
-                        for (const dataKey of dataKeys) {
-                            if (!isObject(dataKey)) {
-                                continue;
-                            }
-                            const innerSorted = sort(query[list[j]]);
-                            const innerBind = Object.assing({}, bind);
-                            innerBind[list[j]] = dataKey;
-                            const result = matchBind(query[list[j]], innerSorted, 0, 0, data[dataKey], innerBind);
-                            if (!result.match) {
-                                // TODO: togli bind da binds
-                                clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !result.match');
-                                continue;
-                            }
-                            for (const resultBind of result.binds) {
-                                const nextResult = matchBind(query, sorted, i, j+1, data, resultBinds);
-                                if (!nextResult.match) {
-                                    // TODO: togli bind da binds
-                                    clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !nextResult.match');
-                                    continue;
-                                }
-                                // TODO per ogni bind in nextResult.Binds, lo aggiungo a binds
-                            }
 
-                            // TODO: incrementare j da qualche parte
-                            // TODO: capire cosa succede fra liste e liste di liste
-                            // TODO fare dei for each da qualhe parte
-                            // TODO: pregare
-                            // TODO: controllare che non vengano vettori di vettori di vettori....
+                        // already bound to an object (check + possible new binds)
+                        if (newBinds[k] && newBinds[k].hasOwnProperty(list[j])
+                            && data.hasOwnProperty(newBinds[k][list[k]])
+                            && isObject(data[newBinds[k][list[j]]])) {
+                            clog('\x1b[1;32mOK('+i+'):\x1b[0m bind già esistente', 3);
+                            const innerSorted = sort(query[list[j]]); // TODO remove
+                            clog('\t\x1b[1;34mINFO(' + i +')\x1b[0m Entering recursion', 5);
+                            const result = matchBind(query[list[j]], innerSorted, 0, 0, data[list[j]], [newBinds[k]]);
+                            clog('\t\x1b[1;34mINFO(' + i +')\x1b[0m Exit recursion', 5);
+                            if (!result.match) {
+                                clog('\x1b[1;31mFAIL('+i+')\x1b[0m: inner objects are different.', 2);
+                                delete binds[k];
+                            } else {
+                                clog('\x1b[1;32mOK('+i+'):\x1b[0m: updated already existent bind', 3);
+                                delete binds[k];
+                                binds = binds.concat(result.binds);
+                            }
+                            continue;
+                        }
+
+                        // still to bound
+                        for (const dataKey of dataKeys) {
+                            if (!isObject(data[dataKey])) {
+                                clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !isObject(data[dataKey]).', 2);
+                                continue;
+                            }
+                            if (!newBinds[k]) {
+                                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Added first bind', 5);
+                                const b:any = {};
+                                b[list[j]] = dataKey;
+                                newBinds.push(b);
+                            } else {
+                                newBinds[k][list[j]] = dataKey;
+                            }
+                            const innerSorted = sort(query[list[j]]); // TODO remove
+                            clog('\t\x1b[1;34mINFO(' + i +')\x1b[0m Entering recursion', 5);
+                            const result = matchBind(query[list[j]], innerSorted, 0, 0, data[dataKey], [newBinds[k]]);
+                            clog('\t\x1b[1;34mINFO(' + i +')\x1b[0m Exit recursion', 5);
+                            if (!result.match) {
+                                clog('\x1b[1;31mFAIL('+i+')\x1b[0m: inner objects are different.', 2);
+                            } else {
+                                clog('\x1b[1;32mOK('+i+'):\x1b[0m: updated already existent bind', 3);
+                                binds = binds.concat(result.binds);
+                            }
+                        }
+                        if (flag) {
+                            delete binds[k];
                         }
                     }
+                    binds = binds.filter(el => {return el != null});
+                    if (binds.length === 0) {
+                        clog('\x1b[1;33mEXIT('+i+'): \x1b[0m binds.length === 0', 4);
+                        return {match: false, binds: {}};
+                    }
                 }
-                */
                 clog('\x1b[1;34mINFO('+i+')\x1b[0m Exit case placeholder : object', 5);
                 break;
-                
             }
             case 5: {
                 clog('\x1b[1;34mINFO('+i+')\x1b[0m Enter case placeholder : placeholder', 5);

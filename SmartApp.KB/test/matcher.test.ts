@@ -6,7 +6,7 @@ const dataset = [
     {nome: 'pino', cognome: 'radice', titolo: { tipo: 'laurea', grado: 'magistrale' , voto: '45'} },
     {nome: 'dino', cognome: 'sauro', grado: { tipo: 'laurea', grado: 'magistrale' , voto: '45'} },
     {nome: 'gianni', cognome: 'sauro', grado: { tipo: 'laurea', grado: 'triennale' , voto: '20', qi:'100'} },
-    {nome: 'gianni', cognome: 'gianni', grado: { gianni: 'nome',  qi:'900'} }, 
+    {nome: 'gianni', cognome: 'gianni', grado: { gianni: 'nome',  qi:'900'} },
     {nome: 'gianni', cognome: 'pinotto', gianni: 'nome',  qi:'900' }
 ];
 
@@ -29,11 +29,21 @@ let mat4 = matcher.findMatchesBind({nome: '$n', $n : 'nome'}, dataset);
 let ans4 = [ [ { '$n' : 'gianni' } ] ];
 test(mat4, ans4, 4);
 
-
 let mat5 = matcher.findMatchesBind({nome: '$n', grado: { $n : 'nome' }}, dataset);
 let ans5 = [ [ { '$n' : 'gianni' } ] ];
 test(mat5, ans5, 5);
 
+let mat6 = matcher.findMatchesBind({nome: '$n', $obj: { $n : 'nome' }}, dataset);
+let ans6 = [ [ { '$n' : 'gianni', '$obj' : 'grado'} ] ];
+test(mat6, ans6, 6);
+
+let mat7 = matcher.findMatchesBind({$x : {'$x1' : 'laurea'} , $y : {'$y1' : 'triennale'}}, dataset);
+let ans7 = [ [ { '$x': 'grado', '$x1': 'tipo', '$y': 'grado', '$y1': 'grado' } ] ];
+test(mat7, ans7, 7);
+
+let mat8 = matcher.findMatchesBind({$x : {'$x1' : 'laurea'} , $y : {'$y1' : 'barbagianni'}}, dataset);
+let ans8:any[] = [];
+test(mat8, ans8, 8);
 
 /*
 let matches = matcher.findMatchesBind({nome: 'pino', cognome: 'albero'}, dataset);
