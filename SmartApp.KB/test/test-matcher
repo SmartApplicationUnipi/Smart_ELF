@@ -1,0 +1,54 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+npm run build-ts
+
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+# Initialize our own variables:
+verbose=0
+debug_level=0
+
+while getopts "vd:" opt; do
+    case "$opt" in
+    v)  verbose=1
+        ;;
+    d)  debug_level=$OPTARG
+        ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+[ "${1:-}" = "--" ] && shift
+
+if [ -z "$@" ]; then
+    for filename in $DIR/matcher/*.ts; do
+        filename=$(basename -- "$filename")
+        filename="${filename%.*}"
+        node "$DIR"/../dist/test/matcher/$filename.js verbose "$verbose" debug "$debug_level"
+        if [ $? -eq 0 ]; then
+            echo -e "[${filename}.ts] ${GREEN}PASS${NC}";
+        else
+            echo -e "[${filename}.ts] ${RED}FAIL${NC}";
+        fi
+    done
+else
+    file="${DIR}/../dist/test/matcher/${@}.js"
+    if [ ! -f ${file} ]; then
+        echo -e "[${@}.ts] ${YELLOW}File not found${NC}";
+        exit 1;
+    fi
+    node "$DIR"/../dist/test/matcher/${@}.js verbose "$verbose" debug "$debug_level"
+    if [ $? -eq 0 ]; then
+        echo -e "[${@}.ts] ${GREEN}PASS${NC}";
+    else
+        echo -e "[${@}.ts] ${RED}FAIL${NC}";
+    fi
+fi
+
