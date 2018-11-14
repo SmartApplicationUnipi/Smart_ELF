@@ -8,6 +8,8 @@ namespace SmartApp.HAL.Services
         void Start();
         void Stop();
 
+        int Framerate { get; set; }
+
         event EventHandler<VideoFrame> FrameReady;
     }
 }
