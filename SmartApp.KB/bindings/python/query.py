@@ -1,6 +1,6 @@
-from kb import queryBind
+from kb import queryFact
 import sys
 import json
 
-print(json.dumps(queryBind(json.loads(sys.argv[1])), indent=2, sort_keys=True))
+print(json.dumps(queryFact(json.loads(sys.argv[1])), indent=2, sort_keys=True))
 
