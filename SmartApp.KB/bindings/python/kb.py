@@ -6,18 +6,8 @@ import configparser
 import os
 
 from websocket import create_connection
-
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
-cParser = configparser.RawConfigParser()
-configFilePath = r'./config'
-
-
-
-cParser.read(os.path.join(base_dir, configFilePath))
-
-port = cParser.get('host-config','port')
-host = cParser.get('host-config','host-name')
+port = 5666
+host = 'ws://131.114.3.213'
 
 def register():
 	ws = create_connection("%s:%s"%(host,port))

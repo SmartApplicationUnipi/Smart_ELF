@@ -14,10 +14,22 @@ myID = register()
 
 
 
+def make_marry_text(text,valency,arausand):
+
+
+    v = str(valency)
+    a = str(arausand)
+
+
+    #result="""<emotionml version="1.0" xmlns="http://www.w3.org/2009/10/emotionml" category-set="http://www.w3.org/TR/emotion-voc/xml#everyday-categories"><emotion dimension-set="http://www.w3.org/TR/emotion-voc/xml#pad-dimensions"> """ +text+""" <dimension name="arousal" value="0.1"/><!-- high arousal --><dimension name="pleasure" value="0.9"/><!-- negative valence --><dimension name="dominance" value="0.2"/><!-- low potency    --></emotion></emotionml>"""
+    result="""<emotionml version="1.0" xmlns="http://www.w3.org/2009/10/emotionml" category-set="http://www.w3.org/TR/emotion-voc/xml#everyday-categories"><emotion dimension-set="http://www.w3.org/TR/emotion-voc/xml#pad-dimensions"> """ +text+""" <dimension name="arousal" value="0.1"/><!-- high arousal --><dimension name="pleasure" value="0.9"/><!-- negative valence --><dimension name="dominance" value="0.2"/><!-- low potency    --></emotion></emotionml>"""
+    
+    return result
+
 #print(queryBind({"text_f_audio": "$x"}))
 ###############################################################################################################################################
 
-def make_audio(txt):
+def make_audio(txt1):
 
     # Mary server informations
     mary_host = "localhost"
@@ -25,6 +37,17 @@ def make_audio(txt):
 
     with open ("en_in", "r") as f:
         txt = f.read()
+   # print("\n")
+  #  print("\n")
+
+   # print(txt)
+   ## print("\n")
+   # print(txt1)
+  #  print("\n")
+   # print("\n")
+    
+    txt=txt1
+
     language_in="dfki-prudence"
     language_text = "en-GB"
     
@@ -98,8 +121,16 @@ def callbfun(res):
 
     print("callback:")
 
-    print(res)
-    make_audio("ciaoooooooooooooooo")
+    print()
+
+#    ttm = make_marry_text(res[0]['$x'],res[0]['$v'],res[0]['$a'])
+    ttm = make_marry_text(res[0]['$x'],0.5,0.5)
+
+    #print(ttm)
+
+
+    make_audio(ttm)
+
 
     print("\n waiting...")
 
