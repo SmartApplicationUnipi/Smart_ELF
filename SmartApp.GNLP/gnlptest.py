@@ -14,21 +14,23 @@ myID = register()
     
 def nlp_callb(res):
 	question = res[0]["$input"]["text"]
-    analysis = NLP_Understand(question)
-    pp = pprint.PrettyPrinter()
-    pp.pprint(analysis)
-    print("str: ", end="")
-    print(question)
+	analysis = NLP_Understand(question)
+	print("Callback")
+	pp = pprint.PrettyPrinter()
+	pp.pprint(analysis)
+	print("str: ", end="")
+	print(question)
 
-    answer = "Hi, I'm Elf"
+	answer = "Hi, I'm Elf"
 
-    addFact(myID, "NLP_Answer", 1, 50, 'false', { "TAG" : "NLP_Answer",
-		    									  "TEXT": , answer,
-		    									  "USER_QUERY": question,
-		    									  "TIME_STAMP": 1 # TODO
-		    									  })
+	addFact(myID, "NLP_Answer", 1, 50, 'false', { "TAG" : "NLP_Answer",
+												  "TEXT": answer,
+												  "USER_QUERY": question,
+												  "TIME_STAMP": 1 # TODO
+												  })
 
 subscribe(myID, {"text_f_audio": "$input"}, nlp_callb)
-addFact(myID, "test", 1, 50, 'false', {"text_f_audio": {"time_stamp": "here an integer with the time", "text": "At which time Prof Poloni has lecture?"} })
+print("Listening...")
 
-print(queryBind({"NLP_Answer": "$input"}))
+#addFact(myID, "test", 1, 50, 'false', {"text_f_audio": {"time_stamp": "here an integer with the time", "text": "At which time Prof Poloni has lecture?"} })
+
