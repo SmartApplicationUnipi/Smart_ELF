@@ -6,6 +6,7 @@ import uuid
 
 from emopy import FERModel
 
+
 # load configuration parameters
 from conf import *
 
@@ -58,7 +59,8 @@ while True:
                 'right': min(rect.right(), frame.shape[1])}
         
         # predict emotion
-        emotion = emotion_model.predict_frame(frame[rrect['top']:rrect['bottom'], rrect['left']:rrect['right']])
+        face_frame = frame[rrect['top']:rrect['bottom'], rrect['left']:rrect['right']]
+        emotion = emotion_model.predict_frame(face_frame)
         
         # add to detected dictionary
         detected_people[match_id] = {'rect': rrect, 'emo': emotion}
