@@ -1,25 +1,30 @@
 from urllib.parse import urlencode # For URL creation
 import httplib2
 from lxml import etree
-import wave, sys, pyaudio
+import wave, pyaudio
+from multiprocessing import Queue, Process
+import asyncio
+import websockets
+import base64
 
 import json
 import sys
 
-sys.path.insert(0, '../SmartApp.KB/')
+sys.path.insert(0, '../SmartApp.KB/bindings/python')
 
 from kb import *
 
 myID = register()
 
 
+HOST = '10.101.21.184'  # Standard loopback interface address (localhost)
+PORT = 65432        # Port to listen on (non-privileged ports are > 1023)
+
+queue = Queue()
 
 def make_marry_text(text,valency,arausand):
-
-
     v = str(valency)
     a = str(arausand)
-
 
     #result="""<emotionml version="1.0" xmlns="http://www.w3.org/2009/10/emotionml" category-set="http://www.w3.org/TR/emotion-voc/xml#everyday-categories"><emotion dimension-set="http://www.w3.org/TR/emotion-voc/xml#pad-dimensions"> """ +text+""" <dimension name="arousal" value="0.1"/><!-- high arousal --><dimension name="pleasure" value="0.9"/><!-- negative valence --><dimension name="dominance" value="0.2"/><!-- low potency    --></emotion></emotionml>"""
     result="""<emotionml version="1.0" xmlns="http://www.w3.org/2009/10/emotionml" category-set="http://www.w3.org/TR/emotion-voc/xml#everyday-categories"><emotion dimension-set="http://www.w3.org/TR/emotion-voc/xml#pad-dimensions"> """ +text+""" <dimension name="arousal" value="0.1"/><!-- high arousal --><dimension name="pleasure" value="0.9"/><!-- negative valence --><dimension name="dominance" value="0.2"/><!-- low potency    --></emotion></emotionml>"""
@@ -123,26 +128,39 @@ def generate_emotional_text(text, emotion="happy"):
 
 
 def callbfun(res):
-
-
     print("callback:")
-
-
-#    ttm = make_marry_text(res[0]['$x'],res[0]['$v'],res[0]['$a'])
-    ttm = make_marry_text(res[0]['$x'],0.5,0.5)
+    ttm = make_marry_text(res[0]['$x'], 0.5, 0.5)
 
     #print(ttm)
+    queue.put(ttm)
 
+    print("\n waiting...")
 
-    make_audio(ttm)
-
-
+def fun():
+    subscribe(myID, {"TAG":"ENLP_EMOTIVE_ANSWER","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
     print("\n waiting...")
 
 
 
-subscribe(myID, {"TAG":"ENLP_EMOTIVE_ANSWER","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
+async def echo(websocket, path): # quando si connette qualcuno allora parte questa funzione
+    while True:
+        data = queue.get()
+
+        await websocket.send(json.dumps({"audio": base64.b64encode(data.audio).decode('ascii'),
+                                        "id": data.timestamp,
+                                        "emotion": data.emotion,
+                                        "text": data.text}))
+
+
+def loop():
+    asyncio.get_event_loop().run_until_complete(websockets.serve(echo, HOST, PORT))
+    asyncio.get_event_loop().run_forever()
+
+
+mary_process = Process(target=fun)
+server_process = Process(target=loop)
+mary_process.start()
+server_process.start()
 
 #subscribe(myID, {"TAG":"AV_IN_TRANSC_EMOTION","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
 
-print("\n waiting...")
