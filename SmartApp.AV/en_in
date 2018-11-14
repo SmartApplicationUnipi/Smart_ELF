@@ -1,0 +1,31 @@
+<emotionml version="1.0" xmlns="http://www.w3.org/2009/10/emotionml" 
+category-set="http://www.w3.org/TR/emotion-voc/xml#everyday-categories">
+
+<emotion><category name="content"/>
+Although you won't be able to catch the train, at least you have some time to chat with me.
+</emotion>
+
+
+<emotion><category name="happy"/>
+I am glad to inform you that the Smart Application lecture has been cancelled.
+</emotion>
+
+<emotion><category name="sad"/>
+I am sorry but the lecture has been delayed.
+</emotion>
+
+<emotion dimension-set="http://www.w3.org/TR/emotion-voc/xml#pad-dimensions">
+The pleasure value of this sentence is supposed to be quite high, I hope you are able to perceive it.
+<dimension name="arousal" value="0.1"/><!-- high arousal -->
+<dimension name="pleasure" value="0.9"/><!-- negative valence -->
+<dimension name="dominance" value="0.2"/><!-- low potency    -->
+</emotion>
+
+<emotion><category name="angry"/>
+Where the hell is room L? That is no way to ask something. Don't you dare speak to me like that ever again.
+</emotion>
+    
+
+</emotionml>
+
+

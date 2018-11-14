@@ -1,26 +1,33 @@
 import io
 import speech_recognition as sr
 from multiprocessing import Queue, Process
+from os import path
 import sys
 sys.path.insert(0, '../SmartApp.KB/')
 from kb import *
+import time
+
+AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "demo/Trump_We_will_build_a_great_wall.wav")
 
 
-def recognize(model, audio, language="en-US", res_queue, timestamp):
+def recognize(model, audio, res_queue, timestamp, r, language="en-US"):
         """
         This function implements the trancription from speech to text
         :param model: name of the API to use (google / sphinx)
         :param audio: wav audio to transcribe
-        :param language: wav audio's language
         :param res_queue: queue in which the results are stored
         :param timestamp: timestamp of the auido
+        :param r: recognizer 
+        :param language: wav audio's language
+
         """
         res = {"model":model, "lang":language, "text":None, "error": None, "timestamp":timestamp}
         try:
             if model == "sphinx":
-                res["text"] = r.recognize_sphinx(audio, language)
+                res["text"] = r.recognize_sphinx(audio)
             else:
-                res["text"] = r.recognize_google(audio, language)
+
+                res["text"] = r.recognize_google(audio, language = language)
         except sr.UnknownValueError:
             print(model + " could not understand audio")
             res["error"] = "UnknownValueError"
@@ -33,7 +40,7 @@ def recognize(model, audio, language="en-US", res_queue, timestamp):
         res_queue.put(res)
 
 
-def speech_to_text(queue):
+def speech_to_text(queue,testing):
     """
     This function implements the translation from speech to text with online and offline services, and compute the
     emotion related to the speech
@@ -47,22 +54,30 @@ def speech_to_text(queue):
         # Data stored in the queue consist of:
         #   - timestamp
         #   - string that represent the wav audio
-        timestamp, raw_audio = queue.get()
-        raw_audio = io.BytesIO(raw_audio)
-        audio = r.record(sr.AudioFile(raw_audio))
+        if (testing):
+            with sr.AudioFile(AUDIO_FILE) as source:
+                    audio = r.record(source)  # read the entire audio file
+            timestamp = time.time()
+
+        else:
+
+            timestamp, raw_audio = queue.get()
+            raw_audio = io.BytesIO(raw_audio)
+            audio = r.record(sr.AudioFile(raw_audio))
 
         #TODO detect language
         #TODO add emoction from speech
 
         # Transcribe audio with google speech recognition and sphinx
-        sphinx_rec = Process(target=recognize, args=("sphinx", audio, language, queue_transc, timestamp))
+        sphinx_rec = Process(target=recognize, args=("sphinx", audio,  queue_transc, timestamp, r ))
         sphinx_rec.start()
-        google_rec = Process(target=recognize, args=("google", audio, language, queue_transc, timestamp))
+        google_rec = Process(target=recognize, args=("google", audio, queue_transc, timestamp, r ))
         google_rec.start()
 
         req_err = False
         res = queue_transc.get()
         models_res = {"google":None, "sphinx":None}
+        
         while not res["timestamp"] == timestamp:
             # this case ensure that the results is not related to old queries
             res = queue_transc.get()
@@ -74,6 +89,8 @@ def speech_to_text(queue):
                 # this case ensure that the results is not related to old queries
                 res = queue_transc.get()
             models_res["google"] = res
+
+        text_transcribed = None
 
         if models_res["google"]["error"] == None:
             # Add to KB Google result with timestamp and ID
@@ -97,3 +114,9 @@ def speech_to_text(queue):
                 print(addFact(myID, "text_f_audio", 2, 50, 'false', {"TAG":"text_f_audio", "ID":timestamp, "timestamp":timestamp, "text": "", "emotion": text_transcribed})) #TODO adjust "text_f_audio", 2, 50, 'false' #TODO probably better way to define the error for other module
 
         #TODO handle other error
+
+
+
+
+
+#speech_to_text(None,True)
