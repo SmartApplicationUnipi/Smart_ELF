@@ -10,8 +10,6 @@ const dataset = [
     {nome: 'gianni', cognome: 'pinotto', gianni: 'nome',  qi:'900' }
 ];
 
-
-
 let matches = matcher.findMatchesBind({nome: 'pino', cognome: '$cognome'}, dataset);
 let answer = [ [ {'$cognome' : 'albero' } ], [{'$cognome' : 'radice' } ]]
 test(matches, answer, 1);

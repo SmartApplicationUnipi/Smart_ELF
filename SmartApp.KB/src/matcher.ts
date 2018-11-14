@@ -1,5 +1,20 @@
 const DEBUG = 0;
 
+const ID_AA = 0;
+const ID_AO = 1;
+const ID_AP = 2;
+const ID_PA = 3;
+const ID_PO = 4;
+const ID_PP = 5;
+
+const WHITE = '\x1b[0m'
+const RED = '\x1b[1;31m'
+const GREEN = '\x1b[1;32m'
+const YELLOW = '\x1b[1;33m'
+const BLUE = '\x1b[1;34m'
+const PINK = '\x1b[1;35m'
+
+
 function clog(msg: any, level: number) {
     if (level < DEBUG)
         console.log(msg);
@@ -61,16 +76,9 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
     for ( let i = listIndex; i < sorted.size; ++i) {
         switch (i) {
             case 0: {
-                // atom : atom
-                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Enter case atom : atom', 5);
-                for (const queryKey of sorted.get(i)) {
-                    clog('\x1b[1;35mINFO(' + i +')\x1b[0m key => ' + queryKey, 5);
-                    if (!data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]) {
-                        clog('\x1b[1;31mFAIL('+i+')\x1b[0m: !data.hasOwnProperty(queryKey) || query[queryKey] !== data[queryKey]', 2);
-                        return {match: false, binds: []};
-                    }
+                if (!matchAllAtomAtom(query, sorted, data)) {
+                    return {match : false, binds: []};
                 }
-                clog('\x1b[1;34mINFO(' + i +')\x1b[0m Exit case atom : atom', 5);
                 break;
             }
             case 1: {
@@ -262,8 +270,7 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
             }
             case 5: {
                 clog('\x1b[1;34mINFO('+i+')\x1b[0m Enter case placeholder : placeholder', 5);
-                // placeholder : placeholder
-                // TODO 
+
                 clog('\x1b[1;34mINFO('+i+')\x1b[0m Exit case placeholder : placeholder', 5);
                 break;
             }
@@ -368,6 +375,28 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
     return {match, binds};
 */
 }
+
+function matchAllAtomAtom(query: any, sorted: any, data: any) : boolean {
+    clog(BLUE+'INFO('+ID_AA+')'+WHITE+' Enter case atom : atom', 5);
+    for (const queryKey of sorted.get(ID_AA)) {
+        if (!matchAtomAtom(queryKey, query[queryKey], data)) {
+            return false;
+        }
+    }
+    clog(BLUE+'INFO('+ID_AA+')'+WHITE+' Exit case atom : atom', 5);
+    return true;
+}
+
+function matchAtomAtom(queryKey: string, queryValue: string, data: any) : boolean {
+    clog(PINK+'INFO('+ID_AA+')'+WHITE+' key => ' + queryKey, 5);
+    if (!data.hasOwnProperty(queryKey) || queryValue !== data[queryKey]) {
+        clog(RED+'FAIL('+ID_AA+')'+WHITE+': match failed', 2);
+        return false;
+    }
+    clog(GREEN+'OK('+ID_AA+')'+WHITE+': match succeded', 2);
+    return true;
+}
+
 
 function sort(j: any): object {
     if (!j) {
