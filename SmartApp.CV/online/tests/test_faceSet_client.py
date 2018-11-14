@@ -92,24 +92,21 @@ def test_getFaceSets(client, filepath):
     with pytest.raises(AttributeError):
         client.getFaceSets(start = "100")
 
-    #check if information retrived is valid
-    numFaceSet = len(client.getFaceSets()["facesets"])
+    #check if facesets is void
+    assert client.getFaceSets()["facesets"] == []
 
-    #create fake FaceSet
+    #check if information retrived is valid
     res = client.detect(file = filepath)
     fake_face_token = res['faces'][0]['face_token']
     fake_outer_id = 'fakeSet'
-    fake_tags = "fake_tags"
-    client.createFaceSet(outer_id = fake_outer_id, face_tokens = [fake_face_token], tags = fake_tags)
+    #create fake FaceSet
+    client.createFaceSet(outer_id = fake_outer_id, face_tokens = [fake_face_token])
 
-    assert client.getFaceSets()["facesets"][-1]["outer_id"] == fake_outer_id
+    assert client.getFaceSets()["facesets"][0]["outer_id"] == fake_outer_id
 
-    # numFaceSet += 1
-    # assert len(client.getFaceSets()["facesets"]) == numFaceSet
-    #
-    # assert len(client.getFaceSets(start = 2)["facesets"]) == numFaceSet
-    #
-    # assert len(client.getFaceSets(tags = fake_tags)["facesets"]) == 1
+    assert len(client.getFaceSets()["facesets"]) == 1
+
+    assert len(client.getFaceSets(start = 2)["facesets"]) == 0
 
     #delete created FaceSet
     client.deleteFaceSet(outer_id = fake_outer_id)

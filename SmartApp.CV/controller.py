@@ -61,19 +61,25 @@ class Controller():
         kb.addFact(self.kbID, "List faces in frame", 1, 95, True, faces)
 
         for face in faces:
-            #TODO fix COEXISTENCE_ARGUMENTS
-            indentity = self.client.search(face_token = face["face_token"], faceset_token = self.faceset_token)
-            if indentity["results"]:
-                for id in indentity["results"]:
-                    kb.removeFact(faces)
-                    face["face_token"] = id["face_token"]
-                    face.update({"identity_checked": True})
-                    face.update({"confidence_identity": id["confidence"]})
-                    kb.addFact(self.kbID, "List faces in frame", 1, id["confidence"], True, faces)
 
-                    print("ti conosco")
+            facesetInfo = self.client.getFaceSetDetail(faceset_token = self.faceset_token )
+
+            if facesetInfo['face_count']  > 0:
+                indentity = self.client.search(face_token = face["face_token"], faceset_token = self.faceset_token)
+                if indentity["results"]:
+                    for id in indentity["results"]:
+                        kb.removeFact(faces)
+                        face["face_token"] = id["face_token"]
+                        face.update({"identity_checked": True})
+                        face.update({"confidence_identity": id["confidence"]})
+                        kb.addFact(self.kbID, "List faces in frame", 1, id["confidence"], True, faces)
+
+                        print("ti conosco")
+                else:
+                    self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
+                    print("non ti conosco.. ti aggiungo")
             else:
-                self.client.addFace(face_tokens = face["face_token"])
+                self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
                 print("non ti conosco.. ti aggiungo")
 
     def _offline_module(self,frame):
