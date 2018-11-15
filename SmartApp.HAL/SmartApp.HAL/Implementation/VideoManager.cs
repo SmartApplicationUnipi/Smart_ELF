@@ -40,28 +40,36 @@ namespace SmartApp.HAL.Implementation
                     return;
                 }
 
-                var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480);
-
-                // Convert the incoming image which is BGR to RGB
-                var bits = frame.Image.LockBits(new Rectangle(0, 0, frame.Image.Width, frame.Image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                using (var videoFrameBgr = new Image<Bgr, byte>(frame.Image.Width, frame.Image.Height, bits.Stride, bits.Scan0))
-                    CvInvoke.CvtColor(videoFrameBgr, videoFrameRgbBuffer, ColorConversion.Bgr2Rgb);
-                frame.Image.UnlockBits(bits);
-
                 // Prepare the packet to send over the net
                 var packet = new VideoDataPacket() {
                     Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 };
                 foreach (var face in frame.Faces)
                 {
-                    var faceBits = frame.Image.LockBits(face.Bounds, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                    var bytes = new byte[faceBits.Stride * faceBits.Height];
-                    Marshal.Copy(faceBits.Scan0, bytes, 0, bytes.Length);
-                    frame.Image.UnlockBits(faceBits);
+                    var buf = new byte[face.Bounds.Width * face.Bounds.Height * 3];
+                    for (var y = 0; y < face.Bounds.Height; y++)
+                    {
+                        for (var x = 0; x < face.Bounds.Width; x++)
+                        {
+                            for (var c = 0; c < 3; c++)
+                            {
+                                buf[(y * face.Bounds.Width + x) * 3 + c] = frame.Image.Data[y + face.Bounds.Top, x + face.Bounds.Left, c];
+                            }
+                        }
+                    }
+
+                    File.WriteAllBytes(@"C:\users\marco\desktop\test.raw", buf);
+                    _logger.LogInformation("{0}x{1}", face.Bounds.Width, face.Bounds.Height);
 
                     packet.Faces.Add(new VideoDataPacket.Types.Face() {
                         Id = -1,
-                        Data = ByteString.CopyFrom(bytes)
+                        Data = ByteString.CopyFrom(buf),
+                        Rect = new VideoDataPacket.Types.Rectangle() {
+                            Top = face.Bounds.Top,
+                            Left = face.Bounds.Left,
+                            Width = face.Bounds.Width,
+                            Height = face.Bounds.Height
+                        }
                     });
                 }
 

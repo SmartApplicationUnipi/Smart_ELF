@@ -73,7 +73,7 @@ namespace SmartApp.HAL.Implementation
                 FrameReady?.Invoke(this, new VideoFrame(
                     DateTime.Now,
                     faceBounds.Select(bounds => new VideoFrame.Face(bounds)).ToList(),
-                    frame.ToImage<Bgr, byte>().ToBitmap()
+                    frame.ToImage<Bgr, byte>()
                 ));
             }
         }
