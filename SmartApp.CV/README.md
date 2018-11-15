@@ -24,6 +24,29 @@ and an Offline neural-network-based model to perform:
 
 ## Usage
 
+
+## Module output
+The module receives a frame containing a face and outputs a dictionary structured as follows:
+
+{
+'TAG': 'VISION_FACE_ANALYSIS',
+'personID': identifier of the face descriptor,
+'emotion': {
+            'sadness':   confidence in [0,1],
+            'calm':      confidence in [0,1],
+            'disgust':   confidence in [0,1],
+            'anger':     confidence in [0,1],
+            'surprise':  confidence in [0,1],
+            'fear':      confidence in [0,1],
+            'happiness': confidence in [0,1]
+            },
+'gender': predicted gender of person -- 'Male' / 'Female' / 'Unknown',
+'age': predicted age of person -- [0,99] U {-1} if unknown,
+'smile': whether the person is smiling -- 'True' / 'False' / 'Unknown',
+'known': whether the person has been already seen -- 'True' / 'False' / 'Unknown',
+'confidence_identity': confidence of face matching in [0,1]
+}
+
 ### Download/Installation
 
 Using pip:
