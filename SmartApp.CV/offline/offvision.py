@@ -1,4 +1,5 @@
 #!/bin/python3
+import os
 import cv2
 import dlib
 import numpy as np
@@ -17,9 +18,10 @@ class OffVision:
         self.match_dist_threshold = match_dist_threshold
         self.target_emotions = target_emotions
         # load pre-trained models
+        models_path = os.path.abspath(os.path.dirname(__file__))
         self.detector = dlib.get_frontal_face_detector()
-        self.shape_pred = dlib.shape_predictor('models/shape_predictor_68_face_landmarks.dat')
-        self.face_rec = dlib.face_recognition_model_v1('models/dlib_face_recognition_resnet_model_v1.dat')
+        self.shape_pred = dlib.shape_predictor(os.path.join(models_path, 'models/shape_predictor_68_face_landmarks.dat'))
+        self.face_rec = dlib.face_recognition_model_v1(os.path.join(models_path, 'models/dlib_face_recognition_resnet_model_v1.dat'))
         self.emotion_model = FERModel(self.target_emotions, verbose=True)
         # dictionary containing id->face associations
         self.people = {}
