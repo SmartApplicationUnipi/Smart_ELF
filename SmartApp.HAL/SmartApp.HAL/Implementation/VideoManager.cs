@@ -58,9 +58,6 @@ namespace SmartApp.HAL.Implementation
                         }
                     }
 
-                    File.WriteAllBytes(@"C:\users\marco\desktop\test.raw", buf);
-                    _logger.LogInformation("{0}x{1}", face.Bounds.Width, face.Bounds.Height);
-
                     packet.Faces.Add(new VideoDataPacket.Types.Face() {
                         Id = -1,
                         Data = ByteString.CopyFrom(buf),
