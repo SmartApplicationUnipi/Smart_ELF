@@ -68,7 +68,7 @@ export function findMatchesAll(query: any, Dataset: any[]) {
 
 function matchBind(query: any, sorted: any, listIndex: number, index: number, data: any, initBinds: any[]): any {
     const queryKeys = Object.keys(query);
-    let binds = initBinds.map( (x) => Object.assign({}, x));
+    let binds = initBinds.map((x) => Object.assign({}, x));
     const match = true;
 
     // TODO check sugli indici
@@ -79,33 +79,33 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
 
     // binds : list of map <placeholder : bind>
     clog_old('', 1);
-    for ( let i = listIndex; i < sorted.size; ++i) {
+    for (let i = listIndex; i < sorted.size; ++i) {
         switch (i) {
             case ID_AA: {
                 // atom : atom
                 if (!matchAllAtomAtom(query, sorted, data)) {
-                    return {match : false, binds: []};
+                    return { match: false, binds: [] };
                 }
                 break;
             }
             case ID_AO: {
                 // atom : object
                 if (!matchAllAtomObject(query, sorted, data, binds)) {
-                    return {match : false, binds: []};
+                    return { match: false, binds: [] };
                 }
                 break;
             }
             case ID_AP: {
                 // atom : placeholder
                 if (!matchAllAtomPlaceholder(query, sorted, data, binds)) {
-                    return {match : false, binds: []};
+                    return { match: false, binds: [] };
                 }
                 break;
             }
             case ID_PA: {
                 // placeholder : atom
                 if (!matchAllPlaceholderAtom(query, sorted, data, binds)) {
-                    return {match : false, binds: []};
+                    return { match: false, binds: [] };
                 }
                 break;
             }
@@ -180,10 +180,10 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                             delete binds[k];
                         }
                     }
-                    binds = binds.filter( (el) => el !== null);
+                    binds = binds.filter((el) => el !== null);
                     if (binds.length === 0) {
                         clog_old('\x1b[1;33mEXIT(' + i + '): \x1b[0m binds.length === 0', 4);
-                        return {match: false, binds: {}};
+                        return { match: false, binds: {} };
                     }
                 }
                 clog_old('\x1b[1;34mINFO(' + i + ')\x1b[0m Exit case placeholder : object', 5);
@@ -196,7 +196,7 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 break;
             }
             default: {
-                clog_old ('sei proprio un ritardato', 0);
+                clog_old('sei proprio un ritardato', 0);
                 break;
             }
         } // end switch
@@ -257,7 +257,7 @@ function matchAllPlaceholderPlaceholder(query: any, sorted: any, data: any, bind
     return true;
 }
 
-function matchAtomAtom(queryKey: string, queryValue: string, data: any ): boolean {
+function matchAtomAtom(queryKey: string, queryValue: string, data: any): boolean {
     clog(PINK, 'INFO', ID_AA, '', 'key =>' + queryKey, 5);
     if (!data.hasOwnProperty(queryKey) || queryValue !== data[queryKey]) {
         clog(RED, 'FAIL', ID_AA, '', 'match failed', 2);
@@ -316,7 +316,7 @@ function matchAtomPlaceholder(queryKey: string, queryValue: string, data: any, b
             }
         }
     }
-    binds = binds.filter( (el) => el != null);
+    binds = binds.filter((el) => el != null);
     if (binds.length === 0) {
         clog(YELLOW, 'EXIT', ID_AP, '', 'No more possible binds!', 4);
         return false;
@@ -345,7 +345,7 @@ function matchPlaceholderAtom(queryKey: string, queryValue: string, data: any, b
         for (const dataKey of dataKeys) {
             if (queryValue === data[dataKey]) {
                 clog(GREEN, 'OK', ID_PA, '', 'match and new branch', 3);
-                const tmp: any = {...newBinds[k]};
+                const tmp: any = { ...newBinds[k] };
                 tmp[queryKey] = dataKey;
                 binds.push(tmp);
             } else {
@@ -356,7 +356,7 @@ function matchPlaceholderAtom(queryKey: string, queryValue: string, data: any, b
             }
         }
     }
-    binds = binds.filter( (el) => el != null);
+    binds = binds.filter((el) => el != null);
     if (binds.length === 0) {
         clog(YELLOW, 'EXIT', ID_PA, '', 'No more possible bind!', 4);
         return false;
@@ -371,20 +371,20 @@ function sort(j: any): object {
     const keys = Object.keys(j);
     const stack = new Map<number, string[]>();
 
-// ./query '{"ph":"$a", "ob":{}, "ob2":{}, "$a":"$a", "vaiprima":"oh si", "$lasss":{}, "last":"$nope"}'
+    // ./query '{"ph":"$a", "ob":{}, "ob2":{}, "$a":"$a", "vaiprima":"oh si", "$lasss":{}, "last":"$nope"}'
 
-/*
-  expected output should be:
-
-  Map {
-  0 => [ 'vaiprima' ],
-  1 => [ 'ob', 'ob2' ],
-  2 => [ 'ph', 'last' ],
-  3 => [],
-  4 => [ '$lasss' ],
-  5 => [ '$a' ] }
-
-*/
+    /*
+      expected output should be:
+    
+      Map {
+      0 => [ 'vaiprima' ],
+      1 => [ 'ob', 'ob2' ],
+      2 => [ 'ph', 'last' ],
+      3 => [],
+      4 => [ '$lasss' ],
+      5 => [ '$a' ] }
+    
+    */
 
     for (let i = 0; i < 6; ++i) {
         stack.set(i, new Array());
