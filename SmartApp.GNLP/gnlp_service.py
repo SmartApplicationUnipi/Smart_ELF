@@ -7,6 +7,7 @@ sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from kb import *
 from nlp import *
+from dep_tree import get_dependency_tree
 
 class GNLP_Service:
 	
@@ -24,7 +25,8 @@ class GNLP_Service:
 		
 		
 		question = res[0]["$input"]
-		analysis = NLP_Understand(question)
+		luis_analysis = NLP_Understand(question)
+		spacy_analysis = get_dependency_tree(question)
 
 		query = queryBind({"INFO": "JOKE",
 						   "TEXT" : "$joke"
@@ -36,10 +38,11 @@ class GNLP_Service:
 			answer = "I don't have any jokes for you at the moment, sorry!"
 		else:
 			answer = query[0]["$joke"]
-		
+					
 		addFact(self.ID, "NLP_Answer", 1, 50, 'false', { "TAG" : "NLP_Answer",
 													  "TEXT": answer,
-													  "PARSING": analysis,
+													  "PARSING": luis_analysis,
+													  "DEPENDENCIES": spacy_analysis,
 													  "USER_QUERY": question,
 													  "TIME_STAMP": 1 # TODO
 													  })
@@ -47,8 +50,8 @@ class GNLP_Service:
 		# Logging some infos
 		
 		pp = pprint.PrettyPrinter()
-		pp.pprint(analysis)
-		print("str: ", end="")
+		pp.pprint(luis_analysis)
+		pp.pprint(spacy_analysis)
 		print(question)
 		print (answer)	
 		
@@ -64,5 +67,4 @@ class GNLP_Service:
 if __name__ == '__main__':
 	
 	gnlp = GNLP_Service()
-	gnlp.start_service()
-	
+	gnlp.start_service()	
