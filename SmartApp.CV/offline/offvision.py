@@ -1,4 +1,5 @@
 #!/bin/python3
+import os
 import cv2
 import dlib
 import numpy as np
@@ -17,13 +18,14 @@ class OffVision:
         self.match_dist_threshold = match_dist_threshold
         self.target_emotions = target_emotions
         # load pre-trained models
+        models_path = os.path.abspath(os.path.dirname(__file__))
         self.detector = dlib.get_frontal_face_detector()
-        self.shape_pred = dlib.shape_predictor('models/shape_predictor_68_face_landmarks.dat')
-        self.face_rec = dlib.face_recognition_model_v1('models/dlib_face_recognition_resnet_model_v1.dat')
+        self.shape_pred = dlib.shape_predictor(os.path.join(models_path, 'models/shape_predictor_68_face_landmarks.dat'))
+        self.face_rec = dlib.face_recognition_model_v1(os.path.join(models_path, 'models/dlib_face_recognition_resnet_model_v1.dat'))
         self.emotion_model = FERModel(self.target_emotions, verbose=True)
         # dictionary containing id->face associations
         self.people = {}
-    
+
     def analyze_frame(self, frame):
         """
         Analyzes and performs detection+matching on a single frame
@@ -51,7 +53,7 @@ class OffVision:
             # add to detected dictionary
             detected_people[assigned_id] = {'rect': rrect, 'emo': emotion}
         return detected_people
-    
+
     def analyze_face(self, face_frame):
         """
         Analyzes and performs matching on a single face image
@@ -112,7 +114,7 @@ class OffVision:
             rect = dlib.rectangle(top=rect['top'], left=rect['left'], bottom=rect['bottom'], right=rect['right'])
             # set person face descriptor
             self.people[match_id] = self.compute_face_descriptor(frame, rect)
-    
+
     def bootstrap_from_faceset(self, faceset):
         """
         Bootstraps the face matching forma a face set
@@ -121,7 +123,7 @@ class OffVision:
         self.people = {}
         for person_id, face_frame in faceset.items():
             self.people[person_id] = self.compute_face_descriptor(face_frame)
-    
+
     def remove_person(self, person_id):
         """
         Removes a person from known faces
