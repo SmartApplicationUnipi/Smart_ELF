@@ -7,6 +7,7 @@ try:
 except ImportError:
     import simplejson as json
 
+
 API_HOST = 'https://api-eu.faceplusplus.com/facepp/v3/'
 
 class Facepp_Client(object):
@@ -228,7 +229,7 @@ class Facepp_Client(object):
         params = deepcopy(self.url_params)
 
         params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
-        
+
         if not isinstance(start, int):
             raise AttributeError('start should be a int. You provided a ' + type(start).__name__ + ' instead.')
         elif start < 1 or start > 10000:
