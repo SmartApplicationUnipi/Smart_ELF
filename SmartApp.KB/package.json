@@ -17,8 +17,10 @@
     "typescript": "^3.1.4"
   },
   "dependencies": {
+    "@types/deep-equal": "^1.0.1",
     "@types/express": "^4.16.0",
     "@types/ws": "^6.0.1",
+    "deep-equal": "^1.0.1",
     "express": "^4.16.4",
     "websocket": "^1.0.28",
     "ws": "^6.1.0"
