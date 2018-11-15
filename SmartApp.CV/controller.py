@@ -137,5 +137,4 @@ class Controller():
         else:
             print("no connection")
 
-
         return frame

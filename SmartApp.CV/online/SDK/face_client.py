@@ -10,6 +10,10 @@ except ImportError:
 
 API_HOST = 'https://api-eu.faceplusplus.com/facepp/v3/'
 
+"""
+Facepp_Client
+    implementation of the client for Face++ APIs
+"""
 class Facepp_Client(object):
 
     def __init__(self, api_key=None, api_secret=None):
