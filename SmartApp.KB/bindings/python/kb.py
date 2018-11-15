@@ -91,7 +91,7 @@ class subscrThr (threading.Thread):
 		threading.Thread.__init__(self)
 		self.callback = callback
 		self.ws = ws
-	   
+
 	def run(self):
 		try:
 			while(1):
