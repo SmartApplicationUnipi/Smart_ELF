@@ -7,7 +7,8 @@
     "build-ts": "tsc",
     "start": "npm run build-ts && npm run serve",
     "serve": "node dist/src/server.js",
-    "test": "npm run build-ts && node dist/test/matcher.test.js && node dist/test/kb.test.js"
+    "test": "npm run build-ts && node dist/test/matcher.test.js && node dist/test/kb.test.js",
+    "test-matcher": "npm run build-ts && node dist/test/matcher.test.js"
   },
   "author": "",
   "license": "ISC",
