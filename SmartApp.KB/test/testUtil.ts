@@ -22,8 +22,10 @@ export function test(query: any, answer: any, verbose: boolean) {
         process.exit(0);
     } else {
         if (verbose) {
-            console.log('query: ', query);
-            console.log('answer: ', answer);
+            console.log('RESULT:')
+            console.log(query);
+            console.log('EXPECTED:')
+            console.log(answer);
         }
         process.exit(1);
     }
