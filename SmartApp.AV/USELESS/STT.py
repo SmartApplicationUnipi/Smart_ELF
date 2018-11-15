@@ -15,7 +15,7 @@ def recognize(model, audio, res_queue, timestamp, r, language="en-US"):
         :param audio: wav audio to transcribe
         :param res_queue: queue in which the results are stored
         :param timestamp: timestamp of the auido
-        :param r: recognizer 
+        :param r: recognizer
         :param language: wav audio's language
 
         """
@@ -89,6 +89,7 @@ def speech_to_text(queue):
                                                                     "ID": timestamp,
                                                                     "timestamp": timestamp,
                                                                     "text": models_res["google"]["text"],
+                                                                    "language":language,
                                                                     "emotion": emotion})) #TODO adjust "text_f_audio", 2, 50, 'false'
         else:
             if models_res["sphinx"] == None:
@@ -105,6 +106,7 @@ def speech_to_text(queue):
                                                                         "ID": timestamp,
                                                                         "timestamp": timestamp,
                                                                         "text": models_res["sphinx"]["text"],
+                                                                        "language":language,
                                                                         "emotion": emotion}))#TODO adjust "text_f_audio", 2, 50, 'false'
             else:
                 # Add to KB that none of google and sphinx retrieved a result
@@ -113,8 +115,7 @@ def speech_to_text(queue):
                                                                         "ID": timestamp,
                                                                         "timestamp": timestamp,
                                                                         "text": "",
+                                                                        "language":language,
                                                                         "emotion": emotion})) #TODO adjust "text_f_audio", 2, 50, 'false' #TODO probably better way to define the error for other module
 
         #TODO handle other error
-
-
