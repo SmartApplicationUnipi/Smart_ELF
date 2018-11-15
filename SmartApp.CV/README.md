@@ -28,6 +28,7 @@ and an Offline neural-network-based model to perform:
 ## Module output
 The module receives a frame containing a face and outputs a dictionary structured as follows:
 
+```
 {
 'TAG': 'VISION_FACE_ANALYSIS',
 'personID': identifier of the face descriptor,
@@ -46,6 +47,7 @@ The module receives a frame containing a face and outputs a dictionary structure
 'known': whether the person has been already seen -- 'True' / 'False' / 'Unknown',
 'confidence_identity': confidence of face matching in [0,1]
 }
+```
 
 ### Download/Installation
 
