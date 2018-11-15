@@ -59,7 +59,7 @@ and run:
 ```
 python StreamWebCam.py
 ```
-For Windows Users: if you have problem in installing dlib you can install it following https://github.com/charlielito/install-dlib-python-windows guide.
+**For Windows Users: if you have problem in installing dlib you can install it following https://github.com/charlielito/install-dlib-python-windows guide.**
 
 ## Important
 
