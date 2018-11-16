@@ -1,5 +1,3 @@
-import { queryFact } from "./kb";
-
 const DEBUG = 0;
 
 const ID_AA = 0;
