@@ -12,7 +12,8 @@ API_HOST = 'https://api-eu.faceplusplus.com/facepp/v3/'
 
 """
 Facepp_Client
-    implementation of the client for Face++ APIs
+    implementation of the client for Face++ APIs.
+    it provide interfaces all APIs documented in https://console.faceplusplus.com/documents/6329329
 """
 class Facepp_Client(object):
 
@@ -124,6 +125,22 @@ class Facepp_Client(object):
         return self._sendRequest(url, params = params, files = {'image_file': data})
 
     def search(self, face_token = None, frame = None, file = None, image_url = None, faceset_token = None, outer_id = None, return_result_count = 1):
+        """
+            search a face in the faceset
+            for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
+
+            params:
+                face_token: The id of the face to be searched. (Highest precedence)
+                frame: matrix-like object representing a single frame
+                file: file object, file descriptor or filepath of the image
+                image_url: URL of the image containing the face to be searched.
+                faceset_token: The id of Faceset.
+                outer_id: User-defined id of Faceset.
+                return_result_count: The number of returned results that have highest confidence score, between [1,5]. The default value is 1.
+
+            return:
+                json object
+        """
         url = API_HOST + "search"
         params = deepcopy(self.url_params)
         data = None
@@ -153,12 +170,6 @@ class Facepp_Client(object):
             data = {'image_file': cv2.imencode('.jpg', frame)[1]}
 
         params.update(Facepp_Client._validate_FaceSet_Identifier(outer_id, faceset_token))
-        # if outer_id:
-        #     params.update({'outer_id': outer_id})
-        # elif faceset_token:
-        #     params.update({'faceset_token': faceset_token})
-        # else:
-        #     raise AttributeError('You must define a unique outer_id or faceset_token.')
 
         if return_result_count <= 0 or return_result_count > 5:
             raise AttributeError('return_result_count can be between [1,5]. The default value is 1.')
@@ -168,6 +179,17 @@ class Facepp_Client(object):
         return self._sendRequest(url, params = params, files = data)
 
     def setUserID(self, face_token, faceset_token = None, user_id = None):
+        """
+            Set user_id for a detected face. user_id can be returned in Search results to determine the identity of user.
+            for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
+
+            params:
+                face_token: The id of the face to be searched. (Highest precedence)
+                faceset_token: The id of Faceset.
+                outer_id: User-defined id of Faceset.
+            return:
+                json object
+        """
         url = API_HOST + "faceset/setuserid"
         params = deepcopy(self.url_params)
 
@@ -196,6 +218,20 @@ class Facepp_Client(object):
     """
 
     def getFaceSets(self, tags = None, start = 1):
+        """
+        Get all the FaceSet.
+        Get the list of FaceSet under an API Key, as well as information such as faceset_token, outer_id, display_name, and tags.
+        https://console.faceplusplus.com/documents/5679127
+
+        params:
+            tags: Tags of the FaceSet to be searched, comma-seperated
+            start: An integer, indicating the sequence number of the faceset_token under   this API Key. All the faceset_token returned in this request will start from this faceset_token. faceset_token is sorted by its creation time. Each request returns 1000 faceset_token at the most.
+
+        Default value: 1.
+                return:
+                    json object
+        """
+
         url = API_HOST + 'faceset/getfacesets'
         params = deepcopy(self.url_params)
 
@@ -214,6 +250,22 @@ class Facepp_Client(object):
         return self._sendRequest(url, params = params)
 
     def deleteFaceSet(self, outer_id = None, faceset_token = None, check_empty = 0):
+        """
+        Delete a FaceSet
+        https://console.faceplusplus.com/documents/5679127
+
+        params:
+            faceset_token: The id of Faceset.
+            outer_id: User-defined id of Faceset.
+            check_empty: Check if the FaceSet contains face_token when deleting.
+                            0: do not check
+                            1: check
+                            The default value is 1.
+
+            If the value is 1, when the FaceSet contains face_token, it cannot be deleted.
+        return:
+            json object
+        """
         url = API_HOST + 'faceset/delete'
         params = deepcopy(self.url_params)
 
@@ -229,6 +281,20 @@ class Facepp_Client(object):
         return self._sendRequest(url, params = params)
 
     def getFaceSetDetail(self, outer_id = None, faceset_token = None, start = 1):
+        """
+        Get details about a FaceSet, including information such as faceset_token, outer_id, display_name, as well as the number and list of face_token within this FaceSet.
+        https://console.faceplusplus.com/documents/5679127
+
+        params:
+            faceset_token: The id of Faceset.
+            outer_id: User-defined id of Faceset.
+            start: An integer between  [1,10000], indicating the sequence number of the face_token in this FaceSet. All the face_token returned in this request will  start from this face_token. face_token is sorted by its creation time. Each request returns 100 face_token at the most.
+            Default value: 1
+            You can pass the value of `next `parameter in last request, to get the next 100 face_token.
+        return:
+            json object
+        """
+
         url = API_HOST + 'faceset/getdetail'
         params = deepcopy(self.url_params)
 
@@ -244,6 +310,20 @@ class Facepp_Client(object):
         return self._sendRequest(url, params = params)
 
     def updateFaceSet(self, outer_id = None, faceset_token = None, new_outer_id = None, display_name = None, user_data = None, tags = None):
+        """
+        Update the attributes of a FaceSet.
+        https://console.faceplusplus.com/documents/5679127
+
+        params:
+            faceset_token: The id of Faceset.
+            outer_id: User-defined id of Faceset.
+            new_outer_id: Custom unique id of Faceset under your account, used for managing FaceSet objects. No more than 255 characters, and must not contain characters ^@,&=*'"
+            display_name: The name of FaceSet. No more than 256 characters, and must not contain characters ^@,&=*'"
+            user_data: Custom user information. No larger than 16KB, and must not contain characters ^@,&=*'"
+            tags: String consists of FaceSet custom tags, used for categorizing FaceSet, comma-seperated. No more than 255 characters, and must not contain characters ^@,&=*'"
+        return:
+            json object
+        """
 
         url = API_HOST + 'faceset/update'
         params = deepcopy(self.url_params)
@@ -266,9 +346,18 @@ class Facepp_Client(object):
 
     def removeFace(self, face_tokens, outer_id = None, faceset_token = None):
         """
-            params:
-                face_tokens(str or list(str)):
-                    if this string passed "RemoveAllFaceTokens", all the face_token within FaceSet will be removed.
+        Remove all or part of face_token within a FaceSet.
+        https://console.faceplusplus.com/documents/5679127
+
+        params:
+            face_tokens: The face_token to be removed, comma-seperated. The number of face_token must not be larger than 1000.
+                Note: if this string passed "RemoveAllFaceTokens", all the face_token within FaceSet will be removed.
+                Return Values
+            faceset_token: The id of Faceset.
+            outer_id: User-defined id of Faceset.
+
+        return:
+            json object
         """
 
         url = API_HOST + "faceset/removeface"
@@ -290,6 +379,19 @@ class Facepp_Client(object):
         return self._sendRequest(url, params = params)
 
     def addFace(self, face_tokens, outer_id = None, faceset_token = None):
+        """
+        Add face_token into an existing FaceSet. One FaceSet can hold up to 1000 face_token.
+        https://console.faceplusplus.com/documents/5679127
+
+        params:
+            face_tokens: One or more face_token, comma-seperated. The number of face_token must not be larger than 5.
+            faceset_token: The id of Faceset.
+            outer_id: User-defined id of Faceset.
+
+        return:
+            json object
+        """
+
         url = API_HOST + "faceset/addface"
         params = deepcopy(self.url_params)
 
@@ -309,6 +411,19 @@ class Facepp_Client(object):
         return self._sendRequest(url, params = params)
 
     def createFaceSet(self, display_name = None, outer_id = None, tags = None, face_tokens = None):
+        """
+        Create a face collection called FaceSet to store face_token. One FaceSet can hold up to 1,000 face_token.
+        https://console.faceplusplus.com/documents/5679127
+
+        params:
+            face_tokens: One or more face_token, comma-seperated. The number of face_token must not be larger than 5.
+            display_name: The name of FaceSet. No more than 256 characters, and must not contain characters ^@,&=*'"
+            outer_id: User-defined id of Faceset.
+            tags: String consists of FaceSet custom tags, used for categorizing FaceSet, comma-seperated. No more than 255 characters, and must not contain characters ^@,&=*'"
+
+        return:
+            json object
+        """
         url = API_HOST + 'faceset/create'
         params = deepcopy(self.url_params)
 
