@@ -8,7 +8,7 @@ from threading import *
 
 import kb_client as kb
 
-q = Queue(maxsize= 5)
+q = Queue(maxsize= 3)
 
 def worker(myAPI):
      while True:
@@ -31,10 +31,12 @@ def demo(myAPI, *args, **kwargs):
         # Capture frame-by-frame
         ret, frame = video_capture.read() #np.arra
         frame = cv2.resize(frame, (320, 240))
+        q.put(frame)
 
-        if n > 3:
-            q.put(frame)
-            n = 0
+        if q.full():
+            q.get()
+
+
         key = cv2.waitKey(100) & 0xFF
         cv2.imshow('Video', frame)
         n +=1
