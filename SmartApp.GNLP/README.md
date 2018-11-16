@@ -38,10 +38,20 @@ JSON_Response = {
 ```
 
 ## Service Documentation
-The output is of the following format:
+The service output is twofold: for the analysis phase
 ```
 {
-  "TAG" : "NLP_Answer",
+  "TAG" : "NLP_ANALYSIS",
+  "ENTITIES": entities,
+  "DEPENDENCIES": parse_tree,
+  "USER_QUERY": question,
+  "TIME_STAMP": 1 # TODO
+}
+```
+while for the answer phase
+```
+{
+  "TAG" : "NLP_ANSWER",
   "TEXT": answer,
   "USER_QUERY": question,
   "TIME_STAMP": 1 # TODO
