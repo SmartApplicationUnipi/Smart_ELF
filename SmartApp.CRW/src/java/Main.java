@@ -14,7 +14,6 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.*;
 
 public class Main {
 
@@ -22,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         int processors = Runtime.getRuntime().availableProcessors();
-        System.err.println("Using " + processors + " threads");
+        System.err.println(String.format("Using %d threads", processors));
 
         Set<String> urlSet = readURLSet("url-set.json");
         RelationshipSet rs = new RelationshipSet("relationship-set.json");
@@ -31,24 +30,25 @@ public class Main {
         List<DataEntry> dataEntries = cs.executeAllCrawlers();
         cs.shutdownScheduler();
 
-        System.err.println("HTMLCrawler finished!");
+        System.err.println("All Crawlers have finished!");
         if (cs.hasNewLinks()) {
             System.err.println(String.format("Discovered %d new links!", cs.getNewLinkCount()));
             //saveURLSet("url-set.json", cs.getAllUrls());
         }
 
-        KBConnection con = new KBConnection("ws://131.114.3.213", 5666);
-        con.register();
+        /*KBConnection con = new KBConnection("ws://131.114.3.213", 5666);
+        con.register();*/
         for (DataEntry d: dataEntries) {
 
             // TODO check why d is null
             if (d == null) continue;
 
             d.setTag(CrawlingManager.CRAWLER_DATA_ENTRY_TAG);
-            con.addFact(new Fact(CrawlingManager.CRAWLER_DATA_ENTRY_TAG, KBTTL.DAY, 70, true, d));
+            System.out.println(d);
+            //con.addFact(new Fact(CrawlingManager.CRAWLER_DATA_ENTRY_TAG, KBTTL.DAY, 70, true, d));
         }
 
-        con.closeConnection();
+        //con.closeConnection();
     }
 
     private static final Type URL_SET_TYPE =

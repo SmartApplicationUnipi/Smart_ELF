@@ -1,5 +1,7 @@
 package elf_crawler.crawler;
 
+import elf_crawler.Link;
+
 import java.util.List;
 
 public class CrawledData {

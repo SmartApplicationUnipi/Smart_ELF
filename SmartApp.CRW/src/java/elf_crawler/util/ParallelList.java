@@ -1,32 +1,10 @@
-package elf_crawler.crawler;
+package elf_crawler.util;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class DataAggregator {
-
-    private static final int EXPECTED_ENTRIES = 1024;
-    private ParallelList<DataEntry> data;
-
-    public DataAggregator()
-    {
-        this.data = new ParallelList<>(EXPECTED_ENTRIES);
-    }
-
-    public void addData(List<DataEntry> l)
-    {
-        this.data.addAll(l);
-    }
-
-    public List<DataEntry> aggregate()
-    {
-        return this.data;
-    }
-
-}
-class ParallelList<T> implements List<T>
+public class ParallelList<T> implements List<T>
 {
     private static final int DEFAULT_SIZE = 10;
     private static final int GROWTH = 2;
@@ -53,7 +31,7 @@ class ParallelList<T> implements List<T>
 
     @Override
     public boolean isEmpty() {
-        return this.elements.length == 0;
+        return this.ctr.get() == 0;
     }
 
     @Override
@@ -72,16 +50,7 @@ class ParallelList<T> implements List<T>
     @Override
     @SuppressWarnings("unchecked")
     public Iterator<T> iterator() {
-        int curCtr = this.ctr.get();
-        List<T> l = new ArrayList<>(curCtr);
-
-        for (int i = 0; i < curCtr; i++)
-        {
-            T curObj = (T) this.elements[i];
-            l.add(curObj);
-        }
-
-        return l.iterator();
+        return new ParallelListIterator<>(this);
     }
 
     @Override
@@ -97,31 +66,31 @@ class ParallelList<T> implements List<T>
 
     @Override
     public boolean add(T t) {
+        int pos = this.ctr.incrementAndGet() - 1;
         checkForOverflow();
-        int pos = this.ctr.incrementAndGet();
         this.elements[pos] = t;
-
         return true;
     }
 
     private void checkForOverflow()
     {
-        if (this.ctr.get() >= this.elements.length) // T1, T2
-            if (this.growing.compareAndSet(false, true)) // T2, T1
-                 // This additional check is necessary to avoid the ABA problem
-                 if (this.ctr.get() >= this.elements.length) { // T2,
+        while (this.ctr.get() >= this.elements.length)
+        {
+            if (this.growing.compareAndSet(false, true)) { // T2, T1
+                // This additional check is necessary to avoid the ABA problem
+                if (this.ctr.get() >= this.elements.length) // T2,
                     this.grow();
-                    this.growing.set(false);
-                }
 
+                this.growing.set(false);
+            }
 
-        while (this.growing.get()) {
             try {
-                Thread.sleep(10);
+                Thread.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     private void grow() {
@@ -223,5 +192,44 @@ class ParallelList<T> implements List<T>
     {
         if (index >= this.ctr.get())
             throw new IndexOutOfBoundsException();
+    }
+
+
+    class ParallelListIterator<T> implements Iterator<T>
+    {
+        private ParallelList<T> l;
+        private int localCtr;
+        private int cur;
+        private Object curElement;
+
+        public ParallelListIterator(ParallelList<T> l)
+        {
+            this.l = l;
+            this.localCtr = this.l.ctr.get();
+            this.cur = 0;
+            this.curElement = null;
+            advanceTillNextNonNull();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return this.curElement != null;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public T next() {
+            Object toReturn = curElement;
+            advanceTillNextNonNull();
+            return (T) toReturn;
+        }
+
+        private void advanceTillNextNonNull()
+        {
+            this.curElement = null;
+            while (this.cur < this.localCtr && this.curElement == null) {
+                this.curElement = this.l.elements[this.cur++];
+            }
+        }
     }
 }

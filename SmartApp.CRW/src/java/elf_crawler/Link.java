@@ -1,4 +1,4 @@
-package elf_crawler.crawler;
+package elf_crawler;
 
 import java.util.Objects;
 

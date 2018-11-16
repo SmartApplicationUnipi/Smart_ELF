@@ -39,7 +39,6 @@ public class KBSocket {
 
     @OnWebSocketMessage
     public void onMessage(String msg) {
-        System.out.printf("Got msg: %s%n", msg);
         this.messageQueue.add(msg);
     }
 

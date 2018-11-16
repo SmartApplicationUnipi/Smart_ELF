@@ -1,6 +1,7 @@
 package elf_crawler.crawler;
 
 import elf_crawler.CrawlingManager;
+import elf_crawler.Link;
 import elf_crawler.relationship.Relation;
 import elf_crawler.relationship.RelationshipSet;
 import org.jsoup.Jsoup;

@@ -24,6 +24,11 @@ public class RelationshipSet {
         this.relationships = gson.fromJson(reader, RELATIONSHIP_SET_TYPE);
     }
 
+    public RelationshipSet(Map<String, List<Relation>> relationships)
+    {
+        this.relationships = relationships;
+    }
+
     public List<Relation> getWebsiteRelations(String url)
     {
         List<Relation> rel = this.relationships.get(url);
