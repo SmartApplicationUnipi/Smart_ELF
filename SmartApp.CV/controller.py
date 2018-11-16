@@ -28,7 +28,7 @@ class Controller():
         return
 
 
-    def _thereIsNet(self, reference):
+    def _checkConnection(self, reference):
         """
         Check server availability
             Params:
@@ -51,11 +51,12 @@ class Controller():
                 fact: json fact in KB-format
         """
         attr = json['attributes']
-        norm = lambda x : round(x/100, 3)
+        norm = lambda x : round(x/100, 4)
         attr['emotion'] = { k : norm(v) for k, v in  attr['emotion'].items()}
         attr['gender'] = attr['gender']['value']
         attr['age'] = attr['age']['value']
         attr['smile'] = 'True' if attr['smile']['value'] >= attr['smile']['threshold'] else 'False'
+        attr['emotion']['calm'] = attr['emotion'].pop('neutral')
 
         del json['attributes']
         del json['face_rectangle']
@@ -73,9 +74,6 @@ class Controller():
 
         return json
 
-
-
-
     def _online_module(self,frame):
         """
             recognition routine using API (Face++). It provide recognition and emotion detection
@@ -88,9 +86,12 @@ class Controller():
         # take list of faces
         faces = result["faces"]
         info = "face"
+        to_check = True
 
         for face in faces:
-            facesetInfo = self.client.getFaceSetDetail(faceset_token = self.faceset_token )
+
+            if to_check:
+                facesetInfo = self.client.getFaceSetDetail(faceset_token = self.faceset_token )
 
             if facesetInfo['face_count'] > 0:
                 res = self.client.search(face_token = face["face_token"], faceset_token = self.faceset_token)
@@ -100,6 +101,7 @@ class Controller():
                         if candidate["confidence"] < 80:
                             #new face add it
                             self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
+                            to_check = True
                             print("non ti conosco.. mi ricordero")
                         else:
                             #I know it and push a tuple to KB
@@ -108,16 +110,19 @@ class Controller():
                             face["face_token"] = candidate["face_token"]
                             face.update({"known": True})
                             face.update({'confidence_identity' : candidate["confidence"]})
+                            to_check = False
                 else:
                     #face doesn't match add it
                     print("non ti conosco.. mi ricordero")
+                    self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
+                    to_check = True
             else:
                 #faceset is empty add the new face
                 print("faceset vuoto")
+                self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
+                to_check = True
 
-            self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
             face = self.jsonFace2Fact(face)
-
             print(face)
             kb.addFact(self.kbID, info, 1, face['confidence_identity'], True, face)
 
@@ -125,16 +130,19 @@ class Controller():
     # def _offline_module(self, frame):
     #     return self.offline_client.analyze_frame(frame)
 
-
     def setAttr(self,*args, **kwargs):
+        """
+            set attributes for the module
+            Params:
+                depends on the module
+            Return:
+        """
         self.client.setParamsDetect(*args, **kwargs)
         #self.offline.setParamsDetect(*args, **kwargs)
 
-    def simple_demo(self,frame):
-        if self._thereIsNet(self.HOST):
+    def watch(self,frame):
+        if self._checkConnection(self.HOST):
             self._online_module(frame)
 
         else:
             print("no connection")
-
-        return frame
