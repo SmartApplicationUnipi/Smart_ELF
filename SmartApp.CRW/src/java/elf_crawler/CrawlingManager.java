@@ -147,7 +147,7 @@ public class CrawlingManager {
                         c = new JSONCrawler(df, this.rs);
                         break;
                     case csv:
-                        c = new CVSCrawler(df, this.rs);
+                        c = new CSVCrawler(df, this.rs);
                         break;
                     default:
                         return;
