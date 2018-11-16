@@ -11,8 +11,12 @@ import elf_crawler.relationship.RelationshipSet;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CSVCrawler extends Crawler {
+
+    private static final String POSSIBLE_SEPARATOR_CHARS = "[,;\t]";
 
     private List<String[]> csvRecords;
 
@@ -53,10 +57,12 @@ public class CSVCrawler extends Crawler {
     private void readRecords() throws IOException {
         String content = file.getContent();
 
+        //Infers separator char at runtime
+        char sepChar = findSeparatorChar(content);
+
         final CSVParser parser =
                 new CSVParserBuilder()
-                        .withSeparator(',')
-                        .withSeparator(';')
+                        .withSeparator(sepChar)
                         .withIgnoreLeadingWhiteSpace(true)
                         .build();
         final CSVReader reader =
@@ -88,5 +94,15 @@ public class CSVCrawler extends Crawler {
         }
 
         return jsonArray.toString();
+    }
+
+    /* InferS the separator char at runtime */
+    private char findSeparatorChar(String content){
+        Pattern pattern = Pattern.compile(POSSIBLE_SEPARATOR_CHARS);
+        Matcher matcher = pattern.matcher(content);
+        if(matcher.find())
+            return content.charAt(matcher.start());
+        else
+            return ',';
     }
 }
