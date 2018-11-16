@@ -2,7 +2,10 @@ package elf_crawler.crawler;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import elf_crawler.relationship.RelationshipSet;
 
 import java.io.*;
@@ -50,13 +53,18 @@ public class CSVCrawler extends Crawler {
     private void readRecords() throws IOException {
         String content = file.getContent();
 
-        // convert String into BufferedInputStream
-        InputStream is = new ByteArrayInputStream(content.getBytes());
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        final CSVParser parser =
+                new CSVParserBuilder()
+                        .withSeparator(',')
+                        .withSeparator(';')
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
+        final CSVReader reader =
+                new CSVReaderBuilder(new StringReader(content))
+                        .withCSVParser(parser)
+                        .build();
 
-
-        CSVReader csvReader = new CSVReader(br);
-        this.csvRecords = csvReader.readAll();
+        this.csvRecords = reader.readAll();
     }
 
     /* Creates dynamically a Json Array of object with fields of csv */
@@ -72,7 +80,7 @@ public class CSVCrawler extends Crawler {
 
             //Fill the json object with right values
             jo = new JsonObject();
-            for(int j=0; j<iValues.length; j++){
+            for(int j=0; j<keys.length; j++){
                 jo.addProperty(keys[j], iValues[j]);
             }
 
