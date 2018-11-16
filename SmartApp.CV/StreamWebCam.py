@@ -5,7 +5,6 @@ from controller import Controller
 from queue import *
 from threading import *
 # from offline import offline_interface as offline
-
 import kb_client as kb
 
 q = Queue(maxsize= 3)
@@ -17,10 +16,8 @@ def worker(myAPI):
 
 def demo(myAPI, *args, **kwargs):
     key = 0
-    n = 3
     myAPI.setAttr(*args, **kwargs)
     video_capture = cv2.VideoCapture(0)
-
     print("Press q to quit: ")
 
     t = Thread(target=worker, args=[myAPI])
@@ -36,16 +33,13 @@ def demo(myAPI, *args, **kwargs):
         if q.full():
             q.get()
 
-
         key = cv2.waitKey(100) & 0xFF
         cv2.imshow('Video', frame)
-        n +=1
 
     # When everything is done, release the capture
     q.join()
     video_capture.release()
     cv2.destroyAllWindows()
-
 
 #demo(online.FacePlusPlus(), return_landmark = 1)
 #demo(offline.FaceOffDetect())
