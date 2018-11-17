@@ -5,7 +5,7 @@ The code contained in this folder addresses three main tasks.
 Running the file enlp_app.py will start three sevices: text to emotion, emotion to text and ELF internal emotional state (described below).
 Each service runs in its own thread.
 
-The general architecture of our ENLP is pictured as follows:
+The general architecture of our ENLP is pictured below, where arrows represent tuples published on the KB and arrows ending in a node represent awakening of the final node when the tuple on the edge is published.
 
 ![ENLP architecture](imgs/ENLP_connections.png)
 
