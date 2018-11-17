@@ -64,3 +64,6 @@ where `valence` and `arousal` coordinates identify the emotion with which the an
 
 ## TODO
  - Switch to multiprocess library due to python GIL.
+
+## INSTALL
+`pip install -r requirements.txt`
