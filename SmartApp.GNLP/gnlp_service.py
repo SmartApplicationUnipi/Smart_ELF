@@ -29,11 +29,11 @@ class GNLP_Service:
 		spacy_analysis = get_dependency_tree(question)
 
 		addFact(self.ID, "NLP_ANALYSIS", 1, 50, 'false', {
-			"TAG" : "NLP_ANALYSIS",
-			"ENTITIES": luis_analysis,
-			"DEPENDENCIES": spacy_analysis,
-			"USER_QUERY": question,
-			"TIME_STAMP": 1 # TODO
+			"tag" : "NLP_ANALYSIS",
+			"entities": luis_analysis,
+			"dependencies": spacy_analysis,
+			"user_query": question,
+			"time_stamp": 1 # TODO
 			}
 		)
 
@@ -59,10 +59,10 @@ class GNLP_Service:
 			answer = query[0]["$joke"]
 
 		addFact(self.ID, "NLP_ANSWER", 1, 50, 'false', {
-			"TAG" : "NLP_ANSWER",
-			"TEXT": answer,
-			"USER_QUERY": question,
-			"TIME_STAMP": 1 # TODO
+			"tag" : "NLP_ANSWER",
+			"text": answer,
+			"user_query": question,
+			"time_stamp": 1 # TODO
 			}
 		)
 
@@ -72,9 +72,9 @@ class GNLP_Service:
 		TAG_USER_TRANSCRIPT = "AV_IN_TRANSC_EMOTION"
 		TAG_CRW_RAW_INFO = "CRAWLER_DATA_ENTRY"
 		TAG_REASONER_OUTPUT = "REASONING_FRAME"
-		subscribe(self.ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.analyse)
-		subscribe(self.ID, {"TAG": TAG_CRW_RAW_INFO, "data": "$input"}, self.analyse)
-		subscribe(self.ID, {"TAG": TAG_REASONER_OUTPUT, "data": "$input"}, self.answer)
+		subscribe(self.ID, {"tag": TAG_USER_TRANSCRIPT, "text": "$input"}, self.analyse)
+		subscribe(self.ID, {"tag": TAG_CRW_RAW_INFO, "data": "$input"}, self.analyse)
+		subscribe(self.ID, {"tag": TAG_REASONER_OUTPUT, "data": "$input"}, self.answer)
 
 		#subscribe(self.ID, {"text_f_audio": "$input"}, self.callback)
 		print("Subscribed to the KB")
