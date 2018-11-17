@@ -91,16 +91,16 @@ def prepare_answer(answer):
     answer = correct_grammar(answer) #just for first templates, remove later!!!!
     colored_answer = color_answer(answer, emotion, "en")
     answer_fact = {
-        "TIME_STAMP": 3, #fix this!!!!!
+        "time_stamp": 3, #fix this!!!!!
         "text": colored_answer,
         "valence": valence,
         "arousal" : arousal,
-        "TAG": TAG_COLORED_ANSWER
+        "tag": TAG_COLORED_ANSWER
     }
     emotion_fact = {
-        "TIME_STAMP": 3, #fix this!!!!!
+        "time_stamp": 3, #fix this!!!!!
         "valence" : valence,
         "arousal" : arousal,
-        "TAG": TAG_ELF_EMOTION
+        "tag": TAG_ELF_EMOTION
     }
     return answer_fact, emotion_fact
