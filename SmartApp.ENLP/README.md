@@ -1,9 +1,13 @@
-# Emotional NLP group
+# Emotional NLP group (ENLP)
 
 The code contained in this folder addresses three main tasks.
 
 Running the file enlp_app.py will start three sevices: text to emotion, emotion to text and ELF internal emotional state (described below).
 Each service runs in its own thread.
+
+The general architecture of our ENLP is pictured as follows:
+
+![ENLP architecture](imgs/ENLP_connections.png)
 
 
 ## Text to Emotion (TTE)
@@ -28,10 +32,12 @@ emotion = {
   "time_stamp" : int,
   "valence" : float,
   "arousal" : float,
+  "query" : user_query,
+  "answer" : nlp_answer,
   "tag": "ENLP_ELF_EMOTION"
 }
 ```
-where `valence` and `arousal` coordinates identify the ELF's internal emotional state.
+where `valence` and `arousal` coordinates identify the ELF's internal emotional state. The ELF emotion is related to the pair `query`, `answer` taken from NLP group.
 
 ## Emotion to Text (ETT)
 When ELF reply to the user he has to do so in a human-like way. In order to accomplish this task the module `EttService_c.py` is awakened every time an answer that has to be provided to the user is published to the KB. The module calls in turn functions contained in `ett.py` in order to:
