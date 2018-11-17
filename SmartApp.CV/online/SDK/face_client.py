@@ -60,14 +60,20 @@ class Facepp_Client(object):
 
         return params
 
-
+    """
+    -----------------------API to manage Detect---------------------------------
+    """
     def setParamsDetect(self, return_landmark = 0, return_attributes = "gender,age,smiling,emotion", calculate_all = None, face_rectangle = None):
         """
-            set attribute to be returned in the response
-            for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
+            Set attribute to be returned in the response for next detect requests.
+            For a complete list of attributes and returned json see detect() docs
+            or official doc https://console.faceplusplus.com/documents/5679127.
 
-            params:
-                attributes: list of attributes to return
+            Params:
+                Like detect() see there.
+
+            Return:
+                Like detect() see there.
         """
         _all = "gender,age,smiling,headpose,facequality,blur,eyestatus,emotion,ethnicity,beauty,mouthstatus,eyegaze,skinstatus"
 
@@ -76,7 +82,10 @@ class Facepp_Client(object):
         else: self.detect_params.update({"return_landmark": return_landmark})
 
         if not isinstance(return_attributes, str):
-            raise TypeError("return_attributes should be a str.")
+            if all([isinstance(ele, str) for ele in return_attributes]):
+                self.detect_params.update({"return_attributes": ",".join(return_attributes)})
+            else:
+                raise TypeError("return_attributes should be a str.")
         else: self.detect_params.update({"return_attributes": _all if return_attributes.lower() == "all" else return_attributes })
 
         if calculate_all:
@@ -93,16 +102,111 @@ class Facepp_Client(object):
 
     def detect(self, frame = None, file = None, return_landmark = 0, return_attributes = "gender,age,smiling,emotion", calculate_all = 0, face_rectangle = None):
         """
-            Face detection
-            for a complete list of attributes and returned json see: https://console.faceplusplus.com/documents/5679127
+            Detect and analyze human faces within the image that you provided.
 
-            params:
-                frame: matrix-like object representing a single frame
-                File: file object, file descriptor or filepath of the image
-                attributes: list of attributes to return, default = [gender,age,smiling,emotion]
+            Detect API can detect all the faces within the image. Each detected
+            face gets its face_token, which can be used in follow-up analysis
+            and operations. With a Standard API Key, you can specify a rectangle
+            area within the image to perform face detection.
 
-            return:
-                json object
+            Detect API can analyze detected faces directly, providing face
+            landmarks and attributes information. With a Free API Key, only the
+            5 largest faces by its bounding box size can be analyzed, while you
+            can use Face Analyze API to analyze the rest faces. With a Standard
+            API Key, you can analyze all the detected faces.
+
+            Official docs: https://console.faceplusplus.com/documents/5679127
+
+            Image Details:
+                - Format : JPG (JPEG), PNG
+                - Size : between 48*48 and 4096*4096 (pixels)
+                - File size : no larger than 2MB
+                - Minimal size of face: the bounding box of a detected face is a
+                    square. The minimal side length of a square should be no less
+                    than 1/48 of the short side of image, and no less than 48
+                    pixels. For example if the size of image is 4096 * 3200px,
+                    the minimal size of face should be 66 * 66px.
+
+            Params:
+                frame(numpy.ndarray): matrix-like object representing a frame.
+                    frame or file must be setted.
+
+                file(file or buffer or str): file object, file descriptor or
+                    filepath of the image. file or frame must be setted.
+
+                [return_landmark] (int): Whether or not detect and return key
+                    points of facial features and contour.
+                    Valid values are:
+                        - 2: detect and return 106-point landmarks
+                        - 1: detect and return 83-point landmarks
+                        - 0: do not detect (default value)
+
+                [return_attributes] (str or list): String comma-seperated without
+                    any requirement on sequence of attributes you need should be
+                    detect. List of attribute that you wold detect in a face.
+                    Valid values are:
+                        - gender
+                        - age
+                        - smiling
+                        - headpose
+                        - facequality
+                        - blur
+                        - eyestatus
+                        - emotion
+                        - ethnicity
+                        - beauty
+                        - mouthstatus
+                        - eyegaze
+                        - skinstatus
+                    Default value is "gender,age,smiling,emotion"
+
+                [calculate_all] (int): Analyze and return attributes and
+                    landmarks or not all the detected faces. If not used, only
+                    the 5 largest faces by its bounding box size will be
+                    analyzed.
+                    Valid values are:
+                        - 1: yes (default)
+                        - 0: no
+                    Available only with a Standard API Key.
+
+                [face_rectangle] (str): A rectangle to perform face detection.
+                    Is a sub rectangle of image where is performed dectection.
+                    Must be a string comma-separated of four integers,
+                    indicating respettively:
+                        - Y-coordinate of upper left corner (top)
+                        - X-coordinate of upper left corner (left)
+                        - width of the rectangle frame (width)
+                        - height of the rectangle frame (height).
+                    Such as "70,80,100,100".
+                    Available only with a Standard API Key.
+
+            Return:
+                json object thus structured:
+                {
+                    "request_id" (str): Unique id of each request,
+                    "faces" (list): Array of detected faces thus structured:
+                        {
+                            "face_token" (str):
+                            "face_rectangle" (obj): A rectangle area of position
+                                of face in image. The following are all int.
+                                {
+                                    "top"：Y-coordinate of upper left corner
+                                    "left"：X-coordinate of upper left corner
+                                    "width"：The width of the rectangle frame
+                                    "height"：The height of the rectangle frame
+                                }
+                            "landmark" (obj): all position of landmark see
+                                for 83 landmark
+                                https://console.faceplusplus.com/documents/6329308
+                                for 106 landmark
+                                https://console.faceplusplus.com/documents/13207488
+                            "attributes" (obj): see offcial doc for property of
+                                all attribute.
+                        }
+                    "image_id" (str): Unique id of an image,
+                    "time_used" (int): Time that the whole request takes, millis
+                    ["error_message"] (list):  Error message if there is.
+                }
         """
         url = API_HOST + 'detect'
         params = deepcopy(self.url_params)
@@ -124,6 +228,9 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params, files = {'image_file': data})
 
+    """
+    -----------------------API to manage Seach----------------------------------
+    """
     def search(self, face_token = None, frame = None, file = None, image_url = None, faceset_token = None, outer_id = None, return_result_count = 1):
         """
             search a face in the faceset
@@ -178,6 +285,9 @@ class Facepp_Client(object):
 
         return self._sendRequest(url, params = params, files = data)
 
+    """
+    -----------------------API to manage Face-----------------------------------
+    """
     def setUserID(self, face_token, faceset_token = None, user_id = None):
         """
             Set user_id for a detected face. user_id can be returned in Search results to determine the identity of user.
