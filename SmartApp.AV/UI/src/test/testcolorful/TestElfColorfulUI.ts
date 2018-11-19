@@ -1,21 +1,21 @@
 import * as Logger from '../../log/Logger';
 import * as AudioPlayer from '../../audio/AudioPlayer';
 
-import { ElfUI, ElfUIFactory } from '../ElfUI';
+import { ElfUI, ElfUIFactory } from '../../ui/ElfUI';
 import { IEmotion, Emotion } from '../../emotion/Emotion';
-import { UIWidget, UIWidgetFactory, EmotionalWidget } from '../widget/UIWidget';
-import { TestFace } from './face/Face';
+import { UIWidget, UIWidgetFactory, EmotionalWidget } from '../../ui/widget/UIWidget';
+import { TestFace } from './face/TestFace';
 import { IContent, ContentFactory, DefaultContentFactory, AudioContent } from '../../content/Content';
-import { DefaultUIWidget } from './widget/DefaultUIWidget';
-import { TextUIWidget } from './widget/TextUIWidget';
-import { ColorfulUIWidgetFactory } from './ColorfulUIWidgetFactory';
+import { DefaultUIWidget } from './widget/DefaultTestUIWidget';
+import { TextTestUIWidget } from './widget/TextTestUIWidget';
+import { TestColorfulUIWidgetFactory } from './TestColorfulUIWidgetFactory';
 
-var _ = require('lodash');
+let _ = require('lodash');
 
 /**
  * Colorful ElfUI.
  */
-export class ElfColorfulUI extends ElfUI {
+export class TestElfColorfulUI extends ElfUI {
 	private logger: Logger.ILogger = Logger.getInstance();
 
 	private upperPanel: Element;
@@ -29,7 +29,7 @@ export class ElfColorfulUI extends ElfUI {
 	private audioPlayer: AudioPlayer.AudioPlayer;
 
 	private contentFactory: ContentFactory = new DefaultContentFactory();
-	private widgetFactory: UIWidgetFactory = new ColorfulUIWidgetFactory();
+	private widgetFactory: UIWidgetFactory = new TestColorfulUIWidgetFactory();
 
 	constructor(rootElement: HTMLElement, window: Window) {
 		super(rootElement);
@@ -72,7 +72,7 @@ export class ElfColorfulUI extends ElfUI {
 			})
 			.map(widget => this.createElement(widget))
 			.map(pair => {
-				if (pair.content instanceof TextUIWidget) {
+				if (pair.content instanceof TextTestUIWidget) {
 					this.textPanel.appendChild(pair.element);
 				} else if (pair.content instanceof DefaultUIWidget) {
 					this.resourcePanel.appendChild(pair.element);
@@ -120,11 +120,11 @@ export class ElfColorfulUI extends ElfUI {
 	}
 }
 
-export class ElfColorfulUIFactory implements ElfUIFactory {
+export class TestElfColorfulUIFactory implements ElfUIFactory {
 
 	constructor(private root: HTMLElement, private window: Window) { }
 
 	create(): ElfUI {
-		return new ElfColorfulUI(this.root, this.window);
+		return new TestElfColorfulUI(this.root, this.window);
 	}
 }

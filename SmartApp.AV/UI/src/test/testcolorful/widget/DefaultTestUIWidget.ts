@@ -1,4 +1,4 @@
-import { UIWidget } from '../../widget/UIWidget';
+import { UIWidget } from '../../../ui/widget/UIWidget';
 
 /**
  * Default widget that displays raw data.

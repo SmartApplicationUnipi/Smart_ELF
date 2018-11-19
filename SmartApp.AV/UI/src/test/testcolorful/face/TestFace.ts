@@ -1,6 +1,6 @@
 import { IEmotion } from '../../../emotion/Emotion'
 import { Point } from '../../../utils/Point'
-import { EmotionalWidget } from '../../widget/UIWidget'
+import { EmotionalWidget } from '../../../ui/widget/UIWidget'
 
 /**
  * Implementation of a widget displaying a face. For testing purposes only.

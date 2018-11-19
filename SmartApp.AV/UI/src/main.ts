@@ -1,11 +1,11 @@
 import { Builder } from './ui/ElfUI';
-import { ElfColorfulUIFactory } from './ui/colorful/ElfColorfulUI';
+import { TestElfColorfulUIFactory } from './test/testcolorful/TestElfColorfulUI';
 import { KBEventReader } from './kb/KBEventReader';
 import { TTSEventReader } from './tts/TTSEventReader';
 
 let elem = document.getElementById("content");
 
-let factory = new ElfColorfulUIFactory(elem, window);
+let factory = new TestElfColorfulUIFactory(elem, window);
 
 let kbEventReader = new KBEventReader();
 let readers = [
