@@ -32,6 +32,8 @@ namespace SmartApp.HAL.Implementation
             _logger = logger;
             _logger.LogInformation("Local camera source loaded.");
 
+            IsAvailable = true;
+
             // Starts the timer
             _timer = new Timer(1000.0 / _framerate) { AutoReset = true, Enabled = false };
             _timer.Elapsed += OnTimerTick;
@@ -111,6 +113,9 @@ namespace SmartApp.HAL.Implementation
                 }
             }
         }
+
+        public bool IsAvailable{ get; set; }
+        
 
         public void Dispose()
         {

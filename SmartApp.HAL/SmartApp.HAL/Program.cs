@@ -36,6 +36,8 @@ namespace SmartApp.HAL
             services.AddSingleton<IVideoManager, VideoManager>();
             services.AddSingleton<IAudioManager, AudioManager>();
 
+            services.AddSingleton<IVideoSource, KinectVideo>();
+
             // User interface
             services.AddSingleton<IUserInterface, WinFormsUI>();
 
