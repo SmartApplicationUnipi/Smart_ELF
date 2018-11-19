@@ -6,6 +6,7 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import elf_crawler.relationship.Relation;
 import elf_crawler.relationship.RelationshipSet;
 
 import java.io.*;
@@ -40,7 +41,7 @@ public class CSVCrawler extends Crawler {
         return new CrawledData(this.file.getLink(), null, entries);
     }
 
-    /* Create a list with 1 entry to send at kb */
+    /* Creates a list with 1 entry to send at kb */
     private List<DataEntry> buildEntries() {
         List<DataEntry> entries = new ArrayList<>(1);
 
@@ -49,6 +50,16 @@ public class CSVCrawler extends Crawler {
 
         //Add the JSONArray to entries (just one entry)
         entries.add(new DataEntry(this.file.getLink().getUrl(), this.timestamp, DataEntryType.JSON, jsonArray));
+
+        return entries;
+    }
+
+    /* Creates a list of DataEntry to send at kb (from a list of relations) */
+    private List<DataEntry> buildEntriesFromRelations(List<Relation> relations){
+        List<DataEntry> entries = new ArrayList<>(relations.size());
+
+        for (Relation r : relations)
+            entries.add(new DataEntry(this.file.getLink().getUrl(), this.timestamp, DataEntryType.RDF, r));
 
         return entries;
     }
