@@ -76,6 +76,7 @@ class Controller():
 
     def _online_module(self,frame):
         """
+            Implement the Controller'logic
             recognition routine using API (Face++). It provide recognition and emotion detection
             Params:
                 frame: matrix-like, filepath, file descriptor of the image.
@@ -141,6 +142,7 @@ class Controller():
         #self.offline.setParamsDetect(*args, **kwargs)
 
     def watch(self,frame):
+        #TODO manage check connection in Event-listener style
         if self._checkConnection(self.HOST):
             self._online_module(frame)
 
