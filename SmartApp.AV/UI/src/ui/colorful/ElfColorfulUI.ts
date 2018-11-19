@@ -1,61 +1,21 @@
-import * as ElfUI from '../ElfUI';
-import * as Emotion from '../../emotion/Emotion';
-import * as UIWidget from '../widget/UIWidget';
-import * as Face from './face/Face';
-import * as Content from '../../content/Content';
-import * as AudioPlayer from '../../audio/AudioPlayer';
 import * as Logger from '../../log/Logger';
+import * as AudioPlayer from '../../audio/AudioPlayer';
+
+import { ElfUI, ElfUIFactory } from '../ElfUI';
+import { IEmotion, Emotion } from '../../emotion/Emotion';
+import { UIWidget, UIWidgetFactory, EmotionalWidget } from '../widget/UIWidget';
+import { TestFace } from './face/Face';
+import { IContent, ContentFactory, DefaultContentFactory, AudioContent } from '../../content/Content';
+import { DefaultUIWidget } from './widget/DefaultUIWidget';
+import { TextUIWidget } from './widget/TextUIWidget';
+import { ColorfulUIWidgetFactory } from './ColorfulUIWidgetFactory';
 
 var _ = require('lodash');
 
 /**
- * Default widget that displays raw data.
- */
-class DefaultUIWidget implements UIWidget.UIWidget {
-	constructor(private data: any) { }
-
-	public getData() {
-		return this.data;
-	}
-
-	render(): string {
-		return JSON.stringify(this.data);
-	}
-}
-
-/**
- * Widget that display text.
- */
-class TextUIWidget implements UIWidget.UIWidget {
-	constructor(private text: string) { }
-
-	render(): string {
-		return "<div>" + this.text + "</div>";
-	}
-}
-
-/**
- * Widget factory that builds widget for ElfColorfulUI
- */
-class ColorfulUIWidgetFactory implements UIWidget.UIWidgetFactory {
-	private logger = Logger.getInstance();
-
-	create(content: Content.IContent): Array<UIWidget.UIWidget> {
-		if (content instanceof Content.SpeechContent) {
-			return [new TextUIWidget(content.getText())];
-		} else if (content instanceof Content.GenericContent) {
-			return [new DefaultUIWidget(content.getData())];
-		}
-
-		this.logger.log(Logger.LEVEL.WARNING, "Content not recognized", content);
-		return null;
-	}
-}
-
-/**
  * Colorful ElfUI.
  */
-export class ElfColorfulUI extends ElfUI.ElfUI {
+export class ElfColorfulUI extends ElfUI {
 	private logger: Logger.ILogger = Logger.getInstance();
 
 	private upperPanel: Element;
@@ -64,12 +24,12 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 	private resourcePanel: Element;
 	private facePanel: Element;
 
-	private face: UIWidget.EmotionalWidget;
+	private face: EmotionalWidget;
 
 	private audioPlayer: AudioPlayer.AudioPlayer;
 
-	private contentFactory: Content.ContentFactory = new Content.DefaultContentFactory();
-	private widgetFactory: UIWidget.UIWidgetFactory = new ColorfulUIWidgetFactory();
+	private contentFactory: ContentFactory = new DefaultContentFactory();
+	private widgetFactory: UIWidgetFactory = new ColorfulUIWidgetFactory();
 
 	constructor(rootElement: HTMLElement, window: Window) {
 		super(rootElement);
@@ -87,25 +47,25 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 		this.resourcePanel = root.getElementsByClassName("resource-panel")[0];
 		this.facePanel = root.getElementsByClassName("face-panel")[0];
 
-		this.face = new Face.TestFace(this.facePanel as HTMLElement);
+		this.face = new TestFace(this.facePanel as HTMLElement);
 	}
 
-	public onEmotionChanged(e: Emotion.IEmotion): void {
+	public onEmotionChanged(e: IEmotion): void {
 		this.logger.log(Logger.LEVEL.INFO, "onEmotionChanged", e);
 
 		this.getRootElement().style.backgroundColor = e.getColor();
 
 		this.face.setEmotion(e);
 	}
-	public onContentChanged(contents: Array<Content.IContent>): void {
+	public onContentChanged(contents: Array<IContent>): void {
 		this.logger.log(Logger.LEVEL.INFO, "onContentChanged", contents);
 
-		let audioContents = contents.filter(content => content instanceof Content.AudioContent);
+		let audioContents = contents.filter(content => content instanceof AudioContent);
 
 		this.resetView();
 
 		// flatten the array
-		(([] as Array<UIWidget.UIWidget>).concat(...contents.map(content => this.widgetFactory.create(content))))
+		(([] as Array<UIWidget>).concat(...contents.map(content => this.widgetFactory.create(content))))
 			.filter(widget => {
 				if (!widget) this.logger.log(Logger.LEVEL.WARNING, "Null widget found");
 				return !!widget;
@@ -122,7 +82,7 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 			});
 
 		audioContents.forEach(audioContent => {
-			this.audioPlayer.play((audioContent as Content.AudioContent).getAudioBytes());
+			this.audioPlayer.play((audioContent as AudioContent).getAudioBytes());
 		})
 	}
 
@@ -138,11 +98,11 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 		</div>';
 	}
 
-	public getContentFactory(): Content.ContentFactory {
+	public getContentFactory(): ContentFactory {
 		return this.contentFactory;
 	}
 
-	private createElement(widget: UIWidget.UIWidget): { content: UIWidget.UIWidget, element: ChildNode } {
+	private createElement(widget: UIWidget): { content: UIWidget, element: ChildNode } {
 		let elem = document.createElement('div');
 		elem.innerHTML = widget.render();
 		return { content: widget, element: elem.firstChild };
@@ -160,11 +120,11 @@ export class ElfColorfulUI extends ElfUI.ElfUI {
 	}
 }
 
-export class ElfColorfulUIFactory implements ElfUI.ElfUIFactory {
+export class ElfColorfulUIFactory implements ElfUIFactory {
 
 	constructor(private root: HTMLElement, private window: Window) { }
 
-	create(): ElfUI.ElfUI {
+	create(): ElfUI {
 		return new ElfColorfulUI(this.root, this.window);
 	}
 }

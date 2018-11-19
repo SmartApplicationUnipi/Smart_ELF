@@ -1,6 +1,6 @@
-import * as ElfUIEvent from '../event/ElfUIEvent'
-import * as Emotion from '../../emotion/Emotion'
-import * as Content from '../../content/Content';
+import * as Emotion from '../../emotion/Emotion';
+
+import { IContent } from '../../content/Content';
 
 /**
  * Base interface for objects that can be displayed by the ElfUI.
@@ -51,5 +51,5 @@ export abstract class EmotionalWidget {
  * Interface that represent a factory for UIWidget starting from events.
  */
 export interface UIWidgetFactory {
-	create(event: Content.IContent): Array<UIWidget>;
+	create(event: IContent): Array<UIWidget>;
 }

@@ -1,21 +1,21 @@
-import * as ElfUI from './ui/ElfUI';
-import * as ElfColorfulUI from './ui/colorful/ElfColorfulUI';
-import * as KBEventReader from './kb/KBEventReader';
-import * as TTSEventReader from './tts/TTSEventReader';
+import { Builder } from './ui/ElfUI';
+import { ElfColorfulUIFactory } from './ui/colorful/ElfColorfulUI';
+import { KBEventReader } from './kb/KBEventReader';
+import { TTSEventReader } from './tts/TTSEventReader';
 
 let elem = document.getElementById("content");
 
-let factory = new ElfColorfulUI.ElfColorfulUIFactory(elem, window);
+let factory = new ElfColorfulUIFactory(elem, window);
 
-let kbEventReader = new KBEventReader.KBEventReader();
+let kbEventReader = new KBEventReader();
 let readers = [
 	// new Test.TestEventReader(1000),
 	// new KBEventReader.KBEventReader(),
 	kbEventReader,
-	new TTSEventReader.TTSEventReader()
+	new TTSEventReader()
 ];
 
-let ui = new ElfUI.Builder(factory)
+let ui = new Builder(factory)
 	.setEventReaders(readers)
 	.build();
 

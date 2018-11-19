@@ -1,4 +1,4 @@
-import * as ElfUIEvents from '../ui/event/ElfUIEvent';
+import { ElfUIEvent } from '../ui/event/ElfUIEvent';
 
 /**
  * Interface for ElfUIEvent listeners.
@@ -8,7 +8,7 @@ export interface IElfUIEventListener {
 	 * Called when a new ElfUIEvent is received
 	 * @param event 
 	 */
-	onEvent(event: ElfUIEvents.ElfUIEvent): void;
+	onEvent(event: ElfUIEvent): void;
 }
 
 /**

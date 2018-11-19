@@ -1,7 +1,8 @@
-import * as EventReader from '../reader/EventReader';
-import * as Message from './Message';
-import * as ElfUIEvent from '../ui/event/ElfUIEvent';
 import * as Logger from '../log/Logger';
+
+import { BaseEventReader } from '../reader/EventReader';
+import { Message, MessageBuilder } from './Message';
+import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 
 // const KB_URL: string = "ws://localhost:5666" // Local KB
 const KB_URL: string = "ws://131.114.3.213:5666" // Remote KB
@@ -9,7 +10,7 @@ const KB_URL: string = "ws://131.114.3.213:5666" // Remote KB
 /**
  * This class implements an BaseEventReader that receives messages from the KB.
  */
-export class KBEventReader extends EventReader.BaseEventReader {
+export class KBEventReader extends BaseEventReader {
 
 	private logger: Logger.ILogger = Logger.getInstance();
 
@@ -26,7 +27,7 @@ export class KBEventReader extends EventReader.BaseEventReader {
 	/**
 	 * Queue to store messages to be sent after registration to the KB.
 	 */
-	private queue: Array<Message.Message> = [];
+	private queue: Array<Message> = [];
 
 	/**
 	 * List of queries for the KB.
@@ -131,16 +132,16 @@ export class KBEventReader extends EventReader.BaseEventReader {
 	 * Build a new event out of an object with data.
 	 * @param data An object containing event data
 	 */
-	private buildEvent(data: any): ElfUIEvent.ElfUIEvent {
+	private buildEvent(data: any): ElfUIEvent {
 		// TODO: This process should be based on registered queries and their responses from the KB
-		return (new ElfUIEvent.ElfUIEvent()).putAny(ElfUIEvent.KEY_CONTENT, data);
+		return (new ElfUIEvent()).putAny(KEY_CONTENT, data);
 	}
 
 	/**
 	 * Registers this reader to the KB.
 	 */
 	private registerKB(): void {
-		let message = new Message.MessageBuilder()
+		let message = new MessageBuilder()
 			.setMethod(KB_OP.REGISTER)
 			.build();
 		this.socket.send(JSON.stringify(message));
@@ -151,7 +152,7 @@ export class KBEventReader extends EventReader.BaseEventReader {
 	 * @param request The query to be sent
 	 */
 	private subscribeKB(request: object): void {
-		let message = new Message.MessageBuilder()
+		let message = new MessageBuilder()
 			.setMethod(KB_OP.SUBSCRIBE)
 			.addParam(PARAMS.ID_SOURCE, this.sessionId)
 			.addParam(PARAMS.JSON_REQ, request)
@@ -170,7 +171,7 @@ export class KBEventReader extends EventReader.BaseEventReader {
 	 * Adds a new fact to the KB.
 	 * @param message The message containing the new fact
 	 */
-	public addFactKB(message: Message.Message): void {
+	public addFactKB(message: Message): void {
 		if(this.isRegistered()) {
 			this.socket.send(JSON.stringify(message));
 		} else {

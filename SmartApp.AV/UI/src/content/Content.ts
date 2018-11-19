@@ -1,6 +1,7 @@
-import * as ElfUIEvent from '../ui/event/ElfUIEvent';
-import * as Emotion from '../emotion/Emotion';
 import * as Logger from '../log/Logger';
+
+import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
+import { IEmotion } from '../emotion/Emotion';
 
 let base64js = require('base64-js');
 
@@ -38,7 +39,7 @@ export class TextContent implements IContent {
  * Represent a content that should be spoken by the UI.
  */
 export class SpeechContent implements IContent {
-    constructor(private text: string, private emotion: Emotion.IEmotion) { }
+    constructor(private text: string, private emotion: IEmotion) { }
 
     /**
      * Returns the text to be spoken.
@@ -50,7 +51,7 @@ export class SpeechContent implements IContent {
     /**
      * Returns the emotion with wich reproduce the text.
      */
-    public getEmotion(): Emotion.IEmotion {
+    public getEmotion(): IEmotion {
         return this.emotion;
     }
 }
@@ -101,7 +102,7 @@ export interface ContentFactory {
      * Create content objects out of an event
      * @param event The event to be processed
      */
-    create(event: ElfUIEvent.ElfUIEvent): Array<IContent>;
+    create(event: ElfUIEvent): Array<IContent>;
 }
 
 /**
@@ -110,8 +111,8 @@ export interface ContentFactory {
 export class DefaultContentFactory implements ContentFactory {
     private logger: Logger.ILogger = Logger.getInstance();
 
-    create(event: ElfUIEvent.ElfUIEvent): Array<IContent> {
-        let data = event.getAny(ElfUIEvent.KEY_CONTENT);
+    create(event: ElfUIEvent): Array<IContent> {
+        let data = event.getAny(KEY_CONTENT);
 
         let contents = [];
         for (var key in data) {
