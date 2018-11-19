@@ -49,7 +49,10 @@ class Metadata {
 export function register(tags: any) {
     const keys = Object.keys(tags);
     const errors: string[] = [];
+    console.log('registering ', tags);
+
     for (const tag of keys) {
+        console.log('tagmap:', tagMap);
         if (tagMap.has(tag)) {
             errors.push(tag);
         }
@@ -99,7 +102,8 @@ export function getTagDoc(tags: string[]) {
 
 // tslint:disable-next-line:max-line-length
 export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered'); }
+    console.log('idsource', idSource);
+    if (!(registered.includes(idSource))) { return new Response(false, 'Client ' + idSource + ' not registered'); }
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
     const dataobject = {
@@ -117,7 +121,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 }
 
 // tslint:disable-next-line:max-line-length
-export function updateFactbyId(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
+export function updateFactByID(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     if (!databaseFact.has(id)) {
         return new Response(false, id);
@@ -171,7 +175,7 @@ export function removeFact(idSource: string, jreq: object) {
     return new Response(true, removedFactsId);
 }
 
-export function removeFactById(idSource: string, idFact: number) {
+export function removeFactByID(idSource: string, idFact: number) {
     if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     databaseFact.delete(idFact);
     return new Response(true, idFact);

@@ -11,7 +11,7 @@ wss.on('connection', (ws: WebSocket) => {
 
     // connection is up, let's add a simple simple event
     ws.on('message', (message: string) => {
-        let reply = 'fail: some error occurred';
+        let reply = JSON.stringify({ success: false, details: 'some error occurred'});
 
         // log the received message and send it back to the client
         console.log('received: %s', message);
@@ -19,7 +19,7 @@ wss.on('connection', (ws: WebSocket) => {
             const j = JSON.parse(message);
 
             if (j.token !== security.token) {
-                reply = 'not authorized action';
+                reply = JSON.stringify({success: false, details: 'not authorized action'});
                 ws.send(reply);
                 return;
             }
@@ -35,9 +35,9 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'addRule':
                     reply = JSON.stringify(kb.addRule(j.params.idSource, j.params.tag, j.params.jsonRule));
                     break;
-                case 'updateFactbyId':
+                case 'updateFactByID':
                     // tslint:disable-next-line:max-line-length
-                    reply = JSON.stringify(kb.updateFactbyId(j.params.idFact, j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
+                    reply = JSON.stringify(kb.updateFactByID(j.params.idFact, j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
                 case 'queryBind':
                     reply = JSON.stringify(kb.queryBind(j.params.jsonReq));
@@ -49,19 +49,13 @@ wss.on('connection', (ws: WebSocket) => {
                     reply = JSON.stringify(kb.removeFact(j.params.idSource, j.params.jsonReq));
                     break;
                 case 'removeFactById':
-                    reply = JSON.stringify(kb.removeFactById(j.params.idSource, j.params.idFact));
+                    reply = JSON.stringify(kb.removeFactByID(j.params.idSource, j.params.idFact));
                     break;
                 case 'removeRule':
                     reply = JSON.stringify(kb.removeRule(j.params.idSource, j.params.idRule));
                     break;
                 case 'removeFact':
-                    reply = (kb.removeFact(j.params.idSource, j.params.jsonReq)).toString();
-                    break;
-                case 'removeFactById':
-                    reply = (kb.removeFactById(j.params.idSource, j.params.idFact)).toString();
-                    break;
-                case 'removeRule':
-                    reply = (kb.removeRule(j.params.idSource, j.params.idRule)).toString();
+                    reply = JSON.stringify(kb.removeFact(j.params.idSource, j.params.jsonReq));
                     break;
                 case 'subscribe':
                     const callback = (re: any) => {
@@ -69,7 +63,7 @@ wss.on('connection', (ws: WebSocket) => {
                             ws.send(JSON.stringify(re));
                         } catch (e) { console.log(e); }
                     };
-                    reply = JSON.stringify(kb.subscribe(j.idSource, j.params.jsonReq, callback));
+                    reply = JSON.stringify(kb.subscribe(j.params.idSource, j.params.jsonReq, callback));
                     break;
                 default:
                     reply = JSON.stringify( {success: false, details: 'function not defined' });

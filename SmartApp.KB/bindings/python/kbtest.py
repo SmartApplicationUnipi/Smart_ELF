@@ -4,18 +4,23 @@ from kb import KnowledgeBaseClient
 
 k = KnowledgeBaseClient(True)
 
-myID = k.register()
+registering = k.register({"RDF": "an rdf triple", "TEST": "test data"})
+if (registering['success'] == 1):
+     print('registration failed')
+myID = registering['details']
 
-print(k.addFact(myID, "test", 1, 50, 'false', {"prova": 1}))
-print(k.addFact(myID, "test", 1, 50, 'false', {"prova": 2}))
-print(k.addFact(myID, "test", 1, 50, 'false', {"prova": 3}))
+
+print(k.addFact(myID, "TEST", 1, 50, {"prova": 1}))
+print(k.addFact(myID, "TEST", 1, 50, {"prova": 2}))
+print(k.addFact(myID, "TEST", 1, 50, {"prova": 3}))
 
 print(k.removeFact(myID, {"prova": 2}))
-print(k.queryBind({"prova": "$x"}))
+print(k.queryBind({"_data":{"prova": "$x"}}))
 
 def callbfun(res):
     print("callback:")
     print(res)
 
-k.subscribe(myID, {"prova": "$x"}, callbfun)
-k.addFact(myID, "test", 1, 50, 'false', {"prova": "callb"})
+print(k.subscribe(myID, {"_data":{"prova": "$x"}}, callbfun))
+
+print(k.addFact(myID, "TEST", 1, 50, {"prova": "callb"}))

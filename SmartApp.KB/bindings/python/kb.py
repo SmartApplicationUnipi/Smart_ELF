@@ -19,9 +19,7 @@ class KnowledgeBaseClient():
 		if(persistence):
 			self.ws = create_connection("%s:%s"%(self.host, self.port))
 		
-		
 	def config_websocket(self):
-		
 		cParser = configparser.RawConfigParser()
 		cParser.read(os.path.join(base_dir, config_file_path))
 		port = cParser.get('host-config','port')
@@ -39,69 +37,42 @@ class KnowledgeBaseClient():
 		if(not self.persistence):
 			self.ws.close()
 
-	def register(self, tags: map):
+	def send_request(self, request:map ):
 		ws = self.create_ws()
-		req = {"method": "register", "params": { "token": self.token, "tags": tags }}
-		ws.send(json.dumps(req))
-		rep = ws.recv()
+		ws.send(json.dumps(request))
+		rep = json.loads(ws.recv())
 		self.close_ws()
-		return rep		
+		return rep
+
+
+	def register(self, tags: map):
+		return self.send_request({"method": "register", "params": { "tags": tags }, "token": self.token})	
 
 	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
-		ws = self.create_ws()
-		req = {"method": "addFact", "params": {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability":reliability, "jsonFact": jsonFact}}
-		ws.send(json.dumps(req))
-		rep = ws.recv()
-		self.close_ws()
-		return rep
+		return self.send_request({"method": "addFact", "params": {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability":reliability, "jsonFact": jsonFact} , "token": self.token})
 
 	def addRule(self, idSource: str, tag: str, jsonRule: map):
-	    ws = self.create_ws()
-	    req = {"method": "addRule", "params": {"idSource": idSource, "tag": tag, "jsonRule": jsonRule}}
-	    ws.send(json.dumps(req))
-	    rep = ws.recv()
-	    self.close_ws()
-	    return rep
+	    return self.send_request({"method": "addRule", "params": {"idSource": idSource, "tag": tag, "jsonRule": jsonRule}, "token": self.token})
+	    
+	def updateFactByID(self, idFact:str, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map ):
+		return self.send_request({"method": "updateFactByID", "params": {"idFact": idFact, "idSource": idSource, "tag":tag, "TTL": TTL, "reliability":reliability, "jsonFact": jsonFact} , "token": self.token})
 
-	def queryBind(self, idSource: str, jsonReq: map):
-		ws = self.create_ws()
-		req = {"method": "queryBind", "params": { "idSource": idSource, "jsonReq": jsonReq}}
-		ws.send(json.dumps(req))
-		rep = json.loads(ws.recv())
-		self.close_ws()
-		return rep
-
-	def queryFact(self, idSource: str, jsonReq: map):
-		ws = self.create_ws()
-		req = {"method": "queryFact", "params": {"idSource": idSource, "jsonReq": jsonReq}}
-		ws.send(json.dumps(req))
-		rep = json.loads(ws.recv())
-		self.close_ws()
-		return rep
+	def queryBind(self, jsonReq: map):
+		return self.send_request({"method": "queryBind", "params": { "jsonReq": jsonReq}, "token": self.token})
+		
+	def queryFact(self, jsonReq: map):
+		return self.send_request({"method": "queryFact", "params": { "jsonReq": jsonReq}, "token": self.token})
 
 	def removeFact(self, idSource: str, jsonReq: map):
-		ws = self.create_ws()
-		req = {"method": "removeFact", "params": {"idSource": idSource, "jsonReq": jsonReq}}
-		ws.send(json.dumps(req))
-		rep = ws.recv()
-		self.close_ws()
-		return rep
+		return self.send_request({"method": "removeFact", "params": {"idSource": idSource, "jsonReq": jsonReq}, "token": self.token})
 
 	def removeRule(self, idSource: str, idRule: int):
-		ws = self.create_ws()
-		req = {"method": "removeRule", "params": {"idSource": idSource, "idRule": idRule}}
-		ws.send(json.dumps(req))
-		rep = ws.recv()
-		self.close_ws()
-		return rep
+		return self.send_request({"method": "removeRule", "params": {"idSource": idSource, "idRule": idRule}, "token": self.token})
 
 	def subscribe(self, idSource: str, jsonReq: map, callback):
-		ws = self.create_ws()
-		req = {"method": "subscribe", "params": {"idSource": idSource, "jsonReq": jsonReq}}
-		ws.send(json.dumps(req))
-		rep = ws.recv()
-		if (rep == "done"):
-			t = subscrThr(ws, callback)
+		rep =  self.send_request({"method": "subscribe", "params": {"idSource": idSource, "jsonReq": jsonReq}, "token": self.token})
+		if (rep['success']):
+			t = subscrThr(self.ws, callback)
 			t.start()
 		return rep
 
