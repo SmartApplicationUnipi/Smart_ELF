@@ -16,6 +16,7 @@ class Controller():
 
         # Initialization of Online Module
         self.online_module = online()
+        self.available = self.online_module.isAvailable()
 
         # Initialization of Offline Module
         #self.offline_client = offline()
@@ -29,11 +30,14 @@ class Controller():
             Params:
 
             Return:
-                result (interface): Return object that will resolve the detection
+                result (interface): Return an object that will resolve the detection
                     of attributes and identity of person.
         """
-        if self.online_module.isAvailable():
+        if self.available:
             res = self.online_module
+
+        else:
+            raise NotImplementedError( " Sorry :( ..offline connector not yet available .." )
         # elif self.offline_module.isAvailable():
         #     res = self.offline_module
         return res
