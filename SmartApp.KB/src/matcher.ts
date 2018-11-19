@@ -6,6 +6,7 @@ const ID_AP = 2;
 const ID_PA = 3;
 const ID_PO = 4;
 const ID_PP = 5;
+const BINDS_CAT = 6;
 
 const WHITE = '\x1b[0m';
 const RED = '\x1b[1;31m';
@@ -26,26 +27,11 @@ function clog(color: string, kind: string, id: number, before: string, msg: stri
     }
 }
 
-export function findMatchesBind(query: any, Dataset: any[]) {
+export function findMatchesBind(query: any, Dataset: any[], initBinds: any[] = []) {
     const matches = new Array();
-    const sorted = sort(query);
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
-        const mb = matchBind(query, sorted, 0, 0, data, []);
-        if (mb.match) {
-            matches.push(mb.binds);
-        }
-    }
-    return matches;
-}
-
-export function findMatchesBind2(query: any, Dataset: any[], initBinds: any[]) {
-    const matches = new Array();
-    const sorted = sort(query);
-    // inefficient lookup with a loop onto dataset array
-    for (const data of Dataset) {
-        const mb = matchBind(query, sorted, 0, 0, data, initBinds);
-        // clog_old(mb);
+        const mb = matchBind(query, data, initBinds);
         if (mb.match) {
             matches.push(mb.binds);
         }
@@ -55,10 +41,9 @@ export function findMatchesBind2(query: any, Dataset: any[], initBinds: any[]) {
 
 export function findMatchesAll(query: any, Dataset: any[]) {
     const matches = new Array();
-    const sorted = sort(query);
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
-        const mb = matchBind(query, sorted, 0, 0, data, []);
+        const mb = matchBind(query, data, []);
         if (mb.match) {
             matches.push(data);
         }
@@ -66,21 +51,13 @@ export function findMatchesAll(query: any, Dataset: any[]) {
     return matches;
 }
 
-function matchBind(query: any, sorted: any, listIndex: number, index: number, data: any, initBinds: any[]): any {
-    const queryKeys = Object.keys(query);
+function matchBind(query: any, data: any, initBinds: any[]): any {
     let binds = initBinds.map((x) => Object.assign({}, x));
-    const match = true;
+    const sorted = sort(query);
 
-    // TODO check sugli indici
-    // clog_old('Query:', 10);
-    // clog_old(query, 10);
-    //    clog_old('Sorted:');
-    //    clog_old(sorted);
-
-    // binds : list of map <placeholder : bind>
     clog_old('', 1);
     let result = { binds, match: true };
-    for (let i = listIndex; i < sorted.size; ++i) {
+    for (let i = 0; i < BINDS_CAT; ++i) {
         switch (i) {
             case ID_AA: {
                 // atom : atom
@@ -122,9 +99,11 @@ function matchBind(query: any, sorted: any, listIndex: number, index: number, da
                 break;
             }
             case 5: {
-                clog_old('\x1b[1;34mINFO(' + i + ')\x1b[0m Enter case placeholder : placeholder', 5);
-
-                clog_old('\x1b[1;34mINFO(' + i + ')\x1b[0m Exit case placeholder : placeholder', 5);
+                // placeholder : placeholder
+                result = matchAllPlaceholderPlaceholder(query, sorted, data, result.binds);
+                if (!result.match) {
+                    return result;
+                }
                 break;
             }
             default: {
@@ -199,8 +178,12 @@ function matchAllPlaceholderObject(query: any, sorted: any, data: any, initBinds
     return result;
 }
 
-function matchAllPlaceholderPlaceholder(query: any, sorted: any, data: any, binds: any[]): boolean {
-    return true;
+function matchAllPlaceholderPlaceholder(query: any, sorted: any, data: any, initBinds: any[]): any {
+    clog(BLUE, 'INFO', ID_PP, '', 'Enter case Placeholder : Placeholder', 5);
+    let result: any = { binds: initBinds, match: true };
+    clog(RED, 'WARN', ID_PP, '', 'Functionality still not implemented', 0);
+    clog(BLUE, 'INFO', ID_PP, '', 'Exit case Placeholder : Placeholder', 5);
+    return result;
 }
 
 function matchAtomAtom(queryKey: string, queryValue: string, data: any): boolean {
@@ -221,9 +204,8 @@ function matchAtomObject(queryKey: string, queryValue: object, data: any, binds:
         clog(RED, 'FAIL', ID_AO, '', 'it doesn\'t have the key, or it has it but it\'s not associated to an object ', 2);
         return { binds: [], match: false };
     }
-    const innerSorted = sort(queryValue); // TODO remove!
     clog(BLUE, 'INFO', ID_AO, '\t', 'Entering recursion', 5);
-    const result = matchBind(queryValue, innerSorted, 0, 0, data[queryKey], binds);
+    const result = matchBind(queryValue, data[queryKey], binds);
     clog(BLUE, 'INFO', ID_AO, '\t', 'Exit recursion', 5);
     if (!result.match) {
         clog(RED, 'FAIL', ID_AO, '', 'inner objects are different.', 2);
@@ -320,9 +302,8 @@ function matchPlaceholderObject(queryKey: string, queryValue: object, data: any,
             && data.hasOwnProperty(newBinds[k][queryKey])
             && isObject(data[newBinds[k][queryKey]])) {
             clog(GREEN, 'OK', ID_PO, '', 'already existent correct bind', 3);
-            const innerSorted = sort(queryValue); // TODO remove
             clog(BLUE, 'INFO', ID_PO, '\t', 'Entering recursion', 5);
-            const result = matchBind(queryValue, innerSorted, 0, 0, data[queryKey], [newBinds[k]]);
+            const result = matchBind(queryValue, data[queryKey], [newBinds[k]]);
             clog(BLUE, 'INFO', ID_PO, '\t', 'Exit recursion', 5);
             if (!result.match) {
                 clog(RED, 'FAIL', ID_PO, '', 'inner objects are different', 2);
@@ -348,9 +329,8 @@ function matchPlaceholderObject(queryKey: string, queryValue: object, data: any,
             } else {
                 newBinds[k][queryKey] = dataKey;
             }
-            const innerSorted = sort(queryValue); // TODO remove
             clog(BLUE, 'INFO', ID_PO, '\t', 'Entering recursion', 5);
-            const result = matchBind(queryValue, innerSorted, 0, 0, data[dataKey], [newBinds[k]]);
+            const result = matchBind(queryValue, data[dataKey], [newBinds[k]]);
             clog(BLUE, 'INFO', ID_PO, '\t', 'Exit recursion', 5);
             if (!result.match) {
                 clog(RED, 'FAIL', ID_PO, '', 'inner objects are different', 2);
@@ -364,6 +344,11 @@ function matchPlaceholderObject(queryKey: string, queryValue: object, data: any,
         }
     }
     return filterAndReturn(binds, ID_PO);
+}
+
+function matchPlaceholderPlaceholder(queryKey: string, queryValue: object, data: any, binds: any[]): any {
+    // TO BE IMPLEMENTED
+    return filterAndReturn(binds, ID_PP);
 }
 
 function filterAndReturn(binds: any[], id: number): any {
@@ -386,7 +371,6 @@ function sort(j: any): object {
 
     /*
       expected output should be:
-    
       Map {
       0 => [ 'vaiprima' ],
       1 => [ 'ob', 'ob2' ],
@@ -394,29 +378,28 @@ function sort(j: any): object {
       3 => [],
       4 => [ '$lasss' ],
       5 => [ '$a' ] }
-    
     */
 
-    for (let i = 0; i < 6; ++i) {
+    for (let i = 0; i < BINDS_CAT; ++i) {
         stack.set(i, new Array());
     }
 
     for (const k of keys) {
         if (isAtom(k)) {
             if (isAtom(j[k])) {
-                stack.get(0).push(k);
+                stack.get(ID_AA).push(k);
             } else if (isObject(j[k])) {
-                stack.get(1).push(k);
+                stack.get(ID_AO).push(k);
             } else if (isPlaceholder(j[k])) {
-                stack.get(2).push(k);
+                stack.get(ID_AP).push(k);
             }
         } else {
             if (isAtom(j[k])) {
-                stack.get(3).push(k);
+                stack.get(ID_PA).push(k);
             } else if (isObject(j[k])) {
-                stack.get(4).push(k);
+                stack.get(ID_PO).push(k);
             } else if (isPlaceholder(j[k])) {
-                stack.get(5).push(k);
+                stack.get(ID_PP).push(k);
             }
         }
     }

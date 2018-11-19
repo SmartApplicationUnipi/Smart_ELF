@@ -1,6 +1,6 @@
 import { isObject } from 'util';
 import { addFact, databaseFact } from './kb';
-import { findMatchesBind, findMatchesBind2, isPlaceholder } from './matcher';
+import { findMatchesBind, isPlaceholder } from './matcher';
 
 const INFERENCE_TAG = 'INFERENCE'
 const databaseRule = [
@@ -69,7 +69,7 @@ function checkRule(head: object, body: object[], fact: object) {
                 // console.log(bi);
                 // console.log();
 
-                const b = findMatchesBind2({ _data: pred }, Array.from(databaseFact.values()), bi);
+                const b = findMatchesBind({ _data: pred }, Array.from(databaseFact.values()), bi);
                 // b se non è vuoto contiene i nuovi bindings (che contengono bi)
                 // console.log('trovo la soluzione');
                 // console.log(b);
