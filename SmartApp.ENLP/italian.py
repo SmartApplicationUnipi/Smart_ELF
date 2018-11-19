@@ -1,5 +1,4 @@
 from watson_developer_cloud import LanguageTranslatorV3, WatsonApiException
-import json
 
 def watson_authentication():
     """
@@ -20,23 +19,8 @@ def tranlsate (text,language_translator):
     :return sentence translate
     """
     try:
-        translation = language_translator.translate( text=text,model_id='en-it').get_result()
-        return (json.dumps(translation, indent=2, ensure_ascii=False))
+        translation = language_translator.translate( text=text,model_id='it-en').get_result()
+        return translation["translations"][0]["translation"]
     except WatsonApiException as ex:
         #print excaption
         print ("Method failed with status code " + str(ex.code) + ": " + ex.message)
-
-
-def main():
-    auth = authentication()
-
-    text = "Over the last few years many companies have elected to transfer production to Eastern European countries. For instance, Fiat is now manufacturing its Panda model exclusively in Poland. It did’t use to be like this in the past."
-    tr = tranlsate(text,auth)
-    print (tr)
-
-    text = "The data published by the government show that the number of young people enrolling at university has fallen. Last year 50 thousand young people fewer than the previous year enrolled."
-    tr = tranlsate(text,auth)
-    print (tr)
-
-if __name__ == '__main__':
-    main()
