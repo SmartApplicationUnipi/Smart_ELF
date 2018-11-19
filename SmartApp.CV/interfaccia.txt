@@ -1,0 +1,59 @@
+
+# Interfaccia da utilizzare per creare le classe che verranno utilizzate dal
+# controller.
+
+class abstract():
+
+    def __init__(self):
+        """
+            Initialization of class for all object usefull for computation
+        """
+        return
+
+    def worker(self, frame, toIdentify = True):
+        """
+            Function that can be called for controller to execute detection of
+            sentiment and identification of person.
+
+            Params:
+                frame: matrix-like of image.
+                toIdentify (bool): var that say if the worker must compute the
+                    identification of person in the image or is useless beacose
+                    the controller already know the identity. Value:
+                        - True: must be identify
+                        - False: you can avoid identifying
+
+            Return:
+                result (dict): json fact in KB-format
+        """
+        pass
+
+    def isAvailable(self):
+        """
+            Check module availability.
+
+            For offline_module can be always True.
+
+            Params:
+
+            Return:
+                result (bool): if module is available
+                    - True: if is possible use the module
+                    - False: otherwise
+        """
+        pass
+
+    def setParamsToDetect(self, *args, **kwargs):
+        """
+            Set the parameters that must be detected in a worker for future
+            frame.
+
+            Params:
+                For interface must be any type of parameters in the implementation
+                can be checked in the specific case of module.
+
+            Return:
+                result (dict): json of parameters that are accepted form module
+                 and so attribute that will be detected
+        """
+        pass

@@ -1,150 +1,64 @@
-import os
-import urllib
-import kb_client as kb
-from online.SDK.face_client import Facepp_Client as online
-#from offline.offvision import OffVision as offline
+import external.kb_client as kb
+from online.interface import online_connector as online
+# import offline.interface as offline
+
+#  Si può in modo che ci sono più queue 6 che matengo in memoria i frame di ogni
+#  faccia che ha lo stesso id (dato da HAL-kinekt) cosi i vari threade che fanno
+#  le richieste possono identificare separatamente le persone la prima volta e
+#  non eseguire più l'identificazione fino a quando non subentra una nuova
+#  immagine con un nuovo id.
+#  Vedere il file StreamWebCam per un esempio di implementazione fatto da Michele
 
 class Controller():
+
     def __init__(self):
         self.kbID = kb.register()
-        self.faceset_outer_id = "Fibonacci_FaceSet_0001"
-        self.faceset_token = ""
-        self.HOST = "http://api-eu.faceplusplus.com"
 
         # Initialization of Online Module
-        self.client = online()
-        res = self.client.getFaceSets()
-        for faceset in res['facesets']:
-            if faceset['outer_id'] == self.faceset_outer_id:
-                self.faceset_token = faceset['faceset_token']
-                break
-
-        if self.faceset_token == "":
-            res = self.client.createFaceSet(outer_id = self.faceset_outer_id)
-            self.faceset_token = res['faceset_token']
+        self.online_module = online()
 
         # Initialization of Offline Module
         #self.offline_client = offline()
-        return
 
+        # self.setAttr("initial attibutes")
 
-    def _checkConnection(self, reference):
+    def _getResolver(self):
         """
-        Check server availability
+            Get the resolver of detection.
+
             Params:
-                None
+
             Return:
-                    True if is possible to connect to the service, False otherwise
+                result (interface): Return object that will resolve the detection
+                    of attributes and identity of person.
         """
-        try:
-            urllib.request.urlopen(reference, timeout=1)
-            return True
-        except urllib.request.URLError:
-            return False
+        if self.online_module.isAvailable():
+            res = self.online_module
+        # elif self.offline_module.isAvailable():
+        #     res = self.offline_module
+        return res
 
-    def jsonFace2Fact(self, json):
+    def setAttr(self, *args, **kwargs):
         """
-            produce a fact according to KB-format tha encapsulates information about faces
-            Params:
-                json: json response from API
-            return:
-                fact: json fact in KB-format
-        """
-        attr = json['attributes']
-        norm = lambda x : round(x/100, 4)
-        attr['emotion'] = { k : norm(v) for k, v in  attr['emotion'].items()}
-        attr['gender'] = attr['gender']['value']
-        attr['age'] = attr['age']['value']
-        attr['smile'] = 'True' if attr['smile']['value'] >= attr['smile']['threshold'] else 'False'
-        attr['emotion']['calm'] = attr['emotion'].pop('neutral')
+            Set attributes that the module must be detect form future frame.
 
-        del json['attributes']
-        del json['face_rectangle']
-
-        if 'known' not in json:
-            json.update({"known": False})
-        if 'confidence_identity' in json:
-            json['confidence_identity']  = round(json['confidence_identity']/100, 3)
-        else:
-            json.update({"confidence_identity": 0})
-
-        json['personID'] = json.pop('face_token')
-        json.update({"TAG": "VISION_FACE_ANALYSIS"})
-        json.update(attr)
-
-        return json
-
-    def _online_module(self,frame):
-        """
-            Implement the Controller'logic
-            recognition routine using API (Face++). It provide recognition and emotion detection
-            Params:
-                frame: matrix-like, filepath, file descriptor of the image.
-            Return:
-        """
-        # take respose from server of face present in the frame
-        result = self.client.detect(frame)
-        # take list of faces
-        faces = result["faces"]
-        info = "face"
-        to_check = True
-
-        for face in faces:
-
-            if to_check:
-                facesetInfo = self.client.getFaceSetDetail(faceset_token = self.faceset_token )
-
-            if facesetInfo['face_count'] > 0:
-                res = self.client.search(face_token = face["face_token"], faceset_token = self.faceset_token)
-
-                if len(res["results"]) > 0:
-                    for candidate in res["results"]:
-                        if candidate["confidence"] < 80:
-                            #new face add it
-                            self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-                            to_check = True
-                            print("non ti conosco.. mi ricordero")
-                        else:
-                            #I know it and push a tuple to KB
-                            print("ti conosco. Sei {}".format(candidate["face_token"]))
-
-                            face["face_token"] = candidate["face_token"]
-                            face.update({"known": True})
-                            face.update({'confidence_identity' : candidate["confidence"]})
-                            to_check = False
-                else:
-                    #face doesn't match add it
-                    print("non ti conosco.. mi ricordero")
-                    self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-                    to_check = True
-            else:
-                #faceset is empty add the new face
-                print("faceset vuoto")
-                self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-                to_check = True
-
-            face = self.jsonFace2Fact(face)
-            print(face)
-            kb.addFact(self.kbID, info, 1, face['confidence_identity'], True, face)
-
-
-    # def _offline_module(self, frame):
-    #     return self.offline_client.analyze_frame(frame)
-
-    def setAttr(self,*args, **kwargs):
-        """
-            set attributes for the module
             Params:
                 depends on the module
+
             Return:
         """
-        self.client.setParamsDetect(*args, **kwargs)
-        #self.offline.setParamsDetect(*args, **kwargs)
+        self.online_module.setParamsToDetect(*args, **kwargs)
+        #self.online_module.setParamsToDetect(*args, **kwargs)
 
-    def watch(self,frame):
-        #TODO manage check connection in Event-listener style
-        if self._checkConnection(self.HOST):
-            self._online_module(frame)
+    def watch(self, frame):
+        module = self._getResolver()
+        if module is not None:
+            fact = module.worker(frame)
+            fact.update({"TAG": "VISION_FACE_ANALYSIS"})
 
+            if fact is not None:
+                kb.addFact(self.kbID, "face", 1, fact['confidence_identity'], True, fact)
+
+            print(fact)
         else:
-            print("no connection")
+            print("There aren't module available")

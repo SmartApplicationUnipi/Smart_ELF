@@ -5,7 +5,7 @@ from controller import Controller
 from queue import *
 from threading import *
 # from offline import offline_interface as offline
-import kb_client as kb
+import external.kb_client as kb
 
 q = Queue(maxsize= 3)
 
