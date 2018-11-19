@@ -10,7 +10,7 @@ wss.on('connection', (ws: WebSocket) => {
 
     // connection is up, let's add a simple simple event
     ws.on('message', (message: string) => {
-        let reply = 'fail';
+        let reply;
 
         // log the received message and send it back to the client
         console.log('received: %s', message);
@@ -18,34 +18,35 @@ wss.on('connection', (ws: WebSocket) => {
             const j = JSON.parse(message);
             switch (j.method) {
                 case 'register':
-                    reply = kb.register(j.params.tags);
+                    reply = JSON.stringify(kb.register(j.params));
+                    break;
+                case 'registerTagDoc':
+                    reply = JSON.stringify(kb.registerTagDocumentation(j.params));
+                    break;
+                case 'getTagDoc':
+                    reply = JSON.stringify(kb.getTagDoc(j.params));
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length
-                    kb.addFact(j.params.idSource, j.params.infoSum, j.params.TTL, j.params.reliability, j.params.jsonFact);
-                    reply = 'done';
+                    reply = JSON.stringify(kb.addFact(j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
                 case 'removeFact':
-                    if (kb.removeFact(j.params.idSource, j.params.jsonReq)) {
-                        reply = 'done';
-                    }
+                    reply = JSON.stringify(kb.removeFact(j.params.idSource, j.params.jsonReq));
+                    break;
+                case 'updateFact':
+                    reply = JSON.stringify(kb.updateFactbyId(j.params.idSource, j.params.id, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
                 case 'addRule':
-                    const r = kb.addRule(j.params.idSource, j.params.ruleSum, j.params.jsonRule);
-                    reply = r.toString();
+                    reply = JSON.stringify(kb.addRule(j.params.idSource, j.params.ruleTag, j.params.jsonRule));
                     break;
                 case 'removeRule':
-                    if (kb.removeRule(j.params.idSource, j.params.idRule)) {
-                        reply = 'done';
-                    }
+                    reply = JSON.stringify(kb.removeRule(j.params.idSource, j.params.idRule));
                     break;
                 case 'queryBind':
-                    const rBind = kb.queryBind(j.params.jsonReq);
-                    reply = JSON.stringify(rBind);
+                    reply = JSON.stringify(kb.queryBind(j.params.jsonReq));
                     break;
                 case 'queryFact':
-                    const rFact = kb.queryFact(j.params.jsonReq);
-                    reply = JSON.stringify(rFact);
+                    reply = JSON.stringify(kb.queryFact(j.params.jsonReq));
                     break;
                 case 'subscribe':
                     // tslint:disable-next-line:max-line-length
@@ -54,16 +55,15 @@ wss.on('connection', (ws: WebSocket) => {
                             ws.send(JSON.stringify(r));
                         } catch (e) { console.log(e); }
                     };
-                    if (kb.subscribe(j.params.idSource, j.params.jsonReq, callback)) {
-                        reply = 'done';
-                    }
+                    reply = JSON.stringify(kb.subscribe(j.params.idSource, j.params.jsonReq, callback));
                     break;
                 default:
-                    reply = 'function not defined';
+                    reply = JSON.stringify(new kb.Response(false, 'Method not allowed'));
             }
         } catch (e) {
             console.log(e);
         }
+        console.log('reply: ' + reply)
         ws.send(reply);
     });
 

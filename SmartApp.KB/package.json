@@ -7,16 +7,17 @@
     "build-ts": "tsc",
     "start": "npm run build-ts && npm run serve",
     "serve": "node dist/src/server.js",
-    "test": "npm run build-ts && node dist/test/matcher.test.js && node dist/test/kb.test.js",
+    "test": "mocha -r ts-node/register test/kb/*.ts",
     "test-matcher": "npm run build-ts && node dist/test/matcher.test.js"
   },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.4"
-  },
   "dependencies": {
+    "typescript": "latest",
+    "tslint": "latest",
+    "chai": "latest",
+    "mocha": "latest",
+    "ts-node": "latest",
+    "@types/chai": "latest",
+    "@types/mocha": "latest",
     "@types/deep-equal": "^1.0.1",
     "@types/express": "^4.16.0",
     "@types/ws": "^6.0.1",

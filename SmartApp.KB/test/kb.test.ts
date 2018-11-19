@@ -1,9 +1,9 @@
 import * as kb from '../src/kb';
 
-const myid = kb.register({ rdf: 'desc1', tag2: 'desc2' });
+const myid = kb.register({ 'rdf': 'desc1', 'tag2': 'desc2' }).details;
 let result;
 
-console.log('\x1b[1;32KBTEST\x1b[0m');
+console.log("\x1b[1;32KBTEST\x1b[0m")
 
 console.log(
     kb.addFact(myid, 'rdf', 3, 90,
@@ -57,4 +57,4 @@ console.log();
 console.log(kb.queryBind({ x: '$x', y: '$y' }));
 console.log(kb.queryBind({ x: { a: 1, y: '$y' }, y: '$z' }));
 
-console.log(kb.queryBind({ _meta: { info: '$cazzo' } }));
+console.log(kb.queryBind({ _meta: { info: '$cazzo' } }))

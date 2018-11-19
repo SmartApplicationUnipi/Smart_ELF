@@ -12,16 +12,30 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 cParser = configparser.RawConfigParser()
 configFilePath = r'./config'
 
-
-
 cParser.read(os.path.join(base_dir, configFilePath))
 
 port = cParser.get('host-config','port')
 host = cParser.get('host-config','host-name')
 
-def register():
+def register(tags: map):
 	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "register", "params": {}}
+	req = {"method": "register", "params": tags}
+	ws.send(json.dumps(req))
+	rep = ws.recv()
+	ws.close()
+	return rep
+
+def registerTagDoc(tags: map):
+	ws = create_connection("%s:%s"%(host,port))
+	req = {"method": "registerTagDoc", "params": tags}
+	ws.send(json.dumps(req))
+	rep = ws.recv()
+	ws.close()
+	return rep
+
+def getTagDoc(tags: list):
+	ws = create_connection("%s:%s"%(host,port))
+	req = {"method": "getTagDoc", "params": tags}
 	ws.send(json.dumps(req))
 	rep = ws.recv()
 	ws.close()
@@ -36,12 +50,12 @@ def addFact(idSource: str, infoSum: str, TTL: int, reliability: int, revisioning
 	return rep
 
 def addRule(idSource: str, ruleSum: str, jsonRule: map):
-        ws = create_connection("%s:%s"%(host,port))
-        req = {"method": "addRule", "params": {"idSource": idSource, "ruleSum": ruleSum, "jsonRule": jsonRule}}
-        ws.send(json.dumps(req))
-        rep = ws.recv()
-        ws.close()
-        return rep
+    ws = create_connection("%s:%s"%(host,port))
+    req = {"method": "addRule", "params": {"idSource": idSource, "ruleSum": ruleSum, "jsonRule": jsonRule}}
+    ws.send(json.dumps(req))
+    rep = ws.recv()
+    ws.close()
+    return rep
 
 def queryBind(jsonReq: map):
 	ws = create_connection("%s:%s"%(host,port))
