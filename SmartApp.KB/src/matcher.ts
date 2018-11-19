@@ -303,7 +303,7 @@ function matchPlaceholderObject(queryKey: string, queryValue: object, data: any,
             && isObject(data[newBinds[k][queryKey]])) {
             clog(GREEN, 'OK', ID_PO, '', 'already existent correct bind', 3);
             clog(BLUE, 'INFO', ID_PO, '\t', 'Entering recursion', 5);
-            const result = matchBind(queryValue, data[queryKey], [newBinds[k]]);
+            const result = matchBind(queryValue, data[newBinds[k][queryKey]], [newBinds[k]]);
             clog(BLUE, 'INFO', ID_PO, '\t', 'Exit recursion', 5);
             if (!result.match) {
                 clog(RED, 'FAIL', ID_PO, '', 'inner objects are different', 2);
