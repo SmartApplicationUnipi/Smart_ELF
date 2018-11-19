@@ -409,8 +409,9 @@ function sort(j: any): object {
 export function isPlaceholder(v: any) {
     return (typeof (v) === 'string' && v.charAt(0) === '$');
 }
-function isObject(v: any) { // TODO: import {isObject} from util
-    return (typeof (v) === 'object');
+function isObject(v: any) {
+    // util.isObject - Deprecated: Use value !== null && typeof value === 'object' instead.
+    return (v !== null && typeof (v) === 'object');
 }
 function isAtom(v: any) {
     return (!isPlaceholder(v) && !isObject(v));
