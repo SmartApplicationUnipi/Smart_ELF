@@ -87,7 +87,7 @@ export class TestElfColorfulUI extends ElfUI {
 	}
 
 	public getTemplate(): string {
-		return '<div class="ui-content">\
+		return '<div class="test-ui ui-content">\
 			<div class="upper-panel">\
 				<div class="resource-panel"></div>\
 				<div class="face-panel"></div>\

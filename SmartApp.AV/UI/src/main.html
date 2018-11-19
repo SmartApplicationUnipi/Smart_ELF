@@ -1,62 +1,107 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>ELF FACE</title>
+    <title>ELF FACE</title>
+
 </head>
+
 <body>
+    <style type="text/css">
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        
+        #content {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .ui-content {
+            height: 100%;
+            width: 100%;
+        }
+        /* Colorful */
+        
+        .colorful-ui.ui-content {
+            background-color: white;
+        }
+        /* Test */
+        
+        .test-ui.ui-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .test-ui .upper-panel {
+            border: 1px solid black;
+            width: 100%;
+            flex-grow: 4;
+            display: flex;
+        }
+        
+        .test-ui .lower-panel {
+            border: 1px solid red;
+            width: 100%;
+            flex-grow: 1;
+        }
+        
+        .test-ui .resource-panel {
+            flex-grow: 3;
+            border: 1px solid blue;
+        }
+        
+        .test-ui .face-panel {
+            flex-grow: 1;
+            border: 1px solid green;
+        }
+        
+        .test-ui .text-panel {
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            vertical-align: middle;
+        }
+        
+        [ui-pnotify].ui-pnotify.custom .ui-pnotify-container {
+            background-color: #404040;
+            background-image: none;
+            border: none;
+            -moz-border-radius: 10px;
+            -webkit-border-radius: 10px;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 15px;
+        }
+        
+        [ui-pnotify].ui-pnotify.custom {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 10pt;
+            line-height: 1.1;
+        }
+        
+        [ui-pnotify].ui-pnotify.custom .ui-pnotify-title,
+        [ui-pnotify].ui-pnotify.custom .ui-pnotify-text {
+            margin-left: 50px;
+            color: #FFF;
+        }
+        
+        [ui-pnotify].ui-pnotify.custom .ui-pnotify-title {
+            font-weight: bold;
+            font-size: 15px;
+        }
+        
+        [ui-pnotify].ui-pnotify.custom .ui-pnotify-icon {
+            color: #FFA;
+        }
+    </style>
 
-	<style type="text/css">
-		html, body { width:100%; height:100%; margin:0;  }
-		#content {
-			height: 100%;
-			width: 100%;
-		}
-		.ui-content {
-			height: 100%;
-			width: 100%;
+    <div id="content"></div>
 
-			display: flex;
-			flex-direction: column;
-		}
-
-		.upper-panel {
-			border: 1px solid black;
-			width: 100%;
-
-			flex-grow: 4;
-
-			display: flex;
-		}
-		.lower-panel {
-			border: 1px solid red;
-			width: 100%;
-
-			flex-grow: 1;
-		}
-
-		.resource-panel {
-			flex-grow: 3;
-
-			border: 1px solid blue;
-		}
-
-		.face-panel {
-			flex-grow: 1;
-
-			border: 1px solid green;
-		}
-
-		.text-panel {
-			width: 100%;
-			height: 100%;
-
-			text-align: center;
-			vertical-align: middle;
-		}
-	</style>
-
-	<div id="content"></div>
-
-	<script type="text/javascript" src="bundle.js"></script>
+    <script type="text/javascript" src="bundle.js"></script>
 </body>
+
 </html>
