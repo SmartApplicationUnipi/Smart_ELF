@@ -9,13 +9,23 @@ const subscriptions = new Map<object, SubCallback[]>();
 
 const registered = new Array();
 
-export const tagList = new Map<string, string>(); //map <tag, description>
-export const docList = new Map<string, string>(); //map <tag, documentation>
+export const tagMap = new Map<string, string>(); //map <tag, description>
+export const docMap = new Map<string, string>(); //map <tag, documentation>
 
 registered.push('inference');
 
 let uniqueFactId = 0;
 let uniqueRuleId = 0;
+
+export class Response {
+    success: boolean;
+    details: any;     //se success=false, spiego l'errore. Altrimenti restituisco l'eventuale risultato (es:idSource)
+
+    constructor(success: boolean, details: any) {
+        this.success = success;
+        this.details = details;
+    }
+}
 
 class Metadata {
     idSource: string;
@@ -34,32 +44,58 @@ class Metadata {
 }
 
 export function register(tags: any) {
-    const newid = 'proto' + (registered.length + 1).toString();
     var keys = Object.keys(tags);
-    for (const k of keys) {
-        if (tagList.has(k))
-            //ragionare su come restituire l'errore. Oggetto con campi {'result': 'fail', 'details': 'tag "emo" already present'}?
-            return '';
+    var errors : string[] = [];
+    for (const tag of keys) {
+        if (tagMap.has(tag))
+            errors.push(tag);
     }
-    for (const k of keys) {
-        tagList.set(k, tags[k]);
+
+    if (errors.length > 0) {
+        return new Response(false, errors); 
     }
+
+    for (const tag of keys) {
+        tagMap.set(tag, tags[tag]);
+    }
+    const newid = 'proto' + (registered.length + 1).toString();
     registered.push(newid);
-    return newid;
+    return new Response(true, newid);
 }
 
 export function registerTagDocumentation(tags: any) {
     var keys = Object.keys(tags);
+    var res : string[] = [];
     for (const k of keys) {
-        if (docList.has(k)) {
-            docList.set(k, tags[k]);
+        if (tagMap.has(k)) {
+            docMap.set(k, tags[k]);
+            res.push(k)
         }
     }
+    if(!res.length) {
+        return new Response(false, []);
+    }
+    return new Response(true, res);
+}
+
+export function getTagDoc(tags: string[]) {
+    let res: any = {};
+    let found : boolean = false;
+    tags.forEach(tag => {
+        if(docMap.has(tag)){
+            res[tag] = docMap.get(tag);
+            found = true;
+        }
+    });
+    if(!found) {
+        return new Response(false, {});
+    }
+    return new Response(true, res);
 }
 
 // tslint:disable-next-line:max-line-length
-export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object): number {
-    if (!registered.includes(idSource)) { return -1; }
+export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
+    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered"); }
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
     const dataobject = {
@@ -67,20 +103,19 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
         _data: jsonFact,
         _meta: metadata,
     };
-    if (!tagList.has(tag)) {
-        return -1;
+    if (!tagMap.has(tag)) {
+        return new Response(false, tag);
     }
     databaseFact.set(dataobject._id, dataobject);
     checkSubscriptions(dataobject);
     checkRules(jsonFact);
-    return currentFactId;
+    return new Response(true, currentFactId);
 }
 
-export function updateFactbyId(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object): number {
-    if (!registered.includes(idSource)) { return -1; }
-    //TODO (forse): X può aggiornare i dati di Y o ne voglio limitare l'aggiornamento al solo Y? 
+export function updateFactbyId(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
+    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
     if (!databaseFact.has(id)) {
-        return -1;
+        return new Response(false, id);
     }
 
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
@@ -90,70 +125,60 @@ export function updateFactbyId(id: number, idSource: string, tag: string, TTL: n
         _meta: metadata,
     };
     databaseFact.set(id, dataobject)
-    return id;
+    return new Response(true, id);
 }
 
-export function queryFact(jreq: object): any[] {
-    // this function will return the whole object that contains a match
-    // const q = {
-    //     _data: jreq,
-    // };
-    return matcher.findMatchesAll(jreq, Array.from(databaseFact.values()));
+export function queryFact(jreq: object) {
+    return new Response(true, matcher.findMatchesAll(jreq, Array.from(databaseFact.values())));
 }
 
-export function queryBind(jreq: object): any[] {
-    // this function will return metadata and the bounded values
-    // const q = {
-    //     _id: '$_id',
-    //     _data: jreq,
-    //     _meta: '$_metadata',
-    // };
-    return matcher.findMatchesBind(jreq, Array.from(databaseFact.values()));
+export function queryBind(jreq: object) {
+    return new Response(true, matcher.findMatchesBind(jreq, Array.from(databaseFact.values())));
 }
 
-export function subscribe(idSource: string, jreq: object, callback: SubCallback): boolean {
-    if (!registered.includes(idSource)) { return false; }
+export function subscribe(idSource: string, jreq: object, callback: SubCallback) {
+    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
     // the idea is that this will be the original signature. Will then wrap this into the communication protocol
     if (!subscriptions.has(jreq)) {
         subscriptions.set(jreq, [callback]);
     } else {
         subscriptions.get(jreq).push(callback);
     }
-    return true;
+    return new Response(true, "Subscribed");
 }
 
 export function getAndSubscribe(idSource: string, jreq: object, callback: SubCallback) {
-    // if (!registered.includes(idSource)) { return false; }
     const res = queryBind(jreq);
-    subscribe(idSource, jreq, callback);
-    return res;
+    const subres = subscribe(idSource, jreq, callback);
+    if (!subres.success) {
+        return subres;
+    }
+    return new Response(true, res);
 }
 
-export function removeFact(idSource: string, jreq: object): number[] {
-    if (!registered.includes(idSource)) { // PLEASE REWRITE THIS IF
-        const err: number[] = [];
-        err.push(-1);
-        return err;
-    }
+export function removeFact(idSource: string, jreq: object) {
+    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
     const removedFactsId: number[] = [];
-    const res = queryBind(jreq);
-    for (const k of res) {
+    const res = queryFact(jreq);
+    for (const k of res.details) {
         removedFactsId.push(k._id);
         databaseFact.delete(k._id);
     }
-    return removedFactsId;
+    return new Response(true, removedFactsId);
 }
 
-export function removeFactById(idSource: string, idFact: number): number {
-    if (!registered.includes(idSource)) { return -1; }
+export function removeFactById(idSource: string, idFact: number) {
+    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
     databaseFact.delete(idFact);
-    return idFact;
+    return new Response(true, idFact);
 }
 
 export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
     // controllo se la regola è valida
-    if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) { return -1; }
-    if (!registered.includes(idSource)) { return -1; }
+    if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
+        return new Response(false, "Rules must have a 'head' and a 'body'");
+    }
+    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
     const metadata = new Metadata(idSource, ruleTag, Date.now(), 0, 0);
     const dataobject = {
         _id: uniqueRuleId_gen(),
@@ -161,13 +186,15 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
         _meta: metadata,
     };
     databaseRule.set(dataobject._id, dataobject);
-    return dataobject._id;
+    return new Response(true, dataobject._id);
 }
 
-export function removeRule(idSource: string, idRule: number): number {
-    if (!registered.includes(idSource)) { return -1; }
-    databaseRule.delete(idRule);
-    return idRule;
+export function removeRule(idSource: string, idRule: number) {
+    if (!registered.includes(idSource)) { return new Response(false, "Client " + idSource + " not registered."); }
+    if (!databaseRule.delete(idRule)) {
+        return new Response(false, "Rule " + idRule + "not found.")
+    }
+    return new Response(true, idRule);
 }
 
 function checkSubscriptions(obj: object) {

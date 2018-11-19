@@ -1,6 +1,6 @@
 import * as kb from '../src/kb';
 
-const myid = kb.register({ 'rdf': 'desc1', 'tag2': 'desc2' });
+const myid = kb.register({ 'rdf': 'desc1', 'tag2': 'desc2' }).details;
 
 const rule1 = {
     body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
