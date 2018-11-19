@@ -56,7 +56,12 @@ kb.addFact(myid, 'emo', 1, 70,
 );
 
 console.log();
+<<<<<<< HEAD
 console.log(kb.queryBind( { _data: {x: '$x', y: '$y'} } ));
 console.log(kb.queryBind( {_data: {x: { a: 1, y: '$y'}, y: '$z'}}));
 
 console.log(kb.queryBind({ _meta: { info: '$cazzo' } }));
+=======
+console.log(kb.queryBind(myid, {x: '$x', y: '$y'}));
+console.log(kb.queryBind(myid, {x: { a: 1, y: '$y'}, y: '$z'}));
+>>>>>>> afe004a8617b0d4598d898cb87f024fa6f1d75e7
