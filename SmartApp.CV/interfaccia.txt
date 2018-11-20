@@ -10,22 +10,22 @@ class abstract():
         """
         return
 
-    def analyze_face(self, frame, toIdentify = True):
+    def analyze_face(self, frame, return_desc = True):
         """
             Function that can be called for controller to execute detection of
             sentiment and identification of person.
 
             Params:
                 frame (numpy.ndarray): matrix-like of image.
-                toIdentify (bool): var that say if the worker must compute the
-                    identification of person in the image or is useless beacose
+                return_desc (bool): var that say if the worker must compute the
+                    descriptor of person in the image or is useless beacose
                     the controller already know the identity. Value:
-                        - True: must be identify
-                        - False: you can avoid identifying
+                        - True: must be described
+                        - False: you can avoid describing
 
             Return:
                 result (dict): json fact in KB-format
-                descriptor (obj): internal descriptor of module
+                descriptor (obj): internal descriptor of module, if requested
         """
         pass
 
@@ -60,7 +60,7 @@ class abstract():
         pass
 
 
-    def get_descriptor(frame):
+    def get_descriptor(self, frame):
         """
             Compute the descriptor for the frame.
 
@@ -72,7 +72,7 @@ class abstract():
         """
         pass
 
-    def get_match(db, descriptor, descriptor_postion, id_postion):
+    def get_match(self, db, descriptor, descriptor_postion, id_postion):
         """
             Search the mach of descriptor in the tuple at right position
             (descriptor_postion) and return the id associated in id_postion.
