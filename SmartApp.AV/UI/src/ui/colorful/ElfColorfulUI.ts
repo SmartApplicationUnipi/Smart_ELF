@@ -24,6 +24,8 @@ export class ElfColorfulUI extends ElfUI {
 	private contentFactory: ContentFactory = new DefaultContentFactory();
 	private widgetFactory: UIWidgetFactory = new ColorfulUIWidgetFactory();
 
+	private content: HTMLElement;
+
 	constructor(rootElement: HTMLElement, window: Window) {
 		super(rootElement);
 
@@ -33,12 +35,15 @@ export class ElfColorfulUI extends ElfUI {
 
 	onCreateView(root: HTMLElement): void {
 		root.innerHTML = this.getTemplate();
+
+		this.content = _.first(root.getElementsByClassName("ui-content"));
 	}
 
 	public onEmotionChanged(e: IEmotion): void {
 		this.logger.log(Logger.LEVEL.INFO, "onEmotionChanged", e);
 
-		this.getRootElement().style.backgroundColor = e.getColor();
+		// Change the background color. The animation in CSS will handle the animation.
+		this.content.style.backgroundColor = e.getColor();
 	}
 	public onContentChanged(contents: Array<IContent>): void {
 		this.logger.log(Logger.LEVEL.INFO, "onContentChanged", contents);
@@ -47,19 +52,21 @@ export class ElfColorfulUI extends ElfUI {
 		let audioContents = contents.filter(content => content instanceof AudioContent);
 		let otherContents = contents.filter(content => !(content instanceof AudioContent));
 
+		// Display all the contents
 		otherContents.forEach(content => {
-			if(content instanceof TextContent) {
+			if (content instanceof TextContent) {
 				this.snackbar.showText(content.getText());
-			} if(content instanceof SpeechContent) {
+			} if (content instanceof SpeechContent) {
 				this.snackbar.showText(content.getText());
 			} else {
 				this.logger.log(Logger.LEVEL.WARNING, "TBI", content);
 			}
-		})
+		});
 
+		// Play audio data
 		audioContents.forEach(audioContent => {
 			this.audioPlayer.play((audioContent as AudioContent).getAudioBytes());
-		})
+		});
 	}
 
 	public getTemplate(): string {
@@ -70,14 +77,11 @@ export class ElfColorfulUI extends ElfUI {
 	public getContentFactory(): ContentFactory {
 		return this.contentFactory;
 	}
-
-	private createElement(widget: UIWidget): { content: UIWidget, element: ChildNode } {
-		let elem = document.createElement('div');
-		elem.innerHTML = widget.render();
-		return { content: widget, element: elem.firstChild };
-	}
 }
 
+/**
+ * Elf UI Factory for ElfColorfulUI.
+ */
 export class ElfColorfulUIFactory implements ElfUIFactory {
 	constructor(private root: HTMLElement, private window: Window) { }
 
