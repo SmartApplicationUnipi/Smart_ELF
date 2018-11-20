@@ -287,7 +287,7 @@ function matchPlaceholderObject(queryKey: string, queryValue: object, data: any,
     const newBinds = [...binds];
     const dataKeys = Object.keys(data);
     const flag = (newBinds.length > 0);
-    for (let k = 0; k < newBinds.length || k == 0; ++k) {
+    for (let k = 0; k < newBinds.length || k === 0; ++k) {
         // already bound to a non object
         if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
             && data.hasOwnProperty(newBinds[k][queryKey])
