@@ -9,19 +9,15 @@ export const databaseFact = new Map<number, object>();
 export const databaseRule = new Map<number, object>();
 const subscriptions = new Map<object, SubCallback[]>();
 
-const registered = new Array();
+export const tagDetails = new Map<string, TagInfo>(); // map <tag, {desc, documentation}>
+export const moduleTags = new Map<string, string[]>(); // map<idSource, tags> // useless?
 
-export const tagMap = new Map<string, string>(); // map <tag, description>
-export const docMap = new Map<string, string>(); // map <tag, documentation>
-
-registered.push('inference');
-
-let uniqueFactId = 0;
-let uniqueRuleId = 0;
+let uniqueFactId = 0; // move in server part
+let uniqueRuleId = 0; // move in server part
 
 export class Response {
     success: boolean;
-    details: any;     // se success=false, spiego l'errore. Altrimenti restituisco l'eventuale risultato (es:idSource)
+    details: any; // if success === false, report a message to explain the error. Else we return the result e.g.:idSource
 
     constructor(success: boolean, details: any) {
         this.success = success;
@@ -46,51 +42,60 @@ class Metadata {
     }
 }
 
-export function register(tags: any) {
-    const keys = Object.keys(tags);
-    const errors: string[] = [];
-    console.log('registering ', tags);
+// tslint:disable-next-line:max-classes-per-file
+class TagInfo {
+    desc : string;
+    doc : string;
 
-    for (const tag of keys) {
-        console.log('tagmap:', tagMap);
-        if (tagMap.has(tag)) {
-            errors.push(tag);
-        }
+    constructor(description: string, documentation: string){
+        this.desc = description;
+        this.doc = documentation;
+    }
+}
+
+// tagsList = [ { nome_tag : {desc: , doc: } } ]
+export function registerTags(tagsList: any): Response { // tagsList is a map tag_i : tag_desc_i
+    const tags = Object.keys(tagsList);
+    const errors: string[] = [];
+    console.log('registering ', tagsList);
+
+    // check uniqueness of tags
+    for (const tag of tags) {
+        if (tagDetails.has(tag)) { errors.push(tag); }
     }
 
     if (errors.length > 0) {
         return new Response(false, errors);
     }
 
-    for (const tag of keys) {
-        tagMap.set(tag, tags[tag]);
+    for (const tag of tags) { // populate the map tag_i : desc_tagi
+        tagDetails.set(tag, tagsList[tag]);
     }
-    const newid = 'proto' + (registered.length + 1).toString();
-    registered.push(newid);
-    return new Response(true, newid);
+
+    return new Response(true, {});
 }
 
-export function registerTagDocumentation(tags: any) {
-    const keys = Object.keys(tags);
-    const res: string[] = [];
-    for (const k of keys) {
-        if (tagMap.has(k)) {
-            docMap.set(k, tags[k]);
-            res.push(k);
-        }
-    }
-    if (!res.length) {
-        return new Response(false, []);
-    }
-    return new Response(true, res);
-}
+// export function registerTagDocumentation(tags: any) {
+//     const keys = Object.keys(tags);
+//     const res: string[] = [];
+//     for (const k of keys) {
+//         if (tagDesc.has(k)) {
+//             tagDoc.set(k, tags[k]);
+//             res.push(k);
+//         }
+//     }
+//     if (!res.length) {
+//         return new Response(false, []);
+//     }
+//     return new Response(true, res);
+// }
 
-export function getTagDoc(tags: string[]) {
+export function getTagDetails(tags: string[]) {
     const res: any = {};
     let found: boolean = false;
     tags.forEach((tag) => {
-        if (docMap.has(tag)) {
-            res[tag] = docMap.get(tag);
+        if (tagDetails.has(tag)) {
+            res[tag] = tagDetails.get(tag);
             found = true;
         }
     });
@@ -103,7 +108,9 @@ export function getTagDoc(tags: string[]) {
 // tslint:disable-next-line:max-line-length
 export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     console.log('idsource', idSource);
-    if (!(registered.includes(idSource))) { return new Response(false, 'Client ' + idSource + ' not registered'); }
+    // aggiungi controllo documentazione presente tag
+    if (!(tagDetails.has(tag))) { return new Response(false, 'Tag ' + tag + ' not registered'); }
+
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
     const dataobject = {
@@ -111,9 +118,6 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
         _id: currentFactId,
         _meta: metadata,
     };
-    if (!tagMap.has(tag)) {
-        return new Response(false, tag);
-    }
     databaseFact.set(dataobject._id, dataobject);
     checkSubscriptions(dataobject);
     checkRules(jsonFact);
@@ -122,11 +126,8 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
-    if (!databaseFact.has(id)) {
-        return new Response(false, id);
-    }
-
+    if (!(tagDetails.has(tag))) { return new Response(false, 'Tag ' + tag + ' not registered'); }
+    if (!databaseFact.has(id)) { return new Response(false, id); }
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const dataobject = {
         _data: jsonFact,
@@ -146,7 +147,6 @@ export function queryBind(jreq: object) {
 }
 
 export function subscribe(idSource: string, jreq: object, callback: SubCallback) {
-    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     if (!subscriptions.has(jreq)) {
         subscriptions.set(jreq, [callback]);
     } else {
@@ -165,7 +165,6 @@ export function getAndSubscribe(idSource: string, jreq: object, callback: SubCal
 }
 
 export function removeFact(idSource: string, jreq: object) {
-    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     const removedFactsId: number[] = [];
     const res = queryFact(jreq);
     for (const k of res.details) {
@@ -176,7 +175,6 @@ export function removeFact(idSource: string, jreq: object) {
 }
 
 export function removeFactByID(idSource: string, idFact: number) {
-    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     databaseFact.delete(idFact);
     return new Response(true, idFact);
 }
@@ -186,7 +184,6 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
     if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
         return new Response(false, 'Rules must have a \'head\' and a \'body\'');
     }
-    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     const metadata = new Metadata(idSource, ruleTag, Date.now(), 0, 0);
     const dataobject = {
         _data: jsonRule,
@@ -198,23 +195,26 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
 }
 
 export function removeRule(idSource: string, idRule: number) {
-    if (!registered.includes(idSource)) { return new Response(false, 'Client ' + idSource + ' not registered.'); }
     if (!databaseRule.delete(idRule)) {
         return new Response(false, 'Rule ' + idRule + ' not found.');
     }
     return new Response(true, idRule);
 }
 
-function checkSubscriptions(obj: object) {
+function checkSubscriptions(obj: object) { // object is the created fact
     // this function will check if the new data inserted matches some "notification rule"
     const q = {
         _data: {},
         _id: '$_id',
         _meta: '$_metadata',
     };
+    console.log('checksub', obj);
+    console.log(subscriptions);
     subscriptions.forEach((callbArray, k, m) => {
         q._data = k;
+        console.log(q);
         const r = matcher.findMatchesBind(q, [obj]);
+        console.log(r);
         if (r.length > 0) { callbArray.forEach((c) => c(r)); }
     });
 }

@@ -44,7 +44,7 @@ function matchBind(query: any, data: any, initBinds: any): any {
 
     while (i < queryKeys.length && match) {
         const queryKey = queryKeys[i];
-        console.log('analyzing key: ' + queryKey);
+        // console.log('analyzing key: ' + queryKey);
 
         if (isAtom(queryKey)) {
             // the object d is good if contains all the keys in q

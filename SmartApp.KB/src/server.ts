@@ -25,8 +25,14 @@ wss.on('connection', (ws: WebSocket) => {
             }
 
             switch (j.method) {
-                case 'register':
-                    reply = JSON.stringify(kb.register(j.params.tags));
+                case 'registerTags':
+                    reply = JSON.stringify(kb.registerTags(j.params.tagsList));
+                    break;
+/*                 case 'registerTagDoc':
+                    reply = JSON.stringify(kb.registerTagDocumentation(j.params.tagsMap));
+                    break; */
+                case 'getTagDetails':
+                    reply = JSON.stringify(kb.getTagDetails(j.params.tagsList));
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length
@@ -60,6 +66,7 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'subscribe':
                     const callback = (re: any) => {
                         try {
+                            console.log('callback', re);
                             ws.send(JSON.stringify(re));
                         } catch (e) { console.log(e); }
                     };
