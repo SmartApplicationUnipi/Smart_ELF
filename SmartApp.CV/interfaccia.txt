@@ -10,13 +10,13 @@ class abstract():
         """
         return
 
-    def worker(self, frame, toIdentify = True):
+    def analyze_face(self, frame, toIdentify = True):
         """
             Function that can be called for controller to execute detection of
             sentiment and identification of person.
 
             Params:
-                frame: matrix-like of image.
+                frame (numpy.ndarray): matrix-like of image.
                 toIdentify (bool): var that say if the worker must compute the
                     identification of person in the image or is useless beacose
                     the controller already know the identity. Value:
@@ -25,10 +25,11 @@ class abstract():
 
             Return:
                 result (dict): json fact in KB-format
+                descriptor (obj): internal descriptor of module
         """
         pass
 
-    def isAvailable(self):
+    def is_available(self):
         """
             Check module availability.
 
@@ -43,7 +44,7 @@ class abstract():
         """
         pass
 
-    def setParamsToDetect(self, *args, **kwargs):
+    def set_detect_attibutes(self, *args, **kwargs):
         """
             Set the parameters that must be detected in a worker for future
             frame.
@@ -55,5 +56,36 @@ class abstract():
             Return:
                 result (dict): json of parameters that are accepted form module
                  and so attribute that will be detected
+        """
+        pass
+
+
+    def get_descriptor(frame):
+        """
+            Compute the descriptor for the frame.
+
+            Params:
+                frame (numpy.ndarray): matrix-like of image.
+
+            Return:
+                descriptor (obj): internal descriptor of module
+        """
+        pass
+
+    def get_match(db, descriptor, descriptor_postion, id_postion):
+        """
+            Search the mach of descriptor in the tuple at right position
+            (descriptor_postion) and return the id associated in id_postion.
+
+            Params:
+                db (list(tuple)): list of tuple containing descriptor and id
+                    that will be checked, in the right position
+                descriptor (object): descriptor that will be mach
+                descriptor_postion (int): index of the descriptor in a tuple
+                id_postion (int): index of the id in a tuple
+
+            Return:
+                result (object): result of maching value of id position
+
         """
         pass
