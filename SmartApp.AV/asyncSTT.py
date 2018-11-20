@@ -1,31 +1,46 @@
 import speech_recognition as sr
-import multiprocessing
 import sys
 sys.path.insert(0, '../SmartApp.KB/')
 import kb
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import janus
+from google.cloud.speech_v1p1beta1 import enums
+from google.cloud.speech_v1p1beta1 import types
+from google.cloud import speech_v1p1beta1 as speech
 sys.path.insert(0, "../SmartApp.HAL")
 from Bindings import HALInterface
 
+#TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
 
-def recognize(model, audio, res_queue, timestamp, r, language="en-US"):
+
+def recognize(model, audio, timestamp, recognizer, language="en-US"):
         """
         This function implements the trancription from speech to text
         :param model: name of the API to use (google / sphinx)
         :param audio: wav audio to transcribe
-        :param res_queue: queue in which the results are stored
-        :param timestamp: timestamp of the auido
-        :param r: recognizer
+        :param timestamp: timestamp of the audio
+        :param recognizer: recognizer (google cloud speech recognition client/ speech_recognition Recognizer)
         :param language: wav audio's language
         """
         res = {"model": model, "lang": language, "text": None, "error": None, "timestamp": timestamp}
         try:
             if model == "sphinx":
-                res["text"] = r.recognize_sphinx(audio)
+                res["text"] = recognizer.recognize_sphinx(audio)
             else:
+                if "google.cloud.speech_v1p1beta1.SpeechClient" in type(recognizer):
+                    config = types.RecognitionConfig(
+                        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+                       #sample_rate_hertz=16000,
+                        language_code='en-US',
+                        #enable_automatic_punctuation=True,
+                        alternative_language_codes=['it'])
+                    response = recognizer.recognize(config, audio)
+                    res["text"] = response["results"]["alternatives"]["transcript"]
+                    res["lang"] = response["results"]["language_code"]
+                else:
+                    res["text"] = recognizer.recognize_google(audio, language=language)
 
-                res["text"] = r.recognize_google(audio, language=language)
             print(res["text"])
         except sr.UnknownValueError:
             print(model + " could not understand audio")
@@ -36,7 +51,7 @@ def recognize(model, audio, res_queue, timestamp, r, language="en-US"):
             res["error"] = "RequestError"
             #TODO logs
 
-        res_queue.put(res)
+        return res
 
 
 async def speech_to_text(queue):
@@ -47,66 +62,49 @@ async def speech_to_text(queue):
     """
     myID = kb.register()
     # TODO handle error of registration to KB
+
     r = sr.Recognizer()
-    queue_transc = multiprocessing.Queue()
-    while True:
+    google_client = speech.SpeechClient()
+    # TODO handle error of creation of recognizer
+    with ThreadPoolExecutor() as executor:
 
-        # Data stored in the queue contain all the information needed to create AudioData object
-        timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
-        audio = sr.AudioData(data, sampleRate, bitPerSample/8)
+        while True:
 
-        #TODO detect language
-        language = None
-        #TODO add emotion from speech
-        emotion = None
+            # Data stored in the queue contain all the information needed to create AudioData object
+            timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
+            audio = sr.AudioData(data, sampleRate, bitPerSample/8)
 
-        # Transcribe audio with google speech recognition and sphinx
-        sphinx_rec = multiprocessing.Process(target=recognize, args=("sphinx", audio,  queue_transc, timestamp, r))
-        sphinx_rec.start()
-        google_rec = multiprocessing.Process(target=recognize, args=("google", audio, queue_transc, timestamp, r))
-        google_rec.start()
+            #TODO add emotion from speech
+            emotion = None
 
-        res = queue_transc.get()
-        models_res = {"google": None, "sphinx": None}
+            google_cloud = executor.submit(recognize, "google-cloud", audio, timestamp, google_client)
+            google = executor.submit(recognize, "google", audio, timestamp, r)
+            sphinx = executor.submit(recognize, "sphinx", audio, timestamp, r)
 
-        while not res["timestamp"] == timestamp:
-            # this case ensure that the results is not related to old queries
-            res = queue_transc.get()
+            res = google_cloud.result()
+            if res["error"] is None:
+                # Add to KB Google cloud speech recognition result with timestamp and ID
+                print("Insert into KB --> Google cloud speech recognition result")
 
-        models_res[res["model"]] = res
-        if models_res["google"] is None:
-            res = queue_transc.get()
-            while not res["timestamp"] == timestamp:
-                # this case ensure that the results is not related to old queries
-                res = queue_transc.get()
-            models_res["google"] = res
+            else:
+                res = google.result()
+                if res["error"] is None:
+                    # Add to KB Google result with timestamp and ID
+                    print("Insert into KB --> Google result")
+                else:
+                    res = sphinx.result()
+                    if res["error"] is None:
+                        # Add to KB Sphinx result with timestamp and ID
+                        print("Insert into KB --> Sphinx result")
 
-        if models_res["google"]["error"] is None:
-            # Add to KB Google result with timestamp and ID
-            print("Insert into KB only Google result")
-            print(kb.addFact(myID, "text_f_audio", 2, 50, 'false', {"TAG": "text_f_audio",
-                                                                    "ID": timestamp,
-                                                                    "timestamp": timestamp,
-                                                                    "text": models_res["google"]["text"],
-                                                                    "language": language,
-                                                                    "emotion": emotion})) #TODO adjust "text_f_audio", 2, 50, 'false'
-        else:
-            if models_res["sphinx"] is None:
-                res = queue_transc.get()
-                while not res["timestamp"] == timestamp:
-                    # this case ensure that the results is not related to old queries
-                    res = queue_transc.get()
-                models_res["sphinx"] = res
-
-            if models_res["sphinx"]["error"] is None:
-                # Add to KB Sphinx result with timestamp and ID
-                print("Insert into KB only Sphinx result")
+            if res["error"] is None:
                 print(kb.addFact(myID, "text_f_audio", 2, 50, 'false', {"TAG": "text_f_audio",
                                                                         "ID": timestamp,
                                                                         "timestamp": timestamp,
-                                                                        "text": models_res["sphinx"]["text"],
-                                                                        "language": language,
-                                                                        "emotion": emotion}))#TODO adjust "text_f_audio", 2, 50, 'false'
+                                                                        "text": res["text"],
+                                                                        "language": res["lang"],
+                                                                        "emotion": emotion}))  # TODO adjust "text_f_audio", 2, 50, 'false'
+
             else:
                 # Add to KB that none of google and sphinx retrieved a result
                 print("Insert into KB that no Google or Sphinx result")
@@ -114,10 +112,10 @@ async def speech_to_text(queue):
                                                                         "ID": timestamp,
                                                                         "timestamp": timestamp,
                                                                         "text": "",
-                                                                        "language": language,
-                                                                        "emotion": emotion})) #TODO adjust "text_f_audio", 2, 50, 'false' #TODO probably better way to define the error for other module
+                                                                        "language": "en-US",
+                                                                        "emotion": emotion}))  # TODO adjust "text_f_audio", 2, 50, 'false' #TODO probably better way to define the error for other module
 
-        #TODO handle other error
+            #TODO handle other error
 
 
 async def myHandler(queue):
