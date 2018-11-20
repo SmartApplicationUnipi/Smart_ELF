@@ -43,7 +43,7 @@ class Metadata {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class TagInfo {
+export class TagInfo {
     desc : string;
     doc : string;
 
@@ -57,7 +57,6 @@ class TagInfo {
 export function registerTags(tagsList: any): Response { // tagsList is a map tag_i : tag_desc_i
     const tags = Object.keys(tagsList);
     const errors: string[] = [];
-    console.log('registering ', tagsList);
 
     // check uniqueness of tags
     for (const tag of tags) {
@@ -107,9 +106,8 @@ export function getTagDetails(tags: string[]) {
 
 // tslint:disable-next-line:max-line-length
 export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    console.log('idsource', idSource);
     // aggiungi controllo documentazione presente tag
-    if (!(tagDetails.has(tag))) { return new Response(false, 'Tag ' + tag + ' not registered'); }
+    if (!(tagDetails.has(tag))) { return new Response(false, tag); }
 
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
@@ -126,7 +124,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    if (!(tagDetails.has(tag))) { return new Response(false, 'Tag ' + tag + ' not registered'); }
+    if (!(tagDetails.has(tag))) { return new Response(false, tag); }
     if (!databaseFact.has(id)) { return new Response(false, id); }
     const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
     const dataobject = {
@@ -203,18 +201,9 @@ export function removeRule(idSource: string, idRule: number) {
 
 function checkSubscriptions(obj: object) { // object is the created fact
     // this function will check if the new data inserted matches some "notification rule"
-    const q = {
-        _data: {},
-        _id: '$_id',
-        _meta: '$_metadata',
-    };
-    console.log('checksub', obj);
-    console.log(subscriptions);
+
     subscriptions.forEach((callbArray, k, m) => {
-        q._data = k;
-        console.log(q);
-        const r = matcher.findMatchesBind(q, [obj]);
-        console.log(r);
+        const r = matcher.findMatchesBind(k, [obj]);
         if (r.length > 0) { callbArray.forEach((c) => c(r)); }
     });
 }

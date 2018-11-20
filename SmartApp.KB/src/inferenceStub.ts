@@ -29,9 +29,9 @@ export function checkRules(fact: object) {
 
 function checkRule(head: object, body: object[], fact: object) {
     // se il fatto è uno dei predicati nel body della regola
-    console.log('Sono dentro.');
-    console.log(fact);
-    console.log();
+    // console.log('Sono dentro.');
+    // console.log(fact);
+    // console.log();
     // let binds;
     // tslint:disable-next-line:max-line-length
     // const matchedBodyPred = body.findIndex( (b) => { binds = findMatchesBind(b, [fact]);  return binds.length > 0; });

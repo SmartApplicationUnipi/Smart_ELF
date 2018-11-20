@@ -66,7 +66,6 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'subscribe':
                     const callback = (re: any) => {
                         try {
-                            console.log('callback', re);
                             ws.send(JSON.stringify(re));
                         } catch (e) { console.log(e); }
                     };

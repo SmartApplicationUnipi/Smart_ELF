@@ -4,24 +4,24 @@ import * as testUtil from '../testUtil';
 import { expect } from 'chai';
 import 'mocha';
 
-describe('register', () => {
-    it('should return new idSource', () => {
-        const tags = {tag1: 't1', tag2: 't2', tag3: 't3'};
-        const response = kb.register(tags);
-        const expected = new kb.Response(true, 'proto2');
+describe('registerTags', () => {
+    it('should return succes', () => {
+        const tags =  {tag1: new kb.TagInfo('desc1', 'doc1'), tag2: new kb.TagInfo('desc2', 'doc2'), tag3: new kb.TagInfo('desc3', 'doc3')};
+        const response = kb.registerTags(tags);
+        const expected = new kb.Response(true, {});
         expect(response).to.deep.equal(expected);
     });
 
     it('should return the already registered tags', () => {
-        const tags = {tag1: 't1', tag4 : 't4', tag6: 't6', tag3: 't3'};
-        const response = kb.register(tags);
+        const tags =  {tag1: new kb.TagInfo('desc1', 'doc1'), tag4: new kb.TagInfo('desc4', 'doc4'), tag6: new kb.TagInfo('desc6', 'doc6'), tag3: new kb.TagInfo('desc3', 'doc3')};
+        const response = kb.registerTags(tags);
         const expected = new kb.Response(false, ['tag1', 'tag3']);
         expect(response).to.deep.equal(expected);
     });
 });
 
+/*
 describe('registerTagDoc', () => {
-
     it('should register the documentation successfully', () => {
         const doc = {tag1 : 'complete_documentation_tag1'};
         const response = kb.registerTagDocumentation(doc);
@@ -42,19 +42,21 @@ describe('registerTagDoc', () => {
         const expected = new kb.Response(false, []);
         expect(response).to.deep.equal(expected);
     });
-});
 
-describe ('getTagDoc', () => {
+});
+*/
+
+describe ('getTagDetails', () => {
     it('should retrieve the documentation of the existing tags', () => {
-        const tags_doc = ['tag1', 'tag999'];
-        const response = kb.getTagDoc(tags_doc);
-        const expected = new kb.Response(true, {tag1 : 'complete_documentation_tag1'});
+        const tagsDoc = ['tag1', 'tag999'];
+        const response = kb.getTagDetails(tagsDoc);
+        const expected = new kb.Response(true, {tag1 : new kb.TagInfo('desc1', 'doc1')});
         expect(response).to.deep.equal(expected);
     });
 
     it('should fail if none of the tags is existing', () => {
-        const tags_doc = ['tag998', 'tag999'];
-        const response = kb.getTagDoc(tags_doc);
+        const tagsDoc = ['tag998', 'tag999'];
+        const response = kb.getTagDetails(tagsDoc);
         const expected = { success : false, details : {}};
         expect(response).to.deep.equal(expected);
     });
@@ -72,12 +74,13 @@ describe ('addFact', () => {
         const expected = new kb.Response(false, 'rdf');
         expect(response).to.deep.equal(expected);
     });
-
+/*
     it('should fail trying to add a fact with an unregistered idSource', () => {
         const response = kb.addFact('sourceACaso', 'tag1', 3, 100, { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' });
         const expected = new kb.Response(false, 'Client sourceACaso not registered');
         expect(response).to.deep.equal(expected);
     });
+*/
 });
 
 describe ('removeFact', () => {

@@ -21,7 +21,7 @@ print(k.addFact(myID, "TEST", 1, 50, {"prova": 1}))
 print(k.addFact(myID, "TEST", 1, 50, {"prova": 2}))
 print(k.addFact(myID, "TEST", 1, 50, {"prova": 3}))
 
-print(k.removeFact(myID, {"prova": 2}))
+print(k.removeFact(myID, {"_data": {"prova": 2}}))
 print(k.queryBind({"_data":{"prova": "$x"}}))
 
 print(k.addFact(myID, "TEST", 1, 50, {"prova": "callb"}))
