@@ -42,7 +42,7 @@ namespace SmartApp.HAL.Implementation
 
                 // Prepare the packet to send over the net
                 var packet = new VideoDataPacket() {
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                    Timestamp = new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds()
                 };
                 foreach (var face in frame.Faces)
                 {

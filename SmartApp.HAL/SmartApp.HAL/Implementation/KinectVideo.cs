@@ -50,7 +50,10 @@ namespace SmartApp.HAL.Implementation
                 _faceFrameSources[i] = new FaceFrameSource(_kinect, 0, faceFrameFeatures);
                 _faceFrameReaders[i] = _faceFrameSources[i].OpenReader();
             }
-            _kinect.Open();
+            if (!_kinect.IsOpen)
+            {
+                _kinect.Open();
+            }
 
             //DEBUG
             IsAvailable = true;
@@ -208,7 +211,10 @@ namespace SmartApp.HAL.Implementation
         {
             if (_kinect != null)
             {
-                _kinect.Close();
+                if (_kinect.IsOpen)
+                {
+                    _kinect.Close();
+                }
                 _kinect = null;
             }
 
