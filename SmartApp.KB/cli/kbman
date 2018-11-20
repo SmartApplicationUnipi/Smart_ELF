@@ -3,127 +3,99 @@
 bold=$(tput bold)
 normal=$(tput sgr0)
 
-REGISTER="${bold}NAME${normal}
-	register - register string tags in the knowledge base
+REGISTER_TAGS="
+${bold}NAME${normal}
+	registerTags - register tags and corresponding documentation in the knowledge base
 
 ${bold}SYNOPSIS${normal}
-	${bold}register${normal}(${bold}JSON${normal} jreq)
+	${bold}registerTags${normal}(${bold}JSON${normal} jreq)
 
 	The jreq parameter must have the following form:
-	jreq = {'tag1' : 't1', 'tag2' : 't2', ...}
+	jreq = {'tag1' : {desc : 'desc1', doc : 'doc1'}, 'tag2' : {desc : 'desc2', doc : 'doc2'}, ...}
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}register${normal}() function registers the provided tags in the knowledge base. 
-	Tags has to be given as a ${bold}JSON${normal} object whose keys are the tags to be registered, and whose values are short strings describing the tag.
-	In case some of the given tags are already present, the operation will fail. Optionally, a complete tag documentation can be provided through the method ${bold}registerTagDoc${normal}().
+	The ${bold}registerTags${normal}() function registers the provided tags in the knowledge base.
+	Tags has to be given as a ${bold}JSON${normal} object whose keys are the tags to be registered, and whose values are json objects containing a short tag description and a complete tag documentation.
+	In case some of the given tags are already present, the operation will fail.
 
 ${bold}RETURN VALUE${normal}
-	The ${bold}register${normal}() function returns a JSON object containing the following fields:
-		- ${bold}success${normal} : ${bold}boolean${normal} value. 
-			The associated value evaluates to ${bold}true${normal} if none of the provided tags had already been registered.
-			If even one of the tags were already present, success will evaluate to ${bold}false${normal}.
-		- ${bold}details${normal} : ${bold}string${normal} OR ${bold}string array${normal}.
-			If success is true, details will be associated to a string representing the registration idSource to be used by the client to perform the other operations.
-			Otherwise, details' value will be an array of string tags that were rejected by the knowledge base because already registered.
+	The ${bold}registerTags${normal}() function returns a JSON object containing the following fields:
+		- ${bold}success${normal} : boolean value. 
+			Success evaluates to true if none of the provided tags had already been registered. If even one of the tags was already present, success will evaluate to false.
+		- ${bold}details${normal} : json object OR string array.
+			If success is true, details will be an empty json object. Otherwise, details will be an array of string tags that were rejected by the knowledge base because already registered.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		register({'emotion': 'emo', 'face_position': 'face_p'})
+		registerTags({'emo': {'desc': 'emotion', 'doc': 'emotion_doc'}, 'crawl': {'desc': 'crawler', 'doc': 'crawler_doc'}})
 
 	Example of return value:
-		{ 'success' : true, 'details': 'id343'}
-"
-REGISTER_TAG_DOC="${bold}NAME${normal}
-	registerTagDoc - submit a complete tag documentation.
-
-${bold}SYNOPSIS${normal}
-	${bold}registerTagDoc${normal}(JSON jreq)
-
-	The jreq parameter has to be the following form:
-	jreq = {'tag1' : 'tag1_complete_doc', 'tag2' : 'tag2_complete_doc', ...}
-
-${bold}DESCRIPTION${normal}
-	The ${bold}registerTagDoc${normal}() function register a provided documentation to tags previously registered through a call to ${bold}register${normal}().
-	Tags has to be given as a ${bold}JSON${normal} object whose strings are the tags, and whose values contain the documentation, that can be later assessed through a call to the ${bold}getTagDoc${normal}() function.
-	In case some of the given tags are not registered, they will be ignored. The operation will fail only when none of the input tags had yet been registered.
-
-${bold}RETURN VALUE${normal}
-	The ${bold}registerTagDoc${normal}() function returns a JSON object containing the following fields:
-		- ${bold}success${normal}: boolean value.
-			This field's value will be true if even just one of the provided tags was already registered. Otherwise its value will be false.
-		- ${bold}details${normal}: string array.
-			In case success is true, ${bold}details${normal} will be an array containing the tags whose documentation has been changed.
-			Otherwise it will be an empty array.
-
-${bold}EXAMPLE${normal}
-	Example of usage:
-		registerTagDoc({'emotion': 'The emo tag is used for ... It contains the following fields...'})
-
-	Example of return value:
-		{'success' : true, details: ['emotion']}
+		{'success' : true, 'details': {}}
 "
 
-GET_TAG_DOC="${bold}NAME${normal}
-	getTagDoc - get the documentation for the given tags.
+GET_TAG_DETAILS="
+${bold}NAME${normal}
+	getTagDetails - get the details for the given tags
 
 ${bold}SYNOPSIS${normal}
-	${bold}getTagDoc${normal}(JSON jreq)
+	${bold}getTagDetails${normal}(${bold}JSON${normal} jreq)
 
 	The jreq parameter has to be in the following form:
 	jreq = {['tag1', 'tag2', 'tag3', ...]}
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}getTagDoc${normal}() function retrieves the documentation previously provided through a call to ${bold}registerTagDoc${normal}().
+	The ${bold}getTagDetails${normal}() function retrieves the tag details previously provided through a call to ${bold}registerTags${normal}().
 	Tags has to be provided as a string array containing the tags whose documentation has to be retrieved.
-	In case some of them are not registered, they will be ignored. The operation will fail only when none of the input tags had yet been registered.
+	In case some of them are not registered, they will be ignored. The operation will fail only when none of the input tags has been registered.
 
 ${bold}RETURN VALUE${normal}
-	The ${bold}getTagDoc${normal}() function returns a JSON object containing the following fields:
+	The ${bold}getTagDetails${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			This field's value will be true if even just one of the provided tags was already registered. Otherwise its value will be false.
+			Success will be true if any of the provided tags exists. Otherwise its value will be false.
 		- ${bold}details${normal}: ${bold}JSON${normal} object.
-			In case success is true, details' will be a JSON object containing couples {tag: doc}.
+			In case success is true, details will be a JSON object containing couples {tag: details}, where details is a json {desc: 'desc', doc: 'doc'}.
 			Otherwise, details will be an empty objects.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		getTagDoc(['emotion', 'NLP'])
+		getTagDetails(['emo', 'crawl'])
 
 	Example of return value:
-		{'success' : true, 'details': {'emotion' : 'emotion_complete_documentation', 'NLP' : 'NLP_complete_documentation'}
+		{'success' : true, 'details': {'emo': {'desc': 'emotion', doc : 'emotion_doc'}, 'crawl': {'crawler': 'crawler_doc'}}}
 "
 
-ADD_FACT="${bold}NAME${normal}
-	addFact - add a fact to the KB.
+ADD_FACT="
+${bold}NAME${normal}
+	addFact - add a fact to the KB
 
 ${bold}SYNOPSIS${normal}
 	${bold}addFact${normal}(${bold}string${normal} idSource, ${bold}string${normal} tag, ${bold}int${normal} TTL, ${bold}int${normal} reliability, ${bold}JSON${normal} jsonFact)
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}addFact${normal}() function adds a new fact to the Knowledge Base, provided that the client has already registered its ${bold}tag${normal} through a call to ${bold}register${normal}() and has got back an ${bold}idSource${normal} identifying him.
-	If so, the client has to provide, for the submitted jsonFact, also the ${bold}TTL${normal} in hours and its ${bold}reliability${normal} expressed as an integer from 1 to 100, which is how much the information has to be trusted.
-	The jsonFact can have any fields, but it's good practice to use always the same structure for objects having the same tag, and to register this structure through a call to ${bold}registerTagDoc${normal}().
+	The ${bold}addFact${normal}() function adds a new fact to the Knowledge Base, provided that the client has already registered its ${bold}tag${normal} through a call to ${bold}registerTags${normal}().
+	If so, the client has to provide, for the submitted jsonFact, also the desidered ${bold}TTL${normal} in hours and its ${bold}reliability${normal} expressed as an integer from 1 to 100, which is how much the information has to be trusted.
+	${bold}idSource${normal} is a string that each module should choose once and for all, and use it to call the kb methods.
+	The jsonFact can have any fields, but it's good practice to use always the same structure for objects having the same tag, and to specify this structure in the corresponding documentation.
 
 ${bold}RETURN VALUE${normal}
 	The ${bold}addFact${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			This field's value will contain true if both the provided tag and idSource had already been registered. If not so, ${bold}success${normal} will evaluate to false.
+			Success will contain true if the provided tag had already been registered. If not so, it will evaluate to false.
 		- ${bold}details${normal}: integer OR string.
 			If success is true, then details will contain an integer idFact identifying the new added fact. 
-			Otherwise it will contain a string value. 
-				- If the problem was that idSource had not been registered yet, a string 'Client ${bold}idSource${normal} not registered' will be returned.
-				- If instead the tag was found not to be registered, a string containing the missing tag will be returned.
+			Otherwise it will contain a string containing the non-existent tag.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		addFact(myid, 'rdf', 7, 100, { relation: 'follows', subject: 'Ferrante Francesco', object: 'SmartApplication' }
+		addFact('myid', 'rdf', 7, 100, {relation: 'follows', subject: 'Ferrante Francesco', object: 'SmartApplication'})
 
 	Example of return value:
-		{'success' : true, 'details' : 745}
+		{'success' : true, 'details' : 3}
 "
 
-REMOVE_FACT="${bold}NAME${normal}
-	removeFact - remove a fact from the KB.
+REMOVE_FACT="
+${bold}NAME${normal}
+	removeFact - remove a fact from the KB
 
 ${bold}SYNOPSIS${normal}
 	${bold}removeFact${normal}(${bold}string${normal} idSource, ${bold}JSON${normal} jreq)
@@ -132,50 +104,58 @@ ${bold}DESCRIPTION${normal}
 	The ${bold}removeFact${normal}() method will find and remove facts matching the jreq object. 
 	The latter, to match the data present on the kb, must have at least one of the following fields:
 		- '_id' : used to identify a fact given an idFact returned by a call to ${bold}addFact${normal}(). For an exact removal of a fact, use only this field.
-		- '_metadata' : metadata of the fact. It can contain the properties 'idSource', 'tag', 'TTL', 'timestamp' and 'reliability'. Any of them can be left out if not needed for the match. For example, the following call will remove all the facts with tag 'tag1':
-				removeFact('proto2', { _meta : {tag: 'tag1'}})
+		- '_metadata' : metadata of the fact. It can contain the properties 'idSource', 'tag', 'TTL', 'timestamp' and 'reliability'. The format of the timestamp is 'dd/mm/yyyy'. Any of them can be left out if not needed for the match. For example, the following call will remove all the facts with tag 'tag1':
+				removeFact('myid', { '_meta' : {'tag': 'tag1'}})
 		- '_data' : actual data submitted through a call to ${bold}addFact${normal}()
 
 ${bold}RETURN VALUE${normal}
 	The ${bold}removeFact${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			This field's value will contain true unless the idSource had not yet been registered through a previous call to ${bold}register${normal}().
+			Success will always evaluate to true.
 		- ${bold}details${normal}: integer array.
-			This field's value will contain an array of the removed facts ids.
+			Details will contain an array of the removed fact ids. If no facts are matched the array will be empty.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		removeFact('proto2', {_id: '$id', _meta : {idSource: 'proto2', tag: 'tag1', TTL: 3, reliability: 100, timestamp: '$time'}, _data: {relation: 'teaches', subject: 'Gervasi', object: '$course'}})
+		removeFact('myid', 
+			{'_id': '$id', 
+			'_meta': {'idSource': 'proto2', 'tag': 'tag1', 'TTL': 3, 'reliability': 100, 'timestamp': '$time'}, 
+			'_data': {'relation': 'teaches', 'subject': 'Gervasi', 'object': '$course'}
+			})
+		removeFact('myid', '_meta' : {'timestamp' : '26/11/1942'}})
 
 	Example of return value:
 		{'success' : true, 'details' : [43, 12, 542]}
 "
 
-UPDATE_FACT="${bold}NAME${normal}
-	updateFact - update an already added fact.
+UPDATE_FACT_BY_ID="
+${bold}NAME${normal}
+	updateFactByID - update an already added fact by id
+
 ${bold}SYNOPSIS${normal}
 	${bold}updateFact${normal}(${bold}string${normal} idSource, ${bold}int${normal} id, ${bold}string${normal} tag, ${bold}int${normal} TTL, ${bold}int${normal} reliability, ${bold}JSON${normal} jsonFact)
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}updateFact${normal}() function updates a fact given an id previously returned by a call to addFact. Both data and metadata will be updated with the freshly provided ones.
+	The ${bold}updateFact${normal}() function updates a fact given an id previously returned by a call to ${bold}addFact${normal}. Both data and metadata will be updated with the freshly provided ones.
 
 ${bold}RETURN VALUE${normal}
 	The ${bold}updateFact${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			This field's value will evaluate to true if idSource had already been registered and if KB contains a fact identified by id.
-		- ${bold}details${normal}: integer.
-			This field's value will retrieve back the provided id, both in case of success and failure.
+			This field's value will evaluate to true if the KB contains a fact identified by id.
+		- ${bold}details${normal}: integer OR string.
+			If success is true, details will contain the id of the updated fact. Otherwise, if the submitted id was not present on the KB it will be returned back. Finally, if the provided tag is not registered, details will contain the non-existent string tag.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		updateFact(myid, 412, 'rdf', 7, 100, { relation: 'follows', subject: 'Ferrante Francesco', object: 'SmartApplication' }
+		updateFact(myid, 412, 'rdf', 7, 100, { 'relation': 'follows', 'subject': 'Ferrante Francesco', 'object': 'SmartApplication' }
 
 	Example of return value:
 		{'success' : true, 'details' : 412}
-"
+"   
 
-ADD_RULE="${bold}NAME${normal}
-	addRule - add a rule to the KB.
+ADD_RULE="
+${bold}NAME${normal}
+	addRule - add a rule to the KB
 ${bold}SYNOPSIS${normal}
 	${bold}addRule${normal}(${bold}string${normal} idSource, ${bold}string${normal} ruleTag, ${bold}JSON${normal} jsonRule)
 
@@ -190,53 +170,51 @@ ${bold}DESCRIPTION${normal}
 ${bold}RETURN VALUE${normal}
 	The ${bold}addRule${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			success will evaluate to true if the provided idSource was registered and the rule had a correct structure, meaning it has both a body and a head field.
-			Otherwise, it will return false.
+			Success will evaluate to true if the provided rule has a correct structure, meaning it has both a head and a body field. Otherwise, it will return false.
 		- ${bold}details${normal}: integer OR string value.
-			If the operation was performed successfully, details will contain the integer id identifying the submitted rule.
-			Otherwise it will return an error string.
+			If the operation was performed successfully, details will contain the integer id identifying the submitted rule. Otherwise it will return an error string.
 
 ${bold}EXAMPLE${normal}
 	Example of usage: 
 		myrule = {
-		body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
-			  { subject: '$course', relation: 'is in room', object: '$room' }],
-			head: { subject: '$prof', relation: 'is in', object: '$room' },
+			'body': [{'subject': '$prof', 'relation': 'teaches', 'object': '$course'}, {'subject': '$course', 'relation': 'is in room', 'object': '$room'}],
+			'head': {'subject': '$prof', 'relation': 'is in', 'object': '$room'},
 		};
 
 		addRule(myIdSource, myrule)
 
 	Example of return value:
-		{'success' : true, 'details': 423}
+		{'success' : true, 'details': 32}
 "
 
-REMOVE_RULE="${bold}NAME${normal}
-	removeRule - remove a rule by its id.
+REMOVE_RULE="
+${bold}NAME${normal}
+	removeRule - remove a rule by its id
 
 ${bold}SYNOPSIS${normal}
 	${bold}removeRule${normal}(${bold}string${normal} idSource, ${bold}int${normal} idRule)
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}removeRule${normal}() function removes a rule previously added through a call to ${bold}addRule${normal}(). 
-	If the idRule does not match any of the registered rules, the operation will fail.
+	The ${bold}removeRule${normal}() function removes a rule previously added through a call to ${bold}addRule${normal}().
 
 ${bold}RETURN VALUE${normal}
 	The ${bold}removeRule${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			success will evaluate to true if the provided idSource was correct and the idRule is present.
-		-  ${bold}details${normal}: integer OR string.
-			If the operation has ended successfully, details will contain the idRule of the deleted rule. Otherwise it will contain an error string.
+			Success will evaluate to false only in case of invalid idRule.
+		-  ${bold}details${normal}: integer.
+			Both in case of success and failure of the operation, details will contain the provided ruleId.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		removeRule(myIdSource, 7)
+		removeRule(myid, 7)
 
 	Example of return value:
 		{'success' : true, 'details': 7}
 "
 
-QUERY_BIND="${bold}NAME${normal}
-	queryBind - query the KB and retrieve the bindings found.
+QUERY_BIND="
+${bold}NAME${normal}
+	queryBind - query the KB and retrieve the bindings found
 
 ${bold}SYNOPSIS${normal}
 	${bold}queryBind${normal}(${bold}JSON${normal} jreq)
@@ -247,22 +225,23 @@ ${bold}DESCRIPTION${normal}
 ${bold}RETURN VALUE${normal}
 	The ${bold}queryBind${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			success will always evaluate to true.
+			Success will always evaluate to true.
 		- ${bold}details${normal} : array of JSON objects.
-			details will contain an array of the matching found for the provided jreq. 
-			Note that ${bold}queryBind${normal} only returns the bindings, i.e. the values matching the strings starting with '\$' in the jreq, not the entire object containing the match.
+			Details will contain an array of the matching found for the provided jreq. 
+			Note that ${bold}queryBind${normal} only returns the bindings, i.e. the values matching the strings starting with '\$' in the jreq; if you need to retrieve the entire object matching the query, please refer to ${bold}queryFact${normal}.
 			The complete object can be retrieved through the ${bold}queryFact${normal} function.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		queryBind({ subject: '$X', object: 'SmartApplication', relation: '$Y' })
+		queryBind({'subject': '$X', 'object': 'SmartApplication', 'relation': '$Y'})
 
 	Example of return value:
 		[{ '$X': 'Gervasi', '$Y': 'teaches' }, { '$X': 'Ferrante Francesco', '$Y': 'follows' }]
 "
 
-QUERY_FACT="${bold}NAME${normal}
-	queryFact - query the KB and retrieve the full facts found.
+QUERY_FACT="
+${bold}NAME${normal}
+	queryFact - query the KB and retrieve the full facts found
 
 ${bold}SYNOPSIS${normal}
 	${bold}queryFact${normal}(${bold}JSON${normal} jreq)
@@ -273,74 +252,96 @@ ${bold}DESCRIPTION${normal}
 ${bold}RETURN VALUE${normal}
 	The ${bold}queryFact${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			success will always evaluate to true.
+			Success will always evaluate to true.
 		- ${bold}details${normal} : array of JSON objects.
-			details will contain an array of the matching found for the provided jreq. 
-			Note that ${bold}queryFact${normal} returns the complete fact containing a match.
+			Details will contain an array of the matching found for the provided jreq. Note that ${bold}queryFact${normal} returns the complete fact containing a match.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		queryFact({ subject: '\$X', object: 'SmartApplication', relation: '\$Y' })
+		queryFact({'subject': '\$X', 'object': 'SmartApp', 'relation': '\$Y' })
 
 	Example of return value:
-		[ {_meta: {'idSource' : 'x', 'tag': 'mytag', 'timestamp': '10-10-2018', 'reliability' : 100}, _data:{ '\$X': 'Gervasi', '\$Y': 'teaches' } } ] #CONTROLLARE \
+	[
+		{
+			'_id': 19, 
+			'_meta': {'idSource' : 'myid', 'tag': 'mytag', 'TTL': 24, 'timestamp': '10-10-2018', 'reliability' : 100}, 
+			'_data' : {'subject': 'Gervasi', 'relation': 'teaches', 'object': 'SmartApp'} 
+		}
+	]
 "
 
-SUBSCRIBE="${bold}NAME${normal}
-	subscribe - subscribe a callback to the KB, to be called when a fact in a given format is inserted.
+SUBSCRIBE="
+${bold}NAME${normal}
+	subscribe - subscribe a callback to the KB, to be called when a fact in a given format is inserted in the KB
 
 ${bold}SYNOPSIS${normal}
 	${bold}subscribe${normal}(${bold}string${normal} idSource, ${bold}JSON${normal} jreq, function callback)
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}subscribe${normal}() function lets a client register to a callback whenever a fact matching jreq is added to the KB. 
-	In this case, callback will be invocated and its value will be returned to the client.
+	The ${bold}subscribe${normal}() function lets a client register to a callback whenever a fact matching jreq is added to the KB. The callback should be a valid Typescript function taking in input the fact that triggered it.
 
 ${bold}RETURN VALUE${normal}
-	A string 'Subscribed' will always be returned to the client.
+	A string 'Subscribed' will always be returned to the client. Whenever the callback is triggered, the submitted function is computed and the result value is sent back to the user.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		kb.subscribe(myid, { emotion: '\$e', emoCoords: '\$ec' }, (r) => console.log(r));
+		kb.subscribe(myid, { 'emotion': '\$e', 'emoCoords': '\$ec' }, (r) => console.log(r));
 
 	Example of return value:
 		###TODO###
 "
 
-README="This is the documentation of the Knowledge Base. 
+README="
+This is the documentation of the Knowledge Base. 
+
 Please bear in mind that all the calls to the webserver have to be made through a request containing a JSON file with the following fields:
 	- ${bold}method${normal} : string. A string containing the name of the method you want the KB to execute. A complete list of methods can be found typing 'kbman help'.
-	- ${bold}params${normal} : parameters required by the method. It must contain, as keys, the exact same parameters specified for the method in the relative page of the kbman.
+	- ${bold}params${normal} : a JSON object whose keys are the name of the parameters required by the method, and whose values are the corresponding values.
+
+Moreover, we want you to be aware that we store facts in the KB with the three following properties:
+
+{
+	_id : integer
+	_meta : {
+		idSource: string;
+		tag: string;
+		TTL: integer;
+		reliability: integer;
+		timestamp: string;
+	}
+	_data : json
+}
+The timestamp is in the format dd/mm/yyyy. Knowing this structure allows you, for example, to manage exact queries on the id or more complicated queries involving metadata.
+
+Lastly, most KB methods contains a string parameter named idSource. We suggest you to find a common idSource for all your group and use only that one. 
 "
-HELP=$"Usage: kbman [${bold}OPTION${normal}]
+
+HELP=$"Usage: bash kbman [${bold}OPTION${normal}]
 
 Available OPTIONs:
-	register
-	registerTagDoc
-	getTagDoc
-	addFact
-	removeFact
-	updateFact
-	addRule
-	removeRule
-	queryBind
-	queryFact
-	subscribe
 
-	README"
+	- README
+	- registerTags
+	- getTagDetails
+	- addFact
+	- removeFact
+	- updateFactByID
+	- addRule
+	- removeRule
+	- queryBind
+	- queryFact
+	- subscribe
+"
 
 case "$1" in
 "README")
 	echo "$README"
 	;;
-"register")
-	echo "$REGISTER"
+"registerTags")
+	echo "$REGISTER_TAGS"
 	;;
-"registerTagDoc")
-	echo "$REGISTER_TAG_DOC"
-	;;
-"getTagDoc")
-	echo "$GET_TAG_DOC"
+"getTagDetails")
+	echo "$GET_TAG_DETAILS"
 	;;
 "addFact")
 	echo "$ADD_FACT"
@@ -349,7 +350,7 @@ case "$1" in
 	echo "$REMOVE_FACT"
 	;;
 "updateFact")
-	echo "$UPDATE_FACT"
+	echo "$UPDATE_FACT_BY_ID"
 	;;
 "addRule")
 	echo "$ADD_RULE"

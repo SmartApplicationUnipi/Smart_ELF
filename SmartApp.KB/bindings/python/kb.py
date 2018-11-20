@@ -46,10 +46,7 @@ class KnowledgeBaseClient():
 	# used as a login 
 	def registerTags(self, tagsList: map):
 		return self.send_request({"method": "registerTags", "params": {"tagsList": tagsList}, "token": self.token})
- 
-#	def registerTagDoc(tagsMap: map):
-#		return self.send_request({"method": "registerTagDoc", "params": {"tagsMap": tagsMap}, "token": self.token});
-
+		
 	def getTagDetails(self, tagsList: list):
 		return self.send_request({"method": "getTagDoc", "params": {"tagsList": tagsList}, "token": self.token})
 

@@ -28,9 +28,6 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'registerTags':
                     reply = JSON.stringify(kb.registerTags(j.params.tagsList));
                     break;
-/*                 case 'registerTagDoc':
-                    reply = JSON.stringify(kb.registerTagDocumentation(j.params.tagsMap));
-                    break; */
                 case 'getTagDetails':
                     reply = JSON.stringify(kb.getTagDetails(j.params.tagsList));
                     break;
@@ -41,6 +38,12 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'addRule':
                     reply = JSON.stringify(kb.addRule(j.params.idSource, j.params.tag, j.params.jsonRule));
                     break;
+                case 'removeFact':
+                    reply = JSON.stringify(kb.removeFact(j.params.idSource, j.params.jsonReq));
+                    break;
+                case 'removeRule':
+                    reply = JSON.stringify(kb.removeRule(j.params.idSource, j.params.idRule));
+                    break;
                 case 'updateFactByID':
                     // tslint:disable-next-line:max-line-length
                     reply = JSON.stringify(kb.updateFactByID(j.params.idFact, j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
@@ -50,18 +53,6 @@ wss.on('connection', (ws: WebSocket) => {
                     break;
                 case 'queryFact':
                     reply = JSON.stringify(kb.queryFact(j.params.jsonReq));
-                    break;
-                case 'removeFact':
-                    reply = JSON.stringify(kb.removeFact(j.params.idSource, j.params.jsonReq));
-                    break;
-                case 'removeFactById':
-                    reply = JSON.stringify(kb.removeFactByID(j.params.idSource, j.params.idFact));
-                    break;
-                case 'removeRule':
-                    reply = JSON.stringify(kb.removeRule(j.params.idSource, j.params.idRule));
-                    break;
-                case 'removeFact':
-                    reply = JSON.stringify(kb.removeFact(j.params.idSource, j.params.jsonReq));
                     break;
                 case 'subscribe':
                     const callback = (re: any) => {

@@ -31,9 +31,9 @@ class Metadata {
     tag: string;
     TTL: number;
     reliability: number;
-    timestamp: number;
+    timestamp: string;
 
-    constructor(idSource: string, tag: string, timestamp: number, TTL: number, reliability: number) {
+    constructor(idSource: string, tag: string, timestamp: string, TTL: number, reliability: number) {
         this.idSource = idSource;
         this.tag = tag;
         this.timestamp = timestamp;
@@ -74,21 +74,6 @@ export function registerTags(tagsList: any): Response { // tagsList is a map tag
     return new Response(true, {});
 }
 
-// export function registerTagDocumentation(tags: any) {
-//     const keys = Object.keys(tags);
-//     const res: string[] = [];
-//     for (const k of keys) {
-//         if (tagDesc.has(k)) {
-//             tagDoc.set(k, tags[k]);
-//             res.push(k);
-//         }
-//     }
-//     if (!res.length) {
-//         return new Response(false, []);
-//     }
-//     return new Response(true, res);
-// }
-
 export function getTagDetails(tags: string[]) {
     const res: any = {};
     let found: boolean = false;
@@ -109,7 +94,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
     // aggiungi controllo documentazione presente tag
     if (!(tagDetails.has(tag))) { return new Response(false, tag); }
 
-    const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
+    const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
     const dataobject = {
         _data: jsonFact,
@@ -126,7 +111,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 export function updateFactByID(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(tagDetails.has(tag))) { return new Response(false, tag); }
     if (!databaseFact.has(id)) { return new Response(false, id); }
-    const metadata = new Metadata(idSource, tag, Date.now(), TTL, reliability);
+    const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
     const dataobject = {
         _data: jsonFact,
         _id: id,
@@ -172,17 +157,12 @@ export function removeFact(idSource: string, jreq: object) {
     return new Response(true, removedFactsId);
 }
 
-export function removeFactByID(idSource: string, idFact: number) {
-    databaseFact.delete(idFact);
-    return new Response(true, idFact);
-}
-
 export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
     // controllo se la regola è valida
     if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
         return new Response(false, 'Rules must have a \'head\' and a \'body\'');
     }
-    const metadata = new Metadata(idSource, ruleTag, Date.now(), 0, 0);
+    const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()).toLocaleDateString('en-GB'), 0, 0);
     const dataobject = {
         _data: jsonRule,
         _id: uniqueRuleId_gen(),
@@ -194,7 +174,7 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
 
 export function removeRule(idSource: string, idRule: number) {
     if (!databaseRule.delete(idRule)) {
-        return new Response(false, 'Rule ' + idRule + ' not found.');
+        return new Response(false, idRule);
     }
     return new Response(true, idRule);
 }
