@@ -1,40 +1,45 @@
 Command Line Interface (cli)
 
-***DEPRECATED***
+addFact
+        <idSource>
+        <tag>
+        <TTL>
+        <reliability>
+        <json>
 
+addRule
+        <idSource>
+        <tag>
+        <json>
 
+updateFact
+        <idFact>
+        <idSource>
+        <tag>
+        <TTL>
+        <reliability>
+        <json>
 
-register
+query
+        <json>
 
-      Registers a new user to the system. It is mandatory to
-      perform any store operation.
+removeFact
+        <idSource>
+        <json>
 
-store <idSource> <infoSum> <json>
+removeRule
+        <idSource>
+        <idRule>
 
-      <idSource>: the id of the user of the KB, retrieved using
-                  register command.
-      <infoSum>:  a string
-      <json>:     a string containing a json.
-                  Use single apex to delimit the whole string and
-                  double apex to delimit name on keys/values.
+registerTags
+        <json>
 
-      Perform a store operation on the KB. It is succesful only
-      if the idSource was registered before.
-
-delete <idSource> <json>
-
-       Perform a delete operation on the KB.
-
-query <json>
-
-      Perform a query opration
-
-
-monitor <action> <args...>
-
-      Repeat every 3 seconds the <action> using the <args...>
+tagDetails
+        <stringArray...>
 
 Usage example:
+
+*** DEPRECATED ***
 
 ```bash
 $ ./cli/register
