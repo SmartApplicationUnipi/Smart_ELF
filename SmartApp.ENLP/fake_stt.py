@@ -14,7 +14,7 @@ def __main__():
     obj_from_stt = {
 	"TAG": TAG_USER_TRANSCRIPT,
 	"text": "We will build a great wall",
-    "language": "it"
+    "language": "en"
 	}
     kb.addFact(myID, TAG_USER_TRANSCRIPT, 1, 100, False, obj_from_stt)
 

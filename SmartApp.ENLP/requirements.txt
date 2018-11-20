@@ -1,1 +1,3 @@
 paralleldots
+LanguageTranslatorV3
+WatsonApiException
