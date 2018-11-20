@@ -1,11 +1,11 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
-if [[ $# -ne 1 ]];
+if [[ $# -ne 2 ]];
 then echo "Wrong usage"
      exit 1
 fi
 
 source $DIR/../venv/bin/activate
-python $DIR/../bindings/python/commands.py "query" "$1"
+python $DIR/../bindings/python/delete.py "removefact" "$1" "$2"
 deactivate
