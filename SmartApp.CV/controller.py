@@ -4,8 +4,7 @@ from online.interface import online_connector as online
 # import offline.interface as offline
 
 from threading import *
-from queue import *
-import time
+from queue import Queue
 import cv2
 
 
@@ -25,18 +24,22 @@ class Controller():
     #FIFO queue
     q = Queue(maxsize= 5)
 
-    def __init__(self, startWorker = False, webcam = False):
-        self._kb = kb(True)
-        self._kb.registerTags({'vis':{}})
+    def __init__(self, host = "127.0.0.1"):
+        """
+            se host è webcam uso la webcam
+        """
+        self._kb = kb(persistence = True)
+        # mi registrerò
+        self._kb.registerTags({'VISION_FACE_ANALYSIS':{'doc':"altre cose", 'desc':"cose"}})
 
-        self.webcam = webcam
+        self.is_host = host is not "webcam"
 
         self._hal = None
         self._videoID = None
         self.video_capture = None
 
-        if not webcam:
-            self._hal = hal.HALInterface(HALAddress= "10.101.53.14")
+        if self.is_host:
+            self._hal = hal.HALInterface(HALAddress= host)
             self._videoID = self._hal.registerAsVideoReceiver(Controller._take_frame)
             if self._videoID == -1:
                 print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
@@ -52,12 +55,10 @@ class Controller():
 
         self.module = self._getResolver()
 
-        self.t = None
-        if startWorker:
-            # TODO Creare 6 thread che lavoreano su più persone
-            self.t = Thread(target=Controller._worker, args=[self, Controller.q])
-            self.t.daemon = True
-            self.t.start()
+        # TODO Creare 6 thread che lavoreano su più persone
+        self.t = Thread(target=Controller._worker, args=[self, Controller.q])
+        self.t.daemon = True
+        self.t.start()
 
     def _take_frame(frame_obj):
         """
@@ -67,7 +68,6 @@ class Controller():
                 frame_obj (object): object that contain all image of face in a
                     frame
         """
-        print("frame preso")
         if Controller.q.full():
             Controller.q.get()
 
@@ -83,16 +83,18 @@ class Controller():
 
         try:
             while True:
-
-                if self.webcam:
+                if self.is_host:
+                    frame_list = queue.get()
+                    for frame in frame_list:
+                        # TODO: acquisire se la facca è un interlocutore
+                        # TODO: acquisire grandezza originale del frame e
+                        #   posizione della faccia per il pinch e yaw
+                        self.watch(frame.data)
+                    queue.task_done()
+                else:
                     ret, frame = self.video_capture.read() #np.arra
                     frame = cv2.resize(frame, (320, 240))
                     self.watch(frame)
-                else:
-                    frame_list = queue.get()
-                    for frame in frame_list:
-                        self.watch(frame.data)
-                    queue.task_done()
 
         except Exception as e:
             print(e)
@@ -131,25 +133,25 @@ class Controller():
 
         fact = self.module.analyze_face(frame)
         if not fact:
-            print("non vedo nessuni")
+            print("Non vedo nessuno")
             return
 
-        fact.update({"TAG": "VISION_FACE_ANALYSIS"})
+        fact.update({"lookAt": {'pinch': 0, 'yaw':0}})
+        fact.update({"isInterlocutor": False})
 
         if fact is not None:
-            self._kb.addFact("face", "vis", 1, fact['confidence_identity'], fact)
+            self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
 
         print(fact)
 
     def __del__(self):
-        if self._hal is None:
+        if self._hal is not None:
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.q.join()
-        if self.t is not None:
-            self.t.join()
+        self.t.join()
 
 
 if __name__ == '__main__':
-    controller = Controller(True, True)
+    controller = Controller(host = "webcam")
     input('Enter anything to close:')
