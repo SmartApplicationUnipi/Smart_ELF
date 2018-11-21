@@ -77,7 +77,7 @@ namespace SmartApp.HAL.Implementation
 
                         foreach (var face in frame.Faces)
                         {
-                            g.DrawImage(frame.Image, face.Bounds, face.Bounds, GraphicsUnit.Pixel);
+                            //g.DrawImage(frame.Image, face.Bounds, face.Bounds, GraphicsUnit.Pixel);
                             g.DrawRectangle(pen, face.Bounds);
                         }
 

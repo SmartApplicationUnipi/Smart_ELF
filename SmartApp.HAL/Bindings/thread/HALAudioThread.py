@@ -1,5 +1,5 @@
 from Bindings.thread import HALThread
-from Bindings.model import AudioPacket_pb2 as Protobuf
+from Bindings.model import AudioPacket_pb2 as AudioPacket
 import socket as Socket
 import logging
 
@@ -10,7 +10,7 @@ class HALAudioThread(HALThread):
 
     def handleMessage(self, data, size, position):
         try:
-            audioMessage = Protobuf.AudioDataPacket()
+            audioMessage = AudioPacket.AudioDataPacket()
             audioMessage.ParseFromString(data[position:position + size])
             # Log.debug("Received audio message: %s" % str(audioMessage))
             Log.info("Received audio message")

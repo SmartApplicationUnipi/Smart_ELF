@@ -8,94 +8,89 @@ import os
 from websocket import create_connection
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
+config_file_path = r'./config-margot'
 
-cParser = configparser.RawConfigParser()
-configFilePath = r'./config'
+class KnowledgeBaseClient():
 
+	def __init__(self, persistence):
+		self.persistence = persistence
+		self.port, self.host, self.token = self.config_websocket()
+		self.websocket = None
+		if(persistence):
+			self.websocket = create_connection("%s:%s"%(self.host, self.port))
+		
+	def config_websocket(self):
+		cParser = configparser.RawConfigParser()
+		cParser.read(os.path.join(base_dir, config_file_path))
+		port = cParser.get('host-config','port')
+		host = cParser.get('host-config','host-name')
+		token = cParser.get('security', 'token')
+		return port, host, token
 
+	def get_websocket(self):
+		if(self.persistence): # TODO: controllo se persistente E se e' viva
+			return self.websocket
+		self.websocket = create_connection("%s:%s"%(self.host, self.port))
 
-cParser.read(os.path.join(base_dir, configFilePath))
+	def close_websocket(self):
+		if(not self.persistence):
+			self.websocket.close()
 
-port = cParser.get('host-config','port')
-host = cParser.get('host-config','host-name')
+	def send_request(self, request: map ):
+		self.get_websocket()
+		self.websocket.send(json.dumps(request))
+		reply = json.loads(self.websocket.recv())
+		self.close_websocket()
+		return reply
 
-def register():
-	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "register", "params": {}}
-	ws.send(json.dumps(req))
-	rep = ws.recv()
-	ws.close()
-	return rep
+	# used as a login 
+	def registerTags(self, tagsList: map):
+		return self.send_request({"method": "registerTags", "params": {"tagsList": tagsList}, "token": self.token})
+		
+	def getTagDetails(self, tagsList: list):
+		return self.send_request({"method": "getTagDetails", "params": {"tagsList": tagsList}, "token": self.token})
 
-def addFact(idSource: str, infoSum: str, TTL: int, reliability: int, revisioning: bool, jsonFact: map):
-	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "addFact", "params": {"idSource": idSource, "infoSum":infoSum, "TTL": TTL, "reliability":reliability, "revisioning": revisioning, "jsonFact": jsonFact}}
-	ws.send(json.dumps(req))
-	rep = ws.recv()
-	ws.close()
-	return rep
+	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
+		return self.send_request({"method": "addFact", "params": {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} , "token": self.token})
 
-def addRule(idSource: str, ruleSum: str, jsonRule: map):
-        ws = create_connection("%s:%s"%(host,port))
-        req = {"method": "addRule", "params": {"idSource": idSource, "ruleSum": ruleSum, "jsonRule": jsonRule}}
-        ws.send(json.dumps(req))
-        rep = ws.recv()
-        ws.close()
-        return rep
+	def addRule(self, idSource: str, tag: str, jsonRule: map):
+		return self.send_request({"method": "addRule", "params": {"idSource": idSource, "tag": tag, "jsonRule": jsonRule}, "token": self.token})
 
-def queryBind(jsonReq: map):
-	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "queryBind", "params": {"jsonReq": jsonReq}}
-	ws.send(json.dumps(req))
-	rep = json.loads(ws.recv())
-	ws.close()
-	return rep
+	def updateFactByID(self, idFact:str, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map ):
+		return self.send_request({"method": "updateFactByID", "params": {"idFact": idFact, "idSource": idSource, "tag": tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} , "token": self.token})
 
-def queryFact(jsonReq: map):
-	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "queryFact", "params": {"jsonReq": jsonReq}}
-	ws.send(json.dumps(req))
-	rep = json.loads(ws.recv())
-	ws.close()
-	return rep
+	def queryBind(self, jsonReq: map):
+		return self.send_request({"method": "queryBind", "params": {"jsonReq": jsonReq}, "token": self.token})
 
-def removeFact(idSource: str, jsonReq: map):
-	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "removeFact", "params": {"idSource": idSource, "jsonReq": jsonReq}}
-	ws.send(json.dumps(req))
-	rep = ws.recv()
-	ws.close()
-	return rep
+	def queryFact(self, jsonReq: map):
+		return self.send_request({"method": "queryFact", "params": {"jsonReq": jsonReq}, "token": self.token})
 
-def removeRule(idSource: str, idRule: int):
-	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "removeRule", "params": {"idSource": idSource, "idRule": idRule}}
-	ws.send(json.dumps(req))
-	rep = ws.recv()
-	ws.close()
-	return rep
+	def removeFact(self, idSource: str, jsonReq: map):
+		return self.send_request({"method": "removeFact", "params": {"idSource": idSource, "jsonReq": jsonReq}, "token": self.token})
 
-def subscribe(idSource: str, jsonReq: map, callback):
-	ws = create_connection("%s:%s"%(host,port))
-	req = {"method": "subscribe", "params": {"idSource": idSource, "jsonReq": jsonReq}}
-	ws.send(json.dumps(req))
-	rep = ws.recv()
-	if (rep == "done"):
-		t = subscrThr(ws, callback)
-		t.start()
-	return rep
+	def removeRule(self, idSource: str, idRule: int):
+		return self.send_request({"method": "removeRule", "params": {"idSource": idSource, "idRule": idRule}, "token": self.token})
 
+	def subscribe(self, idSource: str, jsonReq: map, callback):
+		websocketSub = create_connection("%s:%s"%(self.host, self.port))
+		request = {"method": "subscribe", "params": {"idSource": idSource, "jsonReq": jsonReq}, "token": self.token}
+		websocketSub.send(json.dumps(request))
+		reply = json.loads(websocketSub.recv())
+		if (reply['success']):
+			t = subscrThr(websocketSub, callback)
+			t.start()
+		return reply
 
 class subscrThr (threading.Thread):
-	def __init__(self, ws, callback):
+	def __init__(self, websocket, callback):
 		threading.Thread.__init__(self)
 		self.callback = callback
-		self.ws = ws
+		self.websocket = websocket
 
-	def run(self):
+        def run(self):
 		try:
 			while(1):
-				rep = self.ws.recv()
-				self.callback(json.loads(rep))
+				reply = self.websocket.recv()
+				self.callback(json.loads(reply))
 		except:
 			print("subcription socket error")

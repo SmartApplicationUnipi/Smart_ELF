@@ -27,15 +27,19 @@ namespace SmartApp.HAL.Model {
             "ChFWaWRlb1BhY2tldC5wcm90byKOAQoSVmlkZW9Db250cm9sUGFja2V0EkMK",
             "EGZyYW1lcmF0ZVJlcXVlc3QYASABKAsyJy5WaWRlb0NvbnRyb2xQYWNrZXQu",
             "U2V0RnJhbWVyYXRlUmVxdWVzdEgAGigKE1NldEZyYW1lcmF0ZVJlcXVlc3QS",
-            "EQoJZnJhbWVyYXRlGAEgASgFQgkKB1JlcXVlc3QibAoPVmlkZW9EYXRhUGFj",
-            "a2V0EhEKCXRpbWVzdGFtcBgBIAEoAxIkCgVmYWNlcxgCIAMoCzIVLlZpZGVv",
-            "RGF0YVBhY2tldC5GYWNlGiAKBEZhY2USCgoCaWQYASABKAMSDAoEZGF0YRgC",
-            "IAEoDEIVqgISU21hcnRBcHAuSEFMLk1vZGVsYgZwcm90bzM="));
+            "EQoJZnJhbWVyYXRlGAEgASgFQgkKB1JlcXVlc3Qi3QEKD1ZpZGVvRGF0YVBh",
+            "Y2tldBIRCgl0aW1lc3RhbXAYASABKAMSJAoFZmFjZXMYAiADKAsyFS5WaWRl",
+            "b0RhdGFQYWNrZXQuRmFjZRpFCglSZWN0YW5nbGUSCwoDdG9wGAEgASgFEgwK",
+            "BGxlZnQYAiABKAUSDQoFd2lkdGgYAyABKAUSDgoGaGVpZ2h0GAQgASgFGkoK",
+            "BEZhY2USCgoCaWQYASABKAMSDAoEZGF0YRgCIAEoDBIoCgRyZWN0GAMgASgL",
+            "MhouVmlkZW9EYXRhUGFja2V0LlJlY3RhbmdsZUIVqgISU21hcnRBcHAuSEFM",
+            "Lk1vZGVsYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoControlPacket), global::SmartApp.HAL.Model.VideoControlPacket.Parser, new[]{ "FramerateRequest" }, new[]{ "Request" }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest), global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest.Parser, new[]{ "Framerate" }, null, null, null)}),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket), global::SmartApp.HAL.Model.VideoDataPacket.Parser, new[]{ "Timestamp", "Faces" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket.Types.Face), global::SmartApp.HAL.Model.VideoDataPacket.Types.Face.Parser, new[]{ "Id", "Data" }, null, null, null)})
+            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket), global::SmartApp.HAL.Model.VideoDataPacket.Parser, new[]{ "Timestamp", "Faces" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle), global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle.Parser, new[]{ "Top", "Left", "Width", "Height" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket.Types.Face), global::SmartApp.HAL.Model.VideoDataPacket.Types.Face.Parser, new[]{ "Id", "Data", "Rect" }, null, null, null)})
           }));
     }
     #endregion
@@ -494,6 +498,219 @@ namespace SmartApp.HAL.Model {
     /// <summary>Container for nested types declared in the VideoDataPacket message type.</summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static partial class Types {
+      public sealed partial class Rectangle : pb::IMessage<Rectangle> {
+        private static readonly pb::MessageParser<Rectangle> _parser = new pb::MessageParser<Rectangle>(() => new Rectangle());
+        private pb::UnknownFieldSet _unknownFields;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public static pb::MessageParser<Rectangle> Parser { get { return _parser; } }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public static pbr::MessageDescriptor Descriptor {
+          get { return global::SmartApp.HAL.Model.VideoDataPacket.Descriptor.NestedTypes[0]; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        pbr::MessageDescriptor pb::IMessage.Descriptor {
+          get { return Descriptor; }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public Rectangle() {
+          OnConstruction();
+        }
+
+        partial void OnConstruction();
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public Rectangle(Rectangle other) : this() {
+          top_ = other.top_;
+          left_ = other.left_;
+          width_ = other.width_;
+          height_ = other.height_;
+          _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public Rectangle Clone() {
+          return new Rectangle(this);
+        }
+
+        /// <summary>Field number for the "top" field.</summary>
+        public const int TopFieldNumber = 1;
+        private int top_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public int Top {
+          get { return top_; }
+          set {
+            top_ = value;
+          }
+        }
+
+        /// <summary>Field number for the "left" field.</summary>
+        public const int LeftFieldNumber = 2;
+        private int left_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public int Left {
+          get { return left_; }
+          set {
+            left_ = value;
+          }
+        }
+
+        /// <summary>Field number for the "width" field.</summary>
+        public const int WidthFieldNumber = 3;
+        private int width_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public int Width {
+          get { return width_; }
+          set {
+            width_ = value;
+          }
+        }
+
+        /// <summary>Field number for the "height" field.</summary>
+        public const int HeightFieldNumber = 4;
+        private int height_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public int Height {
+          get { return height_; }
+          set {
+            height_ = value;
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override bool Equals(object other) {
+          return Equals(other as Rectangle);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public bool Equals(Rectangle other) {
+          if (ReferenceEquals(other, null)) {
+            return false;
+          }
+          if (ReferenceEquals(other, this)) {
+            return true;
+          }
+          if (Top != other.Top) return false;
+          if (Left != other.Left) return false;
+          if (Width != other.Width) return false;
+          if (Height != other.Height) return false;
+          return Equals(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override int GetHashCode() {
+          int hash = 1;
+          if (Top != 0) hash ^= Top.GetHashCode();
+          if (Left != 0) hash ^= Left.GetHashCode();
+          if (Width != 0) hash ^= Width.GetHashCode();
+          if (Height != 0) hash ^= Height.GetHashCode();
+          if (_unknownFields != null) {
+            hash ^= _unknownFields.GetHashCode();
+          }
+          return hash;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public override string ToString() {
+          return pb::JsonFormatter.ToDiagnosticString(this);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void WriteTo(pb::CodedOutputStream output) {
+          if (Top != 0) {
+            output.WriteRawTag(8);
+            output.WriteInt32(Top);
+          }
+          if (Left != 0) {
+            output.WriteRawTag(16);
+            output.WriteInt32(Left);
+          }
+          if (Width != 0) {
+            output.WriteRawTag(24);
+            output.WriteInt32(Width);
+          }
+          if (Height != 0) {
+            output.WriteRawTag(32);
+            output.WriteInt32(Height);
+          }
+          if (_unknownFields != null) {
+            _unknownFields.WriteTo(output);
+          }
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public int CalculateSize() {
+          int size = 0;
+          if (Top != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(Top);
+          }
+          if (Left != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(Left);
+          }
+          if (Width != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(Width);
+          }
+          if (Height != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(Height);
+          }
+          if (_unknownFields != null) {
+            size += _unknownFields.CalculateSize();
+          }
+          return size;
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void MergeFrom(Rectangle other) {
+          if (other == null) {
+            return;
+          }
+          if (other.Top != 0) {
+            Top = other.Top;
+          }
+          if (other.Left != 0) {
+            Left = other.Left;
+          }
+          if (other.Width != 0) {
+            Width = other.Width;
+          }
+          if (other.Height != 0) {
+            Height = other.Height;
+          }
+          _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+        }
+
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public void MergeFrom(pb::CodedInputStream input) {
+          uint tag;
+          while ((tag = input.ReadTag()) != 0) {
+            switch(tag) {
+              default:
+                _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+                break;
+              case 8: {
+                Top = input.ReadInt32();
+                break;
+              }
+              case 16: {
+                Left = input.ReadInt32();
+                break;
+              }
+              case 24: {
+                Width = input.ReadInt32();
+                break;
+              }
+              case 32: {
+                Height = input.ReadInt32();
+                break;
+              }
+            }
+          }
+        }
+
+      }
+
       public sealed partial class Face : pb::IMessage<Face> {
         private static readonly pb::MessageParser<Face> _parser = new pb::MessageParser<Face>(() => new Face());
         private pb::UnknownFieldSet _unknownFields;
@@ -502,7 +719,7 @@ namespace SmartApp.HAL.Model {
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public static pbr::MessageDescriptor Descriptor {
-          get { return global::SmartApp.HAL.Model.VideoDataPacket.Descriptor.NestedTypes[0]; }
+          get { return global::SmartApp.HAL.Model.VideoDataPacket.Descriptor.NestedTypes[1]; }
         }
 
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -521,6 +738,7 @@ namespace SmartApp.HAL.Model {
         public Face(Face other) : this() {
           id_ = other.id_;
           data_ = other.data_;
+          rect_ = other.rect_ != null ? other.rect_.Clone() : null;
           _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
         }
 
@@ -551,6 +769,17 @@ namespace SmartApp.HAL.Model {
           }
         }
 
+        /// <summary>Field number for the "rect" field.</summary>
+        public const int RectFieldNumber = 3;
+        private global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle rect_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        public global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle Rect {
+          get { return rect_; }
+          set {
+            rect_ = value;
+          }
+        }
+
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         public override bool Equals(object other) {
           return Equals(other as Face);
@@ -566,6 +795,7 @@ namespace SmartApp.HAL.Model {
           }
           if (Id != other.Id) return false;
           if (Data != other.Data) return false;
+          if (!object.Equals(Rect, other.Rect)) return false;
           return Equals(_unknownFields, other._unknownFields);
         }
 
@@ -574,6 +804,7 @@ namespace SmartApp.HAL.Model {
           int hash = 1;
           if (Id != 0L) hash ^= Id.GetHashCode();
           if (Data.Length != 0) hash ^= Data.GetHashCode();
+          if (rect_ != null) hash ^= Rect.GetHashCode();
           if (_unknownFields != null) {
             hash ^= _unknownFields.GetHashCode();
           }
@@ -595,6 +826,10 @@ namespace SmartApp.HAL.Model {
             output.WriteRawTag(18);
             output.WriteBytes(Data);
           }
+          if (rect_ != null) {
+            output.WriteRawTag(26);
+            output.WriteMessage(Rect);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(output);
           }
@@ -608,6 +843,9 @@ namespace SmartApp.HAL.Model {
           }
           if (Data.Length != 0) {
             size += 1 + pb::CodedOutputStream.ComputeBytesSize(Data);
+          }
+          if (rect_ != null) {
+            size += 1 + pb::CodedOutputStream.ComputeMessageSize(Rect);
           }
           if (_unknownFields != null) {
             size += _unknownFields.CalculateSize();
@@ -626,6 +864,12 @@ namespace SmartApp.HAL.Model {
           if (other.Data.Length != 0) {
             Data = other.Data;
           }
+          if (other.rect_ != null) {
+            if (rect_ == null) {
+              rect_ = new global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle();
+            }
+            Rect.MergeFrom(other.Rect);
+          }
           _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
         }
 
@@ -643,6 +887,13 @@ namespace SmartApp.HAL.Model {
               }
               case 18: {
                 Data = input.ReadBytes();
+                break;
+              }
+              case 26: {
+                if (rect_ == null) {
+                  rect_ = new global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle();
+                }
+                input.ReadMessage(rect_);
                 break;
               }
             }
