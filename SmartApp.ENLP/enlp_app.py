@@ -5,14 +5,14 @@ that will provide facts by extracting emotion from
 user's query.
 """
 import sys
-from interface_tags import PATH_TO_KB_MODULE
+from interface_tags import PATH_TO_KB_MODULE, TAG_COLORED_ANSWER, TAG_USER_EMOTION, TAG_ELF_EMOTION, DESC_ELF_EMOTION, DESC_COLORED_ANSWER, DESC_USER_EMOTION
 
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from EttService_c import EttService
 from TteService_c import TteService
 from IESService_c import IESService
-import kb
+from kb import KnowledgeBaseClient
 import threading
 import argparse
 import logging
@@ -65,8 +65,21 @@ def __main__():
         logging_lvl = logging.INFO
 
     global kb_ID
-    kb_ID = kb.register()
+    kb_ID = 'ENLP_ID'
+    kb_client = KnowledgeBaseClient(True)
+
     logging.basicConfig(stream=sys.stderr, level=logging_lvl)
+
+    tags = { TAG_USER_EMOTION : {'desc' : 'Emotion of what user said', 'doc' : DESC_USER_EMOTION},
+            TAG_ELF_EMOTION : {'desc' : 'Internal emotion of ELF', 'doc' : DESC_ELF_EMOTION},
+            TAG_COLORED_ANSWER : {'desc' : 'Reply to the user with emotion content in it', 'doc' : DESC_COLORED_ANSWER}
+    }
+
+    res = kb_client.registerTags(tags)
+    if not res['success']:
+        logging.critical(res['details'])
+        return
+
     logging.info("Emotional NLP module registered")
 
     ett_service = EttService(kb_ID, logging_lvl)

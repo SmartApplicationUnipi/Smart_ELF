@@ -1,5 +1,7 @@
 """
 This is a fake STT fact inserter
+
+N.B.: IT'S NOT UPDATED ANYMORE!!!!!!
 """
 import sys
 from interface_tags import PATH_TO_KB_MODULE

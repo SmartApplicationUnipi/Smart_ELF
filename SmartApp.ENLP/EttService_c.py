@@ -1,7 +1,7 @@
 import sys
 from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER
 sys.path.insert(0, PATH_TO_KB_MODULE)
-import kb
+from kb import KnowledgeBaseClient
 from ett import prepare_answer
 import logging
 
@@ -13,18 +13,13 @@ class EttService:
         #logging.basicConfig(stream=sys.stderr, level=logging_lvl)
         logging.info('\tETT Service started')
 
-    def read_from_KB(pattern):
-        """
-        Read a tuple from the KB
-        """
-        # needed to query kb for tuples on which assess ELF's emotion for the answer
-        return
+        self.kb_client = KnowledgeBaseClient(True)
 
     def write_to_KB(self, fact, tag):
         """
         Post a tuple to the KB
         """
-        kb.addFact(self.kb_ID, tag, 1, 100, False, fact)
+        self.kb_client.addFact(self.kb_ID, tag, 1, 100, fact)
         return
 
     def add_emotion(self, *param):
@@ -41,11 +36,14 @@ class EttService:
 
     def start(self):
         """Subscribe and wait for data"""
-        kb.subscribe(self.kb_ID, {"TAG":TAG_ANSWER, "text": "$input"}, self.add_emotion) # from the 'gnlp' module
+        self.kb_client.subscribe(self.kb_ID, {"TAG":TAG_ANSWER, "text": "$input"}, self.add_emotion) # from the 'gnlp' module
 
 
 if __name__ == "__main__":
+    '''
     global myID
     myID = kb.register()
     ett = EttService(myID,logging_lvl=logging.DEBUG)
     ett.start()
+    '''
+    print("LOGGING: Cannot call it alone")

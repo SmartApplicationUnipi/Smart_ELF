@@ -13,7 +13,7 @@ def watson_authentication():
     return language_translator
 
 
-def tranlsate (text,language_translator):
+def translate (text,language_translator):
     """
     ask watson for rtranslation
     :return sentence translate
@@ -22,5 +22,5 @@ def tranlsate (text,language_translator):
         translation = language_translator.translate( text=text,model_id='it-en').get_result()
         return translation["translations"][0]["translation"]
     except WatsonApiException as ex:
-        #print excaption
+        #print exception
         print ("Method failed with status code " + str(ex.code) + ": " + ex.message)

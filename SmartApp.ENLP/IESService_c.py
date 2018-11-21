@@ -3,7 +3,7 @@ import logging
 from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER, TAG_USER_TRANSCRIPT
 sys.path.insert(0, PATH_TO_KB_MODULE)
 import threading
-import kb
+from kb import KnowledgeBaseClient
 import random
 import emotion_conversion as em_conv
 import logging
@@ -27,6 +27,7 @@ class IESService:
         self.elf_emotion_coord = (0.0, 0.0) # neutral
         self.kb_ID = kb_ID
         self.dist_modifier = 1.0
+        self.kb_client = KnowledgeBaseClient(True)
         #logging.basicConfig(stream=sys.stderr, level=logging_lvl)
         logging.info('\tIES Service started')
 
@@ -94,8 +95,8 @@ class IESService:
 
     def start(self):
         """
-        Fa partire il servizio
+        Start service
         """
-        kb.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.on_user_interaction) #todo change with appropriate tag
+        self.kb_client.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.on_user_interaction) #todo change with appropriate tag
         self.timer = threading.Timer(self.idle_time_update, self.timed_update)
         self.timer.start()
