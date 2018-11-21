@@ -42,10 +42,15 @@ The module receives a frame containing a face and outputs a dictionary structure
             'happiness': confidence in [0,1]
             },
 'gender': predicted gender of person -- 'Male' / 'Female' / 'Unknown',
-'age': predicted age of person -- [0,99] U {-1} if unknown,
+'age': predicted age of person -- int [0,99] U {-1} if unknown,
 'smile': whether the person is smiling -- 'True' / 'False' / 'Unknown',
 'known': whether the person has been already seen -- 'True' / 'False' / 'Unknown',
-'confidence_identity': confidence of face matching in [0,1]
+'confidence_identity': confidence of face matching -- float [0,1],
+'lookAt': {
+  'pinch': position to look in y axis -- float [-1, +1],
+  'yaw': position to look in y axis -- float [-1, +1]
+}
+'interlocutor': whether the person is the interlocutor -- 'True' / 'False'
 }
 ```
 
