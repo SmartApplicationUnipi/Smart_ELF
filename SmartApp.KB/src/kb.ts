@@ -108,10 +108,12 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 }
 
 // tslint:disable-next-line:max-line-length
-export function updateFactByID(idSource: string, id: number, tag: string, TTL: number, reliability: number, jsonFact: object) {
+export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(tagDetails.has(tag))) { return new Response(false, tag); }
+
     if (!databaseFact.has(id)) { return new Response(false, id); }
     const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
+
     const dataobject = {
         _data: jsonFact,
         _id: id,
