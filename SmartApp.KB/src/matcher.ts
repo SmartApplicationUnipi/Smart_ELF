@@ -307,38 +307,36 @@ class Matcher {
 
     private matchPlaceholderObject(queryKey: string, queryValue: object, data: { [index: string]: any }): boolean {
         D.clog(Colors.PINK, 'INFO', this.ID_PO, '', 'key => ' + queryKey, 5);
-        /*
-        const newBinds = [...binds];
+        const newBinds = [... this.currBinds];
         const dataKeys = Object.keys(data);
-        const flag = (newBinds.length > 0);
+        let flag = false;
         for (let k = 0; k < newBinds.length || k === 0; ++k) {
             // already bound to a non object
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey])
                 && !isObject(data[newBinds[k][queryKey]])) {
                 D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'invalid bind: name already bound to a non-object', 2);
-                delete binds[k];
+                delete this.currBinds[k];
                 continue;
             }
-     
+
             // already bound to an object (check + possible new binds)
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey])
                 && isObject(data[newBinds[k][queryKey]])) {
                 D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'already existent correct bind', 3);
                 D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Entering recursion', 5);
-                const result = this.matchBind(queryValue, data[newBinds[k][queryKey]], [newBinds[k]]);
+                const result = this.sortAndMatch(queryValue, data[newBinds[k][queryKey]]);
                 D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Exit recursion', 5);
-                if (!result.match) {
+                if (!result) {
                     D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'inner objects are different', 2);
                 } else {
                     D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'updated an already existent bind', 3);
-                    binds = binds.concat(result.binds);
                 }
-                delete binds[k];
+                delete this.currBinds[k];
                 continue;
             }
-     
+
             // still to bound
             for (const dataKey of dataKeys) {
                 if (!isObject(data[dataKey])) {
@@ -349,27 +347,25 @@ class Matcher {
                     D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'It\'s the first bind', 5);
                     const b: any = {};
                     b[queryKey] = dataKey;
-                    newBinds.push(b);
+                    this.currBinds.push(b);
                 } else {
-                    newBinds[k][queryKey] = dataKey;
+                    this.currBinds[k][queryKey] = dataKey;
                 }
                 D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Entering recursion', 5);
-                const result = this.matchBind(queryValue, data[dataKey], [newBinds[k]]);
+                const result = this.sortAndMatch(queryValue, data[dataKey]);
                 D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Exit recursion', 5);
-                if (!result.match) {
+                if (!result) {
                     D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'inner objects are different', 2);
                 } else {
                     D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'updated an already existent bind', 3);
-                    binds = binds.concat(result.binds);
+                    flag = true;
                 }
             }
-            if (flag) {
-                delete binds[k];
+            if (!flag) {
+                delete this.currBinds[k];
             }
         }
-        return this.filterAndReturn(binds, this.ID_PO);
-        */
-        return true;
+        return this.filterAndReturn(this.ID_PO);
     }
 
     private matchPlaceholderPlaceholder(queryKey: string, queryValue: object, data: { [index: string]: any }): boolean {
