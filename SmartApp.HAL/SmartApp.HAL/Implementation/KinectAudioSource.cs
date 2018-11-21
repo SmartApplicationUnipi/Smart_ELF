@@ -33,6 +33,8 @@ namespace SmartApp.HAL.Implementation
             if (!_kinect.IsOpen) { 
                 _kinect.Open();
             }
+
+            logger.LogInformation("Kinect audio source loaded.");
         }
 
         private void Reader_FrameArrived(object sender, AudioBeamFrameArrivedEventArgs e)

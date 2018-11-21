@@ -28,7 +28,7 @@ namespace SmartApp.HAL.Implementation
         public KinectVideoSource(ILogger<KinectVideoSource> logger)
         {
             _logger = logger;
-            _logger.LogInformation("Kinect loaded.");
+            _logger.LogInformation("Kinect video source loaded.");
 
             _kinect = KinectSensor.GetDefault();
             //kinect availability callback

@@ -15,6 +15,7 @@ using System.IO;
 using System.Net;
 using Microsoft.Kinect;
 using SmartApp.HAL.Model;
+using System.Threading;
 
 namespace SmartApp.HAL
 {
@@ -67,16 +68,18 @@ namespace SmartApp.HAL
 
         private static IAudioSource AudioSourceFactory(IServiceProvider serviceProvider)
         {
-            return KinectSensor.GetDefault().IsAvailable
-                ? (IAudioSource) serviceProvider.GetService<KinectAudioSource>()
-                : (IAudioSource) serviceProvider.GetService<LocalMicrophoneSource>();
+            return serviceProvider.GetService<KinectAudioSource>();
+            //return KinectSensor.GetDefault().IsAvailable
+            //    ? (IAudioSource) serviceProvider.GetService<KinectAudioSource>()
+            //    : (IAudioSource) serviceProvider.GetService<LocalMicrophoneSource>();
         }
 
         private static IVideoSource VideoSourceFactory(IServiceProvider serviceProvider)
         {
-            return KinectSensor.GetDefault().IsAvailable
-                ? (IVideoSource)serviceProvider.GetService<KinectVideoSource>()
-                : (IVideoSource)serviceProvider.GetService<LocalCameraSource>();
+            return serviceProvider.GetService<KinectVideoSource>();
+            //return KinectSensor.GetDefault().IsAvailable
+            //    ? (IVideoSource)serviceProvider.GetService<KinectVideoSource>()
+            //    : (IVideoSource)serviceProvider.GetService<LocalCameraSource>();
         }
 
         public static void Main(string[] args)
