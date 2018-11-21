@@ -1,7 +1,8 @@
 import * as WebSocket from 'ws';
+import { security, server } from './config';
 import * as kb from './kb';
 
-const port = 5666;
+const port = server.port ;
 
 // initialize the WebSocket server instance
 const wss = new WebSocket.Server({ port });
@@ -10,60 +11,64 @@ wss.on('connection', (ws: WebSocket) => {
 
     // connection is up, let's add a simple simple event
     ws.on('message', (message: string) => {
-        let reply = 'fail';
+        let reply = JSON.stringify({ success: false, details: 'some error occurred'});
 
         // log the received message and send it back to the client
         console.log('received: %s', message);
         try {
             const j = JSON.parse(message);
+
+            if (j.token !== security.token) {
+                reply = JSON.stringify({success: false, details: 'not authorized action'});
+                ws.send(reply);
+                return;
+            }
+
             switch (j.method) {
-                case 'register':
-                    reply = kb.register();
+                case 'registerTags':
+                    reply = JSON.stringify(kb.registerTags(j.params.tagsList));
+                    break;
+                case 'getTagDetails':
+                    reply = JSON.stringify(kb.getTagDetails(j.params.tagsList));
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length
-                    kb.addFact(j.params.idSource, j.params.infoSum, j.params.TTL, j.params.reliability, j.params.revisioning, j.params.jsonFact);
-                    reply = 'done';
-                    break;
-                case 'removeFact':
-                    if (kb.removeFact(j.params.idSource, j.params.jsonReq)) {
-                        reply = 'done';
-                    }
+                    reply = JSON.stringify(kb.addFact(j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
                 case 'addRule':
-                    const r = kb.addRule(j.params.idSource, j.params.ruleSum, j.params.jsonRule);
-                    reply = r.toString();
+                    reply = JSON.stringify(kb.addRule(j.params.idSource, j.params.tag, j.params.jsonRule));
+                    break;
+                case 'removeFact':
+                    reply = JSON.stringify(kb.removeFact(j.params.idSource, j.params.jsonReq));
                     break;
                 case 'removeRule':
-                    if (kb.removeRule(j.params.idSource, j.params.idRule)) {
-                        reply = 'done';
-                    }
+                    reply = JSON.stringify(kb.removeRule(j.params.idSource, j.params.idRule));
+                    break;
+                case 'updateFactByID':
+                    // tslint:disable-next-line:max-line-length
+                    reply = JSON.stringify(kb.updateFactByID(j.params.idFact, j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
                 case 'queryBind':
-                    const rBind = kb.queryBind(j.params.jsonReq);
-                    reply = JSON.stringify(rBind);
+                    reply = JSON.stringify(kb.queryBind(j.params.jsonReq));
                     break;
                 case 'queryFact':
-                    const rFact = kb.queryFact(j.params.jsonReq);
-                    reply = JSON.stringify(rFact);
+                    reply = JSON.stringify(kb.queryFact(j.params.jsonReq));
                     break;
                 case 'subscribe':
-                    // tslint:disable-next-line:max-line-length
-                    const callback = (r: any) => {
+                    const callback = (re: any) => {
                         try {
-                            ws.send(JSON.stringify(r));
+                            ws.send(JSON.stringify(re));
                         } catch (e) { console.log(e); }
                     };
-                    if (kb.subscribe(j.params.idSource, j.params.jsonReq, callback)) {
-                        reply = 'done';
-                    }
+                    reply = JSON.stringify(kb.subscribe(j.params.idSource, j.params.jsonReq, callback));
                     break;
                 default:
-                    reply = 'function not defined';
+                    reply = JSON.stringify(new kb.Response(false, 'Method not allowed'));
             }
         } catch (e) {
-            console.log(e);
+            console.log(e); // TODO: specialize the error in order to send back the json errors
         }
+        console.log('reply: ' + reply)
         ws.send(reply);
     });
 

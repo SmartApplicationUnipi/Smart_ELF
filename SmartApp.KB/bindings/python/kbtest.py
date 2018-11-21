@@ -1,19 +1,28 @@
 import json
 
-from kb import *
-      
-myID = register()
+from kb import KnowledgeBaseClient
 
-print(addFact(myID, "test", 1, 50, 'false', {"prova": 1}))
-print(addFact(myID, "test", 1, 50, 'false', {"prova": 2}))
-print(addFact(myID, "test", 1, 50, 'false', {"prova": 3}))
+k = KnowledgeBaseClient(True)
+myID = "testMachine"
 
-print(removeFact(myID, {"prova": 2}))
-print(queryBind({"prova": "$x"}))
+registering = k.registerTags({"RDF": "an rdf triple", "TEST": "test data"})
+print(registering)
+if (registering['success'] == 0):
+     print('registration failed')
 
 def callbfun(res):
     print("callback:")
     print(res)
 
-subscribe(myID, {"prova": "$x"}, callbfun)
-addFact(myID, "test", 1, 50, 'false', {"prova": "callb"})
+print(k.subscribe(myID, {"_data":{"prova": "$x"}}, callbfun))
+
+
+print(k.addFact(myID, "TEST", 1, 50, {"prova": 1}))
+print(k.addFact(myID, "TEST", 1, 50, {"prova": 2}))
+print(k.addFact(myID, "TEST", 1, 50, {"prova": 3}))
+
+print(k.removeFact(myID, {"_data": {"prova": 2}}))
+print(k.queryBind({"_data":{"prova": "$x"}}))
+
+print(k.addFact(myID, "TEST", 1, 50, {"prova": "callb"}))
+print(k.addFact(myID, "SBAGLIO", 1, 50, {"prova": 4}))

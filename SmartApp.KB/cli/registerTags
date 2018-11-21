@@ -7,5 +7,5 @@ then echo "Wrong usage"
 fi
 
 source $DIR/../venv/bin/activate
-python $DIR/../bindings/python/commands.py "query" "$1"
+python $DIR/../bindings/python/commands.py "registertags" "$1"
 deactivate
