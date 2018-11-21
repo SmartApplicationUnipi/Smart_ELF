@@ -1,33 +1,19 @@
 import { Colors, Debugger } from './debugger';
-import { DataObject, DatabaseFact } from './kb';
-
-const ID_AA = 0;
-const ID_AO = 1;
-const ID_AP = 2;
-const ID_PA = 3;
-const ID_PO = 4;
-const ID_PP = 5;
-const BINDS_CAT = 6;
+import { DataObject } from './kb';
 
 const D: Debugger = new Debugger();
 
 export type Response = Map<number, object[]>;
 
 export function findMatches(query: object, dataset: DataObject[], initBinds: object[] = []): Response {
-    const matches: Response = new Map<number, object[]>();
     let matcher = new Matcher();
-    for (const data of dataset) {
-        const mb = matcher.matchBind(query, data, initBinds);
-        if (mb.match) {
-            matches.set(data._id, mb.binds);
-        }
-    }
-    return matches;
+    return matcher.start(query, dataset, initBinds);
 }
 
 export function findMatchesBind(query: any, Dataset: any[], initBinds: any[] = []) {
     const matches = new Array();
-    let matcher = new Matcher();
+    /*
+      let matcher = new Matcher();
     // inefficient lookup with a loop onto dataset array
     for (const data of Dataset) {
         const mb = matcher.matchBind(query, data, initBinds);
@@ -35,19 +21,22 @@ export function findMatchesBind(query: any, Dataset: any[], initBinds: any[] = [
             matches.push(mb.binds);
         }
     }
+    */
     return matches;
 }
 
 export function findMatchesAll(query: any, Dataset: any[]) {
     const matches = new Array();
-    let matcher = new Matcher();
-    // inefficient lookup with a loop onto dataset array
-    for (const data of Dataset) {
-        const mb = matcher.matchBind(query, data, []);
-        if (mb.match) {
-            matches.push(data);
+    /*
+        let matcher = new Matcher();
+        // inefficient lookup with a loop onto dataset array
+        for (const data of Dataset) {
+            const mb = matcher.matchBind(query, data, []);
+            if (mb.match) {
+                matches.push(data);
+            }
         }
-    }
+        */
     return matches;
 }
 
@@ -62,60 +51,88 @@ export function isAtom(v: any) {
     return (!isPlaceholder(v) && !isObject(v));
 }
 
+type SortMap = Map<number, string[]>;
+
 class Matcher {
 
-    matchBind(query: any, data: any, initBinds: any[]) {
-        let binds = initBinds.map((x) => Object.assign({}, x));
-        const sorted = this.sort(query);
 
+
+    ID_AA = 0;
+    ID_AO = 1;
+    ID_AP = 2;
+    ID_PA = 3;
+    ID_PO = 4;
+    ID_PP = 5;
+    BINDS_CAT = 6;
+
+    outerQuery: object;
+    outerSorted: SortMap;
+    initBinds: { [index: string]: any }[];
+
+    currBinds: { [index: string]: any }[];
+
+    public start(q: object, dataset: DataObject[], iBinds: object[] = []) {
+        const matches: Response = new Map<number, object[]>();
+        this.outerQuery = q;
+        this.outerSorted = this.sort(q);
+        this.initBinds = iBinds;
+        for (const data of dataset) {
+            this.currBinds = [...this.initBinds];
+            if (this.matchBind(this.outerQuery, this.outerSorted, data)) {
+                matches.set(data._id, [...this.currBinds]);
+            }
+        }
+        return matches;
+    }
+
+    private sortAndMatch(query: any, data: any): boolean {
+        const sorted = this.sort(query);
+        return this.matchBind(query, sorted, data);
+    }
+
+    private matchBind(query: any, sorted: SortMap, data: any): boolean {
         D.newLine(5);
-        let result = { binds, match: true };
-        for (let i = 0; i < BINDS_CAT; ++i) {
+        for (let i = 0; i < this.BINDS_CAT; ++i) {
             switch (i) {
-                case ID_AA: {
+                case this.ID_AA: {
                     // atom : atom
                     if (!this.matchAllAtomAtom(query, sorted, data)) {
-                        return { match: false, binds: [] };
+                        return false;
                     }
                     break;
                 }
-                case ID_AO: {
+                case this.ID_AO: {
                     // atom : object
-                    result = this.matchAllAtomObject(query, sorted, data, result.binds);
-                    if (!result.match) {
-                        return result;
+                    if (!this.matchAllAtomObject(query, sorted, data)) {
+                        return false;
                     }
                     break;
                 }
-                case ID_AP: {
+                case this.ID_AP: {
                     // atom : placeholder
-                    result = this.matchAllAtomPlaceholder(query, sorted, data, result.binds);
-                    if (!result.match) {
-                        return result;
+                    if (!this.matchAllAtomPlaceholder(query, sorted, data)) {
+                        return false;
                     }
                     break;
                 }
-                case ID_PA: {
+                case this.ID_PA: {
                     // placeholder : atom
-                    result = this.matchAllPlaceholderAtom(query, sorted, data, result.binds);
-                    if (!result.match) {
-                        return result;
+                    if (!this.matchAllPlaceholderAtom(query, sorted, data)) {
+                        return false;
                     }
                     break;
                 }
                 case 4: {
                     // placeholder : object
-                    result = this.matchAllPlaceholderObject(query, sorted, data, result.binds);
-                    if (!result.match) {
-                        return result;
+                    if (!this.matchAllPlaceholderObject(query, sorted, data)) {
+                        return false;
                     }
                     break;
                 }
                 case 5: {
                     // placeholder : placeholder
-                    result = this.matchAllPlaceholderPlaceholder(query, sorted, data, result.binds);
-                    if (!result.match) {
-                        return result;
+                    if (!this.matchAllPlaceholderPlaceholder(query, sorted, data)) {
+                        return false;
                     }
                     break;
                 }
@@ -125,183 +142,172 @@ class Matcher {
                 }
             } // end switch
         } // end for
-        return result;
+        return true;
     }
 
-    matchAllAtomAtom(query: any, sorted: any, data: any): boolean {
-        D.clog(Colors.BLUE, 'INFO', ID_AA, '', 'Enter case Atom : Atom', 5);
-        for (const queryKey of sorted.get(ID_AA)) {
+    private matchAllAtomAtom(query: { [index: string]: any }, sorted: SortMap, data: { [index: string]: any }): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Enter case Atom : Atom', 5);
+        for (const queryKey of sorted.get(this.ID_AA)) {
             if (!this.matchAtomAtom(queryKey, query[queryKey], data)) {
                 return false;
             }
         }
-        D.clog(Colors.BLUE, 'INFO', ID_AA, '', 'Exit case Atom : Atom', 5);
+        D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Exit case Atom : Atom', 5);
         return true;
     }
 
-    matchAllAtomObject(query: any, sorted: any, data: any, initBinds: any[]): any {
-        D.clog(Colors.BLUE, 'INFO', ID_AO, '', 'Enter case Atom : Object', 5);
-        let result: any = { binds: initBinds, match: true };
-        for (const queryKey of sorted.get(ID_AO)) {
-            result = this.matchAtomObject(queryKey, query[queryKey], data, result.binds);
-            if (!result.match) {
-                return result;
+    private matchAllAtomObject(query: { [index: string]: any }, sorted: SortMap, data: { [index: string]: any }): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Enter case Atom : Object', 5);
+        for (const queryKey of sorted.get(this.ID_AO)) {
+            if (!this.matchAtomObject(queryKey, query[queryKey], data)) {
+                return false;
             }
         }
-        D.clog(Colors.BLUE, 'INFO', ID_AO, '', 'Exit case Atom : Object', 5);
-        return result;
+        D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit case Atom : Object', 5);
+        return true;
     }
 
-    matchAllAtomPlaceholder(query: any, sorted: any, data: any, initBinds: any[]): any {
-        D.clog(Colors.BLUE, 'INFO', ID_AP, '', 'Enter case Atom : Placeholder', 5);
-        let result: any = { binds: initBinds, match: true };
-        for (const queryKey of sorted.get(ID_AP)) {
-            result = this.matchAtomPlaceholder(queryKey, query[queryKey], data, result.binds);
-            if (!result.match) {
-                return result;
+    private matchAllAtomPlaceholder(query: { [index: string]: any }, sorted: SortMap, data: { [index: string]: any }): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_AP, '', 'Enter case Atom : Placeholder', 5);
+        for (const queryKey of sorted.get(this.ID_AP)) {
+            if (!this.matchAtomPlaceholder(queryKey, query[queryKey], data)) {
+                return false;
             }
         }
-        D.clog(Colors.BLUE, 'INFO', ID_AP, '', 'Exit case Atom : Placeholder', 5);
-        return result;
+        D.clog(Colors.BLUE, 'INFO', this.ID_AP, '', 'Exit case Atom : Placeholder', 5);
+        return true;
     }
 
-    matchAllPlaceholderAtom(query: any, sorted: any, data: any, initBinds: any[]): any {
-        D.clog(Colors.BLUE, 'INFO', ID_PA, '', 'Enter case Placeholder : Atom', 5);
-        let result: any = { binds: initBinds, match: true };
-        for (const queryKey of sorted.get(ID_PA)) {
-            result = this.matchPlaceholderAtom(queryKey, query[queryKey], data, result.binds)
-            if (!result.match) {
-                return result;
+    private matchAllPlaceholderAtom(query: { [index: string]: any }, sorted: SortMap, data: { [index: string]: any }): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_PA, '', 'Enter case Placeholder : Atom', 5);
+        for (const queryKey of sorted.get(this.ID_PA)) {
+            if (!this.matchPlaceholderAtom(queryKey, query[queryKey], data)) {
+                return false;
             }
         }
-        D.clog(Colors.BLUE, 'INFO', ID_PA, '', 'Exit case Placeholder : Atom', 5);
-        return result;
+        D.clog(Colors.BLUE, 'INFO', this.ID_PA, '', 'Exit case Placeholder : Atom', 5);
+        return true;
     }
 
-    matchAllPlaceholderObject(query: any, sorted: any, data: any, initBinds: any[]): any {
-        D.clog(Colors.BLUE, 'INFO', ID_PO, '', 'Enter case Placeholder : Object', 5);
-        let result: any = { binds: initBinds, match: true };
-        for (const queryKey of sorted.get(ID_PO)) {
-            result = this.matchPlaceholderObject(queryKey, query[queryKey], data, result.binds);
-            if (!result.match) {
-                return result;
+    private matchAllPlaceholderObject(query: { [index: string]: any }, sorted: SortMap, data: { [index: string]: any }): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Enter case Placeholder : Object', 5);
+        for (const queryKey of sorted.get(this.ID_PO)) {
+            if (!this.matchPlaceholderObject(queryKey, query[queryKey], data)) {
+                return false;
             }
         }
-        D.clog(Colors.BLUE, 'INFO', ID_PO, '', 'Exit case Placeholder : Object', 5);
-        return result;
+        D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Exit case Placeholder : Object', 5);
+        return true;
     }
 
-    matchAllPlaceholderPlaceholder(query: any, sorted: any, data: any, initBinds: any[]): any {
-        D.clog(Colors.BLUE, 'INFO', ID_PP, '', 'Enter case Placeholder : Placeholder', 5);
-        let result: any = { binds: initBinds, match: true };
-        for (const queryKey of sorted.get(ID_PO)) {
-            result = this.matchPlaceholderPlaceholder(queryKey, query[queryKey], data, result.binds);
-            if (!result.match) {
-                return result;
+    private matchAllPlaceholderPlaceholder(query: { [index: string]: any }, sorted: SortMap, data: { [index: string]: any }): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_PP, '', 'Enter case Placeholder : Placeholder', 5);
+        for (const queryKey of sorted.get(this.ID_PO)) {
+            if (!this.matchPlaceholderPlaceholder(queryKey, query[queryKey], data)) {
+                return false;
             }
         }
-        D.clog(Colors.BLUE, 'INFO', ID_PP, '', 'Exit case Placeholder : Placeholder', 5);
-        return result;
+        D.clog(Colors.BLUE, 'INFO', this.ID_PP, '', 'Exit case Placeholder : Placeholder', 5);
+        return true;
     }
 
-    matchAtomAtom(queryKey: string, queryValue: string, data: any): boolean {
-        D.clog(Colors.PINK, 'INFO', ID_AA, '', 'key =>' + queryKey, 5);
+    private matchAtomAtom(queryKey: string, queryValue: string, data: { [index: string]: any }): boolean {
+        D.clog(Colors.PINK, 'INFO', this.ID_AA, '', 'key =>' + queryKey, 5);
         if (!data.hasOwnProperty(queryKey) || queryValue !== data[queryKey]) {
-            D.clog(Colors.RED, 'FAIL', ID_AA, '', 'match failed', 2);
+            D.clog(Colors.RED, 'FAIL', this.ID_AA, '', 'match failed', 2);
             return false;
         }
-        D.clog(Colors.GREEN, 'OK', ID_AA, '', 'match succeded', 2);
+        D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'match succeded', 2);
         return true;
     }
 
-    matchAtomObject(queryKey: string, queryValue: object, data: any, binds: any[]): any {
-        D.clog(Colors.PINK, 'INFO', ID_AO, '', 'key => ' + queryKey, 5);
+    private matchAtomObject(queryKey: string, queryValue: object, data: { [index: string]: any }): boolean {
+        D.clog(Colors.PINK, 'INFO', this.ID_AO, '', 'key => ' + queryKey, 5);
         if (!data.hasOwnProperty(queryKey) || !isObject(data[queryKey])) {
             // Se non ha la chiave, o ha la chiave ma non è un oggetto ESPLODI
-            // tslint:disable-next-line:max-line-length
-            D.clog(Colors.RED, 'FAIL', ID_AO, '', 'it doesn\'t have the key, or it has it but it\'s not associated to an object ', 2);
-            return { binds: [], match: false };
+            D.clog(Colors.RED, 'FAIL', this.ID_AO, '',
+                'it doesn\'t have the key, or it has it but it\'s not associated to an object ', 2);
+            return false;
         }
-        D.clog(Colors.BLUE, 'INFO', ID_AO, '\t', 'Entering recursion', 5);
-        const result = this.matchBind(queryValue, data[queryKey], binds);
-        D.clog(Colors.BLUE, 'INFO', ID_AO, '\t', 'Exit recursion', 5);
-        if (!result.match) {
-            D.clog(Colors.RED, 'FAIL', ID_AO, '', 'inner objects are different.', 2);
-            return { binds: [], match: false };
-        } else {
-            // TODO prove it is correct
-            binds = [...result.binds];
+        D.clog(Colors.BLUE, 'INFO', this.ID_AO, '\t', 'Entering recursion', 5);
+        // FIXME: renounce to debug to have tail recursion
+        const result: boolean = this.sortAndMatch(queryValue, data[queryKey]);
+        D.clog(Colors.BLUE, 'INFO', this.ID_AO, '\t', 'Exit recursion', 5);
+        if (!result) {
+            D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'inner objects are different.', 2);
+            return false;
         }
-        return { binds, match: true };
+        return true;
     }
 
-    matchAtomPlaceholder(queryKey: string, queryValue: string, data: any, binds: any[]): any {
-        D.clog(Colors.PINK, 'INFO', ID_AP, '', 'key => ' + queryKey, 5);
+    private matchAtomPlaceholder(queryKey: string, queryValue: string, data: { [index: string]: any }): boolean {
+        D.clog(Colors.PINK, 'INFO', this.ID_AP, '', 'key => ' + queryKey, 5);
         if (!data.hasOwnProperty(queryKey)) {
-            D.clog(Colors.RED, 'FAIL', ID_AP, '', 'Key is not in the data', 2);
-            return { binds: [], match: false };
+            D.clog(Colors.RED, 'FAIL', this.ID_AP, '', 'Key is not in the data', 2);
+            return false;
         }
-        if (binds.length === 0) {
-            D.clog(Colors.BLUE, 'INFO', ID_AP, '', 'It\'s thefirst bind', 5);
-            const b: any = {};
+        if (this.currBinds.length === 0) {
+            D.clog(Colors.BLUE, 'INFO', this.ID_AP, '', 'It\'s thefirst bind', 5);
+            const b: { [index: string]: string } = {};
             b[queryValue] = data[queryKey];
-            binds.push(b);
+            this.currBinds.push(b);
         } else {
-            for (let k = 0; k < binds.length; ++k) {
-                if (binds[k].hasOwnProperty(queryValue)) {
-                    if (binds[k][queryValue] !== data[queryKey]) {
-                        D.clog(Colors.RED, 'FAIL', ID_AP, '', 'invalid bind', 2);
-                        delete binds[k];
+            for (let k = 0; k < this.currBinds.length; ++k) {
+                if (this.currBinds[k].hasOwnProperty(queryValue)) {
+                    if (this.currBinds[k][queryValue] !== data[queryKey]) {
+                        D.clog(Colors.RED, 'FAIL', this.ID_AP, '', 'invalid bind', 2);
+                        delete this.currBinds[k];
                         continue;
                     } else {
-                        D.clog(Colors.GREEN, 'OK', ID_AP, '', 'already bound', 3);
+                        D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'already bound', 3);
                     }
                 } else {
-                    D.clog(Colors.GREEN, 'OK', ID_AP, '', 'add new bind in current bind list', 2);
-                    binds[k][queryValue] = data[queryKey];
+                    D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'add new bind in current bind list', 2);
+                    this.currBinds[k][queryValue] = data[queryKey];
                 }
             }
         }
-        return this.filterAndReturn(binds, ID_PO);
+        return this.filterAndReturn(this.ID_PO);
     }
 
-    matchPlaceholderAtom(queryKey: string, queryValue: string, data: any, binds: any[]): any {
-        D.clog(Colors.PINK, 'INFO', ID_PA, '', 'key => ' + queryKey, 5);
-        const newBinds = [...binds];
+    private matchPlaceholderAtom(queryKey: string, queryValue: string, data: { [index: string]: any }): boolean {
+        D.clog(Colors.PINK, 'INFO', this.ID_PA, '', 'key => ' + queryKey, 5);
+        const newBinds: { [index: string]: any }[] = [...this.currBinds];
         const dataKeys = Object.keys(data);
         for (let k = 0; k < newBinds.length || k === 0; ++k) {
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey]) &&
                 !(queryValue === data[newBinds[k][queryKey]])) {
-                D.clog(Colors.RED, 'FAIL', ID_PA, '', 'this bind is invalid', 2);
-                delete binds[k];
+                D.clog(Colors.RED, 'FAIL', this.ID_PA, '', 'this bind is invalid', 2);
+                delete this.currBinds[k];
                 continue;
             }
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey]) &&
                 queryValue === data[newBinds[k][queryKey]]) {
-                D.clog(Colors.GREEN, 'OK', ID_PA, '', 'bind already existent and correct', 3);
+                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'bind already existent and correct', 3);
                 continue;
             }
             for (const dataKey of dataKeys) {
                 if (queryValue === data[dataKey]) {
-                    D.clog(Colors.GREEN, 'OK', ID_PA, '', 'match and new branch', 3);
+                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'match and new branch', 3);
                     const tmp: any = { ...newBinds[k] };
                     tmp[queryKey] = dataKey;
-                    binds.push(tmp);
+                    this.currBinds.push(tmp);
                 } else {
-                    D.clog(Colors.GREEN, 'OK', ID_PA, '', 'no match here', 3);
+                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'no match here', 3);
                 }
                 if (newBinds[k]) {
-                    delete binds[k];
+                    delete this.currBinds[k];
                 }
             }
         }
-        return this.filterAndReturn(binds, ID_PO);
+        return this.filterAndReturn(this.ID_PO);
     }
 
-    matchPlaceholderObject(queryKey: string, queryValue: object, data: any, binds: any[]): any {
-        D.clog(Colors.PINK, 'INFO', ID_PO, '', 'key => ' + queryKey, 5);
+    private matchPlaceholderObject(queryKey: string, queryValue: object, data: { [index: string]: any }): boolean {
+        D.clog(Colors.PINK, 'INFO', this.ID_PO, '', 'key => ' + queryKey, 5);
+        /*
         const newBinds = [...binds];
         const dataKeys = Object.keys(data);
         const flag = (newBinds.length > 0);
@@ -310,50 +316,50 @@ class Matcher {
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey])
                 && !isObject(data[newBinds[k][queryKey]])) {
-                D.clog(Colors.RED, 'FAIL', ID_PO, '', 'invalid bind: name already bound to a non-object', 2);
+                D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'invalid bind: name already bound to a non-object', 2);
                 delete binds[k];
                 continue;
             }
-
+     
             // already bound to an object (check + possible new binds)
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey])
                 && isObject(data[newBinds[k][queryKey]])) {
-                D.clog(Colors.GREEN, 'OK', ID_PO, '', 'already existent correct bind', 3);
-                D.clog(Colors.BLUE, 'INFO', ID_PO, '\t', 'Entering recursion', 5);
+                D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'already existent correct bind', 3);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Entering recursion', 5);
                 const result = this.matchBind(queryValue, data[newBinds[k][queryKey]], [newBinds[k]]);
-                D.clog(Colors.BLUE, 'INFO', ID_PO, '\t', 'Exit recursion', 5);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Exit recursion', 5);
                 if (!result.match) {
-                    D.clog(Colors.RED, 'FAIL', ID_PO, '', 'inner objects are different', 2);
+                    D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'inner objects are different', 2);
                 } else {
-                    D.clog(Colors.GREEN, 'OK', ID_PO, '', 'updated an already existent bind', 3);
+                    D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'updated an already existent bind', 3);
                     binds = binds.concat(result.binds);
                 }
                 delete binds[k];
                 continue;
             }
-
+     
             // still to bound
             for (const dataKey of dataKeys) {
                 if (!isObject(data[dataKey])) {
-                    D.clog(Colors.RED, 'FAIL', ID_PO, '', 'key associated to a non-object', 2);
+                    D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'key associated to a non-object', 2);
                     continue;
                 }
                 if (!newBinds[k]) {
-                    D.clog(Colors.BLUE, 'INFO', ID_PO, '', 'It\'s the first bind', 5);
+                    D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'It\'s the first bind', 5);
                     const b: any = {};
                     b[queryKey] = dataKey;
                     newBinds.push(b);
                 } else {
                     newBinds[k][queryKey] = dataKey;
                 }
-                D.clog(Colors.BLUE, 'INFO', ID_PO, '\t', 'Entering recursion', 5);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Entering recursion', 5);
                 const result = this.matchBind(queryValue, data[dataKey], [newBinds[k]]);
-                D.clog(Colors.BLUE, 'INFO', ID_PO, '\t', 'Exit recursion', 5);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '\t', 'Exit recursion', 5);
                 if (!result.match) {
-                    D.clog(Colors.RED, 'FAIL', ID_PO, '', 'inner objects are different', 2);
+                    D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'inner objects are different', 2);
                 } else {
-                    D.clog(Colors.GREEN, 'OK', ID_PO, '', 'updated an already existent bind', 3);
+                    D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'updated an already existent bind', 3);
                     binds = binds.concat(result.binds);
                 }
             }
@@ -361,42 +367,49 @@ class Matcher {
                 delete binds[k];
             }
         }
-        return this.filterAndReturn(binds, ID_PO);
+        return this.filterAndReturn(binds, this.ID_PO);
+        */
+        return true;
     }
 
-    matchPlaceholderPlaceholder(queryKey: string, queryValue: object, data: any, binds: any[]): any {
+    private matchPlaceholderPlaceholder(queryKey: string, queryValue: object, data: { [index: string]: any }): boolean {
         // TO BE IMPLEMENTED
-        D.clog(Colors.RED, 'WARN', ID_PP, '', 'Functionality still not implemented', 1);
-        return this.filterAndReturn(binds, ID_PP);
+        D.clog(Colors.RED, 'WARN', this.ID_PP, '', 'Functionality still not implemented', 1);
+        return this.filterAndReturn(this.ID_PP);
     }
 
-    filterAndReturn(binds: any[], id: number): any {
-        binds = binds.filter(el => { return el != null });
-        if (binds.length === 0) {
+    private filterAndReturn(id: number): boolean {
+        this.currBinds = this.currBinds.filter(el => { return el != null });
+        if (this.currBinds.length === 0) {
             D.clog(Colors.YELLOW, 'EXIT', id, '', 'No more possible bind!', 4);
-            return { binds, match: false };
+            return false;
         }
-        return { binds, match: true };
+        return true;
     }
-
-    parseFunctions(query: object): number {
-        let result: number = 0;
-        if (!query) {
-            return result;
+    /*
+        public parseFunctions(query: object): number {
+            let result: number = 0;
+            if (!query) {
+                return result;
+            }
+            for (const k of Object.keys(query)) {
+                if (ifFunction(k) {
+    
+                }
+            }
+    
         }
-
-    }
-
+    */
     //    { _data: {... }, _meta: {... }, & isGreater: [$x, 3] }
     // callFunctionBool('isGreater',[$x, 3]);
     // callFunctions('isGreater', [[$x0, 3], [$x1, 2]])
 
-    sort(j: any): object {
+    private sort(j: any): SortMap {
+        const stack = new Map<number, string[]>();
         if (!j) {
-            return {};
+            return stack;
         }
         const keys = Object.keys(j);
-        const stack = new Map<number, string[]>();
 
         // ./query '{"ph":"$a", "ob":{}, "ob2":{}, "$a":"$a", "vaiprima":"oh si", "$lasss":{}, "last":"$nope"}'
 
@@ -411,26 +424,26 @@ class Matcher {
           5 => [ '$a' ] }
         */
 
-        for (let i = 0; i < BINDS_CAT; ++i) {
+        for (let i = 0; i < this.BINDS_CAT; ++i) {
             stack.set(i, new Array());
         }
 
         for (const k of keys) {
             if (isAtom(k)) {
                 if (isAtom(j[k])) {
-                    stack.get(ID_AA).push(k);
+                    stack.get(this.ID_AA).push(k);
                 } else if (isObject(j[k])) {
-                    stack.get(ID_AO).push(k);
+                    stack.get(this.ID_AO).push(k);
                 } else if (isPlaceholder(j[k])) {
-                    stack.get(ID_AP).push(k);
+                    stack.get(this.ID_AP).push(k);
                 }
             } else {
                 if (isAtom(j[k])) {
-                    stack.get(ID_PA).push(k);
+                    stack.get(this.ID_PA).push(k);
                 } else if (isObject(j[k])) {
-                    stack.get(ID_PO).push(k);
+                    stack.get(this.ID_PO).push(k);
                 } else if (isPlaceholder(j[k])) {
-                    stack.get(ID_PP).push(k);
+                    stack.get(this.ID_PP).push(k);
                 }
             }
         }
