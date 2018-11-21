@@ -1,5 +1,3 @@
-import * as Logger from '../log/Logger';
-
 import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 import { IEmotion } from '../emotion/Emotion';
 
@@ -62,7 +60,7 @@ export class SpeechContent implements IContent {
 export class AudioContent implements IContent {
     private buffer: ArrayBuffer = null;
 
-    constructor(private emotion: string, private data: string|ArrayBuffer) {
+    constructor(private emotion: IEmotion, private data: string|ArrayBuffer) {
         if(data instanceof ArrayBuffer) {
             this.buffer = data;
         }
@@ -71,7 +69,7 @@ export class AudioContent implements IContent {
     /**
      * Returns the emotion of the audio
      */
-    public getEmotion(): string {
+    public getEmotion(): IEmotion {
         return this.emotion;
     }
 
@@ -103,58 +101,4 @@ export interface ContentFactory {
      * @param event The event to be processed
      */
     create(event: ElfUIEvent): Array<IContent>;
-}
-
-/**
- * Default implementation of ContentFactory
- */
-export class DefaultContentFactory implements ContentFactory {
-    private logger: Logger.ILogger = Logger.getInstance();
-
-    create(event: ElfUIEvent): Array<IContent> {
-        let data = event.getAny(KEY_CONTENT);
-
-        let contents = [];
-        for (var key in data) {
-            switch (key) {
-                case "audio":
-                    try {
-                        let emotion = data[key]['emotion'],
-                            audioB64 = data[key]['audio'],
-                            id = data[key]['id'];
-
-                        contents.push(new AudioContent(emotion, audioB64));
-                    } catch (ex) {
-                        this.logger.log(Logger.LEVEL.ERROR, "Cannot elaborate audio file", data, ex);
-                    }
-                    break;
-                case "speech":
-                    try {
-                        let text = data[key]['text'], emotion = data[key]['emotion'];
-                        if (text && emotion) {
-                            contents.push(new SpeechContent(text, emotion));
-                        } else {
-                            this.logger.log(Logger.LEVEL.ERROR, "Cannot get all data from speech content", data[key]);
-                        }
-                    } catch (ex) {
-                        this.logger.log(Logger.LEVEL.ERROR, "Cannot get data from speech content", data[key], ex);
-                    }
-                    break;
-                case "text":
-                    let text = data[key];
-                    if (text) {
-                        contents.push(new TextContent(text));
-                    }
-                    break;
-                default:
-                    let d = {};
-                    d[key] = data[key];
-                    contents.push(new GenericContent(d));
-                    break;
-            }
-        }
-
-        return contents;
-    }
-
 }

@@ -2,12 +2,9 @@ import * as Logger from '../../log/Logger';
 import * as AudioPlayer from '../../audio/AudioPlayer';
 
 import { ElfUI, ElfUIFactory } from '../../ui/ElfUI';
-import { IEmotion, Emotion } from '../../emotion/Emotion';
-import { UIWidget, UIWidgetFactory, EmotionalWidget } from '../../ui/widget/UIWidget';
-import { IContent, ContentFactory, DefaultContentFactory, AudioContent, TextContent, SpeechContent } from '../../content/Content';
-import { DefaultUIWidget } from './widget/DefaultUIWidget';
-import { TextUIWidget } from './widget/TextUIWidget';
-import { ColorfulUIWidgetFactory } from './ColorfulUIWidgetFactory';
+import { IEmotion } from '../../emotion/Emotion';
+import { IContent, ContentFactory, AudioContent, TextContent, SpeechContent } from '../../content/Content';
+import { DefaultContentFactory } from '../../content/DefaultContentFactory';
 import { Snackbar } from '../../utils/Snackbar';
 
 let _ = require('lodash');
@@ -22,7 +19,6 @@ export class ElfColorfulUI extends ElfUI {
 	private snackbar: Snackbar;
 
 	private contentFactory: ContentFactory = new DefaultContentFactory();
-	private widgetFactory: UIWidgetFactory = new ColorfulUIWidgetFactory();
 
 	private content: HTMLElement;
 
@@ -42,7 +38,7 @@ export class ElfColorfulUI extends ElfUI {
 	public onEmotionChanged(e: IEmotion): void {
 		this.logger.log(Logger.LEVEL.INFO, "onEmotionChanged", e);
 
-		// Change the background color. The animation in CSS will handle the animation.
+		// Change the background color. The CSS rules will handle the animation.
 		this.content.style.backgroundColor = e.getColor();
 	}
 	public onContentChanged(contents: Array<IContent>): void {
@@ -59,7 +55,7 @@ export class ElfColorfulUI extends ElfUI {
 			} if (content instanceof SpeechContent) {
 				this.snackbar.showText(content.getText());
 			} else {
-				this.logger.log(Logger.LEVEL.WARNING, "TBI", content);
+				this.logger.log(Logger.LEVEL.WARNING, "Cannot show this type of content", content);
 			}
 		});
 

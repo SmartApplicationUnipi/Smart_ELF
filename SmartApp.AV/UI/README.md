@@ -10,21 +10,59 @@ It is connected to the TTS module to receive the audio data to play and with the
 
 The UI can handle the following kind of contents:
 
+- Speech
 - Audio
+- Position
 
-## Audio
+## Speech
 
-An Audio content represent something that the UI should play using an audio output.
-It may carries also a description of the audio which will be displayed in sync with the audio and an emotion.
+A Speech content represents something that the UI should play and (optionally) show to let ELF talking.
+It contains a Base64 representation of the audio to play, the text and the emotion associated.
 
 The JSON format must be:
 
 ```json
 
     {
-        "audio": BinaryData
+        "audio": Base64Data,
         "text": String,
-        "emotion": Pair<Int, Int>
+        "emotion": {
+            "arousal": Int,
+            "valence": Int
+        }
+    }
+
+```
+
+NOTE: this kind of content is received from the TTS module. Other modules should use a different kind of content.
+
+## Audio
+
+An Audio content represents something that the UI should play.
+Please, note that this content is used to play generic audio, and is not suitable for speech.
+
+The JSON format must be:
+
+```json
+
+    {
+        "audio": Base64Data
+    }
+
+```
+
+## Position
+
+A Position content tells the UI the relative position of the user.
+This content is used for example, to let the UI follow the user while interacting with him.
+
+The JSON format must be:
+
+```json
+
+    {
+        "x": Int,
+        "y": Int
     }
 
 ```

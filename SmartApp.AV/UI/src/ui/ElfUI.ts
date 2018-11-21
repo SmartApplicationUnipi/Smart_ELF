@@ -71,7 +71,7 @@ export abstract class ElfUI implements IElfUIEventListener {
 	abstract getTemplate(): string;
 
 	/**
-	 * Returns a factory to build widgets.
+	 * Returns a factory to build contents.
 	 */
 	abstract getContentFactory(): Content.ContentFactory;
 }
