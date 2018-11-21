@@ -1,3 +1,2 @@
 paralleldots
-LanguageTranslatorV3
-WatsonApiException
+watson_developer_cloud
