@@ -36,6 +36,9 @@ namespace SmartApp.HAL
             services.AddSingleton<IVideoManager, VideoManager>();
             services.AddSingleton<IAudioManager, AudioManager>();
 
+            //services.AddSingleton<IVideoSource, KinectVideo>();
+            //services.AddSingleton<IAudioSource, KinectAudio>();
+
             // User interface
             services.AddSingleton<IUserInterface, WinFormsUI>();
 
@@ -50,6 +53,7 @@ namespace SmartApp.HAL
             // Build the final provider
             var serviceProvider = services.BuildServiceProvider();
 
+          
             // Configure NLog
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             loggerFactory.AddNLog(new NLogProviderOptions() { CaptureMessageTemplates = true, CaptureMessageProperties = true });

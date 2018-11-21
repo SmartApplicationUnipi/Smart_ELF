@@ -1,5 +1,6 @@
 from Bindings import HALInterface  # Update import path!
 import time as Time
+import cv2
 
 
 def handleAudioMessages(audioMessage):
@@ -9,8 +10,13 @@ def handleAudioMessages(audioMessage):
 
 def handleVideoMessages(videoMessage):
     print("Received video:\n\tTimestamp:%d\n\tFaces:" % videoMessage.timestamp)
-    for face in videoMessage.faces:
+
+    for face in videoMessage.numpyFaces:
         print("\t\tid: %d, %d bytes\n" % (face.id, len(face.data)))
+
+    cv2.imshow('i', videoMessage.numpyFaces[0])
+    cv2.waitKey(0)
+    cv2.destroyWindow('i')
 
     # hal.setFrameRate(videoID, 60fps)
 

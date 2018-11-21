@@ -32,7 +32,7 @@ class HALThread(Threading.Thread):
         self.isConnected = False
         self.socket = None
 
-    def connect(self):
+    def _connect(self):
         """
         Try to connect to the HAL Module through the audio socket.
         It returns `True` if the connection succeeded, `False` otherwise.

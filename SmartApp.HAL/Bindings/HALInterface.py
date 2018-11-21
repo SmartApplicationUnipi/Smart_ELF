@@ -24,7 +24,7 @@ class HALInterface(object):
         Log.debug("registerAsAudioReceiver")
         id = self.__getClientID()
         clientThread = HALAudio.HALAudioThread(self.HALAddress, self.HALAudioPort, id, callback)
-        if clientThread.connect():
+        if clientThread._connect():
             self.registeredClients[id] = clientThread
             clientThread.start()
             return id
@@ -40,7 +40,7 @@ class HALInterface(object):
         Log.debug("registerAsVideoReceiver")
         id = self.__getClientID()
         clientThread = HALVideo.HALVideoThread(self.HALAddress, self.HALVideoPort, id, callback)
-        if clientThread.connect():
+        if clientThread._connect():
             self.registeredClients[id] = clientThread
             clientThread.start()
             return id
