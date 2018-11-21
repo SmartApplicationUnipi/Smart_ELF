@@ -6,7 +6,14 @@ def test_createFaceSet(client):
     with pytest.raises(AttributeError):
         client.createFaceSet()
 
+    #create a faceset
+    fake_outer_id = 'fakeSet'
+    client.createFaceSet(outer_id = fake_outer_id)
     # check if FaceSet is created
+    response = client.getFaceSetDetail(outer_id = fake_outer_id)
+    assert "error_message" not in response
+
+    client.deleteFaceSet(outer_id = fake_outer_id)
 
 
 def test_deleteFaceSet(client):
@@ -26,6 +33,14 @@ def test_deleteFaceSet(client):
     with pytest.raises(AttributeError):
         client.deleteFaceSet(outer_id = "fiss", check_empty = 2)
 
+    #create a faceset
+    fake_outer_id = 'fakeSet'
+    client.createFaceSet(outer_id = fake_outer_id)
+    # check if FaceSet is deleted
+    response = client.deleteFaceSet(outer_id = fake_outer_id)
+    assert "error_message" not in response
+
+
 def test_getFaceSetDetail(client):
 
     with pytest.raises(AttributeError):
@@ -43,7 +58,15 @@ def test_getFaceSetDetail(client):
     with pytest.raises(AttributeError):
         client.getFaceSetDetail(faceset_token = "aca2e06780a707b8cac736a71be546b0", start = "10001")
 
-    # print(client.getFaceSetDetail(faceset_token = "aca2e06780a707b8cac736a71be546b0"))
+    #create a faceset
+    fake_outer_id = 'fakeSet'
+    client.createFaceSet(outer_id = fake_outer_id)
+    # check if FaceSet is created
+    response = client.getFaceSetDetail(outer_id = fake_outer_id)
+    assert "error_message" not in response
+    assert response['face_count'] == 0
+    client.deleteFaceSet(outer_id = fake_outer_id)
+
 
 def test_updateFaceSet(client, filepath):
 
@@ -99,6 +122,7 @@ def test_getFaceSets(client, filepath):
     res = client.detect(file = filepath)
     fake_face_token = res['faces'][0]['face_token']
     fake_outer_id = 'fakeSet'
+
     #create fake FaceSet
     client.createFaceSet(outer_id = fake_outer_id, face_tokens = [fake_face_token])
 
