@@ -2,6 +2,7 @@ import { IEmotion } from '../emotion/Emotion';
 import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION } from './event/ElfUIEvent';
 import { BaseEventReader, IElfUIEventListener } from '../reader/EventReader';
 import * as Content from '../content/Content';
+import { Point } from '../utils/Point';
 
 /**
  * Base class to implement a UI for ELf.
@@ -59,6 +60,12 @@ export abstract class ElfUI implements IElfUIEventListener {
 	 * @param e The emotion received
 	 */
 	abstract onEmotionChanged(e: IEmotion): void;
+
+	/**
+	 * Method called when there is a new position of the user
+	 * @param p The point in the plane where the user is located w.r.t. ELF.
+	 */
+	abstract onPositionChanged(p: Point): void;
 
 	/**
 	 * Method called when new contents are received

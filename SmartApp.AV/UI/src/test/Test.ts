@@ -3,6 +3,7 @@ import { BaseEventReader } from '../reader/EventReader'
 import { IEmotion, Emotion } from '../emotion/Emotion';
 import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION } from '../ui/event/ElfUIEvent';
 import { UIWidget, UIWidgetFactory } from '../ui/widget/UIWidget'
+import { Point } from '../utils/Point';
 
 export class TestUI extends ElfUI {
 
@@ -18,6 +19,10 @@ export class TestUI extends ElfUI {
 		console.log("onEmotionChanged", e);
 
 		this.getRootElement().style.backgroundColor = e.getColor();
+	}
+
+	public onPositionChanged(p: Point): void {
+		console.log("onPositionChanged", p);
 	}
 
 	public onContentChanged(e: Array<UIWidget>): void {

@@ -6,6 +6,7 @@ import { IEmotion } from '../../emotion/Emotion';
 import { IContent, ContentFactory, AudioContent, TextContent, SpeechContent } from '../../content/Content';
 import { DefaultContentFactory } from '../../content/DefaultContentFactory';
 import { Snackbar } from '../../utils/Snackbar';
+import { Point } from '../../utils/Point';
 
 let _ = require('lodash');
 
@@ -41,6 +42,11 @@ export class ElfColorfulUI extends ElfUI {
 		// Change the background color. The CSS rules will handle the animation.
 		this.content.style.backgroundColor = e.getColor();
 	}
+	
+	public onPositionChanged(p: Point): void {
+		// Do nothing (by now)
+	}
+
 	public onContentChanged(contents: Array<IContent>): void {
 		this.logger.log(Logger.LEVEL.INFO, "onContentChanged", contents);
 

@@ -10,6 +10,7 @@ import { DefaultContentFactory } from '../../content/DefaultContentFactory';
 import { DefaultUIWidget } from './widget/DefaultTestUIWidget';
 import { TextTestUIWidget } from './widget/TextTestUIWidget';
 import { TestColorfulUIWidgetFactory } from './TestColorfulUIWidgetFactory';
+import { Point } from '../../utils/Point';
 
 let _ = require('lodash');
 
@@ -58,6 +59,11 @@ export class TestElfColorfulUI extends ElfUI {
 
 		this.face.setEmotion(e);
 	}
+
+	public onPositionChanged(p: Point): void {
+		this.logger.log(Logger.LEVEL.INFO, "onPositionChanged", p);
+	}
+
 	public onContentChanged(contents: Array<IContent>): void {
 		this.logger.log(Logger.LEVEL.INFO, "onContentChanged", contents);
 
