@@ -45,7 +45,7 @@ class IESService:
 
     def on_user_interaction(self, *params):
         # stuff-
-        logging.info("\t callback IES called")
+        logging.info("\tcallback IES called")
         self.timer.cancel()
         user_coord, emotion = self.get_mean_user_emotion()
         if (emotion == self.last_user_emotion):
