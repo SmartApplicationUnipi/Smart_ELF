@@ -1,6 +1,6 @@
 import speech_recognition as sr
 import sys
-sys.path.insert(0, '../SmartApp.KB/bindings/python')
+sys.path.insert(0, '../SmartApp.KB/bindings/python/')
 import kb
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
