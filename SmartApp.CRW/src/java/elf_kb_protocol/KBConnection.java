@@ -1,11 +1,13 @@
 package elf_kb_protocol;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -25,6 +27,8 @@ public class KBConnection {
     private static final int DEFAULT_PORT = 5666;
     private static final String DEFAULT_HOST = "ws://localhost";
     private static final String ADD_FACT_METHOD = "addFact";
+    private static final String REGISTER_TAGS_METHOD = "registerTags";
+    private static final String DEFAULT_TOKEN = "smartapp1819";
 
     private final Gson gson = new Gson();
 
@@ -130,8 +134,11 @@ public class KBConnection {
         if (!this.isConnected())
             return;
 
-        String regJson = "{\"method\": \"register\", \"params\": {}}";
-        this.socket.sendString(regJson);
+        //String regJson = "{\"method\": \"register\", \"params\": {}}";
+        //TODO: expand tags object
+
+        String registerJson = gson.toJson(new KBMethod(REGISTER_TAGS_METHOD, new Tags(), DEFAULT_TOKEN));
+        this.socket.sendString(registerJson);
         this.idSource = this.socket.getNextMessage();
     }
 
@@ -146,7 +153,7 @@ public class KBConnection {
             throw new Exception("Fact reliability must be a value between 0 and 100.");
 
         f.setIdSource(this.idSource);
-        String factJson = gson.toJson(new KBMethod(ADD_FACT_METHOD, f));
+        String factJson = gson.toJson(new KBMethod(ADD_FACT_METHOD, f, DEFAULT_TOKEN));
         System.out.println(factJson);
         this.socket.sendString(factJson);
         this.socket.getNextMessage();
