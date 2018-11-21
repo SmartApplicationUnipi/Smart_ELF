@@ -53,12 +53,32 @@ namespace SmartApp.HAL.Implementation
             {
                 Size = new Size(640, 50),
                 Location = new Point(0, 0),
-                Text = "Press and hold to record",
+                Text = "Click to start recording",
+                ForeColor = Color.Black,
                 Font = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold)
             };
             form.Controls.Add(btn);
-            btn.MouseDown += (_, __) => { _videoSource.Start(); _audioSource.Start(); };
-            btn.MouseUp += (_, __) => { _videoSource.Stop(); _audioSource.Stop(); };
+
+            var active = false;
+            btn.Click += (_, __) =>
+            {
+                if (active)
+                {
+                    _videoSource.Stop();
+                    _audioSource.Stop();
+                    btn.ForeColor = Color.Black;
+                    btn.Text = "Click to start recording";
+                }
+                else
+                {
+                    _videoSource.Start();
+                    _audioSource.Start();
+                    btn.ForeColor = Color.Red;
+                    btn.Text = "Click to stop recording";
+                }
+
+                active = !active;
+            };
             
             // Draw the rectangles for the faces on the bitmap and show it on the screen
             //_videoSource.FrameReady += (_, frame) => {
