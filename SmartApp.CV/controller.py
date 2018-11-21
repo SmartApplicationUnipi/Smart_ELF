@@ -71,7 +71,7 @@ class Controller():
         if Controller.q.full():
             Controller.q.get()
 
-        Controller.q.put(frame_obj)
+        Controller.q.put(frame_obj.numpyFaces)
 
     def _worker(self, queue):
         """
@@ -87,11 +87,13 @@ class Controller():
                 if self.webcam:
                     ret, frame = self.video_capture.read() #np.arra
                     frame = cv2.resize(frame, (320, 240))
-                    queue.put(frame)
+                    self.watch(frame)
+                else:
+                    frame_list = queue.get()
+                    for frame in frame_list:
+                        self.watch(frame.data)
+                    queue.task_done()
 
-                frame_obj = queue.get()
-                self.watch(frame_obj.numpyFaces[0].data)
-                queue.task_done()
         except Exception as e:
             print(e)
 
@@ -149,5 +151,5 @@ class Controller():
 
 
 if __name__ == '__main__':
-    controller = Controller(True)
+    controller = Controller(True, True)
     input('Enter anything to close:')
