@@ -50,7 +50,7 @@ The module receives a frame containing a face and outputs a dictionary structure
   'pinch': position to look in y axis -- float [-1, +1],
   'yaw': position to look in y axis -- float [-1, +1]
 }
-'interlocutor': whether the person is the interlocutor -- 'True' / 'False'
+'isInterlocutor': whether the person is the interlocutor -- 'True' / 'False'
 }
 ```
 
