@@ -30,7 +30,7 @@ namespace SmartApp.HAL.Implementation
             var form = new Form()
             {
                 Text = "SmartApp",
-                ClientSize = new Size(640, 530),
+                ClientSize = new Size(640, 50),
                 StartPosition = FormStartPosition.CenterScreen,
                 MinimizeBox = false,
                 MaximizeBox = false,
@@ -38,21 +38,21 @@ namespace SmartApp.HAL.Implementation
             };
 
             // Image to render the video
-            var buffer = new Bitmap(640, 480, PixelFormat.Format24bppRgb);
-            var latestTimestamp = DateTime.Now;
-            var image = new PictureBox()
-            {
-                Size = new Size(640, 480),
-                Location = new Point(0, 0),
-                Image = buffer
-            };
-            form.Controls.Add(image);
+            //var buffer = new Bitmap(640, 480, PixelFormat.Format24bppRgb);
+            //var latestTimestamp = DateTime.Now;
+            //var image = new PictureBox()
+            //{
+            //    Size = new Size(640, 480),
+            //    Location = new Point(0, 0),
+            //    Image = buffer
+            //};
+            //form.Controls.Add(image);
 
             // Button
             var btn = new Button()
             {
                 Size = new Size(640, 50),
-                Location = new Point(0, 480),
+                Location = new Point(0, 0),
                 Text = "Press and hold to record",
                 Font = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold)
             };
@@ -61,33 +61,33 @@ namespace SmartApp.HAL.Implementation
             btn.MouseUp += (_, __) => { _videoSource.Stop(); _audioSource.Stop(); };
             
             // Draw the rectangles for the faces on the bitmap and show it on the screen
-            _videoSource.FrameReady += (_, frame) => {
-                image.Invoke((Action)(() => {
+            //_videoSource.FrameReady += (_, frame) => {
+            //    image.Invoke((Action)(() => {
 
-                    if (latestTimestamp >= frame.Timestamp)
-                    {
-                        return;
-                    }
+            //        if (latestTimestamp >= frame.Timestamp)
+            //        {
+            //            return;
+            //        }
 
-                    using (var g = Graphics.FromImage(buffer))
-                    using (var pen = new Pen(Color.Red, 3f))
-                    using (var fpsFont = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
-                    {
-                        g.Clear(Color.LightGray);
+            //        using (var g = Graphics.FromImage(buffer))
+            //        using (var pen = new Pen(Color.Red, 3f))
+            //        using (var fpsFont = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
+            //        {
+            //            g.Clear(Color.LightGray);
 
-                        foreach (var face in frame.Faces)
-                        {
-                            //g.DrawImage(frame.Image, face.Bounds, face.Bounds, GraphicsUnit.Pixel);
-                            g.DrawRectangle(pen, face.Bounds);
-                        }
+            //            foreach (var face in frame.Faces)
+            //            {
+            //                //g.DrawImage(frame.Image, face.Bounds, face.Bounds, GraphicsUnit.Pixel);
+            //                g.DrawRectangle(pen, face.Bounds);
+            //            }
 
-                        g.DrawString($"{_videoSource.Framerate} fps", fpsFont, Brushes.Red, 0, 0);
-                    }
+            //            g.DrawString($"{_videoSource.Framerate} fps", fpsFont, Brushes.Red, 0, 0);
+            //        }
 
-                    latestTimestamp = frame.Timestamp;
-                    image.Refresh();
-                }));
-            };
+            //        latestTimestamp = frame.Timestamp;
+            //        image.Refresh();
+            //    }));
+            //};
 
             // Show the form and block
             Application.EnableVisualStyles();

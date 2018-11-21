@@ -87,16 +87,27 @@ namespace SmartApp.HAL.Implementation
             where TDataPacket : IMessage<TDataPacket>
             where TControlPacket : IMessage<TControlPacket>
         {
-            private class Connection
+            private class Connection : IDisposable
             {
                 public Connection(TcpClient client, Thread t)
                 {
                     Client = client;
                     Thread = t;
+                    Stream = client.GetStream();
+                    RemoteEndPoint = client.Client.RemoteEndPoint;
                 }
 
                 public TcpClient Client { get; }
                 public Thread Thread { get; }
+                public EndPoint RemoteEndPoint { get; }
+                public NetworkStream Stream { get; }
+
+                public void Dispose()
+                {
+                    Client.Close();
+                    Stream.Dispose();
+                    Client.Dispose();
+                }
             }
 
             private readonly MessageParser<TControlPacket> _parser;
@@ -156,7 +167,7 @@ namespace SmartApp.HAL.Implementation
                 {
                     foreach (var c in _connections)
                     {
-                        c.Client.Close();
+                        c.Dispose();
                     }
                 }
 
@@ -236,12 +247,12 @@ namespace SmartApp.HAL.Implementation
                             {
                                 try
                                 {
-                                    packet.WriteDelimitedTo(conn.Client.GetStream());
+                                    packet.WriteDelimitedTo(conn.Stream);
                                 }
                                 catch (Exception)
                                 {
                                     // Close the client socket and interrupt its thread
-                                    conn.Client.Close();
+                                    conn.Dispose();
                                     conn.Thread.Interrupt();
                                 }
                             }
@@ -265,7 +276,7 @@ namespace SmartApp.HAL.Implementation
                     try
                     {
                         // Read an incoming data packet from the client
-                        var packet = _parser.ParseDelimitedFrom(connection.Client.GetStream());
+                        var packet = _parser.ParseDelimitedFrom(connection.Stream);
 
                         // We got a new packet!
                         IncomingControlPacket?.Invoke(packet);
@@ -274,7 +285,7 @@ namespace SmartApp.HAL.Implementation
                     {
                         if (!_isDisposed && !(e is ThreadInterruptedException))
                         {
-                            _logger.LogInformation("Client {0} disconnected.", connection.Client.Client.RemoteEndPoint);
+                            _logger.LogInformation("Client {0} disconnected.", connection.RemoteEndPoint);
                         }
 
                         // The client wither disconnected or sent an invalid packet, so kill this connection.
@@ -284,8 +295,7 @@ namespace SmartApp.HAL.Implementation
                 }
 
                 // Remove our self from the list of connections
-                connection.Client.Close();
-                connection.Client.Dispose();
+                connection.Dispose();
                 while (true)
                 {
                     try
@@ -296,7 +306,7 @@ namespace SmartApp.HAL.Implementation
                         }
                         break;
                     }
-                    catch (ThreadInterruptedException) when (_isDisposed)
+                    catch (ThreadInterruptedException)
                     {
                         // Keep on trying
                     }
