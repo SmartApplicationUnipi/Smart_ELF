@@ -10,7 +10,7 @@ def analyze_sentence(sentence):
     '''
     paralleldots.set_api_key(key)
     result = paralleldots.emotion(sentence)
-	
+
     return result['emotion']['probabilities']
 
 def extract_emotion(sentence):

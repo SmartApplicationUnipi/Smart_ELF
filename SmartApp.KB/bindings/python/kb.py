@@ -86,7 +86,8 @@ class subscrThr (threading.Thread):
 		threading.Thread.__init__(self)
 		self.callback = callback
 		self.websocket = websocket
-	def run(self):
+
+        def run(self):
 		try:
 			while(1):
 				reply = self.websocket.recv()

@@ -5,7 +5,11 @@ VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartApp.HAL", "SmartApp.HAL\SmartApp.HAL.csproj", "{EA1DF65F-0F21-4224-8BA0-9116A5A7040D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YarpBindings", "YarpBindings\YarpBindings.csproj", "{91E035CF-0F45-4FD3-8C50-BA5C5EC33317}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Protobuf", "Protobuf", "{3E10A535-CE23-4AC2-9EC0-18A8460CF355}"
+	ProjectSection(SolutionItems) = preProject
+		Protobuf\AudioPacket.proto = Protobuf\AudioPacket.proto
+		Protobuf\VideoPacket.proto = Protobuf\VideoPacket.proto
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +21,6 @@ Global
 		{EA1DF65F-0F21-4224-8BA0-9116A5A7040D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EA1DF65F-0F21-4224-8BA0-9116A5A7040D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EA1DF65F-0F21-4224-8BA0-9116A5A7040D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{91E035CF-0F45-4FD3-8C50-BA5C5EC33317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91E035CF-0F45-4FD3-8C50-BA5C5EC33317}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{91E035CF-0F45-4FD3-8C50-BA5C5EC33317}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91E035CF-0F45-4FD3-8C50-BA5C5EC33317}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
