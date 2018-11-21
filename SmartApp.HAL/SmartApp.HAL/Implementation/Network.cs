@@ -265,32 +265,25 @@ namespace SmartApp.HAL.Implementation
                     try
                     {
                         // Read an incoming data packet from the client
-                        TControlPacket packet;
-                        try
-                        {
-                            packet = _parser.ParseDelimitedFrom(connection.Client.GetStream());
-                        }
-                        catch (Exception)
-                        {
-                            // The client wither disconnected or sent an invalid packet, so kill this connection
-                            break;
-                        }
+                        var packet = _parser.ParseDelimitedFrom(connection.Client.GetStream());
 
                         // We got a new packet!
                         IncomingControlPacket?.Invoke(packet);
                     }
-                    catch (ThreadInterruptedException) when (_isDisposed)
+                    catch (Exception e)
                     {
-                        // We just got interrupted, so exit immediately
+                        if (!_isDisposed && !(e is ThreadInterruptedException))
+                        {
+                            _logger.LogInformation("Client {0} disconnected.", connection.Client.Client.RemoteEndPoint);
+                        }
+
+                        // The client wither disconnected or sent an invalid packet, so kill this connection.
+                        // We will reach this point also if we get interrupted.
                         break;
                     }
                 }
 
                 // Remove our self from the list of connections
-                if (!_isDisposed)
-                {
-                    _logger.LogInformation("Client {0} disconnected.", connection.Client.Client.RemoteEndPoint);
-                }
                 connection.Client.Close();
                 connection.Client.Dispose();
                 while (true)
@@ -303,7 +296,7 @@ namespace SmartApp.HAL.Implementation
                         }
                         break;
                     }
-                    catch (ThreadInterruptedException)
+                    catch (ThreadInterruptedException) when (_isDisposed)
                     {
                         // Keep on trying
                     }
