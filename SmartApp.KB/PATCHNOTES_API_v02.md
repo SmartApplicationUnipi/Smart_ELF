@@ -45,3 +45,20 @@ Now the server functions return the result within an object consisting of the fo
 ```
 Type of details property depends on the function called. For more info consult the documentation provided by *kbman*
 
+# Token authentication
+Notice that the websocket interface now needs an auth token string in the json message.
+
+Now you have to send to the server a message in this format:
+```json
+{   
+    method: METHODNAME,
+    params: { params object }
+    token: TOKENSTRING
+}
+```
+
+The actual TOKENSTRING is this supersecure string: `smartapp1819`
+
+# Other bindings
+For your own implementation of websocket communication please refer to `SmartApp.KB/bindings/python/kb.py`
+to have a clear view of messages to send in order to use the new interface
