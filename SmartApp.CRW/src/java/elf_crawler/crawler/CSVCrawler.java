@@ -6,7 +6,7 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
-import elf_crawler.relationship.Relation;
+import elf_crawler.relationship.RelationQuery;
 import elf_crawler.relationship.RelationshipSet;
 
 import java.io.*;
@@ -55,10 +55,10 @@ public class CSVCrawler extends Crawler {
     }
 
     /* Creates a list of DataEntry to send at kb (from a list of relations) */
-    private List<DataEntry> buildEntriesFromRelations(List<Relation> relations){
+    private List<DataEntry> buildEntriesFromRelations(List<RelationQuery> relations){
         List<DataEntry> entries = new ArrayList<>(relations.size());
 
-        for (Relation r : relations)
+        for (RelationQuery r : relations)
             entries.add(new DataEntry(this.file.getLink().getUrl(), this.timestamp, DataEntryType.RDF, r));
 
         return entries;
