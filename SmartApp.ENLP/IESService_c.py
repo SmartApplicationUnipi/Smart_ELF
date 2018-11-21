@@ -45,7 +45,7 @@ class IESService:
 
     def on_user_interaction(self, *params):
         # stuff-
-        logging.debug("\t on_user_interaction")
+        logging.info("\tcallback IES called")
         self.timer.cancel()
         user_coord, emotion = self.get_mean_user_emotion()
         if (emotion == self.last_user_emotion):
@@ -97,6 +97,6 @@ class IESService:
         """
         Start service
         """
-        self.kb_client.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input"}, self.on_user_interaction) #todo change with appropriate tag
+        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input"}}, self.on_user_interaction) #todo change with appropriate tag
         self.timer = threading.Timer(self.idle_time_update, self.timed_update)
         self.timer.start()

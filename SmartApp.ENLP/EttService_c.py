@@ -28,7 +28,7 @@ class EttService:
         to the user in order to transform it with respect to some emotion
         extrapolated by ELF internal state (tuples)
         """
-        answer = param[0][0]["$input"]
+        answer = param[0][0][0]["$input"]
         logging.info("\tcallback ett called")
         a_fact, e_fact = prepare_answer(answer)
         self.write_to_KB(a_fact, TAG_COLORED_ANSWER)
@@ -36,7 +36,7 @@ class EttService:
 
     def start(self):
         """Subscribe and wait for data"""
-        self.kb_client.subscribe(self.kb_ID, {"TAG":TAG_ANSWER, "text": "$input"}, self.add_emotion) # from the 'gnlp' module
+        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_ANSWER, "text": "$input"}}, self.add_emotion) # from the 'gnlp' module
 
 
 if __name__ == "__main__":

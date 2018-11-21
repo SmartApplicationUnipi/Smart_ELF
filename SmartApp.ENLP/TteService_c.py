@@ -28,8 +28,8 @@ class TteService:
         """
         Assess user emotion from a given sentence
         """
-        sentence = param[0][0]["$input"]
-        lang = param[0][0]["$lang"]
+        sentence = param[0][0][0]["$input"]
+        lang = param[0][0][0]["$lang"]
         logging.info("\tcallback TTE called")
         if (lang == "it"):
             sentence = translate(sentence,self.watson_auth)
@@ -38,7 +38,7 @@ class TteService:
         return
 
     def start(self):
-        self.kb_client.subscribe(self.kb_ID, {"TAG": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang"}, self.text_to_emotion) #from the 'text to speech' module
+        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang"}}, self.text_to_emotion) #from the 'text to speech' module
 
     if __name__ == "__main__":
         '''

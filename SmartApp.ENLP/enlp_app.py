@@ -75,10 +75,14 @@ def __main__():
             TAG_COLORED_ANSWER : {'desc' : 'Reply to the user with emotion content in it', 'doc' : DESC_COLORED_ANSWER}
     }
 
-    res = kb_client.registerTags(tags)
-    if not res['success']:
-        logging.critical(res['details'])
-        return
+    tag_list = [TAG_USER_EMOTION, TAG_ELF_EMOTION, TAG_COLORED_ANSWER]
+    for tag in tag_list:
+        check_tag = kb_client.getTagDetails([tag])
+        if not check_tag['success']:
+            res = kb_client.registerTags( { tag : tags[tag] } )
+            if not res['success']:
+                logging.critical(res['details'])
+                return
 
     logging.info("Emotional NLP module registered")
 
