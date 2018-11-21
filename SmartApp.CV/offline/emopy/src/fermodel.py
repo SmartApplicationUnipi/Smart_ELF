@@ -3,7 +3,7 @@ import cv2
 from scipy import misc
 import numpy as np
 import json
-from pkg_resources import resource_filename
+import os
 
 class FERModel:
     """
@@ -107,8 +107,9 @@ class FERModel:
         model_suffix = ''.join(sorted_indices)
         model_file = 'models/conv_model_%s.hdf5' % model_suffix
         emotion_map_file = 'models/conv_emotion_map_%s.json' % model_suffix
-        emotion_map = json.loads(open(resource_filename('EmoPy',emotion_map_file)).read())
-        return load_model(resource_filename('EmoPy',model_file)), emotion_map
+        package_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
+        emotion_map = json.loads(open(os.path.join(package_path, emotion_map_file)).read())
+        return load_model(os.path.join(package_path, model_file)), emotion_map
 
     def _print_prediction(self, prediction):
         normalized_prediction = [x/sum(prediction) for x in prediction]
