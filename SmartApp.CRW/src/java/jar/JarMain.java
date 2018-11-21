@@ -4,9 +4,9 @@ import elf_crawler.CrawlingManager;
 import elf_crawler.URLSet;
 import elf_crawler.crawler.DataEntry;
 import elf_crawler.relationship.RelationshipSet;
-import elf_kb_protocol.Fact;
-import elf_kb_protocol.KBConnection;
-import elf_kb_protocol.KBTTL;
+import elf_crawler.util.LogLevel;
+import elf_crawler.util.Logger;
+import elf_kb_protocol.*;
 
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
@@ -52,14 +52,17 @@ public class JarMain {
         try {
             KBConnection con = new KBConnection(KBHost, KBPort);
             Logger.info("Registering Crawler!");
-            con.register();
+
+            JReq jreq = new JReq();
+            jreq.addTag("t1", "d1", "doc1");
+            con.registerTags(jreq);
+
             Logger.info("Crawler entity registered!");
             for (DataEntry d : dataEntries) {
                 if (d == null) continue;
-
-                d.setTag(CrawlingManager.CRAWLER_DATA_ENTRY_TAG);
                 Logger.info("Added entry: " + d);
-                con.addFact(new Fact(CrawlingManager.CRAWLER_DATA_ENTRY_TAG, KBTTL.DAY, 100, true, d));
+
+                con.addFact(new Fact("t1", KBTTL.DAY, 100, true, d));
             }
 
             con.closeConnection();
@@ -77,7 +80,7 @@ public class JarMain {
             Logger.critical(USAGE_STRING);
 
         for (Argument a : arg) {
-            switch (a.flag) {
+            switch (a.flag.toLowerCase()) {
                 case "d":
                     if (a.values.size() != 1)
                         Logger.critical("Usage:\n-d <max-crawling-depth> The maximum depth to crawl for.");
@@ -90,7 +93,7 @@ public class JarMain {
                     break;
                 case "h":
                 case "help":
-                    System.out.println(USAGE_STRING + "\n" + FLAGS_STRING);
+                    System.out.println(USAGE_STRING);
                     System.exit(0);
                 case "host":
                     switch (a.values.size()) {
@@ -137,6 +140,7 @@ public class JarMain {
                         error("Usage:\n-s <urlset.json location>");
                     urlsetFilename = a.values.get(0);
 
+                    break;
                 default:
                     Logger.critical(String.format("Unrecognized flag '%s'. ", a.flag) + USAGE_STRING);
             }

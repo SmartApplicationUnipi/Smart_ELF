@@ -2,6 +2,7 @@ package elf_crawler;
 
 import elf_crawler.crawler.*;
 import elf_crawler.relationship.RelationshipSet;
+import elf_crawler.util.Logger;
 import elf_crawler.util.MimeType;
 
 import java.io.*;
@@ -175,7 +176,7 @@ public class CrawlingManager {
 
             }
             catch (Exception e) {
-                e.printStackTrace();
+                Logger.exception(e);
             }
             finally {
                 this.workingCrawlers.decrementAndGet();

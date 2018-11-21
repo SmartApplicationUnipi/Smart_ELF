@@ -1,4 +1,4 @@
-package jar;
+package elf_crawler.util;
 
 public enum LogLevel {
     ERROR, WARN, INFO;

@@ -4,15 +4,15 @@ import elf_crawler.URLSet;
 import elf_crawler.crawler.DataEntry;
 import elf_crawler.relationship.RdfRelation;
 import elf_crawler.relationship.RelationshipSet;
+import elf_crawler.util.Logger;
 import elf_kb_protocol.Fact;
+import elf_kb_protocol.JReq;
 import elf_kb_protocol.KBConnection;
 import elf_kb_protocol.KBTTL;
-import org.slf4j.Logger;
 
 import java.io.*;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.LogManager;
 
 public class Main {
 
@@ -34,14 +34,15 @@ public class Main {
             System.err.println(String.format("Discovered %d new links!", cs.getNewLinkCount()));
         }
 
-        KBConnection con = new KBConnection("ws://131.114.3.213", 5666);
-        con.register();
-        for (DataEntry d: dataEntries) {
-            if (d == null) continue;
+        KBConnection con = new KBConnection("ws://localhost", 5666);
 
-            d.setTag(CrawlingManager.CRAWLER_DATA_ENTRY_TAG);
-            System.out.println(d);
-            con.addFact(new Fact(CrawlingManager.CRAWLER_DATA_ENTRY_TAG, KBTTL.DAY, 70, true, d));
+        JReq jreq = new JReq();
+        jreq.addTag("t1", "d1", "doc1");
+        con.registerTags(jreq);
+
+        for (DataEntry d : dataEntries) {
+            if (d == null) continue;
+            con.addFact(new Fact("t1", KBTTL.DAY, 100, true, d));
         }
 
         con.closeConnection();

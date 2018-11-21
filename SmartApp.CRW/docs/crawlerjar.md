@@ -9,6 +9,7 @@ Running the jar file:
 ### Flags
 
 All flags can be inserted in any order you desire. Some flags are mandatory and others are optional. For the optional ones, not providing them will load the default values.
+<br>
 
 **-d [depth]**
 *Optional, DEFAULT = 1*
@@ -24,11 +25,14 @@ Means the crawler will crawl all the URLs provided in the *URLSet* and any URLs 
 <img src="depth.png" width=300>
 
 **Warning! As depth increases, the amount of crawled documents increases exponentially. A large value will ultimately cause an** ***OutOfMemoryException***
+<br>
+
 
 **-h, -help**
 *Optional*
 
 Prints the description of the flags to the console.
+<br>
 
 **-host [hostname]**
 *Optional DEFAULT = "localhost"*
@@ -39,6 +43,7 @@ Sets the hostname of the KB server. The port will be defaulted to *5666*
 *Optional DEFAULT_HOSTNAME = "localhost", DEFAULT_PORT = 5666*
 
 Sets the hostname and the port of the KB server.
+<br>
 
 **-l, -log, -loglevel [log level]**
 *Optional DEFAULT = 3*
@@ -48,16 +53,19 @@ Sets the *Logger*'s logginf level to either
 *"1"* or *"error"* **Error only**
 *"2"* or *"warn"*  **Error and Warnings**
 *"3"* or  *"info"* **Error, Warnings** and **Information**
+<br>
 
 **-r, -relations [filename]**
 *Required*
 
 Sets the location of the *RelationshipSet* json file. 
+<br>
 
 **-u, -urls [filename]**
 *Required*
 
 Sets the location of the *URLSet* json file. 
+<br>
 
 **-t, -threads [number of threads]**
 *Optional DEFAULT = Number of CPU Threads*

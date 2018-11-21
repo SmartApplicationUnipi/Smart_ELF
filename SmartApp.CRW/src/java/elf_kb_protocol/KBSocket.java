@@ -1,5 +1,6 @@
 package elf_kb_protocol;
 
+import elf_crawler.util.Logger;
 import org.eclipse.jetty.websocket.api.RemoteEndpoint;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
@@ -42,26 +43,20 @@ public class KBSocket {
         this.messageQueue.add(msg);
     }
 
-    public boolean hasMessages(){
-        return this.messageQueue.size() > 0;
-    }
-
-    public String getNextMessage() throws InterruptedException {
-        return this.messageQueue.take();
-    }
-
-    public void sendString(String str) throws IOException {
+    public String sendString(String str) throws IOException, InterruptedException {
         this.getRemote().sendString(str);
+
+        try {
+            return this.messageQueue.poll(KBConnection.TIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e)
+        {
+            return null;
+        }
     }
 
     public RemoteEndpoint getRemote()
     {
         return this.session.getRemote();
-    }
-
-    public boolean awaitConnectionOpen(int duration, TimeUnit unit) throws InterruptedException
-    {
-        return this.connectionOpenLatch.await(duration, unit);
     }
 
     public void awaitConnectionOpen() throws InterruptedException, SocketTimeoutException {
