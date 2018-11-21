@@ -1,7 +1,7 @@
 from external_modules.kb_client import KnowledgeBaseClient as kb
 import external_modules.hal_client as hal
 from online.interface import online_connector as online
-# import offline.interface as offline
+#from offline.offvision import OffVision as offline
 
 from threading import *
 from queue import Queue

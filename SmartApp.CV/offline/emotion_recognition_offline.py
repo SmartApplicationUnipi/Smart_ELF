@@ -1,8 +1,7 @@
 from emopy import FERModel
 from FERModelEnsemble import *
 import cv2 as cv
-from controller import Controller
-from offline.offvision import OffVision as offline
+from offvision import OffVision as offline
 
 # these are all the emotions but there are pretrained models only for subsets
 #target_emotions = ['calm', 'anger', 'happiness', 'disgust', 'surprise', 'sadness', 'fear']
@@ -16,10 +15,8 @@ cam = cv.VideoCapture(0)
 
 while True:
 	retval, frame = cam.read()
-	
-	#print(model.predict_frame(image=frame))
-	#print()
-	model.analyze_frame(frame)
+
+	print(model.analyze_face(frame))
 
 	cv.imshow('cam', frame)
 	cv.waitKey(1) & 0xFF == ord('q')
