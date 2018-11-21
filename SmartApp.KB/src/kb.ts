@@ -99,6 +99,8 @@ export function registerTags(tagsList: any): Response { // tagsList is a map tag
     return new Response(true, {});
 }
 
+registerTags({INFERENCE: new TagInfo('inference','inference fact added by the inference engine stub')});
+
 export function getTagDetails(tags: string[]) {
     const res: any = {};
     let found: boolean = false;

@@ -3,7 +3,7 @@ import { addFact, databaseFact, databaseRule, DataRule } from './kb';
 import { findMatchesBind, isPlaceholder } from './matcher';
 
 const INFERENCE_TAG = 'INFERENCE';
-const DEBUG = 0;
+const DEBUG = 6;
 
 const WHITE = '\x1b[0m';
 const RED = '\x1b[1;31m';
@@ -31,14 +31,12 @@ function checkRule(head: object, body: object[], fact: object) {
 
     let binds;
     for (const pred of body) {
-        clog(BLUE, 'INFO', 0, '', 'guardo il predicato', 10);
-        console.log(pred); console.log();
+        clog(BLUE, 'INFO', 1, '', 'guardo il predicato', 10);
 
         // cerco se fact matcha un pred nel body
         binds = findMatchesBind(pred, [fact]);
 
-        // console.log('primo match ha length');
-        // console.log(binds.length);
+        clog(BLUE, 'INFO', 2, '', 'primo match ha length ' + binds.length, 10);
         // console.log();
         if (binds.length > 0) {
             break;
@@ -46,26 +44,24 @@ function checkRule(head: object, body: object[], fact: object) {
     }
 
     if (binds.length > 0) {
-        // console.log('ho mathacto un predicato');
+        clog(BLUE, 'INFO', 3, '', 'ho matchato un predicato ', 10);
         // console.log();
 
         // se ho matchato un predicato del body,
         // cerco nel dataset se esiste soluzione per ciascun degli altri pred
         for (const pred of body) {
-            // console.log('guardo il predicato');
-            // console.log(pred);
-            // console.log();
+            clog(BLUE, 'INFO', 4, '', 'guardo il predicato ', 10);
 
             let tempbinds: any[] = [];
             for (const bi of binds) {
-                // console.log('guardo il binding');
+                clog(BLUE, 'INFO', 5, '', 'guardo il binding ', 10);
                 // console.log(bi);
                 // console.log();
 
                 const b = findMatchesBind({ _data: pred }, Array.from(databaseFact.values()), bi);
                 // b se non è vuoto contiene i nuovi bindings (che contengono bi)
-                // console.log('trovo la soluzione');
-                // console.log(b);
+                clog(GREEN, 'OK', 5, '', 'trovata soluzione: ', 5);
+                console.log(b);
                 // console.log();
 
                 tempbinds = tempbinds.concat(b);
@@ -80,28 +76,30 @@ function checkRule(head: object, body: object[], fact: object) {
             }
         }
         // ho matchato tutti i body
-        // console.log('SONO USCITO!');
-        // console.log(binds);
+        clog(GREEN, 'OK', 7, '', 'HO MATCHATO TUTTII BODY', 5);
+        console.log(binds);
         // console.log();
+        for (const bind of binds) {
+            for (const b of bind) {
 
-        for (const b of binds) {
-
-            const magia = (h: any) => {
-                const hh = Object.assign({}, h);
-                const ks = Object.keys(h);
-                for (const key of ks) {
-                    if (isPlaceholder(h[key])) {
-                        hh[key] = b[h[key]];
+                const magia = (h: any) => {
+                    const hh = Object.assign({}, h);
+                    const ks = Object.keys(h);
+                    for (const key of ks) {
+                        if (isPlaceholder(h[key])) {
+                            hh[key] = b[h[key]];
+                        }
+                        if (isObject(h[key])) {
+                            hh[key] = magia(h[key]);
+                        }
                     }
-                    if (isObject(h[key])) {
-                        hh[key] = magia(h[key]);
-                    }
-                }
-                return hh;
-            };
-            // tslint:disable-next-line:max-line-length
-            // addFact('inference', 'infoSum', 1, 100, true, {subject: b.$prof, relation: 'is in room', object: b.$room});
-            addFact('inference', INFERENCE_TAG, 1, 100, magia(head));
+                    return hh;
+                };
+                // tslint:disable-next-line:max-line-length
+                // addFact('inference', 'infoSum', 1, 100, true, {subject: b.$prof, relation: 'is in room', object: b.$room});
+                console.log('INFERENCE MAGIA ', magia(head));
+                console.log('INFERENCE ADDFACT ', addFact('inference', INFERENCE_TAG, 1, 100, magia(head)));
+            }
         }
     }
 }
