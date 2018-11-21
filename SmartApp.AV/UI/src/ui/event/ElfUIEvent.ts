@@ -34,3 +34,4 @@ export class ElfUIEvent {
 
 export const KEY_EMOTION: string = "key_emotion"
 export const KEY_CONTENT: string = "key_event"
+export const KEY_POSITION: string = "key_position"

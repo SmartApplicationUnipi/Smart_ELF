@@ -1,0 +1,42 @@
+/* Colorful */
+
+.ui-content {
+    height: 100%;
+    width: 100%;
+}
+
+.colorful-ui.ui-content {
+    transition: background-color 5s;
+}
+
+[ui-pnotify].ui-pnotify.custom .ui-pnotify-container {
+    background-color: #404040;
+    background-image: none;
+    border: none;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    padding: 15px;
+    font-size: 15px;
+}
+
+[ui-pnotify].ui-pnotify.custom {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    line-height: 1.1;
+}
+
+[ui-pnotify].ui-pnotify.custom .ui-pnotify-title,
+[ui-pnotify].ui-pnotify.custom .ui-pnotify-text {
+    margin-left: 50px;
+    color: #FFF;
+}
+
+[ui-pnotify].ui-pnotify.custom .ui-pnotify-title {
+    font-weight: bold;
+    font-size: 15px;
+}
+
+[ui-pnotify].ui-pnotify.custom .ui-pnotify-icon {
+    color: #FFA;
+}

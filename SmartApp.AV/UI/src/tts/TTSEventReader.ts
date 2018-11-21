@@ -1,6 +1,7 @@
-import * as EventReader from '../reader/EventReader';
-import * as ElfUIEvent from '../ui/event/ElfUIEvent';
 import * as Logger from '../log/Logger';
+
+import { BaseEventReader } from '../reader/EventReader';
+import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 
 const TTS_URL: string = "ws://10.101.21.194:65432" // Remote TTS Service
 // const TTS_URL: string = "ws://localhost:65432" // Local TTS Service
@@ -8,7 +9,7 @@ const TTS_URL: string = "ws://10.101.21.194:65432" // Remote TTS Service
 /**
  * UI event reader for interacting with TTS module
  */
-export class TTSEventReader extends EventReader.BaseEventReader {
+export class TTSEventReader extends BaseEventReader {
 	private logger: Logger.ILogger = Logger.getInstance();
 
 	private socket: WebSocket;
@@ -31,8 +32,8 @@ export class TTSEventReader extends EventReader.BaseEventReader {
 				try {
 					let data = JSON.parse(message.data);
 
-					let event = new ElfUIEvent.ElfUIEvent()
-						.putAny(ElfUIEvent.KEY_CONTENT, { "audio": data });
+					let event = new ElfUIEvent()
+						.putAny(KEY_CONTENT, { "audio": data });
 
 					setTimeout(_ => {
 						this.listener.onEvent(event);
