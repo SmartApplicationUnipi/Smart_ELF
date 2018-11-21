@@ -31,6 +31,7 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin([
             { from: 'res', to: 'res' }, // Copy res folder
+            { from: 'css', to: 'css' }
         ])
     ]
 };
