@@ -14,7 +14,6 @@ import java.util.List;
 
 public class JarMain {
 
-    private static final String USAGE_STRING = "Usage: <crawler> <flags>";
     private static final String FLAGS_STRING =
             "-d <max crawling depth>: the maximum depth that will be crawled.\n" +
                     "-h,-help: prints help\n" +
@@ -24,6 +23,7 @@ public class JarMain {
                     "-r,-relations <filename>: relationship set location (required)\n" +
                     "-t,-threads <numthreads>: how many threads to use in the Crawler. Default is the amount of threads in the CPU\n" +
                     "-u,-urls <filename>: url set location (required)\n";
+    private static final String USAGE_STRING = "Usage: <crawler> <flags>\n\nFlags:\n" + FLAGS_STRING;
 
 
     private static int maxCrawlingDepth = 1;
@@ -138,7 +138,7 @@ public class JarMain {
                     urlsetFilename = a.values.get(0);
 
                 default:
-                    Logger.critical(String.format("Unrecognized flag %s. ", a.flag) + USAGE_STRING);
+                    Logger.critical(String.format("Unrecognized flag '%s'. ", a.flag) + USAGE_STRING);
             }
         }
 
