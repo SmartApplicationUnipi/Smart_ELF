@@ -1,11 +1,11 @@
 import { IEmotion } from '../../../emotion/Emotion'
 import { Point } from '../../../utils/Point'
-import { EmotionalWidget } from '../../../ui/widget/UIWidget'
+import { EmotionalUIWidget } from '../../../ui/widget/UIWidget'
 
 /**
  * Implementation of a widget displaying a face. For testing purposes only.
  */
-export class TestFace extends EmotionalWidget {
+export class TestFace extends EmotionalUIWidget {
 	private imgElement: HTMLElement;
 
 	constructor(rootElement: HTMLElement) {
@@ -54,6 +54,8 @@ export class TestFace extends EmotionalWidget {
 
 		return IMG_PATH + '/' + bestFace.name;
 	}
+
+	public render(): string { return "" }
 }
 
 const IMG_PATH = "res/img/faces";

@@ -3,7 +3,7 @@ import * as AudioPlayer from '../../audio/AudioPlayer';
 
 import { ElfUI, ElfUIFactory } from '../../ui/ElfUI';
 import { IEmotion, Emotion } from '../../emotion/Emotion';
-import { UIWidget, UIWidgetFactory, EmotionalWidget } from '../../ui/widget/UIWidget';
+import { UIWidget, UIWidgetFactory, EmotionalUIWidget } from '../../ui/widget/UIWidget';
 import { TestFace } from './face/TestFace';
 import { IContent, ContentFactory, AudioContent } from '../../content/Content';
 import { DefaultContentFactory } from '../../content/DefaultContentFactory';
@@ -26,7 +26,7 @@ export class TestElfColorfulUI extends ElfUI {
 	private resourcePanel: Element;
 	private facePanel: Element;
 
-	private face: EmotionalWidget;
+	private face: EmotionalUIWidget;
 
 	private audioPlayer: AudioPlayer.AudioPlayer;
 

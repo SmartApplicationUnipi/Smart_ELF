@@ -7,6 +7,8 @@ import { IContent, ContentFactory, AudioContent, TextContent, SpeechContent } fr
 import { DefaultContentFactory } from '../../content/DefaultContentFactory';
 import { Snackbar } from '../../utils/Snackbar';
 import { Point } from '../../utils/Point';
+import { EmotionalUIWidget } from '../widget/UIWidget';
+import { Smiley } from './widget/Smiley';
 
 let _ = require('lodash');
 
@@ -23,6 +25,8 @@ export class ElfColorfulUI extends ElfUI {
 
 	private content: HTMLElement;
 
+	private smiley: Smiley;
+
 	constructor(rootElement: HTMLElement, window: Window) {
 		super(rootElement);
 
@@ -30,10 +34,13 @@ export class ElfColorfulUI extends ElfUI {
 		this.audioPlayer = new AudioPlayer.AudioPlayer(AudioPlayer.getContext(window));
 	}
 
-	onCreateView(root: HTMLElement): void {
+	public onCreateView(root: HTMLElement): void {
 		root.innerHTML = this.getTemplate();
 
 		this.content = _.first(root.getElementsByClassName("ui-content"));
+		
+		this.smiley = new Smiley(root.ownerDocument);
+		this.content.appendChild(this.smiley.getElement());
 	}
 
 	public onEmotionChanged(e: IEmotion): void {
@@ -41,6 +48,8 @@ export class ElfColorfulUI extends ElfUI {
 
 		// Change the background color. The CSS rules will handle the animation.
 		this.content.style.backgroundColor = e.getColor();
+
+		this.smiley.onEmotionChanged(e);
 	}
 	
 	public onPositionChanged(p: Point): void {

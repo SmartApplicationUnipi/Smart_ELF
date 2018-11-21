@@ -16,7 +16,7 @@ export interface UIWidget {
 /**
  * This class represent an item that have an emotion.
  */
-export abstract class EmotionalWidget {
+export abstract class EmotionalUIWidget implements UIWidget {
 	/**
 	 * Construct the widget using a neutral emotion as default.
 	 * @param emotion The current emotion. If nothing is passed, the neutral emotion is used.
@@ -45,6 +45,11 @@ export abstract class EmotionalWidget {
 	 * @param emotion The new emotion received
 	 */
 	abstract onEmotionChanged(emotion: Emotion.IEmotion): void;
+
+	/**
+	 * Returns the HTML code of this widget.
+	 */
+	abstract render(): string;
 };
 
 /**
