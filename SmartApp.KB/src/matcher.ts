@@ -1,4 +1,5 @@
 import { Colors, Debugger } from './debugger';
+import { DataObject, DatabaseFact } from './kb';
 
 const ID_AA = 0;
 const ID_AO = 1;
@@ -9,6 +10,20 @@ const ID_PP = 5;
 const BINDS_CAT = 6;
 
 const D: Debugger = new Debugger();
+
+export type Response = Map<number, object[]>;
+
+export function findMatches(query: object, dataset: DataObject[], initBinds: object[] = []): Response {
+    const matches: Response = new Map<number, object[]>();
+    let matcher = new Matcher();
+    for (const data of dataset) {
+        const mb = matcher.matchBind(query, data, initBinds);
+        if (mb.match) {
+            matches.set(data._id, mb.binds);
+        }
+    }
+    return matches;
+}
 
 export function findMatchesBind(query: any, Dataset: any[], initBinds: any[] = []) {
     const matches = new Array();
@@ -49,7 +64,7 @@ export function isAtom(v: any) {
 
 class Matcher {
 
-    matchBind(query: any, data: any, initBinds: any[]): any {
+    matchBind(query: any, data: any, initBinds: any[]) {
         let binds = initBinds.map((x) => Object.assign({}, x));
         const sorted = this.sort(query);
 
@@ -363,6 +378,18 @@ class Matcher {
         }
         return { binds, match: true };
     }
+
+    parseFunctions(query: object): number {
+        let result: number = 0;
+        if (!query) {
+            return result;
+        }
+
+    }
+
+    //    { _data: {... }, _meta: {... }, & isGreater: [$x, 3] }
+    // callFunctionBool('isGreater',[$x, 3]);
+    // callFunctions('isGreater', [[$x0, 3], [$x1, 2]])
 
     sort(j: any): object {
         if (!j) {
