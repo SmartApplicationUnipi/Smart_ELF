@@ -36,13 +36,13 @@ public class CSVCrawler extends Crawler {
         }
 
         //List<Relation> rdfData = buildRdfData();
-        List<DataEntry> entries = buildEntries();
+        List<DataEntry> entries = buildOneEntry();
 
         return new CrawledData(this.file.getLink(), null, entries);
     }
 
     /* Creates a list with 1 entry to send at kb */
-    private List<DataEntry> buildEntries() {
+    private List<DataEntry> buildOneEntry() {
         List<DataEntry> entries = new ArrayList<>(1);
 
         //Create a JSON Array of object with fields(col1,...,coln)
@@ -53,6 +53,32 @@ public class CSVCrawler extends Crawler {
 
         return entries;
     }
+
+    /* Creates a list with one entry for each row of the CSV File */
+    private List<DataEntry> buildEntries(){
+        List<DataEntry> entries = new ArrayList<>(this.csvRecords.size() - 1);
+
+        String[] keys = this.csvRecords.get(0);
+        String[] iValues;
+
+        JsonObject jo;
+
+        //Add the JSONArray to entries (one entry for each object of json array)
+        for(int j=1; j<this.csvRecords.size(); j++){
+            iValues = this.csvRecords.get(j);
+
+            //Fill the json object with right values
+            jo = new JsonObject();
+            for(int i=0; j<keys.length; j++){
+                jo.addProperty(keys[i], iValues[i]);
+            }
+
+            entries.add(new DataEntry(this.file.getLink().getUrl(), this.timestamp, DataEntryType.JSON, jo));
+        }
+
+        return entries;
+    }
+
 
     /* Creates a list of DataEntry to send at kb (from a list of relations) */
     private List<DataEntry> buildEntriesFromRelations(List<RelationQuery> relations){
