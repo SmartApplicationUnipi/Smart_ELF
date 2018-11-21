@@ -1,4 +1,4 @@
-Aimport { security } from './config';
+import { security } from './config';
 import { checkRules } from './inferenceStub';
 import * as matcher from './matcher';
 
