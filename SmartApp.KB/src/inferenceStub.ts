@@ -1,45 +1,38 @@
 import { isObject } from 'util';
-import { addFact, databaseFact } from './kb';
+import { addFact, databaseFact, databaseRule, DataRule } from './kb';
 import { findMatchesBind, isPlaceholder } from './matcher';
 
 const INFERENCE_TAG = 'INFERENCE';
-const databaseRule = [
-    {
-        _data:
-        {
-            body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
-            { subject: '$course', relation: 'is in room', object: '$room' }],
-            head: { subject: '$prof', relation: 'is in', object: '$room' },
-        },
-    },
-    {
-        _data:
-        {
-            body: [{ emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
-            head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n' } },
-        },
-    },
-];
+const DEBUG = 0;
+
+const WHITE = '\x1b[0m';
+const RED = '\x1b[1;31m';
+const GREEN = '\x1b[1;32m';
+const YELLOW = '\x1b[1;33m';
+const BLUE = '\x1b[1;34m';
+const PINK = '\x1b[1;35m';
+
+function clog(color: string, kind: string, id: number, before: string, msg: string, level: number) {
+    if (level < DEBUG) {
+        console.log(before + color + kind + '(' + id + ')' + WHITE + ' ' + msg);
+    }
+}
 
 export function checkRules(fact: object) {
-    for (const rule of databaseRule) {
-        checkRule(rule._data.head, rule._data.body, fact);
+    for (const rule of databaseRule.values()) {
+        const data = rule._data as DataRule;
+        checkRule(data._head, data._body, fact);
     }
 }
 
 function checkRule(head: object, body: object[], fact: object) {
     // se il fatto è uno dei predicati nel body della regola
-    // console.log('Sono dentro.');
-    // console.log(fact);
-    // console.log();
-    // let binds;
-    // tslint:disable-next-line:max-line-length
-    // const matchedBodyPred = body.findIndex( (b) => { binds = findMatchesBind(b, [fact]);  return binds.length > 0; });
+    clog(BLUE, 'INFO', 0, '', 'checkRule entered', 10);
+
     let binds;
     for (const pred of body) {
-        // console.log('guardo il predicato');
-        // console.log(pred);
-        // console.log();
+        clog(BLUE, 'INFO', 0, '', 'guardo il predicato', 10);
+        console.log(pred); console.log();
 
         // cerco se fact matcha un pred nel body
         binds = findMatchesBind(pred, [fact]);

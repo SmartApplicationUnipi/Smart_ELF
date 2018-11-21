@@ -5,8 +5,8 @@ import * as matcher from './matcher';
 type SubCallback = (r: object[]) => any;
 const TOKEN = security.token;
 
-export const databaseFact = new Map<number, object>();
-export const databaseRule = new Map<number, object>();
+export const databaseFact = new Map<number, DataObject>();
+export const databaseRule = new Map<number, DataObject>();
 const subscriptions = new Map<object, SubCallback[]>();
 
 export const tagDetails = new Map<string, TagInfo>(); // map <tag, {desc, documentation}>
@@ -41,6 +41,31 @@ class Metadata {
         this.reliability = reliability;
     }
 }
+
+// tslint:disable-next-line:max-classes-per-file
+class DataObject {
+    _id: number;
+    _meta: Metadata;
+    _data: object;
+
+    constructor(id: number, metadata: Metadata, data: object){
+        this._id = id;
+        this._meta = metadata;
+        this._data = data;
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
+export class DataRule {
+    _body: object[];
+    _head: object;
+
+    constructor(head: object, body: object[]) {
+        this._body = body;
+        this._head = head;
+    }
+}
+
 
 // tslint:disable-next-line:max-classes-per-file
 export class TagInfo {
@@ -159,11 +184,11 @@ export function removeFact(idSource: string, jreq: object) {
     return new Response(true, removedFactsId);
 }
 
-export function addRule(idSource: string, ruleTag: string, jsonRule: any) {
+export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
     // controllo se la regola è valida
-    if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
-        return new Response(false, 'Rules must have a \'head\' and a \'body\'');
-    }
+    // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
+    //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
+    // }
     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()).toLocaleDateString('en-GB'), 0, 0);
     const dataobject = {
         _data: jsonRule,

@@ -4,16 +4,13 @@ import * as kb from '../src/kb';
 const myid = 'testodio';
 kb.registerTags({ rdf: 'desc1', tag2: 'desc2' });
 
-const rule1 = {
-    body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
-    { subject: '$course', relation: 'is in room', object: '$room' }],
-    head: { subject: '$prof', relation: 'is in', object: '$room' },
-};
+const rule1 = new kb.DataRule( { subject: '$prof', relation: 'is in', object: '$room' },
+    [{ subject: '$prof', relation: 'teaches', object: '$course' },
+    { subject: '$course', relation: 'is in room', object: '$room' }] );
 
-const rule2 = {
-    body: [{ emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }],
-    head: { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n' } },
-};
+const rule2 = new kb.DataRule(
+    { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n' } },
+    [{ emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }]);
 
 kb.addRule(myid, 'test', rule1);
 
