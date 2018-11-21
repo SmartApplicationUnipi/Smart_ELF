@@ -13,6 +13,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
 using System.Net;
+using Microsoft.Kinect;
 using SmartApp.HAL.Model;
 
 namespace SmartApp.HAL
@@ -31,13 +32,16 @@ namespace SmartApp.HAL
             });
 
             // Audio/Video sources
-            services.AddSingleton<IAudioSource, LocalMicrophoneSource>();
-            services.AddSingleton<IVideoSource, LocalCameraSource>();
+            services.AddSingleton<LocalMicrophoneSource>();
+            services.AddSingleton<LocalCameraSource>();
+            services.AddSingleton<KinectVideoSource>();
+            services.AddSingleton<KinectAudioSource>();
+            services.AddSingleton<IVideoSource>(VideoSourceFactory);
+            services.AddSingleton<IAudioSource>(AudioSourceFactory);
+
+            // Audio and video managers
             services.AddSingleton<IVideoManager, VideoManager>();
             services.AddSingleton<IAudioManager, AudioManager>();
-
-            //services.AddSingleton<IVideoSource, KinectVideo>();
-            //services.AddSingleton<IAudioSource, KinectAudio>();
 
             // User interface
             services.AddSingleton<IUserInterface, WinFormsUI>();
@@ -53,13 +57,26 @@ namespace SmartApp.HAL
             // Build the final provider
             var serviceProvider = services.BuildServiceProvider();
 
-          
             // Configure NLog
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             loggerFactory.AddNLog(new NLogProviderOptions() { CaptureMessageTemplates = true, CaptureMessageProperties = true });
             NLog.LogManager.LoadConfiguration("nlog.config");
 
             return serviceProvider;
+        }
+
+        private static IAudioSource AudioSourceFactory(IServiceProvider serviceProvider)
+        {
+            return KinectSensor.GetDefault().IsAvailable
+                ? (IAudioSource) serviceProvider.GetService<KinectAudioSource>()
+                : (IAudioSource) serviceProvider.GetService<LocalMicrophoneSource>();
+        }
+
+        private static IVideoSource VideoSourceFactory(IServiceProvider serviceProvider)
+        {
+            return KinectSensor.GetDefault().IsAvailable
+                ? (IVideoSource)serviceProvider.GetService<KinectVideoSource>()
+                : (IVideoSource)serviceProvider.GetService<LocalCameraSource>();
         }
 
         public static void Main(string[] args)

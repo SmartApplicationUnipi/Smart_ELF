@@ -88,9 +88,9 @@ class subscrThr (threading.Thread):
 		self.websocket = websocket
 
 	def run(self):
-		try:
-			while(1):
-				reply = self.websocket.recv()
-				self.callback(json.loads(reply))
-		except:
-			print("subcription socket error")
+		while(1):
+			try:
+				reply  = self.websocket.recv()
+			except:
+				print("subcription socket error")
+			self.callback(json.loads(reply))
