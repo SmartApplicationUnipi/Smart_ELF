@@ -2,7 +2,6 @@ package elf_crawler.crawler;
 
 
 public class DataEntry {
-    private String TAG;
     public String source;
     public long timestamp;
     public DataEntryType type;
@@ -15,10 +14,6 @@ public class DataEntry {
         this.data = data;
     }
 
-    public void setTag(String tag)
-    {
-        this.TAG = tag;
-    }
 
     @Override
     public String toString() {
@@ -26,7 +21,7 @@ public class DataEntry {
                 "source='" + source + '\'' +
                 ", timestamp=" + timestamp +
                 ", type=" + type +
-                ", data=" + data +
+                ", data=" + data.toString() +
                 '}';
     }
 }

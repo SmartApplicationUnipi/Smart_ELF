@@ -2,7 +2,8 @@ package elf_crawler.crawler;
 
 import elf_crawler.CrawlingManager;
 import elf_crawler.Link;
-import elf_crawler.relationship.Relation;
+import elf_crawler.relationship.RdfRelation;
+import elf_crawler.relationship.RelationQuery;
 import elf_crawler.relationship.RelationshipSet;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -27,11 +28,11 @@ public class HTMLCrawler extends Crawler {
 
     @Override
     public CrawledData crawl() {
-        this.timestamp = System.currentTimeMillis();
+        super.timestamp = System.currentTimeMillis();
         this.doc = Jsoup.parse(this.file.getContent());
 
-        List<Relation> rdfData = buildRdfData();
-        List<DataEntry> entries = buildEntries(rdfData);
+        List<RdfRelation> relations = buildRdfData();
+        List<DataEntry> entries = buildEntries(relations);
 
         return new CrawledData(this.file.getLink(), getAllLinks(doc), entries);
     }
@@ -102,15 +103,16 @@ public class HTMLCrawler extends Crawler {
         return arr;
     }
 
-    private List<Relation> buildRdfData()
+    private List<RdfRelation> buildRdfData()
     {
-        List<Relation> rdfData = this.rs.getWebsiteRelations(this.file.getLink().getUrl());
-        List<Relation> builtRelations = new ArrayList<>(rdfData.size());
+        List<RelationQuery> relations = this.rs.getWebsiteRelations(this.file.getLink().getUrl());
+        List<RdfRelation> builtRelations = new ArrayList<>(relations.size());
 
-        for (Relation r : rdfData) {
-            switch (r.getGroupBy()) {
+        for (RelationQuery r : relations) {
+            RdfRelation rdf = (RdfRelation) r;
+            switch (rdf.getGroupBy()) {
                 case GROUP_BY_DOM_PARENT:
-                    builtRelations.addAll(groupByDomParent(this.doc, r));
+                    builtRelations.addAll(groupByDomParent(this.doc, rdf));
                     break;
                 case GROUP_BY_TRY_ALL:
                     break;
@@ -122,23 +124,23 @@ public class HTMLCrawler extends Crawler {
         return builtRelations;
     }
 
-    private List<DataEntry> buildEntries(List<Relation> relations) {
+    private List<DataEntry> buildEntries(List<RdfRelation> relations) {
         List<DataEntry> entries = new ArrayList<>(relations.size());
 
-        for (Relation r : relations)
-            entries.add(new DataEntry(this.file.getLink().getUrl(), this.timestamp, DataEntryType.RDF, r));
+        for (RdfRelation r : relations)
+            entries.add(new DataEntry(this.file.getLink().getUrl(), super.timestamp, DataEntryType.RDF, r));
 
         return entries;
     }
 
-    private List<Relation> groupByDomParent(Document doc, Relation r) {
+    private List<RdfRelation> groupByDomParent(Document doc, RdfRelation r) {
         Elements subjects = doc.select(r.getSubject());
         String predicate = r.getPredicate();
 
         if (subjects.size() == 0)
             return Collections.emptyList();
 
-        List<Relation> relations = new ArrayList<>(subjects.size());
+        List<RdfRelation> relations = new ArrayList<>(subjects.size());
         for (Element subject : subjects)
         {
             Element parent = subject.parent();
@@ -156,7 +158,7 @@ public class HTMLCrawler extends Crawler {
             if (parent == null) continue;
 
             for (Element object : objects)
-                relations.add(new Relation(predicate, subject.text(), object.text()));
+                relations.add(new RdfRelation(predicate, subject.text(), object.text()));
         }
 
         return relations;
