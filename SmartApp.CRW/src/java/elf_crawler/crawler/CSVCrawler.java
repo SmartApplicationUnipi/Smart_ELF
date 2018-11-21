@@ -36,7 +36,8 @@ public class CSVCrawler extends Crawler {
         }
 
         //List<Relation> rdfData = buildRdfData();
-        List<DataEntry> entries = buildOneEntry();
+        //List<DataEntry> entries = buildOneEntry();
+        List<DataEntry> entries = buildEntries();
 
         return new CrawledData(this.file.getLink(), null, entries);
     }
