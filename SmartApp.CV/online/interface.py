@@ -51,8 +51,7 @@ class online_connector():
 
         return json
 
-
-    def worker(self,frame, toIdentify = True):
+    def analyze_face(self, frame, toIdentify = True):
         """
             Recognition routine using API (Face++).
             It provide recognition and emotion detection. The result of operation
@@ -100,7 +99,7 @@ class online_connector():
         else:
             return None
 
-    def isAvailable(self):
+    def is_available(self):
         """
             Check server availability.
 
@@ -118,6 +117,6 @@ class online_connector():
             res = False
         return res
 
-    def setParamsToDetect(self, *args, **kwargs):
+    def set_detect_attibutes(self, *args, **kwargs):
         self.client.setParamsDetect(*args, **kwargs)
         return self.client.detect_params
