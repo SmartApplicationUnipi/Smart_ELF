@@ -18,7 +18,7 @@ class KnowledgeBaseClient():
 		self.websocket = None
 		if(persistence):
 			self.websocket = create_connection("%s:%s"%(self.host, self.port))
-		
+
 	def config_websocket(self):
 		cParser = configparser.RawConfigParser()
 		cParser.read(os.path.join(base_dir, config_file_path))
@@ -43,10 +43,10 @@ class KnowledgeBaseClient():
 		self.close_websocket()
 		return reply
 
-	# used as a login 
+	# used as a login
 	def registerTags(self, tagsList: map):
 		return self.send_request({"method": "registerTags", "params": {"tagsList": tagsList}, "token": self.token})
-		
+
 	def getTagDetails(self, tagsList: list):
 		return self.send_request({"method": "getTagDetails", "params": {"tagsList": tagsList}, "token": self.token})
 
