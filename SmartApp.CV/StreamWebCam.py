@@ -40,11 +40,11 @@ def demo(myAPI, *args, **kwargs):
             key = cv2.waitKey(100) & 0xFF
             cv2.imshow('Video', frame)
 
+        while q.get() is not None:
+            q.task_done()
+
     except NotImplementedError as err:
         print(err)
-        video_capture.release()
-        cv2.destroyAllWindows()
-        q.join()
 
     # When everything is done, release the capture
     video_capture.release()

@@ -1,4 +1,4 @@
-from external.hal_client import *
+import external.hal_client as hal
 from online.SDK.face_client import Facepp_Client as online
 import time
 import numpy as np
@@ -14,7 +14,7 @@ def handleVideoMessages(videoMessage):
         #cv2.imshow('Video', face.data)
 
 HALAddress = "10.101.53.14"
-_hal = HALInterface(HALAddress=HALAddress)
+_hal = hal.HALInterface(HALAddress=HALAddress)
 
 import cv2
 import numpy as np
