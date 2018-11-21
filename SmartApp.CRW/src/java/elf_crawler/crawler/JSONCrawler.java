@@ -43,15 +43,16 @@ public class JSONCrawler extends Crawler {
         {
             String query = ((JsonPathRelation)r).getJsonPath();
             Object resultJson = JsonPath.read(this.jsonDocument, query);
-            String jsonData = "{}";
 
             if (resultJson instanceof JSONArray)
-                jsonData = "{" + ((JSONArray)resultJson).toJSONString() + "}";
+            {
+                JSONArray arr = (JSONArray)resultJson;
+                for (Object e : arr)
+                    entries.add(new DataEntry(super.file.getLink().getUrl(), super.timestamp, DataEntryType.JSON, e));
+            }
 
             if (resultJson instanceof JSONObject)
-                jsonData = ((JSONObject)resultJson).toJSONString();
-
-            entries.add(new DataEntry(super.file.getLink().getUrl(), super.timestamp, DataEntryType.JSON, jsonData));
+                entries.add(new DataEntry(super.file.getLink().getUrl(), super.timestamp, DataEntryType.JSON, resultJson));
         }
 
         return entries;

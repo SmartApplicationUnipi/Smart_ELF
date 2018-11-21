@@ -1,3 +1,4 @@
+
 # Elf Crawler Module
 
 This module is responsible for providing data to the **Knowledge Base** and allow it to reason on the provided data.
@@ -5,7 +6,12 @@ This module is responsible for providing data to the **Knowledge Base** and allo
 ## Usage
 
 ### Running the .jar file
-TODO
+We provide an easy way of using the Crawler module with a jar file. The file accepts different flags that allow the user to customize some of the Crawler parameters, as well as providing the locations of the *URLSet* file and the *RelationshipSet* file.
+
+Usage:
+```crawler.jar [flags]```
+
+For more detailed information, as well as a full list of available flags, please refer to [Crawler Jar](docs/crawlerjar.md).
 
 ### Using in existing code
 First, create a  **CrawlerManager** object:
