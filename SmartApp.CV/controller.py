@@ -89,8 +89,8 @@ class Controller():
                     frame = cv2.resize(frame, (320, 240))
                     queue.put(frame)
 
-                self.watch(queue.get())
-                print("lavoro")
+                frame_obj = queue.get()
+                self.watch(frame_obj.numpyFaces[0].data)
                 queue.task_done()
         except Exception as e:
             print(e)
@@ -128,6 +128,10 @@ class Controller():
     def watch(self, frame):
 
         fact = self.module.analyze_face(frame)
+        if not fact:
+            print("non vedo nessuni")
+            return
+
         fact.update({"TAG": "VISION_FACE_ANALYSIS"})
 
         if fact is not None:
@@ -145,5 +149,5 @@ class Controller():
 
 
 if __name__ == '__main__':
-    controller = Controller(True, True)
-    input('Enter anything to close:')  
+    controller = Controller(True)
+    input('Enter anything to close:')
