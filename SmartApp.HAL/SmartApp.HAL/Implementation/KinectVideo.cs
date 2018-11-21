@@ -157,7 +157,7 @@ namespace SmartApp.HAL.Implementation
                     Mat frame = new Mat(colorFrameDescription.Height, colorFrameDescription.Width, Emgu.CV.CvEnum.DepthType.Cv8U, (int)bytesPerpixel);
                     colorFrame.CopyConvertedFrameDataToIntPtr(frame.DataPointer, (uint)(colorFrameDescription.Width * colorFrameDescription.Height * bytesPerpixel), ColorImageFormat.Bgra);
 
-                    List<Rectangle> rectangles = new List<Rectangle>();
+                    List<VideoFrame.Face> faces = new List<VideoFrame.Face>();
                     bool faceFound = false;
                     for (int f = 0; f < 6; f++)
                     {
@@ -170,7 +170,7 @@ namespace SmartApp.HAL.Implementation
                             int width = boundingBox.Right - boundingBox.Left;
                             int height = boundingBox.Bottom - boundingBox.Top;
 
-                            rectangles.Add(new Rectangle(xCoord, yCoord, width, height));
+                            VideoFrame.Face face = new VideoFrame.Face(new Rectangle(xCoord, yCoord, width, height),(long)_bodies[f].TrackingId);
 
                             //bytes del rettangolo con la faccia
                             /*
@@ -188,11 +188,11 @@ namespace SmartApp.HAL.Implementation
                     }
                     if (faceFound)
                     {
-                        _logger.LogTrace("Kinect: Got frame. Found {0} faces.", rectangles.Count);
+                        _logger.LogTrace("Kinect: Got frame. Found {0} faces.", faces.Count);
 
                         FrameReady?.Invoke(this, new VideoFrame(
                         DateTime.Now,
-                        rectangles.Select(bounds => new VideoFrame.Face(bounds)).ToList(),
+                        faces.ToList(),
                         frame.ToImage<Bgr, byte>()
                         ));
                     }

@@ -24,12 +24,14 @@ namespace SmartApp.HAL.Model
 
         public struct Face
         {
-            public Face(Rectangle bounds)
+            public Face(Rectangle bounds, long id)
             {
                 Bounds = bounds;
+                ID = id;
             }
 
             public Rectangle Bounds { get; private set; }
+            public long ID { get; private set; }
         }
     }
 }
