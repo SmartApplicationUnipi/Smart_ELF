@@ -3,9 +3,10 @@ import external.hal_client as hal
 from online.interface import online_connector as online
 # import offline.interface as offline
 
-import threading as Threading
+from threading import *
 from queue import *
 import time
+import cv2
 
 
 #  Si possono avere più queue (almeno 6 dato che 6 è il numero massimo di facce
@@ -24,43 +25,6 @@ class Controller():
     #FIFO queue
     q = Queue(maxsize= 5)
 
-    def _take_frame(frame_obj):
-        """
-            Function of callback used from HAL group to send a frame
-
-            Params:
-                frame_obj (object): object that contain all image of face in a
-                    frame
-        """
-        print("frame preso")
-        if Controller.q.full():
-            Controller.q.get()
-
-        Controller.q.put(frame_obj)
-
-    def _woker(self, queue):
-        """
-            Function of thread that compute analyzation of frame.
-
-            Params:
-                queue (Queue): queue associated at thrad of frame
-        """
-
-
-        try:
-            while True:
-
-                if self.webcam:
-                    ret, frame = self.video_capture.read() #np.arra
-                    frame = cv2.resize(frame, (320, 240))
-                    queue.put(frame)
-
-                self.watch(queue.get())
-                print("lavoro")
-                queue.task_done()
-        except Exception as e:
-            print(e)
-
     def __init__(self, startWorker = False, webcam = False):
         self._kb = kb(True)
         self._kb.registerTags({'vis':{}})
@@ -78,7 +42,6 @@ class Controller():
                 print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
                 exit(-1)
         else:
-            import cv2
             self.video_capture = cv2.VideoCapture(0)
 
         # Initialization of Online Module
@@ -90,11 +53,47 @@ class Controller():
         self.module = self._getResolver()
 
         self.t = None
-        if not startWorker:
-            # Creare 6 thread che lavoreano su più persone
-            self.t = Thread(target=_worker, args=[self, Controller.q])
+        if startWorker:
+            # TODO Creare 6 thread che lavoreano su più persone
+            self.t = Thread(target=Controller._worker, args=[self, Controller.q])
             self.t.daemon = True
             self.t.start()
+
+    def _take_frame(frame_obj):
+        """
+            Function of callback used from HAL group to send a frame
+
+            Params:
+                frame_obj (object): object that contain all image of face in a
+                    frame
+        """
+        print("frame preso")
+        if Controller.q.full():
+            Controller.q.get()
+
+        Controller.q.put(frame_obj)
+
+    def _worker(self, queue):
+        """
+            Function of thread that compute analyzation of frame.
+
+            Params:
+                queue (Queue): queue associated at thrad of frame
+        """
+
+        try:
+            while True:
+
+                if self.webcam:
+                    ret, frame = self.video_capture.read() #np.arra
+                    frame = cv2.resize(frame, (320, 240))
+                    queue.put(frame)
+
+                self.watch(queue.get())
+                print("lavoro")
+                queue.task_done()
+        except Exception as e:
+            print(e)
 
     def _getResolver(self):
         """
@@ -129,7 +128,7 @@ class Controller():
     def watch(self, frame):
 
         print("sto guardando")
-        fact = module.analyze_face(frame)
+        fact = self.module.analyze_face(frame)
         fact.update({"TAG": "VISION_FACE_ANALYSIS"})
 
         if fact is not None:
@@ -147,5 +146,5 @@ class Controller():
 
 
 if __name__ == '__main__':
-    controller = Controller(True)
+    controller = Controller(True, True)
     time.sleep(15)
