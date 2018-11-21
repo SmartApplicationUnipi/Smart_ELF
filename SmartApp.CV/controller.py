@@ -127,7 +127,6 @@ class Controller():
 
     def watch(self, frame):
 
-        print("sto guardando")
         fact = self.module.analyze_face(frame)
         fact.update({"TAG": "VISION_FACE_ANALYSIS"})
 
@@ -147,4 +146,4 @@ class Controller():
 
 if __name__ == '__main__':
     controller = Controller(True, True)
-    time.sleep(15)
+    input('Enter anything to close:')  
