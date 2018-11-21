@@ -48,7 +48,7 @@ class KnowledgeBaseClient():
 		return self.send_request({"method": "registerTags", "params": {"tagsList": tagsList}, "token": self.token})
 		
 	def getTagDetails(self, tagsList: list):
-		return self.send_request({"method": "getTagDoc", "params": {"tagsList": tagsList}, "token": self.token})
+		return self.send_request({"method": "getTagDetails", "params": {"tagsList": tagsList}, "token": self.token})
 
 	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
 		return self.send_request({"method": "addFact", "params": {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} , "token": self.token})
