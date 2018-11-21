@@ -1,17 +1,18 @@
 package elf_crawler.relationship;
 
-public class Relation {
+public class RdfRelation extends RelationQuery {
 
     private String predicate;
     private String subject;
     private String object;
     private RelationGroupBy groupby;
 
-    public Relation(String predicate, String subject, String object) {
+    public RdfRelation(String predicate, String subject, String object) {
         this(predicate, subject, object, null);
     }
 
-    public Relation(String predicate, String subject, String object, String groupby) {
+    public RdfRelation(String predicate, String subject, String object, String groupby) {
+        super.type = RelationQueryType.RDF_TRIPLE;
         this.predicate = predicate;
         this.subject = subject;
         this.object = object;

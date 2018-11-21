@@ -26,7 +26,7 @@ public class DataEntry {
                 "source='" + source + '\'' +
                 ", timestamp=" + timestamp +
                 ", type=" + type +
-                ", data=" + data +
+                ", data=" + data.toString() +
                 '}';
     }
 }

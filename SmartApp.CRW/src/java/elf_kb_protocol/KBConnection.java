@@ -55,6 +55,17 @@ public class KBConnection {
     }
 
     /**
+     * Creates a new KBConnection using the supplied port and
+     * the default localhost
+     * @param port the port of the service KB
+     * @throws Exception
+     */
+    public KBConnection(int port) throws Exception
+    {
+        this(DEFAULT_HOST, port);
+    }
+
+    /**
      * Creates a new KBConnection using supplied host and
      * port
      * @param host the host address to connect to

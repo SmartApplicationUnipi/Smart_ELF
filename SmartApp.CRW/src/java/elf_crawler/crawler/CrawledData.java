@@ -2,6 +2,10 @@ package elf_crawler.crawler;
 
 import elf_crawler.Link;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 public class CrawledData {
@@ -9,6 +13,12 @@ public class CrawledData {
     private Link link;
     private List<Link> externalLinks;
     private List<DataEntry> dataEntries;
+
+
+    public CrawledData(Link link, List<DataEntry> dataEntries)
+    {
+        this(link, Collections.emptyList(), dataEntries);
+    }
 
     public CrawledData(Link link, List<Link> externalLinks, List<DataEntry> dataEntries)
     {
