@@ -1,6 +1,6 @@
 #READ FROM KB
 TAG_USER_TRANSCRIPT = "AV_IN_TRANSC_EMOTION" # user query transcript
-TAG_ANSWER = "NLP_Answer" # nlp answer to provide BEFORE addition of emotions
+TAG_ANSWER = "NLP_ANSWER" # nlp answer to provide BEFORE addition of emotions
 
 # WRITE TO KB
 TAG_COLORED_ANSWER = "ENLP_EMOTIVE_ANSWER" # answer to provide with added emotion
