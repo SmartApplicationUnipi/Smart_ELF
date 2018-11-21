@@ -32,6 +32,12 @@
 		]
 	],
 
+	["file:///C:/Users/and_s/Downloads/All%20rooms.json",
+		[
+			"$.*"
+		]
+	],
+
 
 	["generic",
 		[
