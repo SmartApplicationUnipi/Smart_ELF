@@ -29,9 +29,9 @@ class Controller():
         """
             se host è webcam uso la webcam
         """
-        self._kb = kb(persistence = True)
+        #self._kb = kb(persistence = True)
         # mi registrerò
-        self._kb.registerTags({'VISION_FACE_ANALYSIS':{'doc':"altre cose", 'desc':"cose"}})
+        #self._kb.registerTags({'VISION_FACE_ANALYSIS':{'doc':"altre cose", 'desc':"cose"}})
 
         self.is_host = host is not "webcam"
 
