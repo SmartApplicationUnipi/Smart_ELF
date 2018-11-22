@@ -7,10 +7,9 @@ import base64
 import json
 import sys
 import janus
-
-sys.path.insert(0, '../SmartApp.KB/bindings/python')
-
+sys.path.insert(0, '../SmartApp.KB/bindings/python/')
 import kb
+from kb import KnowledgeBaseClient
 
 
 def make_mary_text(text, valency, arousal):
@@ -133,7 +132,6 @@ def face_communication(queue):
 
 
 if __name__ == '__main__':
-    myID = kb.register()
     HOST = 'localhost'  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
@@ -144,6 +142,23 @@ if __name__ == '__main__':
     loop.run_until_complete(face_communication(q.async_q))
     loop.run_forever()
 
+
+
+
+    kb_client = KnowledgeBaseClient(False)
+    kb_client.registerTags({ 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : 'text from audio '} })
+
+
+    print("Insert into KB that no Google or Sphinx result")
+    obj_from_stt = {
+    "tag": 'AV_IN_TRANSC_EMOTION',
+    "timestamp": 0,
+    "ID": 0,
+    "text": "where is the aula A?",
+    "language": "en"
+    }
+    myID='stt'
+    kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, obj_from_stt)
 
 
 #subscribe(myID, {"TAG":"AV_IN_TRANSC_EMOTION","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
