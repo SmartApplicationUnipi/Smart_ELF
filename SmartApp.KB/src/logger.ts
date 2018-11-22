@@ -26,27 +26,26 @@ export class Logger {
         return this._instance;
     }
 
-    public debug(msg: string, ...data: any[]): void {
-        this.emitMessageLog(MsgKind.debug, msg, data);
+    public debug(mod: string, msg: string, ...data: any[]): void {
+        this.emitMessageLog(MsgKind.debug, mod, msg, data);
     }
 
-    public warn(msg: string, ...data: any[]): void {
-        this.emitMessageLog(MsgKind.warn, msg, data);
-
-    }
-
-    public error(msg: string, ...data: any[]): void {
-        this.emitMessageLog(MsgKind.error, msg, data);
+    public warn(mod: string, msg: string, ...data: any[]): void {
+        this.emitMessageLog(MsgKind.warn, mod, msg, data);
 
     }
 
-    public info(msg: string, ...data: any[]): void {
-        this.emitMessageLog(MsgKind.info, msg, data);
+    public error(mod: string, msg: string, ...data: any[]): void {
+        this.emitMessageLog(MsgKind.error, mod, msg, data);
 
     }
 
-    private emitMessageLog(type: MsgKind, msg: string, data: any[]) {
-        console.log('[' + (new Date(Date.now())).toISOString() + '] - ' + type + ': ' + msg);
+    public info(mod: string, msg: string, ...data: any[]): void {
+        this.emitMessageLog(MsgKind.info, mod, msg, data);
+
     }
 
+    private emitMessageLog(type: MsgKind, mod: string, msg: string, data: any[]) {
+        console.log('[' + (new Date(Date.now())).toISOString() + '] - {' + mod + '} - ' + type + ': ' + msg);
+    }
 }
