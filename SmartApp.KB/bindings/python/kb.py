@@ -93,4 +93,5 @@ class subscrThr (threading.Thread):
 				reply  = self.websocket.recv()
 			except:
 				print("subcription socket error")
+				return 0
 			self.callback(json.loads(reply))
