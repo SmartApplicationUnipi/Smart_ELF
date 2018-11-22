@@ -11,41 +11,15 @@ const BINDS_CAT = 6;
 
 const D: Debugger = new Debugger();
 
-export type Response = Map<number, object[]>;
+export type Response = Map<object, object[]>;
 
-export function findMatches(query: object, dataset: DataObject[], initBinds: object[] = []): Response {
-    const matches: Response = new Map<number, object[]>();
+export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Response {
+    const matches: Response = new Map<object, object[]>();
     let matcher = new Matcher();
     for (const data of dataset) {
         const mb = matcher.matchBind(query, data, initBinds);
         if (mb.match) {
-            matches.set(data._id, mb.binds);
-        }
-    }
-    return matches;
-}
-
-export function findMatchesBind(query: any, Dataset: any[], initBinds: any[] = []) {
-    const matches = new Array();
-    let matcher = new Matcher();
-    // inefficient lookup with a loop onto dataset array
-    for (const data of Dataset) {
-        const mb = matcher.matchBind(query, data, initBinds);
-        if (mb.match) {
-            matches.push(mb.binds);
-        }
-    }
-    return matches;
-}
-
-export function findMatchesAll(query: any, Dataset: any[]) {
-    const matches = new Array();
-    let matcher = new Matcher();
-    // inefficient lookup with a loop onto dataset array
-    for (const data of Dataset) {
-        const mb = matcher.matchBind(query, data, []);
-        if (mb.match) {
-            matches.push(data);
+            matches.set(data, mb.binds);
         }
     }
     return matches;

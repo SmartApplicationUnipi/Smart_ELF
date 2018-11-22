@@ -36,8 +36,14 @@ const dataset: DataObject[] = [
 ];
 
 const matches = matcher.findMatches({ _data: { nome: 'pino', cognome: '$cognome' } }, dataset);
-const answer: Map<number, object[]> = new Map<number, object[]>();
-answer.set(0, [{ '$cognome': 'albero' }]);
-answer.set(2, [{ '$cognome': 'radice' }]);
+const answer: Map<object, object[]> = new Map<object, object[]>();
+answer.set({
+    _meta: { idSource: '', tag: '', TTL: 0, reliability: 0, timestamp: '' }, _id: 0,
+    _data: { nome: 'pino', cognome: 'albero', titolo: { tipo: 'diploma', grado: 'scuolamedia' } }
+}, [{ '$cognome': 'albero' }]);
+answer.set({
+    _meta: { idSource: '', tag: '', TTL: 0, reliability: 0, timestamp: '' }, _id: 2,
+    _data: { nome: 'pino', cognome: 'radice', titolo: { tipo: 'laurea', grado: 'magistrale', voto: '45' } }
+}, [{ '$cognome': 'radice' }]);
 
 testUtil.test(matches, answer, opt.verbose);
