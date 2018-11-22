@@ -1,3 +1,5 @@
+
+
 # Elf Crawler Module
 
 This module is responsible for providing data to the **Knowledge Base** and allow it to reason on the provided data.
@@ -5,7 +7,12 @@ This module is responsible for providing data to the **Knowledge Base** and allo
 ## Usage
 
 ### Running the .jar file
-TODO
+We provide an easy way of using the Crawler module with a jar file. The file accepts different flags that allow the user to customize some of the Crawler parameters, as well as providing the locations of the *URLSet* file and the *RelationshipSet* file.
+
+Usage:
+```crawler.jar [flags]```
+
+For more detailed information, as well as a full list of available flags, please refer to [Crawler Jar](docs/crawlerjar.md).
 
 ### Using in existing code
 First, create a  **CrawlerManager** object:
@@ -39,3 +46,7 @@ An URL set is the set of all links that the manager will perform crawling on. If
 
 ## Relationship Set
 A relationship set tells how to build a <class>DataEntry</class>  given the contents of the download files. Currently, the Crawlers support HTML, JSON and CVS files. The file types have to be specified in the URL set.
+
+## Known Issues
+* Currently, reruning the Crawler on the same KB server will crash after the first time, due to the method `registerFact()` failing after it has already been registered.
+* *SLF4J* prints to console undesirably. This happens because of a third party library that includes the Logger and provides no way of disabling it. If this undesirable printing becomes too much of a hassle, I can implement my own JPath parser.

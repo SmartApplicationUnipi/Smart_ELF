@@ -1,0 +1,36 @@
+/* Test */
+
+.test-ui.ui-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.test-ui .upper-panel {
+    border: 1px solid black;
+    width: 100%;
+    flex-grow: 4;
+    display: flex;
+}
+
+.test-ui .lower-panel {
+    border: 1px solid red;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.test-ui .resource-panel {
+    flex-grow: 3;
+    border: 1px solid blue;
+}
+
+.test-ui .face-panel {
+    flex-grow: 1;
+    border: 1px solid green;
+}
+
+.test-ui .text-panel {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    vertical-align: middle;
+}

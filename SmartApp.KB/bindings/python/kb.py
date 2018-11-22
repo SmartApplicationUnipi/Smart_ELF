@@ -8,7 +8,7 @@ import os
 from websocket import create_connection
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
-config_file_path = r'./config-margot'
+config_file_path = r'./config-api'
 
 class KnowledgeBaseClient():
 
@@ -18,7 +18,7 @@ class KnowledgeBaseClient():
 		self.websocket = None
 		if(persistence):
 			self.websocket = create_connection("%s:%s"%(self.host, self.port))
-		
+
 	def config_websocket(self):
 		cParser = configparser.RawConfigParser()
 		cParser.read(os.path.join(base_dir, config_file_path))
@@ -43,10 +43,10 @@ class KnowledgeBaseClient():
 		self.close_websocket()
 		return reply
 
-	# used as a login 
+	# used as a login
 	def registerTags(self, tagsList: map):
 		return self.send_request({"method": "registerTags", "params": {"tagsList": tagsList}, "token": self.token})
-		
+
 	def getTagDetails(self, tagsList: list):
 		return self.send_request({"method": "getTagDetails", "params": {"tagsList": tagsList}, "token": self.token})
 
@@ -87,10 +87,11 @@ class subscrThr (threading.Thread):
 		self.callback = callback
 		self.websocket = websocket
 
-        def run(self):
-		try:
-			while(1):
-				reply = self.websocket.recv()
-				self.callback(json.loads(reply))
-		except:
-			print("subcription socket error")
+	def run(self):
+		while(1):
+			try:
+				reply  = self.websocket.recv()
+			except:
+				print("subcription socket error")
+				return 0
+			self.callback(json.loads(reply))

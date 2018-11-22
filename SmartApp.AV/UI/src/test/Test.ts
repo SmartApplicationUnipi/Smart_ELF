@@ -1,10 +1,11 @@
-import * as ElfUI from '../ui/ElfUI';
-import * as EventReader from '../reader/EventReader'
-import * as Emotion from '../emotion/Emotion';
-import * as ElfUIEvent from '../ui/event/ElfUIEvent';
-import * as UIWidget from '../ui/widget/UIWidget'
+import { ElfUI, ElfUIFactory } from '../ui/ElfUI';
+import { BaseEventReader } from '../reader/EventReader'
+import { IEmotion, Emotion } from '../emotion/Emotion';
+import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION } from '../ui/event/ElfUIEvent';
+import { UIWidget, UIWidgetFactory } from '../ui/widget/UIWidget'
+import { Point } from '../utils/Point';
 
-export class TestUI extends ElfUI.ElfUI {
+export class TestUI extends ElfUI {
 
 	constructor(rootElement: HTMLElement) {
 		super(rootElement);
@@ -14,13 +15,17 @@ export class TestUI extends ElfUI.ElfUI {
 		this.getRootElement().innerHTML = this.getTemplate();
 	}
 
-	public onEmotionChanged(e: Emotion.IEmotion): void {
+	public onEmotionChanged(e: IEmotion): void {
 		console.log("onEmotionChanged", e);
 
 		this.getRootElement().style.backgroundColor = e.getColor();
 	}
 
-	public onContentChanged(e: Array<UIWidget.UIWidget>): void {
+	public onPositionChanged(p: Point): void {
+		console.log("onPositionChanged", p);
+	}
+
+	public onContentChanged(e: Array<UIWidget>): void {
 		console.log("onContentChanged", e);
 	}
 
@@ -28,51 +33,51 @@ export class TestUI extends ElfUI.ElfUI {
 		return "<div>TEST</div>";
 	}
 
-	public getContentFactory(): UIWidget.UIWidgetFactory {
+	public getContentFactory(): UIWidgetFactory {
 		return null;
 	}
 }
 
-export class TestUIFactory implements ElfUI.ElfUIFactory {
+export class TestUIFactory implements ElfUIFactory {
 
 	constructor(private root: HTMLElement) { }
 
-	create(): ElfUI.ElfUI {
+	create(): ElfUI {
 		return new TestUI(this.root);
 	}
 }
 
-export class TestEventReader extends EventReader.BaseEventReader {
+export class TestEventReader extends BaseEventReader {
 	count = 0;
 
-	private events: Array<ElfUIEvent.ElfUIEvent> = []
+	private events: Array<ElfUIEvent> = []
 
 	constructor(private delay: number = 0) {
 		super();
 
-		let e1 = new ElfUIEvent.ElfUIEvent()
-			.putAny(ElfUIEvent.KEY_EMOTION, new Emotion.Emotion(-0.7, 0.4)) // Anger
-			.putAny(ElfUIEvent.KEY_CONTENT, { "speech": { "text": "We should be Anger...", emotion: new Emotion.Emotion(0, 0) } })
+		let e1 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new Emotion(-0.7, 0.4)) // Anger
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Anger...", emotion: new Emotion(0, 0) } })
 
-		let e2 = new ElfUIEvent.ElfUIEvent()
-			.putAny(ElfUIEvent.KEY_EMOTION, new Emotion.Emotion(-0.7, 0.1)) // Disgust
-			.putAny(ElfUIEvent.KEY_CONTENT, { "speech": { "text": "We should be Disgust...", emotion: new Emotion.Emotion(0, 0) } })
+		let e2 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new Emotion(-0.7, 0.1)) // Disgust
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Disgust...", emotion: new Emotion(0, 0) } })
 
-		let e3 = new ElfUIEvent.ElfUIEvent()
-			.putAny(ElfUIEvent.KEY_EMOTION, new Emotion.Emotion(-0.5, 0.7)) // Fear
-			.putAny(ElfUIEvent.KEY_CONTENT, { "speech": { "text": "We should be Fear...", emotion: new Emotion.Emotion(0, 0) } })
+		let e3 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new Emotion(-0.5, 0.7)) // Fear
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Fear...", emotion: new Emotion(0, 0) } })
 
-		let e4 = new ElfUIEvent.ElfUIEvent()
-			.putAny(ElfUIEvent.KEY_EMOTION, new Emotion.Emotion(0.7, 0.3)) // Joy
-			.putAny(ElfUIEvent.KEY_CONTENT, { "speech": { "text": "We should be Joy...", emotion: new Emotion.Emotion(0, 0) } })
+		let e4 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new Emotion(0.7, 0.3)) // Joy
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Joy...", emotion: new Emotion(0, 0) } })
 
-		let e5 = new ElfUIEvent.ElfUIEvent()
-			.putAny(ElfUIEvent.KEY_EMOTION, new Emotion.Emotion(-0.7, -0.5)) // Sadness
-			.putAny(ElfUIEvent.KEY_CONTENT, { "speech": { "text": "We should be Sadness...", emotion: new Emotion.Emotion(0, 0) } })
+		let e5 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new Emotion(-0.7, -0.5)) // Sadness
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Sadness...", emotion: new Emotion(0, 0) } })
 
-		let e6 = new ElfUIEvent.ElfUIEvent()
-			.putAny(ElfUIEvent.KEY_EMOTION, new Emotion.Emotion(0.6, 0.9)) // Surprise
-			.putAny(ElfUIEvent.KEY_CONTENT, { "speech": { "text": "We should be Surprise...", emotion: new Emotion.Emotion(0, 0) } })
+		let e6 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new Emotion(0.6, 0.9)) // Surprise
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Surprise...", emotion: new Emotion(0, 0) } })
 
 		this.events.push(e1)
 		this.events.push(e2)
@@ -82,7 +87,7 @@ export class TestEventReader extends EventReader.BaseEventReader {
 		this.events.push(e6)
 	}
 
-	private nextEvent(): ElfUIEvent.ElfUIEvent {
+	private nextEvent(): ElfUIEvent {
 		let e = this.events[this.count];
 		this.count = (this.count + 1) % this.events.length;
 		return e;

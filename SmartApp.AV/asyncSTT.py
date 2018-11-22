@@ -1,5 +1,6 @@
 import speech_recognition as sr
 import sys
+sys.path.insert(0, "../SmartApp.HAL")
 sys.path.insert(0, '../SmartApp.KB/bindings/python/')
 import kb
 import asyncio
@@ -8,7 +9,6 @@ import janus
 from google.cloud.speech_v1p1beta1 import enums
 from google.cloud.speech_v1p1beta1 import types
 from google.cloud import speech_v1p1beta1 as speech
-sys.path.insert(0, "../SmartApp.HAL")
 from Bindings import HALInterface
 from os import path
 import time

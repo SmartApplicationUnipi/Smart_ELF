@@ -1,18 +1,19 @@
-import * as Emotion from '../emotion/Emotion';
-import * as ElfUIEvent from './event/ElfUIEvent';
-import * as EventReader from '../reader/EventReader';
+import { IEmotion } from '../emotion/Emotion';
+import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION } from './event/ElfUIEvent';
+import { BaseEventReader, IElfUIEventListener } from '../reader/EventReader';
 import * as Content from '../content/Content';
+import { Point } from '../utils/Point';
 
 /**
  * Base class to implement a UI for ELf.
  * It handles events received from registered event readers and update all of its widgets.
  */
-export abstract class ElfUI implements EventReader.IElfUIEventListener {
+export abstract class ElfUI implements IElfUIEventListener {
 	/**
 	 * List of registered event readers.
 	 */
-	private eventReaders: Array<EventReader.BaseEventReader> = new Array();
-	
+	private eventReaders: Array<BaseEventReader> = new Array();
+
 	constructor(private root: HTMLElement) {
 		this.onCreateView(root);
 	}
@@ -21,7 +22,7 @@ export abstract class ElfUI implements EventReader.IElfUIEventListener {
 	 * Adds a new event reader.
 	 * @param reader The reader to register
 	 */
-	public addEventReader(reader: EventReader.BaseEventReader) {
+	public addEventReader(reader: BaseEventReader) {
 		this.eventReaders.push(reader);
 		reader.registerEventListener(this)
 	}
@@ -30,13 +31,13 @@ export abstract class ElfUI implements EventReader.IElfUIEventListener {
 	 * Method called when a new event is received from one of the registered event listeners.
 	 * @param e 
 	 */
-	public onEvent(e: ElfUIEvent.ElfUIEvent) {
-		let emotion = e.getAny(ElfUIEvent.KEY_EMOTION) as Emotion.IEmotion;
-		if(emotion) {
-			this.onEmotionChanged(e.getAny(ElfUIEvent.KEY_EMOTION) as Emotion.IEmotion);
+	public onEvent(e: ElfUIEvent) {
+		let emotion = e.getAny(KEY_EMOTION) as IEmotion;
+		if (emotion) {
+			this.onEmotionChanged(e.getAny(KEY_EMOTION) as IEmotion);
 		}
 		let contents = this.getContentFactory().create(e);
-		if(contents) {
+		if (contents) {
 			this.onContentChanged(contents);
 		}
 	}
@@ -58,7 +59,13 @@ export abstract class ElfUI implements EventReader.IElfUIEventListener {
 	 * Method called when a new emotion is received
 	 * @param e The emotion received
 	 */
-	abstract onEmotionChanged(e: Emotion.IEmotion): void;
+	abstract onEmotionChanged(e: IEmotion): void;
+
+	/**
+	 * Method called when there is a new position of the user
+	 * @param p The point in the plane where the user is located w.r.t. ELF.
+	 */
+	abstract onPositionChanged(p: Point): void;
 
 	/**
 	 * Method called when new contents are received
@@ -71,7 +78,7 @@ export abstract class ElfUI implements EventReader.IElfUIEventListener {
 	abstract getTemplate(): string;
 
 	/**
-	 * Returns a factory to build widgets.
+	 * Returns a factory to build contents.
 	 */
 	abstract getContentFactory(): Content.ContentFactory;
 }
@@ -83,19 +90,19 @@ export class Builder {
 	/**
 	 * Readers that will be added to the resulting UI.
 	 */
-	private readers: Array<EventReader.BaseEventReader> = null;
+	private readers: Array<BaseEventReader> = null;
 
 	/**
 	 * Construct a new Builder
 	 * @param factory The factory used tobuid the UI
 	 */
-	constructor(private factory: ElfUIFactory) {}
+	constructor(private factory: ElfUIFactory) { }
 
 	/**
 	 * Adds a new event reader.
 	 * @param readers The new event reader
 	 */
-	public setEventReaders(readers: Array<EventReader.BaseEventReader>): Builder {
+	public setEventReaders(readers: Array<BaseEventReader>): Builder {
 		this.readers = readers;
 		return this;
 	}
@@ -109,7 +116,7 @@ export class Builder {
 		this.readers.forEach(reader => {
 			ui.addEventReader(reader);
 		});
-		
+
 		return ui;
 	}
 }

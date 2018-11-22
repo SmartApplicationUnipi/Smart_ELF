@@ -7,16 +7,13 @@ sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from kb import *
 from nlp import *
-      
-myID = register()
+
+KBC = KnowledgeBaseClient(True)
 
 #addFact(myID, "JOKE", 1, 50, 'false', { "INFO" : "JOKE",
 #										"TEXT": "Hear about the new restaurant called Karma? There’s no menu: You get what you deserve."})
 
 
 
-addFact(myID, "test", 1, 50, 'false', {"TAG": "AV_IN_TRANSC_EMOTION", 
-									   "time_stamp": "here an integer with the time",
-									   "text": "At which time Prof Poloni has lecture?"} )
-		
-		
+print(KBC.addFact('GNLP', "AV_IN_TRANSC_EMOTION", 1, 50, {"time_stamp": 1,
+									          "text": "At which time Prof Poloni has lecture?"} ) )
