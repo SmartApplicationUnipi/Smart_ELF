@@ -5,6 +5,9 @@ import * as matcher from './matcher';
 type SubCallback = (r: object[]) => any;
 const TOKEN = security.token;
 
+export type DatabaseFact = Map<number, DataObject>;
+export type DatabaseRule = Map<number, DataObject>;
+
 export const databaseFact = new Map<number, DataObject>();
 export const databaseRule = new Map<number, DataObject>();
 const subscriptions = new Map<object, SubCallback[]>();
@@ -43,12 +46,12 @@ class Metadata {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class DataObject {
+export class DataObject {
     _id: number;
     _meta: Metadata;
     _data: object;
 
-    constructor(id: number, metadata: Metadata, data: object){
+    constructor(id: number, metadata: Metadata, data: object) {
         this._id = id;
         this._meta = metadata;
         this._data = data;
@@ -69,10 +72,10 @@ export class DataRule {
 
 // tslint:disable-next-line:max-classes-per-file
 export class TagInfo {
-    desc : string;
-    doc : string;
+    desc: string;
+    doc: string;
 
-    constructor(description: string, documentation: string){
+    constructor(description: string, documentation: string) {
         this.desc = description;
         this.doc = documentation;
     }
@@ -99,7 +102,7 @@ export function registerTags(tagsList: any): Response { // tagsList is a map tag
     return new Response(true, {});
 }
 
-registerTags({INFERENCE: new TagInfo('inference','inference fact added by the inference engine stub')});
+registerTags({ INFERENCE: new TagInfo('inference', 'inference fact added by the inference engine stub') });
 
 export function getTagDetails(tags: string[]) {
     const res: any = {};
@@ -148,6 +151,11 @@ export function updateFactByID(id: number, idSource: string, tag: string, TTL: n
     };
     databaseFact.set(id, dataobject);
     return new Response(true, id);
+}
+
+export function query(jreq: object) {
+    // FIXME: isn't it better to return a more significant boolean?
+    return new Response(true, matcher.findMatches(jreq, Array.from(databaseFact.values())));
 }
 
 export function queryFact(jreq: object) {
