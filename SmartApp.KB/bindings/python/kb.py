@@ -8,7 +8,7 @@ import os
 from websocket import create_connection
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
-config_file_path = r'./config-margot'
+config_file_path = r'./config-api'
 
 class KnowledgeBaseClient():
 
