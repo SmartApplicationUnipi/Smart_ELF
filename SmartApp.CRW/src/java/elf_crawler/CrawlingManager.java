@@ -2,6 +2,7 @@ package elf_crawler;
 
 import elf_crawler.crawler.*;
 import elf_crawler.relationship.RelationshipSet;
+import elf_crawler.util.Logger;
 import elf_crawler.util.MimeType;
 
 import java.io.*;
@@ -59,13 +60,16 @@ public class CrawlingManager {
      * @param urlSet the set of all URLs to perform crawling on
      * @param rs     the relationship set
      */
-    public CrawlingManager(Set<String> urlSet, RelationshipSet rs) {
-        this(DEFAULT_MAX_CRAWLING_DEPTH, urlSet, rs);
+    public CrawlingManager(URLSet urlSet, RelationshipSet rs) {
+        this(urlSet, rs, -1, -1);
     }
 
     /**
      * Initializes the crawler manager with given max crawling depth,
      * given urlSet and relationship set.
+     *
+     * @param urlSet           the set of all URLs to perform crawling on
+     * @param rs               the relationship set
      *
      * @param maxCrawlingDepth the maximum depth that the crawlers will
      *                         work on, starting from the URL sets. For
@@ -73,15 +77,15 @@ public class CrawlingManager {
      *                         that URL contains URLs inside, say U2, then
      *                         U1 has a depth of 0 and U2 has a depth of 1.
      *                         A max crawling depth of 1 would discard U2.
-     * @param urlSet           the set of all URLs to perform crawling on
-     * @param rs               the relationship set
+     * @param threads          The amount of Crawlers that can run in
+     *                         parallel.
      */
-    public CrawlingManager(int maxCrawlingDepth, Set<String> urlSet, RelationshipSet rs) {
+    public CrawlingManager(Set<String> urlSet, RelationshipSet rs, int maxCrawlingDepth, int threads) {
         this.rs = rs;
 
         // Create as many threads as processor cores in this machine
-        int processors = Runtime.getRuntime().availableProcessors();
-        this.maxCrawlingDepth = maxCrawlingDepth;
+        int processors = threads > 0 ? threads : Runtime.getRuntime().availableProcessors();
+        this.maxCrawlingDepth = maxCrawlingDepth > 0 ? maxCrawlingDepth : DEFAULT_MAX_CRAWLING_DEPTH;
         this.linkSet = new HashSet<>(urlSet.size() * INITIAL_URL_SET_SCALE);
         this.newUrls = new HashSet<>(EXPECTED_NEW_URLS);
         this.linkQueue = new LinkedBlockingQueue<>(EXPECTED_NEW_URLS);
@@ -98,7 +102,7 @@ public class CrawlingManager {
 
     public List<DataEntry> executeAllCrawlers() throws ExecutionException, InterruptedException {
         // We expect that the total amount of links is the amount of initial links powered to the max crawling depth
-        //Map<String, List<Relation>> crawledRDF = new HashMap<>((int)Math.pow(this.linkSet.size(), DEFAULT_MAX_CRAWLING_DEPTH));
+        //Map<String, List<RdfRelation>> crawledRDF = new HashMap<>((int)Math.pow(this.linkSet.size(), DEFAULT_MAX_CRAWLING_DEPTH));
 
         while (this.workingCrawlers.get() > 0) {
             while (this.linkQueue.size() > 0) {
@@ -110,7 +114,7 @@ public class CrawlingManager {
         return this.aggregator.aggregate();
     }
 
-    public void shutdownScheduler() {
+    public void shutdown() {
         this.executor.shutdown();
     }
 
@@ -147,7 +151,7 @@ public class CrawlingManager {
                         c = new JSONCrawler(df, this.rs);
                         break;
                     case csv:
-                        c = new CVSCrawler(df, this.rs);
+                        c = new CSVCrawler(df, this.rs);
                         break;
                     default:
                         return;
@@ -172,6 +176,7 @@ public class CrawlingManager {
 
             }
             catch (Exception e) {
+                Logger.exception(e);
             }
             finally {
                 this.workingCrawlers.decrementAndGet();

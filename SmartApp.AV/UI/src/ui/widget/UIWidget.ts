@@ -1,6 +1,6 @@
-import * as ElfUIEvent from '../event/ElfUIEvent'
-import * as Emotion from '../../emotion/Emotion'
-import * as Content from '../../content/Content';
+import * as Emotion from '../../emotion/Emotion';
+
+import { IContent } from '../../content/Content';
 
 /**
  * Base interface for objects that can be displayed by the ElfUI.
@@ -16,7 +16,7 @@ export interface UIWidget {
 /**
  * This class represent an item that have an emotion.
  */
-export abstract class EmotionalWidget {
+export abstract class EmotionalUIWidget implements UIWidget {
 	/**
 	 * Construct the widget using a neutral emotion as default.
 	 * @param emotion The current emotion. If nothing is passed, the neutral emotion is used.
@@ -45,11 +45,16 @@ export abstract class EmotionalWidget {
 	 * @param emotion The new emotion received
 	 */
 	abstract onEmotionChanged(emotion: Emotion.IEmotion): void;
+
+	/**
+	 * Returns the HTML code of this widget.
+	 */
+	abstract render(): string;
 };
 
 /**
  * Interface that represent a factory for UIWidget starting from events.
  */
 export interface UIWidgetFactory {
-	create(event: Content.IContent): Array<UIWidget>;
+	create(event: IContent): Array<UIWidget>;
 }
