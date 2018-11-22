@@ -36,7 +36,10 @@ const dataset: DataObject[] = [
 ];
 
 const matches = matcher.findMatches({ _data: { $x: { '$x1': 'laurea' }, $y: { '$y1': 'triennale' } } }, dataset);
-const answer = new Map<number, object[]>();
-answer.set(4, [{ '$x': 'grado', '$x1': 'tipo', '$y': 'grado', '$y1': 'grado' }]);
+const answer = new Map<object, object[]>();
+answer.set({
+    _meta: { idSource: '', tag: '', TTL: 0, reliability: 0, timestamp: '' }, _id: 0,
+    _data: { nome: 'pino', cognome: 'albero', titolo: { tipo: 'diploma', grado: 'scuolamedia' } }
+}, [{ '$x': 'grado', '$x1': 'tipo', '$y': 'grado', '$y1': 'grado' }]);
 
 testUtil.test(matches, answer, opt.verbose);

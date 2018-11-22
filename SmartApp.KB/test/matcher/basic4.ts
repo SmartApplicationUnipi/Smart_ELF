@@ -36,7 +36,10 @@ const dataset: DataObject[] = [
 ];
 
 const matches = matcher.findMatches({ _data: { nome: '$n', $n: 'nome' } }, dataset);
-const answer = new Map<number, object[]>();
-answer.set(6, [{ '$n': 'gianni' }]);
+const answer = new Map<object, object[]>();
+answer.set({
+    _meta: { idSource: '', tag: '', TTL: 0, reliability: 0, timestamp: '' }, _id: 6,
+    _data: { nome: 'gianni', cognome: 'pinotto', gianni: 'nome', qi: '900' }
+}, [{ '$n': 'gianni' }]);
 
 testUtil.test(matches, answer, opt.verbose);

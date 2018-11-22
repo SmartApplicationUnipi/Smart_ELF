@@ -36,6 +36,6 @@ const dataset: DataObject[] = [
 ];
 
 const matches = matcher.findMatches({ _data: { $x: { '$x1': 'laurea' }, $y: { '$y1': 'barbagianni' } } }, dataset);
-const answer = new Map<number, object[]>();
+const answer = new Map<object, object[]>();
 
 testUtil.test(matches, answer, opt.verbose);

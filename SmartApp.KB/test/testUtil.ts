@@ -24,21 +24,26 @@ export function test(answer: Response, expected: Response, verbose: boolean) {
     } else {
         if (verbose) {
             console.log(answer);
+            console.log(expected);
         }
         process.exit(1);
     }
 }
 
 export function isEqual(answer: Response, expected: Response): boolean {
-    for (let i of expected.keys()) {
-        if (!(answer.has(i))) {
-            return false;
-        }
+    if (answer.size !== expected.size) {
+        return false;
     }
-    for (let i of answer.keys()) {
-        if (!(expected.has(i) && deepEqual(answer.get(i), expected.get(i)))) {
-            return false;
+    for (const [key, val] of expected) {
+        for (const k of answer.keys()) {
+            if (deepEqual(key, k)) {
+                if (!deepEqual(val, answer.get(k))) {
+                    return false;
+                }
+                break;
+            }
         }
     }
     return true;
 }
+
