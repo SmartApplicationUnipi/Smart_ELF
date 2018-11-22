@@ -3,7 +3,7 @@ import os
 import dlib
 import numpy as np
 
-from emopy import FERModel
+from .emopy import FERModel
 
 class OffVision:
     def __init__(self, match_dist_threshold=0.6, target_emotions=['calm', 'anger', 'happiness']):
