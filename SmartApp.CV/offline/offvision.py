@@ -3,7 +3,10 @@ import os
 import dlib
 import numpy as np
 
-from emopy import FERModel
+try:
+    from .emopy import FERModel
+except Exception as e:
+    from emopy import FERModel
 
 class OffVision:
     def __init__(self, match_dist_threshold=0.6, target_emotions=['calm', 'anger', 'happiness']):
@@ -21,14 +24,14 @@ class OffVision:
         self.shape_pred = dlib.shape_predictor(os.path.join(models_path, 'models/shape_predictor_68_face_landmarks.dat'))
         self.face_rec = dlib.face_recognition_model_v1(os.path.join(models_path, 'models/dlib_face_recognition_resnet_model_v1.dat'))
         self.emotion_model = FERModel(target_emotions, verbose=True)
-    
+
     def is_available(self):
         """
         Check module availability
         :return: always true, since it's offline
         """
         return True
-    
+
     def set_detect_attibutes(self, *args, **kwargs):
         """
         Sets the attributes to be analyzed on the face (list of admissible ones follows)

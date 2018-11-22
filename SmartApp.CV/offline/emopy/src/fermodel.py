@@ -70,7 +70,6 @@ class FERModel:
         resized_image = cv2.resize(gray_image, self.target_dimensions, interpolation=cv2.INTER_LINEAR)
         final_image = np.array([np.array([resized_image]).reshape(list(self.target_dimensions)+[self.channels])])
         prediction = self.model.predict(final_image)
-        # self._print_prediction(prediction[0])
         return self._prediction_to_json(prediction[0])
 
     def _check_emotion_set_is_supported(self):
@@ -109,7 +108,8 @@ class FERModel:
         emotion_map_file = 'models/conv_emotion_map_%s.json' % model_suffix
         package_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         emotion_map = json.loads(open(os.path.join(package_path, emotion_map_file)).read())
-        return load_model(os.path.join(package_path, model_file)), emotion_map
+        model = load_model(os.path.join(package_path, model_file))
+        return model, emotion_map
 
     def _print_prediction(self, prediction):
         normalized_prediction = [x/sum(prediction) for x in prediction]

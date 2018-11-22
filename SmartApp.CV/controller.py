@@ -2,6 +2,7 @@ from external_modules.kb_client import KnowledgeBaseClient as kb
 import external_modules.hal_client as hal
 from online.interface import online_connector as online
 from offline.offvision import OffVision as offline
+import numpy as np
 
 from threading import *
 from queue import Queue
@@ -48,10 +49,10 @@ class Controller():
             self.video_capture = cv2.VideoCapture(0)
 
         # Initialization of Online Module
-        self.online_module = online()
+        #self.online_module = online()
 
         # Initialization of Offline Module
-        # self.offline_client = offline()
+        self.offline_module = offline()
 
         self.module = self._getResolver()
 
@@ -92,7 +93,7 @@ class Controller():
                         self.watch(frame.data)
                     queue.task_done()
                 else:
-                    ret, frame = self.video_capture.read() #np.arra
+                    ret, frame = self.video_capture.read()
                     frame = cv2.resize(frame, (320, 240))
                     self.watch(frame)
 
@@ -109,12 +110,13 @@ class Controller():
                 result (interface): Return an object that will resolve the detection
                     of attributes and identity of person.
         """
-        if self.online_module.is_available():
-            res = self.online_module
-        else:
-            raise NotImplementedError( " Sorry :( ..offline connector not yet available .." )
+        #if self.online_module.is_available():
+        #    res = self.online_module
+        #else:
+        #    raise NotImplementedError( " Sorry :( ..offline connector not yet available .." )
         # elif self.offline_module.isAvailable():
-        #     res = self.offline_module
+        if self.offline_module.is_available():
+            res = self.offline_module
         return res
 
     def setAttr(self, *args, **kwargs):
@@ -130,17 +132,20 @@ class Controller():
         #self.online_module.set_detect_attibutes(*args, **kwargs)
 
     def watch(self, frame):
+        fact = None
+        try:
+            fact = self.module.analyze_face(frame)
+        except Exception as e:
+            # TODO: handle this
+            print("error during prediction:", e)
 
-        fact = self.module.analyze_face(frame)
-        if not fact:
+        if fact is None:
             print("Non vedo nessuno")
             return
-
-        fact.update({"lookAt": {'pinch': 0, 'yaw':0}})
-        fact.update({"isInterlocutor": False})
-
-        if fact is not None:
-            self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
+        else:
+            fact.update({"lookAt": {'pinch': 0, 'yaw':0}})
+            fact.update({"isInterlocutor": False})
+        #    self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
 
         print(fact)
 
