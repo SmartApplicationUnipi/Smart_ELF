@@ -175,5 +175,15 @@ if __name__ == '__main__':
 
 
     #loop.run_until_complete(myHandler(q.sync_q))
-    loop.run_until_complete(speech_to_text(q.async_q))
-    loop.run_forever()
+    #loop.run_until_complete(speech_to_text(q.async_q))
+    #loop.run_forever()
+    print("Insert into KB that no Google or Sphinx result")
+    obj_from_stt = {
+    "tag": 'AV_IN_TRANSC_EMOTION',
+    "timestamp": 0,
+    "ID": 0,
+    "text": "where is the aula A?",
+    "language": "en"
+    }
+    myID='stt'
+    kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, obj_from_stt)
