@@ -50,6 +50,3 @@ export class Logger {
     }
 
 }
-
-const l = Logger.getInstance();
-l.warn("provaprova");
