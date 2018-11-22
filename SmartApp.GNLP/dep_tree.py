@@ -1,7 +1,7 @@
 import spacy
 import pprint
 import en_core_web_sm
-
+import it_core_news_sm
 
 def create_dictionary (root):
 	token = root
@@ -19,9 +19,12 @@ def create_dictionary (root):
 
 	return obj
 
-def get_dependency_tree(sentence):
+def get_dependency_tree(sentence, language="en"):
 
-	nlp = en_core_web_sm.load()
+	if (language == "it"):
+		nlp = it_core_news_sm.load()
+	else:
+		nlp = en_core_web_sm.load()
 	doc = nlp(sentence)
 
 	global root
@@ -36,5 +39,6 @@ def get_dependency_tree(sentence):
 if __name__ == '__main__':
 
         pp = pprint.PrettyPrinter()
-        parsing = get_dependency_tree("Men walk down the railroad track, going to some place there is no going back")
+        ln = 'it'
+        parsing = get_dependency_tree("Dov'è la lezione di Attardi?", ln)
         pp.pprint(parsing)
