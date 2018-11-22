@@ -138,9 +138,9 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    loop.run_until_complete(read_kb(q.sync_q))
-    loop.run_until_complete(face_communication(q.async_q))
-    loop.run_forever()
+    #loop.run_until_complete(read_kb(q.sync_q))
+    #loop.run_until_complete(face_communication(q.async_q))
+    #loop.run_forever()
 
 
 
