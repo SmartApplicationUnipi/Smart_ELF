@@ -88,7 +88,7 @@ describe('query', () => {
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
         const meta = {idSource: 'proto2', tag: 'tag1', TTL : 3,
-                       reliability : 100, timestamp : new Date(Date.now()).toLocaleDateString('en-GB')}
+                       reliability : 100, timestamp : new Date(Date.now()).toLocaleDateString('en-GB')};
 
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, []);
@@ -141,7 +141,7 @@ describe ('removeFact', () => {
         const res2 = kb.addFact('proto2', 'tag1', 5, 10,  {testkey: 'k', testkey2: 'test2'});
         const res3 = kb.addFact('proto2', 'tag1', 7, 80,  {testkey: 'k', testkey2: 'test3'});
         const res4 = kb.addFact('proto2', 'tag1', 8, 100, {testkey: 'SmartApplication' });
- 
+
         const data = {testkey: 'k'};
         const response = kb.removeFact('proto2', {_data: data});
         const expected = new kb.Response(true, [res1.details , res2.details, res3.details]);
@@ -223,4 +223,3 @@ describe ('addRule and removeRule', () => {
         expect(response).to.deep.equal(expected);
     });
 });
-

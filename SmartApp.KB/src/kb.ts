@@ -189,8 +189,8 @@ export function removeFact(idSource: string, jreq: object) {
     if (res.success) {
         const resmap = res.details as Map<any, object[]>;
         for (const k of resmap.keys()) {
-        removedFactsId.push(k._id);
-        databaseFact.delete(k._id);
+            removedFactsId.push(k._id);
+            databaseFact.delete(k._id);
         }
         return new Response(true, removedFactsId);
     } else { return new Response(false, 'no matching facts'); }

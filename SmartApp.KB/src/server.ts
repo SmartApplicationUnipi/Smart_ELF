@@ -5,7 +5,7 @@ import * as kb from './kb';
 import { Matches } from './matcher';
 
 const port = server.port ;
-const debug = new Debugger();
+const debug = new Debugger(1);
 
 // initialize the WebSocket server instance
 const wss = new WebSocket.Server({ port });
@@ -82,4 +82,4 @@ wss.on('connection', (ws: WebSocket) => {
 
 });
 
-debug.clog(Colors.GREEN, 'INFO', 1, '', 'Server started at port ' + port, 1);
+debug.clog(Colors.GREEN, 'INFO', 1, '', 'Server started at port ' + port, 0);
