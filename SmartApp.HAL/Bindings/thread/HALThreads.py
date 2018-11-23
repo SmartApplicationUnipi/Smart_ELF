@@ -19,7 +19,7 @@ class HALThread(Threading.Thread):
     Override the `handleSoc`
     """
 
-    def __init__(self, HALAddress, HALReadingPort, clientID, callback):
+    def __init__(self, HALAddress, HALReadingPort, clientID, callback, *args, **kwargs):
         Threading.Thread.__init__(self)
         # Config
         self.HALAddress = HALAddress
@@ -27,6 +27,7 @@ class HALThread(Threading.Thread):
         # Client managment
         self.clientID = clientID
         self.callback = callback
+        self.callback_params = {'args': args, 'kwargs': kwargs}
         # HALCommunication
         self.mustTerminate = False
         self.isConnected = False
@@ -71,7 +72,7 @@ class HALThread(Threading.Thread):
                         continue
 
                     if not(self.mustTerminate):
-                        self.callback(message)
+                        self.callback(message, *self.callback_params['args'], **self.callback_params['kwargs'])
 
                 except Socket.timeout as e:
                     Log.debug("HALThread for client %s. Socket timeouts %s" % (self.clientID, e))
@@ -132,3 +133,4 @@ class HALThread(Threading.Thread):
                 pass
             self.socket = None
         self.callback = None
+        self.callback_params = None
