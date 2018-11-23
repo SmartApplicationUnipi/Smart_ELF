@@ -1,8 +1,11 @@
 import { security } from './config';
+import { Debugger } from './debugger';
 import { checkRules } from './inferenceStub';
 import * as matcher from './matcher';
 
-type SubCallback = (r: object[]) => any;
+const debug = new Debugger();
+
+type SubCallback = (r: any) => any;
 const TOKEN = security.token;
 
 export type DatabaseFact = Map<number, DataObject>;
@@ -19,8 +22,9 @@ let uniqueFactId = 0; // move in server part
 let uniqueRuleId = 0; // move in server part
 
 export class Response {
-    success: boolean;
-    details: any; // if success === false, report a message to explain the error. Else we return the result e.g.:idSource
+    public success: boolean;
+    public details: any;
+    // if success === false, report a message to explain the error. Else we return the result e.g.:idSource
 
     constructor(success: boolean, details: any) {
         this.success = success;
@@ -30,11 +34,11 @@ export class Response {
 
 // tslint:disable-next-line:max-classes-per-file
 class Metadata {
-    idSource: string;
-    tag: string;
-    TTL: number;
-    reliability: number;
-    timestamp: string;
+    public idSource: string;
+    public tag: string;
+    public TTL: number;
+    public reliability: number;
+    public timestamp: string;
 
     constructor(idSource: string, tag: string, timestamp: string, TTL: number, reliability: number) {
         this.idSource = idSource;
@@ -47,9 +51,9 @@ class Metadata {
 
 // tslint:disable-next-line:max-classes-per-file
 export class DataObject {
-    _id: number;
-    _meta: Metadata;
-    _data: object;
+    public _id: number;
+    public _meta: Metadata;
+    public _data: object;
 
     constructor(id: number, metadata: Metadata, data: object) {
         this._id = id;
@@ -60,8 +64,8 @@ export class DataObject {
 
 // tslint:disable-next-line:max-classes-per-file
 export class DataRule {
-    _body: object[];
-    _head: object;
+    public _body: object[];
+    public _head: object;
 
     constructor(head: object, body: object[]) {
         this._body = body;
@@ -69,11 +73,10 @@ export class DataRule {
     }
 }
 
-
 // tslint:disable-next-line:max-classes-per-file
 export class TagInfo {
-    desc: string;
-    doc: string;
+    public desc: string;
+    public doc: string;
 
     constructor(description: string, documentation: string) {
         this.desc = description;
@@ -153,45 +156,44 @@ export function updateFactByID(id: number, idSource: string, tag: string, TTL: n
     return new Response(true, id);
 }
 
-export function query(jreq: object) {
+export function query(jreq: any) {
     // FIXME: isn't it better to return a more significant boolean?
-    return new Response(true, matcher.findMatches(jreq, Array.from(databaseFact.values())));
-}
+    // tslint:disable-next-line:max-line-length
+    const queryobj: any = {};
 
-export function queryFact(jreq: object) {
-    return new Response(true, matcher.findMatchesAll(jreq, Array.from(databaseFact.values())));
-}
+    if (jreq.hasOwnProperty('_id')) { queryobj._id = jreq._id; delete jreq._id; }
 
-export function queryBind(jreq: object) {
-    return new Response(true, matcher.findMatchesBind(jreq, Array.from(databaseFact.values())));
+    if (jreq.hasOwnProperty('_meta')) { queryobj._meta = jreq._meta;  delete jreq._meta; }
+
+    if (jreq.hasOwnProperty('_data')) {
+        queryobj._data = jreq._data;
+    } else {
+        if (Object.keys(jreq).length > 0) {queryobj._data = jreq; }
+    }
+
+    const m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
+
+    if (m.size === 0) { return new Response(false, {});
+    } else { return new Response(true, m); }
 }
 
 export function subscribe(idSource: string, jreq: object, callback: SubCallback) {
-    if (!subscriptions.has(jreq)) {
-        subscriptions.set(jreq, [callback]);
-    } else {
-        subscriptions.get(jreq).push(callback);
-    }
+    if (!subscriptions.has(jreq)) { subscriptions.set(jreq, [callback]);
+    } else { subscriptions.get(jreq).push(callback); }
     return new Response(true, 'Subscribed');
-}
-
-export function getAndSubscribe(idSource: string, jreq: object, callback: SubCallback) {
-    const res = queryBind(jreq);
-    const subres = subscribe(idSource, jreq, callback);
-    if (!subres.success) {
-        return subres;
-    }
-    return new Response(true, res);
 }
 
 export function removeFact(idSource: string, jreq: object) {
     const removedFactsId: number[] = [];
-    const res = queryFact(jreq);
-    for (const k of res.details) {
+    const res = query(jreq);
+    if (res.success) {
+        const resmap = res.details as Map<any, object[]>;
+        for (const k of resmap.keys()) {
         removedFactsId.push(k._id);
         databaseFact.delete(k._id);
-    }
-    return new Response(true, removedFactsId);
+        }
+        return new Response(true, removedFactsId);
+    } else { return new Response(false, 'no matching facts'); }
 }
 
 export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
@@ -220,8 +222,8 @@ function checkSubscriptions(obj: object) { // object is the created fact
     // this function will check if the new data inserted matches some "notification rule"
 
     subscriptions.forEach((callbArray, k, m) => {
-        const r = matcher.findMatchesBind(k, [obj]);
-        if (r.length > 0) { callbArray.forEach((c) => c(r)); }
+        const r = matcher.findMatches(k, [obj]);
+        if (r.size > 0) { callbArray.forEach((c) => c(r)); }
     });
 }
 

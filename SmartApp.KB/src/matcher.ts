@@ -1,5 +1,4 @@
 import { Colors, Debugger } from './debugger';
-import { DataObject, DatabaseFact } from './kb';
 
 const ID_AA = 0;
 const ID_AO = 1;
@@ -11,11 +10,11 @@ const BINDS_CAT = 6;
 
 const D: Debugger = new Debugger();
 
-export type Response = Map<object, object[]>;
+export type Matches = Map<object, object[]>;
 
-export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Response {
-    const matches: Response = new Map<object, object[]>();
-    let matcher = new Matcher();
+export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Matches {
+    const matches: Matches = new Map<object, object[]>();
+    const matcher = new Matcher();
     for (const data of dataset) {
         const mb = matcher.matchBind(query, data, initBinds);
         if (mb.match) {

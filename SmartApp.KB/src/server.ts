@@ -1,20 +1,22 @@
 import * as WebSocket from 'ws';
 import { security, server } from './config';
+import { Colors, Debugger } from './debugger';
 import * as kb from './kb';
+import { Matches } from './matcher';
 
 const port = server.port ;
+const debug = new Debugger();
 
 // initialize the WebSocket server instance
 const wss = new WebSocket.Server({ port });
 
 wss.on('connection', (ws: WebSocket) => {
 
-    // connection is up, let's add a simple simple event
+    // connection is up
     ws.on('message', (message: string) => {
         let reply = JSON.stringify({ success: false, details: 'some error occurred'});
 
-        // log the received message and send it back to the client
-        console.log('received: %s', message);
+        debug.clog(Colors.WHITE, 'INFO', 1, '', 'received: ' + message, 1);
         try {
             const j = JSON.parse(message);
 
@@ -48,11 +50,16 @@ wss.on('connection', (ws: WebSocket) => {
                     // tslint:disable-next-line:max-line-length
                     reply = JSON.stringify(kb.updateFactByID(j.params.idFact, j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
-                case 'queryBind':
-                    reply = JSON.stringify(kb.queryBind(j.params.jsonReq));
+                case 'query':
+                    reply = JSON.stringify(kb.query(j.params.jsonReq));
                     break;
-                case 'queryFact':
-                    reply = JSON.stringify(kb.queryFact(j.params.jsonReq));
+                case 'queryBind': // note: this is deprecated: will be removed 1st december 2018
+                    const res = kb.query(j.params.jsonReq);
+                    const bind = res.details as Matches;
+                    reply = JSON.stringify({success: res.success, details: bind.values});
+                    break;
+                case 'queryFact': // note: this is deprecated: will be removed 1st december 2018
+                    reply = JSON.stringify(kb.query(j.params.jsonReq));
                     break;
                 case 'subscribe':
                     const callback = (re: any) => {
@@ -66,12 +73,13 @@ wss.on('connection', (ws: WebSocket) => {
                     reply = JSON.stringify(new kb.Response(false, 'Method not allowed'));
             }
         } catch (e) {
-            console.log(e); // TODO: specialize the error in order to send back the json errors
+            debug.clog(Colors.RED, 'ERROR', 1, '', 'error handling connection: ' + e, 2);
+             // TODO: specialize the error in order to send back the json errors
         }
-        console.log('reply: ' + reply)
+        debug.clog(Colors.WHITE, 'INFO', 1, '', 'reply: ' + reply, 1);
         ws.send(reply);
     });
 
 });
 
-console.log('Server started at port ' + port);
+debug.clog(Colors.GREEN, 'INFO', 1, '', 'Server started at port ' + port, 1);
