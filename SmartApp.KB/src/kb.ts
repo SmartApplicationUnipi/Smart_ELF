@@ -38,12 +38,12 @@ class Metadata {
     public tag: string;
     public TTL: number;
     public reliability: number;
-    public timestamp: string;
+    public creationTime: string;
 
-    constructor(idSource: string, tag: string, timestamp: string, TTL: number, reliability: number) {
+    constructor(idSource: string, tag: string, creationTime: string, TTL: number, reliability: number) {
         this.idSource = idSource;
         this.tag = tag;
-        this.timestamp = timestamp;
+        this.creationTime = creationTime;
         this.TTL = TTL;
         this.reliability = reliability;
     }

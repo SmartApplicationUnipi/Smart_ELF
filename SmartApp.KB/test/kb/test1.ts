@@ -66,7 +66,7 @@ describe('query', () => {
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
         const meta = {idSource: 'proto2',  reliability : 100, tag: 'tag1',
-                      timestamp : new Date(Date.now()).toLocaleDateString('en-GB'), TTL : 3};
+                      creationTime : new Date(Date.now()).toLocaleDateString('en-GB'), TTL : 3};
 
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, []);
@@ -88,7 +88,7 @@ describe('query', () => {
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
         const meta = {idSource: 'proto2', tag: 'tag1', TTL : 3,
-                       reliability : 100, timestamp : new Date(Date.now()).toLocaleDateString('en-GB')};
+                       reliability : 100, creationTime : new Date(Date.now()).toLocaleDateString('en-GB')};
 
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, []);
@@ -103,7 +103,7 @@ describe('query', () => {
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
         const meta = {idSource: 'proto2', tag: 'tag1', TTL : 3, reliability : 100,
-                      timestamp : new Date(Date.now()).toLocaleDateString('en-GB')};
+                      creationTime : new Date(Date.now()).toLocaleDateString('en-GB')};
 
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, [ { $s: 'SmartApplication' } ]);
