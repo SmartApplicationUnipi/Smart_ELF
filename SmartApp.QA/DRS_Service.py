@@ -23,6 +23,8 @@ class DRSService():
     def create_drs(self, *param):
         tree = param[0][0][0]['tree']
         entities = param[0][0][0]['entities']
+        
+        logging.info("\tcallback DRS called")
 
         drs_structure = None # TODO: create drs!!
         drs = {
@@ -32,7 +34,6 @@ class DRSService():
         }
 
         self.write_to_KB(drs)
-        logging.info("\tcallback DRS called")
         pass
 
     def start(self):
