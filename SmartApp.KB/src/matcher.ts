@@ -258,7 +258,6 @@ class Matcher {
             D.clog(Colors.YELLOW, 'BIND', this.ID_AP, '', 'Create a new set of bind containing only the bind: <`' + queryValue + '\':`' + data[queryKey] + '\'>.', 4);
             const tmp: { [index: string]: string } = {};
             tmp[queryValue] = data[queryKey];
-            console.log(queryValue);
             this.currBinds.push(tmp); // FIXME: There must exists a way to push directly the new object instead of creating a temp.
         } else {
             for (let k = 0; k < this.currBinds.length; ++k) {
