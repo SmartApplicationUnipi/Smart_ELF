@@ -108,7 +108,7 @@ class FERModel:
         model_file = 'models/conv_model_%s.hdf5' % model_suffix
         emotion_map_file = 'models/conv_emotion_map_%s.json' % model_suffix
         package_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-        emotion_map = json.loads(open(os.path.join(package_path, emotion_map_file))).read()
+        emotion_map = json.loads(open(os.path.join(package_path, emotion_map_file)).read())
         return load_model(os.path.join(package_path, model_file)), emotion_map
 
     def _print_prediction(self, prediction):
