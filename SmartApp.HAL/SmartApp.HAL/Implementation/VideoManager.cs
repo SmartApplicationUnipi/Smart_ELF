@@ -42,7 +42,9 @@ namespace SmartApp.HAL.Implementation
 
                 // Prepare the packet to send over the net
                 var packet = new VideoDataPacket() {
-                    Timestamp = new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds()
+                    Timestamp = new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds(),
+                    FrameWidth = frame.FrameWidth,
+                    FrameHeigth = frame.FrameHeight
                 };
                 foreach (var face in frame.Faces)
                 {
@@ -59,7 +61,9 @@ namespace SmartApp.HAL.Implementation
                     }
 
                     packet.Faces.Add(new VideoDataPacket.Types.Face() {
-                        Id = -1,
+                        Id = face.ID,
+                        Z = face.Z,
+                        Speaking = face.IsSpeaking,
                         Data = ByteString.CopyFrom(buf),
                         Rect = new VideoDataPacket.Types.Rectangle() {
                             Top = face.Bounds.Top,
