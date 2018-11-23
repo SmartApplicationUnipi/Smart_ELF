@@ -25,7 +25,7 @@
 - Qual’è l’orario  settimanale del professore C?
 - Qual’è l’orario  settimanale delle lezioni del professore C?
 - Quali sono le lezioni del professore C?
-##### LEZIONI ORARI CORSI######
+##### LEZIONI ORARI CORSI ######
 - quando sarà la prossima lezione del corso Y?
 - A che ora è la prossima lezione del corso Y?
 - In che giorno è la prossima lezione del corso Y?
@@ -37,19 +37,19 @@
 - Dove sta l'aula X?
 - Come faccio a raggiungere l'aula X?
 - Che lezione c'è in aula X?
-##### lezione cancellata #####
+##### LEZIONE CANCELLATA #####
 - la lezione del professore C è stata cancellata?
 - la lezione del corso Y è stata cancellata?
 - la lezione del professore C del giorno D è stata cancellata?
 - la lezione del corso Y del giorno D è stata cancellata?
 - la lezione del professore C dell’ora Y è stata cancellata? (un prof può avere più di una lezione al giorno, vedi Ferragina)
 - la lezione del professore C del giorno D all’ora Y è stata cancellata? (un prof può avere più di una lezione al giorno anche in diversi giorni, vedi Ferragina)
-##### ora ricevimento #####
+##### ORARIO RICEVIMENTO #####
 - In quale dipartimento fa ricevimento il professore C?
 -  Dove è il ricevimento del professore C?
 -  A che ora è il ricevimento del professore C?
 -  Quando è il ricevimento del professore C?
-##### Studio del professore C #####
+##### STUDIO DEL PROFESSORE #####
 - In quale dipartimento è lo studio del professore C?
 - Qual’è lo studio del professore C? (quale è il numero dello studio)
 - Qual’è il numero dello studio del professore C?
