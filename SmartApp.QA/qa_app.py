@@ -47,7 +47,6 @@ def __main__():
 
     logging.basicConfig(stream=sys.stderr, level=logging_lvl)
 
-    # TODO: insert proper tags
     tags = {
         TAG_DRS : {'desc' : 'DRS structure', 'doc' : DESC_DRS}
     }
