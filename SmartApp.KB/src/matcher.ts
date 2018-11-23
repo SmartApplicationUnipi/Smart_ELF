@@ -124,14 +124,14 @@ class Matcher {
                     }
                     break;
                 }
-                case 4: {
+                case this.ID_PO: {
                     // placeholder : object
                     if (!this.matchAllPlaceholderObject(query, sorted, data)) {
                         return false;
                     }
                     break;
                 }
-                case 5: {
+                case this.ID_PP: {
                     // placeholder : placeholder
                     if (!this.matchAllPlaceholderPlaceholder(query, sorted, data)) {
                         return false;
@@ -241,7 +241,7 @@ class Matcher {
         D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit recursion', 5);
         D.decreaseIndentation();
         if (!result) {
-            D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'Inner objects are different.', 2);
+            D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'Inner objects can\'t be matched.', 2);
             return false;
         }
         return true;
@@ -251,27 +251,29 @@ class Matcher {
         D.clog(Colors.PINK, 'VAL', this.ID_AP, '', 'key => ' + queryKey, 4);
         D.clog(Colors.PINK, 'VAL', this.ID_AP, '', 'value => ' + queryValue, 4);
         if (!data.hasOwnProperty(queryKey)) {
-            D.clog(Colors.RED, 'FAIL', this.ID_AP, '', 'Key `' + queryKey + '\' not found', 2);
+            D.clog(Colors.RED, 'FAIL', this.ID_AP, '', 'Key `' + queryKey + '\' not found.', 2);
             return false;
         }
         if (this.currBinds.length === 0) {
-            D.clog(Colors.YELLOW, 'BIND', this.ID_AP, '', 'First bind: `' + queryValue + '\' -> `' + data[queryKey] + '\'', 4);
-            const b: { [index: string]: string } = {};
-            b[queryValue] = data[queryKey];
-            this.currBinds.push(b);
+            D.clog(Colors.YELLOW, 'BIND', this.ID_AP, '', 'Create a new set of bind containing only the bind: <`' + queryValue + '\':`' + data[queryKey] + '\'>.', 4);
+            const tmp: { [index: string]: string } = {};
+            tmp[queryValue] = data[queryKey];
+            console.log(queryValue);
+            this.currBinds.push(tmp); // FIXME: There must exists a way to push directly the new object instead of creating a temp.
         } else {
             for (let k = 0; k < this.currBinds.length; ++k) {
                 if (this.currBinds[k].hasOwnProperty(queryValue)) {
                     if (this.currBinds[k][queryValue] !== data[queryKey]) {
-                        D.clog(Colors.YELLOW, 'SBIND', this.ID_AP, '', 'Remove old bind: `' + queryValue + '\' -> `'
-                            + this.currBinds[k][queryValue] + '\', because we found the pair `' + queryKey + '\' : `' + data[queryKey] + '\'', 2);
+                        D.clog(Colors.YELLOW, 'SBIND', this.ID_AP, '', 'Remove the set of bind containing <`' + queryValue + '\':`'
+                            + this.currBinds[k][queryValue] + '\'>, because it\'s inconsistent with the bind <`' + queryValue
+                            + '\' : `' + data[queryKey] + '\'>.', 2);
                         delete this.currBinds[k];
                         continue;
                     } else {
-                        D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'Found a previous GOOD bind: `' + queryValue + '\' -> `' + data[queryKey] + '\'', 3);
+                        D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'Current set of bind contains <`' + queryValue + '\':`' + data[queryKey] + '\'>, nothing to do.', 3);
                     }
                 } else {
-                    D.clog(Colors.YELLOW, 'BIND', this.ID_AP, '', 'Add bind: `' + queryValue + '\' -> `' + data[queryKey] + '\'', 2);
+                    D.clog(Colors.YELLOW, 'BIND', this.ID_AP, '', 'Extend the current set of bind with <`' + queryValue + '\':`' + data[queryKey] + '\'>.', 2);
                     this.currBinds[k][queryValue] = data[queryKey];
                 }
             }
@@ -280,44 +282,63 @@ class Matcher {
     }
 
     private matchPlaceholderAtom(queryKey: string, queryValue: string, data: { [index: string]: any }): boolean {
-        D.clog(Colors.PINK, 'KEY', this.ID_PA, '', 'key => ' + queryKey, 5);
-        D.clog(Colors.PINK, 'VAL', this.ID_PA, '', 'value => ' + queryValue, 5);
-        const newBinds: { [index: string]: any }[] = [...this.currBinds];
+        D.clog(Colors.PINK, 'KEY', this.ID_PA, '', 'key => ' + queryKey, 4);
+        D.clog(Colors.PINK, 'VAL', this.ID_PA, '', 'value => ' + queryValue, 4);
         const dataKeys = Object.keys(data);
-        for (let k = 0; k < newBinds.length || k === 0; ++k) {
-            if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
+
+        if (this.currBinds.length === 0) {
+            for (const dataKey of dataKeys) {
+                if (queryValue === data[dataKey]) {
+                    D.clog(Colors.YELLOW, 'BIND', this.ID_PA, '', 'Create a new set of bind containing only `' + queryKey + '\':`' + dataKey + '\'>.', 3);
+                    const tmp: { [index: string]: string } = {};
+                    tmp[queryKey] = dataKey;
+                    this.currBinds.push(tmp);
+                } else {
+                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'No match between `' + queryValue + '\' and `' + data[dataKey] + '\' here, nothing to do.', 3);
+                }
+            }
+            // Here there can't exist deleted binds, but we use the function
+            // to check if the array is empty and maintaing coherent style.
+            return this.filterAndReturn(this.ID_PA);
+        }
+
+        // we don't want to cut our legs during the loop.
+        const newBinds: { [index: string]: any }[] = [...this.currBinds];
+        for (let k = 0; k < newBinds.length; ++k) {
+            if (newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey]) &&
                 !(queryValue === data[newBinds[k][queryKey]])) {
-                D.clog(Colors.RED, 'FAIL', this.ID_PA, '', 'this bind is invalid', 2);
+                D.clog(Colors.YELLOW, 'SBIND', this.ID_PA, '', 'Remove the set of bind containing <`' + queryKey + '\':`' + this.currBinds[k][queryKey]
+                    + '\'>, because is inconsistent with the bind <`' + queryValue + '\':`' + data[newBinds[k][queryKey]] + '\'>.', 2);
                 delete this.currBinds[k];
                 continue;
             }
-            if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
+            if (newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey]) &&
                 queryValue === data[newBinds[k][queryKey]]) {
-                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'bind already existent and correct', 3);
+                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Current set of bind contains <`' + queryKey + '\':`'
+                    + newBinds[k][queryKey] + '\'>, skip to next set.', 3);
                 continue;
             }
             for (const dataKey of dataKeys) {
                 if (queryValue === data[dataKey]) {
-                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'match and new branch', 3);
+                    D.clog(Colors.YELLOW, 'BIND', this.ID_PA, '', 'Create a new set of bind extending the current with <`' + queryKey + '\':`' + dataKey + '\'>', 3);
                     const tmp: any = { ...newBinds[k] };
                     tmp[queryKey] = dataKey;
                     this.currBinds.push(tmp);
                 } else {
-                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'no match here', 3);
-                }
-                if (newBinds[k]) {
-                    delete this.currBinds[k];
+                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'No match between `' + queryValue + '\' and `' + data[dataKey] + '\', but this doesn\'t invalidate the current set.', 3);
                 }
             }
+            D.clog(Colors.YELLOW, 'SBIND', this.ID_PA, '', 'Remove the current set of bind because is obsolete.', 3);
+            delete this.currBinds[k];
         }
         return this.filterAndReturn(this.ID_PA);
     }
 
     private matchPlaceholderObject(queryKey: string, queryValue: object, data: { [index: string]: any }): boolean {
-        D.clog(Colors.PINK, 'KEY', this.ID_PO, '', 'key => ' + queryKey, 5);
-        D.clog(Colors.PINK, 'VAL', this.ID_PO, '', 'value => ' + queryValue, 5);
+        D.clog(Colors.PINK, 'KEY', this.ID_PO, '', 'key => ' + queryKey, 4);
+        D.clog(Colors.PINK, 'VAL', this.ID_PO, '', 'value => ' + queryValue, 4);
         const newBinds = [... this.currBinds];
         const dataKeys = Object.keys(data);
         let flag = false;
