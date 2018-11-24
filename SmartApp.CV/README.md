@@ -30,7 +30,6 @@ The module receives a frame containing a face and outputs a dictionary structure
 
 ```
 {
-'TAG': 'VISION_FACE_ANALYSIS',
 'personID': identifier of the face descriptor,
 'emotion': {
             'sadness':   confidence in [0,1],
@@ -46,11 +45,12 @@ The module receives a frame containing a face and outputs a dictionary structure
 'smile': whether the person is smiling -- 'True' / 'False' / 'Unknown',
 'known': whether the person has been already seen -- 'True' / 'False' / 'Unknown',
 'confidence_identity': confidence of face matching -- float [0,1],
-'lookAt': {
-  'pinch': position to look in y axis -- float [-1, +1],
+'look_at': {
+  'pinch': position to look in x axis -- float [-1, +1],
   'yaw': position to look in y axis -- float [-1, +1]
 }
-'isInterlocutor': whether the person is the interlocutor -- 'True' / 'False'
+'is_interlocutor': whether the person is the interlocutor -- 'True' / 'False'
+'z_index': distance of person from kinekt -- {-1} if unknown
 }
 ```
 
