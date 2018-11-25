@@ -122,4 +122,4 @@ merge_rules =       [
                         PREDS:["equals($1,$2)"]
                         }
                     ]
-rules = transform_rules + merge_rules
+rules = {'local' : transform_rules, 'merge' : merge_rules}
