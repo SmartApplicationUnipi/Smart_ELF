@@ -1,4 +1,4 @@
-from constants import PRE,R_ID,DRS,VARS,KW,PREDS
+from constants import PRE,PAR_PRE,CHILD_PRE,REL_PRE,R_ID,KW,CON,VALUE,DRS,VARS,PREDS
 
 def retrieve_professors_names():
     list = []
@@ -88,5 +88,38 @@ transform_rules =   [
                         }
                     ]
 merge_rules =       [
+                        {PAR_PRE:{
+                            R_ID:CON,
+                            VALUE:["professor($1)"]
+                            },
+                        CHILD_PRE:{
+                            R_ID:CON,
+                            VALUE:["person($2)"]
+                            },
+                        REL_PRE:{},
+                        PREDS:["equals($1,$2)"]
+                        },
+                        {PAR_PRE:{
+                            R_ID:CON,
+                            VALUE:["lecture($1)"]
+                            },
+                        CHILD_PRE:{
+                            R_ID:CON,
+                            VALUE:["own($2,$3)"]
+                            },
+                        REL_PRE:{},
+                        PREDS:["equals($1,$3)"]
+                        },
+                        {PAR_PRE:{
+                            R_ID:CON,
+                            VALUE:["person($1)"]
+                            },
+                        CHILD_PRE:{
+                            R_ID:CON,
+                            VALUE:["own($2,$3)"]
+                            },
+                        REL_PRE:{},
+                        PREDS:["equals($1,$2)"]
+                        }
                     ]
 rules = transform_rules + merge_rules
