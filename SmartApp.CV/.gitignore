@@ -9,3 +9,4 @@ __pycache__/
 # additional file
 /t.py
 ./idea/
+face_db
