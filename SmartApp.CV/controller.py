@@ -124,15 +124,15 @@ class Controller():
             while True:
                 if self.is_host:
                     face_obj, frame_size  = queue.get()
-                    self.watch(face_obj, frame_size)
+                    fact = self.watch(face_obj, frame_size)
+                    self._add_fact_to_kb(fact)
                     queue.task_done()
                 else: # TODO: delete this option only for test
                     ret, frame = self.video_capture.read()
                     frame = cv2.resize(frame, (320, 240))
                     fact = self.watch(frame)
-                    self._add_fact_to_kb(fact)
         except Exception as e:
-            print("alla ackbar:", e, "ok")
+            print(e)
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         try:

@@ -72,7 +72,11 @@ class OffVision:
         if 'emotion' in self.requested_attributes:
             # predict emotion
             face_facts['emotion'] = self.emotion_model.predict_frame(frame)
-            
+            face_facts['gender'] = 'Unknown'
+            face_facts['age'] = -1 # unknown
+            face_facts['smile'] = 'Unknown'
+            face_facts['confidence_identity'] = self._compute_confidence_identity(frame)
+            face_facts['known'] = 'Unknown' # TODO stub
         if return_desc:
             # compute face descriptor, if requested
             face_desc = self.get_descriptor(frame)
@@ -93,7 +97,7 @@ class OffVision:
         match_id = None
         # find closest descriptor
         for entry in db:
-            distance = np.linalg.norm(entry[desc_position] - descriptor)
+            distance = np.linalg.norm(entry[desc_position] - descriptor) # TODO: maybe use cosine similarity
             if distance < min_distance:
                 min_distance = distance
                 match_id = entry[id_position]
@@ -101,3 +105,8 @@ class OffVision:
         if min_distance > self.match_dist_threshold:
             match_id = None
         return match_id
+
+    def _compute_confidence_identity(self, frame):
+        face_desc = self.get_descriptor(frame)
+        confidence = 0.5 # TODO stub
+        return confidence
