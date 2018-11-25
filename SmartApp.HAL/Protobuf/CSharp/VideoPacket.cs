@@ -32,7 +32,7 @@ namespace SmartApp.HAL.Model {
             "CgtmcmFtZUhlaWd0aBgDIAEoBRIkCgVmYWNlcxgEIAMoCzIVLlZpZGVvRGF0",
             "YVBhY2tldC5GYWNlGkUKCVJlY3RhbmdsZRILCgN0b3AYASABKAUSDAoEbGVm",
             "dBgCIAEoBRINCgV3aWR0aBgDIAEoBRIOCgZoZWlnaHQYBCABKAUaZwoERmFj",
-            "ZRIKCgJpZBgBIAEoAxIJCgFaGAIgASgCEhAKCHNwZWFraW5nGAMgASgIEgwK",
+            "ZRIKCgJpZBgBIAEoAxIJCgFaGAIgASgCEhAKCHNwZWFraW5nGAMgASgFEgwK",
             "BGRhdGEYBCABKAwSKAoEcmVjdBgFIAEoCzIaLlZpZGVvRGF0YVBhY2tldC5S",
             "ZWN0YW5nbGVCFaoCElNtYXJ0QXBwLkhBTC5Nb2RlbGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
@@ -830,9 +830,9 @@ namespace SmartApp.HAL.Model {
 
         /// <summary>Field number for the "speaking" field.</summary>
         public const int SpeakingFieldNumber = 3;
-        private bool speaking_;
+        private int speaking_;
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-        public bool Speaking {
+        public int Speaking {
           get { return speaking_; }
           set {
             speaking_ = value;
@@ -887,7 +887,7 @@ namespace SmartApp.HAL.Model {
           int hash = 1;
           if (Id != 0L) hash ^= Id.GetHashCode();
           if (Z != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
-          if (Speaking != false) hash ^= Speaking.GetHashCode();
+          if (Speaking != 0) hash ^= Speaking.GetHashCode();
           if (Data.Length != 0) hash ^= Data.GetHashCode();
           if (rect_ != null) hash ^= Rect.GetHashCode();
           if (_unknownFields != null) {
@@ -911,9 +911,9 @@ namespace SmartApp.HAL.Model {
             output.WriteRawTag(21);
             output.WriteFloat(Z);
           }
-          if (Speaking != false) {
+          if (Speaking != 0) {
             output.WriteRawTag(24);
-            output.WriteBool(Speaking);
+            output.WriteInt32(Speaking);
           }
           if (Data.Length != 0) {
             output.WriteRawTag(34);
@@ -937,8 +937,8 @@ namespace SmartApp.HAL.Model {
           if (Z != 0F) {
             size += 1 + 4;
           }
-          if (Speaking != false) {
-            size += 1 + 1;
+          if (Speaking != 0) {
+            size += 1 + pb::CodedOutputStream.ComputeInt32Size(Speaking);
           }
           if (Data.Length != 0) {
             size += 1 + pb::CodedOutputStream.ComputeBytesSize(Data);
@@ -963,7 +963,7 @@ namespace SmartApp.HAL.Model {
           if (other.Z != 0F) {
             Z = other.Z;
           }
-          if (other.Speaking != false) {
+          if (other.Speaking != 0) {
             Speaking = other.Speaking;
           }
           if (other.Data.Length != 0) {
@@ -995,7 +995,7 @@ namespace SmartApp.HAL.Model {
                 break;
               }
               case 24: {
-                Speaking = input.ReadBool();
+                Speaking = input.ReadInt32();
                 break;
               }
               case 34: {

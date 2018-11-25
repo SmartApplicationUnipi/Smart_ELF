@@ -27,7 +27,7 @@ namespace SmartApp.HAL.Model
 
         public struct Face
         {
-            public Face(Rectangle bounds, long id, float z, bool isSpeaking)
+            public Face(Rectangle bounds, long id, float z, int isSpeaking)
             {
                 Bounds = bounds;
                 ID = id;
@@ -38,7 +38,7 @@ namespace SmartApp.HAL.Model
             public Rectangle Bounds { get; private set; }
             public long ID { get; private set; }
             public float Z { get; private set; }
-            public bool IsSpeaking { get; private set; }
+            public int IsSpeaking { get; private set; }
         }
     }
 }

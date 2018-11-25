@@ -24,7 +24,7 @@ message VideoDataPacket {
 	message Face {
 		int64 id = 1;
 		float Z = 2;
-		bool speaking = 3;
+		int32 speaking = 3;
 		bytes data = 4;
 		Rectangle rect = 5;
 	}
