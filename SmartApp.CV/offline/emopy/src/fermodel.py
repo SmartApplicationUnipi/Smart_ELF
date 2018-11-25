@@ -109,6 +109,7 @@ class FERModel:
         package_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         emotion_map = json.loads(open(os.path.join(package_path, emotion_map_file)).read())
         model = load_model(os.path.join(package_path, model_file))
+        model._make_predict_function() # precompile pretict to make this model thread-safe
         return model, emotion_map
 
     def _print_prediction(self, prediction):

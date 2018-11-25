@@ -61,7 +61,7 @@ class OffVision:
         face_desc = np.array(face_desc)
         return face_desc
 
-    def analyze_face(self, frame, return_desc=True):
+    def analyze_face(self, frame, return_desc=False):
         """
         Analyzes and describes a single face image
         :param frame: numpy frame of the face

@@ -19,6 +19,36 @@ import cv2
 #
 #  Vedere il file StreamWebCam per un esempio di implementazione
 #  (fatto da Michele in script/StreamWebCam)
+#
+
+DOCS = {
+'VISION_FACE_ANALYSIS': {
+    'doc':"""{
+        'personID': identifier of the face descriptor,
+        'emotion': {
+            'sadness':   confidence in float [0,1],
+            'calm':      confidence in float [0,1],
+            'disgust':   confidence in float [0,1],
+            'anger':     confidence in float [0,1],
+            'surprise':  confidence in float [0,1],
+            'fear':      confidence in float [0,1],
+            'happiness': confidence in float [0,1]
+        },
+        'gender': predicted gender of person ['Male', 'Female', 'Unknown']
+        'age': predicted age of person -- int [0-99] U {-1} if unknown,
+        'smile': whether the person is smiling -- ['True', 'False', 'Unknown'],
+        'known': whether the person has been already seen -- ['True', 'False', 'Unknown'],
+        'confidence_identity': confidence of face matching -- float [0-1],
+        'look_at': {
+            'pinch': position to look in y axis -- float [-1 - +1],
+            'yaw': position to look in y axis -- float [-1 - +1]
+        }
+        'is_interlocutor': whether the person is the interlocutor -- ['True', 'False']
+        'z_index': distance of person from kinekt -- {-1} if unknown
+    }""",
+    'desc': """Json that contain all needed information of single face, the TTL of
+        this information is about 2 seconds (time of elaboration of single file)"""
+}}
 
 class Controller():
 
@@ -29,11 +59,13 @@ class Controller():
         """
             se host è webcam uso la webcam
         """
-        #self._kb = kb(persistence = True)
+        # Ops for KB
+        self._kb = kb(persistence = True)
         # mi registrerò
-        #self._kb.registerTags({'VISION_FACE_ANALYSIS':{'doc':"altre cose", 'desc':"cose"}})
+        self._kb.registerTags(DOCS)
 
-        self.is_host = host is not "webcam"
+        # Ops for stram in input
+        self.is_host = not (host == "webcam")
 
         self._hal = None
         self._videoID = None
@@ -49,13 +81,19 @@ class Controller():
             self.video_capture = cv2.VideoCapture(0)
 
         # Initialization of Online Module
-        #self.online_module = online()
+        try:
+            self.online_module = online()
+            self.has_api_problem = False
+        except AttributeError as e:
+            self.has_api_problem = True
 
         # Initialization of Offline Module
         self.offline_module = offline()
 
+        # Select module available
         self.module = self._getResolver()
 
+        # Ops for worker that compute all the analyzes
         # TODO Creare 6 thread che lavoreano su più persone
         self.t = Thread(target=Controller._worker, args=[self, Controller.q])
         self.t.daemon = True
@@ -71,12 +109,12 @@ class Controller():
         """
         if Controller.q.full():
             Controller.q.get()
-
-        Controller.q.put(frame_obj.numpyFaces)
+        for face in frame_obj:
+            Controller.q.put((face, frame_obj.frame_original_size))
 
     def _worker(self, queue):
         """
-            Function of thread that compute analyzation of frame.
+            Function of thread that compute all the analyzes of frame.
 
             Params:
                 queue (Queue): queue associated at thrad of frame
@@ -85,14 +123,10 @@ class Controller():
         try:
             while True:
                 if self.is_host:
-                    frame_list = queue.get()
-                    for frame in frame_list:
-                        # TODO: acquisire se la facca è un interlocutore
-                        # TODO: acquisire grandezza originale del frame e
-                        #   posizione della faccia per il pinch e yaw
-                        self.watch(frame.data)
+                    face_obj, frame_size  = queue.get()
+                    self.watch(face_obj, frame_size)
                     queue.task_done()
-                else:
+                else: # TODO: delete this option only for test
                     ret, frame = self.video_capture.read()
                     frame = cv2.resize(frame, (320, 240))
                     self.watch(frame)
@@ -110,13 +144,15 @@ class Controller():
                 result (interface): Return an object that will resolve the detection
                     of attributes and identity of person.
         """
-        #if self.online_module.is_available():
-        #    res = self.online_module
-        #else:
-        #    raise NotImplementedError( " Sorry :( ..offline connector not yet available .." )
-        # elif self.offline_module.isAvailable():
-        if self.offline_module.is_available():
+        if not self.has_api_problem:
+            if self.online_module.is_available():
+                print("using online vision module")
+                res = self.online_module
+        elif self.offline_module.is_available():
+            print("using offline vision module")
             res = self.offline_module
+        else:
+            raise Exception("Vision Module is not available")
         return res
 
     def setAttr(self, *args, **kwargs):
@@ -131,23 +167,34 @@ class Controller():
         self.online_module.set_detect_attibutes(*args, **kwargs)
         #self.online_module.set_detect_attibutes(*args, **kwargs)
 
-    def watch(self, frame):
-        fact = None
+    def watch(self, face, frame_size = (0,0)):
+
         try:
-            fact = self.module.analyze_face(frame)
-        except Exception as e:
-            # TODO: handle this
-            print("error during prediction:", e)
+            fact = self.module.analyze_face(face.img)
+            print(fact)
+            if not fact:
+                print("Non vedo nessuno")
+            else:
+                look_at = {'pinch': 0, 'yaw':0}
+                if face.frame_original_size is not (0,0):
+                    look_at = list( (p/(s/2))-1 for p,s in zip(face.face_position, face.frame_original_size))
+                    look_at = {'pinch': look_at[0], 'yaw': look_at[1]}
 
-        if fact is None:
-            print("Non vedo nessuno")
-            return
-        else:
-            fact.update({"lookAt": {'pinch': 0, 'yaw':0}})
-            fact.update({"isInterlocutor": False})
-        #    self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
+                fact.update({"look_at": look_at})
+                fact.update({"is_interlocutor": face.is_interlocutor})
+                fact.update({"z_index": face.z_index})
 
-        print(fact)
+                self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
+                print(fact)
+
+        except Exception as e:# TODO: delete this option only for test
+            print("here", e)
+            fact = self.module.analyze_face(face)
+            if not fact:
+                print("Non vedo nessuno")
+            else:
+                self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
+                print(fact)
 
     def __del__(self):
         if self._hal is not None:

@@ -1,12 +1,19 @@
+# requires python 3.6
+
+# offline module
+keras>=2.2.0
+lasagne
+numpy<=1.14.5,>=1.13.3
+scikit-image>=0.13.1
+scikit-learn>=0.19.1
+scikit-neuralnetwork>=0.7
+scipy>=0.19.1
+tensorflow>=1.10.1
+opencv-python
+h5py
+dlib>=19.4.0
+
+# online module
 pytest==3.8.0
-opencv_python==3.4.3.18
 requests==2.20.0
 simplejson==3.16.0
-numpy==1.15.1
-setuptools==40.4.1
-scipy==1.1.0
-matplotlib==3.0.0
-six==1.11.0
-Keras==2.2.2
-dlib==19.16.0
-scikit_learn==0.20.0
