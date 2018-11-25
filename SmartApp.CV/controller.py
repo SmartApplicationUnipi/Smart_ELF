@@ -129,10 +129,16 @@ class Controller():
                 else: # TODO: delete this option only for test
                     ret, frame = self.video_capture.read()
                     frame = cv2.resize(frame, (320, 240))
-                    self.watch(frame)
-
+                    fact = self.watch(frame)
+                    self._add_fact_to_kb(fact)
         except Exception as e:
-            print(e)
+            print("alla ackbar:", e, "ok")
+
+    def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
+        try:
+            self._kb.addFact("face", tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
+        except Exception as e:
+            print ("could not add fact", e)
 
     def _getResolver(self):
         """
@@ -146,10 +152,10 @@ class Controller():
         """
         if not self.has_api_problem:
             if self.online_module.is_available():
-                print("using online vision module")
+                print("Using online vision module")
                 res = self.online_module
         elif self.offline_module.is_available():
-            print("using offline vision module")
+            print("Using offline vision module")
             res = self.offline_module
         else:
             raise Exception("Vision Module is not available")
@@ -184,17 +190,15 @@ class Controller():
                 fact.update({"is_interlocutor": face.is_interlocutor})
                 fact.update({"z_index": face.z_index})
 
-                self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
                 print(fact)
 
         except Exception as e:# TODO: delete this option only for test
-            print("here", e)
             fact = self.module.analyze_face(face)
             if not fact:
                 print("Non vedo nessuno")
             else:
-                self._kb.addFact("face", "VISION_FACE_ANALYSIS", 1, fact['confidence_identity'], fact)
                 print(fact)
+        return fact
 
     def __del__(self):
         if self._hal is not None:

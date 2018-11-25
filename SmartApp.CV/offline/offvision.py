@@ -72,6 +72,7 @@ class OffVision:
         if 'emotion' in self.requested_attributes:
             # predict emotion
             face_facts['emotion'] = self.emotion_model.predict_frame(frame)
+            
         if return_desc:
             # compute face descriptor, if requested
             face_desc = self.get_descriptor(frame)
