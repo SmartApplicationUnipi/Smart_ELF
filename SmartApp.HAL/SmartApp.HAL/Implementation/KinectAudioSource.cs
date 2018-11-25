@@ -74,8 +74,8 @@ namespace SmartApp.HAL.Implementation
         private void PublishBuffer()
         {
             _logger.LogInformation("Kinect published audio.");
-            byte[] convertedWave = AudioSample.ConvertFormat32fTO16int(_waveBuffer);
-            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, convertedWave, convertedWave.Length, new AudioSample.FixedWaveFormat(16000,1)));
+            byte[] convertedWave = AudioSample.ConvertFormat32fTO16int(_waveBuffer,1);
+            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, convertedWave, convertedWave.Length, new AudioSample.FixedWaveFormat(16000)));
             _waveBufferPos = 0;
         }
 

@@ -17,13 +17,13 @@ namespace SmartApp.HAL.Model
         public int BufferLength { get; private set; }
         public FixedWaveFormat WaveFormat{ get; private set; }
 
-        //Convert a byte array wave from float32 to int16
-        public static byte[] ConvertFormat32fTO16int(byte[] wave)
+        //Convert a byte array wave from float32 to int16 with one channel
+        public static byte[] ConvertFormat32fTO16int(byte[] wave, int channels)
         {
             //new buffer
-            byte[] res = new byte[wave.Length / 2];
+            byte[] res = new byte[wave.Length / 2 / channels];
             //every cicle: pick 4 bytes to make a float, convert it to short and write the short's two bytes in res
-            for(int i = 0; i < wave.Length; i += 4)
+            for(int i = 0; i < wave.Length; i += 4 * channels)
             {
                 float f= System.BitConverter.ToSingle(wave, i);
                 f = f * 32768;
@@ -40,10 +40,10 @@ namespace SmartApp.HAL.Model
         //Wave format accpted is with int16 on one channel
         public struct FixedWaveFormat
         {
-            public FixedWaveFormat(int sampleRate, int channels)
+            public FixedWaveFormat(int sampleRate)
             {
                 SampleRate = sampleRate;
-                Channels = channels;
+                Channels = 1;
                 BitsPerSample = 16;
             }
 
