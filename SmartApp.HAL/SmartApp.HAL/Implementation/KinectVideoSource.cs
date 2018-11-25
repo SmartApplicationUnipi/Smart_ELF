@@ -29,6 +29,7 @@ namespace SmartApp.HAL.Implementation
         private MultiSourceFrameReader _multiSourceFrameReader = null;
 
         private readonly Timer _timer;
+        private float _framerate;
 
         public KinectVideoSource(ILogger<KinectVideoSource> logger)
         {
@@ -62,9 +63,8 @@ namespace SmartApp.HAL.Implementation
                 _kinect.Open();
             }
 
-            Framerate = 0.5f;
-
-            _timer = new Timer(1000.0 / Framerate) { AutoReset = true, Enabled = false };
+            _framerate = 0.5f;
+            _timer = new Timer(1000.0 / _framerate) { AutoReset = true, Enabled = false };
             _timer.Elapsed += OnTimerTick;
            
         }
@@ -219,8 +219,26 @@ namespace SmartApp.HAL.Implementation
                 }
             }
         }
-       
-        public float Framerate { get ; set; }
+
+        public float Framerate
+        {
+            get
+            {
+                lock (this)
+                {
+                    return _framerate;
+                }
+            }
+            set
+            {
+                lock (this)
+                {
+                    _framerate = value;
+                    _timer.Interval = 1000.0 / value;
+                    _logger.LogInformation("New framerate: {0} fps.", value);
+                }
+            }
+        }
 
         public bool IsAvailable { get; private set; }
 
