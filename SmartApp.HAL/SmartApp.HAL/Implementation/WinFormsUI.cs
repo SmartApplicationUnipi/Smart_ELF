@@ -15,14 +15,12 @@ namespace SmartApp.HAL.Implementation
     {
         private readonly IVideoSource _videoSource;
         private readonly IVideoManager _videoManager;
-        private readonly IAudioSource _audioSource;
         private readonly ILogger<WinFormsUI> _logger;
 
-        public WinFormsUI(IVideoSource videoSource, IVideoManager videoManager, IAudioSource audioSource, ILogger<WinFormsUI> logger)
+        public WinFormsUI(IVideoSource videoSource, IVideoManager videoManager, ILogger<WinFormsUI> logger)
         {
             _videoSource = videoSource ?? throw new ArgumentNullException(nameof(videoSource));
             _videoManager = videoManager ?? throw new ArgumentNullException(nameof(videoManager));
-            _audioSource = audioSource ?? throw new ArgumentNullException(nameof(audioSource));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -70,14 +68,12 @@ namespace SmartApp.HAL.Implementation
                 if (active)
                 {
                     _videoSource.Stop();
-                    _audioSource.Stop();
                     btn.ForeColor = Color.Black;
                     btn.Text = "Click to start recording";
                 }
                 else
                 {
                     _videoSource.Start();
-                    _audioSource.Start();
                     btn.ForeColor = Color.Red;
                     btn.Text = "Click to stop recording";
                 }

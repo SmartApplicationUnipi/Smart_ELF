@@ -20,25 +20,37 @@ namespace SmartApp.HAL.Implementation
 {
     internal class VideoManager : IVideoManager
     {
-        private readonly IVideoSource _source;
+        private readonly IVideoSource _videoSource;
+        private readonly IAudioSource _audioSource;
         private readonly INetwork _network;
         private readonly ILogger<VideoManager> _logger;
 
-        public VideoManager(IVideoSource source, INetwork network, ILogger<VideoManager> logger)
+        public VideoManager(IVideoSource source, IAudioSource audioSource, INetwork network, ILogger<VideoManager> logger)
         {
-            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _videoSource = source ?? throw new ArgumentNullException(nameof(source));
+            _audioSource = audioSource ?? throw new ArgumentNullException(nameof(audioSource));
             _network = network ?? throw new ArgumentNullException(nameof(network));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void Start()
         {
-            _source.FrameReady += (_, frame) =>
+            _videoSource.FrameReady += (_, frame) =>
             {
                 // Check if the user engagement changed
                 var newEngaged = frame.Faces.Any(f => f.IsEngaged);
                 if (newEngaged != IsEngaged)
                 {
+                    // Start recording audio when the user is engaged
+                    if (newEngaged)
+                    {
+                        _audioSource.Start();
+                    }
+                    else
+                    {
+                        _audioSource.Stop();
+                    }
+
                     IsEngaged = newEngaged;
                     _logger.LogInformation($"User {(IsEngaged ? string.Empty : "not ")}engaged.");
                     IsEngagedChanged?.Invoke(this, IsEngaged);
