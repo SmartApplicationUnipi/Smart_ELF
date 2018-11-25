@@ -26,11 +26,14 @@ namespace SmartApp.HAL.Implementation
 
         public void Run()
         {
+            const int W = 640;
+            const int H = 360;
+
             // Create a simple form with just a button and an image
             var form = new Form()
             {
                 Text = "SmartApp",
-                ClientSize = new Size(640, 50),
+                ClientSize = new Size(W, H + 50),
                 StartPosition = FormStartPosition.CenterScreen,
                 MinimizeBox = false,
                 MaximizeBox = false,
@@ -38,21 +41,21 @@ namespace SmartApp.HAL.Implementation
             };
 
             // Image to render the video
-            //var buffer = new Bitmap(640, 480, PixelFormat.Format24bppRgb);
-            //var latestTimestamp = DateTime.Now;
-            //var image = new PictureBox()
-            //{
-            //    Size = new Size(640, 480),
-            //    Location = new Point(0, 0),
-            //    Image = buffer
-            //};
-            //form.Controls.Add(image);
+            var buffer = new Bitmap(W, H, PixelFormat.Format24bppRgb);
+            var latestTimestamp = DateTime.Now;
+            var image = new PictureBox()
+            {
+                Size = new Size(W, H),
+                Location = new Point(0, 0),
+                Image = buffer
+            };
+            form.Controls.Add(image);
 
             // Button
             var btn = new Button()
             {
-                Size = new Size(640, 50),
-                Location = new Point(0, 0),
+                Size = new Size(W, 50),
+                Location = new Point(0, H),
                 Text = "Click to start recording",
                 ForeColor = Color.Black,
                 Font = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold)
@@ -81,33 +84,47 @@ namespace SmartApp.HAL.Implementation
             };
             
             // Draw the rectangles for the faces on the bitmap and show it on the screen
-            //_videoSource.FrameReady += (_, frame) => {
-            //    image.Invoke((Action)(() => {
+            _videoSource.FrameReady += (_, frame) => {
+                image.Invoke((Action)(() => {
 
-            //        if (latestTimestamp >= frame.Timestamp)
-            //        {
-            //            return;
-            //        }
+                    if (latestTimestamp >= frame.Timestamp)
+                    {
+                        return;
+                    }
 
-            //        using (var g = Graphics.FromImage(buffer))
-            //        using (var pen = new Pen(Color.Red, 3f))
-            //        using (var fpsFont = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
-            //        {
-            //            g.Clear(Color.LightGray);
+                    using (var g = Graphics.FromImage(buffer))
+                    using (var pen = new Pen(Color.Red, 3f))
+                    using (var fpsFont = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
+                    {
+                        g.Clear(Color.LightGray);
 
-            //            foreach (var face in frame.Faces)
-            //            {
-            //                //g.DrawImage(frame.Image, face.Bounds, face.Bounds, GraphicsUnit.Pixel);
-            //                g.DrawRectangle(pen, face.Bounds);
-            //            }
+                        // Draw the full frame
+                        g.DrawImage(frame.Image.Bitmap, new Rectangle(0, 0, W, H), new Rectangle(0, 0, frame.FrameWidth, frame.FrameHeight), GraphicsUnit.Pixel);
 
-            //            g.DrawString($"{_videoSource.Framerate} fps", fpsFont, Brushes.Red, 0, 0);
-            //        }
+                        var wratio = (float) frame.FrameWidth / (float) W;
+                        var hratio = (float) frame.FrameHeight / (float) H;
 
-            //        latestTimestamp = frame.Timestamp;
-            //        image.Refresh();
-            //    }));
-            //};
+                        foreach (var face in frame.Faces)
+                        {
+                            // Scale the bounds of the face to fit on the canvas
+                            var rect = new Rectangle(
+                                (int) (face.Bounds.X / wratio),
+                                (int) (face.Bounds.Y / hratio),
+                                (int) (face.Bounds.Width / wratio),
+                                (int) (face.Bounds.Height / hratio)
+                            );
+
+                            g.DrawRectangle(pen, rect);
+                        }
+
+                        // Print current fps value
+                        g.DrawString($"{_videoSource.Framerate} fps", fpsFont, Brushes.Red, 0, 0);
+                    }
+
+                    latestTimestamp = frame.Timestamp;
+                    image.Refresh();
+                }));
+            };
 
             // Show the form and block
             Application.EnableVisualStyles();
