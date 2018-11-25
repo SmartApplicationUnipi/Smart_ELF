@@ -14,12 +14,14 @@ namespace SmartApp.HAL.Implementation
     internal class WinFormsUI : IUserInterface
     {
         private readonly IVideoSource _videoSource;
+        private readonly IVideoManager _videoManager;
         private readonly IAudioSource _audioSource;
         private readonly ILogger<WinFormsUI> _logger;
 
-        public WinFormsUI(IVideoSource videoSource, IAudioSource audioSource, ILogger<WinFormsUI> logger)
+        public WinFormsUI(IVideoSource videoSource, IVideoManager videoManager, IAudioSource audioSource, ILogger<WinFormsUI> logger)
         {
             _videoSource = videoSource ?? throw new ArgumentNullException(nameof(videoSource));
+            _videoManager = videoManager ?? throw new ArgumentNullException(nameof(videoManager));
             _audioSource = audioSource ?? throw new ArgumentNullException(nameof(audioSource));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -82,6 +84,14 @@ namespace SmartApp.HAL.Implementation
 
                 active = !active;
             };
+
+            // Keep track of when the user is engaged
+            bool engaged = false;
+            _videoManager.IsEngagedChanged += (_, e) =>
+            {
+                engaged = e;
+                image.Invalidate();
+            };
             
             // Draw the rectangles for the faces on the bitmap and show it on the screen
             _videoSource.FrameReady += (_, frame) => {
@@ -94,7 +104,7 @@ namespace SmartApp.HAL.Implementation
 
                     using (var g = Graphics.FromImage(buffer))
                     using (var pen = new Pen(Color.Red, 3f))
-                    using (var fpsFont = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
+                    using (var font = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
                     {
                         g.Clear(Color.LightGray);
 
@@ -118,7 +128,13 @@ namespace SmartApp.HAL.Implementation
                         }
 
                         // Print current fps value
-                        g.DrawString($"{_videoSource.Framerate} fps", fpsFont, Brushes.Red, 0, 0);
+                        g.DrawString($"{_videoSource.Framerate} fps", font, Brushes.Red, 0, 0);
+
+                        // Print the engagement state
+                        if (engaged)
+                        {
+                            g.DrawString("User engaged", font, Brushes.DarkGreen, 0, H - font.Height);
+                        }
                     }
 
                     latestTimestamp = frame.Timestamp;

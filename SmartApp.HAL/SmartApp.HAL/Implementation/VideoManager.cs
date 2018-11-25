@@ -12,6 +12,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
+using System.Linq;
 using SmartApp.HAL.Model;
 using Google.Protobuf;
 
@@ -34,6 +35,15 @@ namespace SmartApp.HAL.Implementation
         {
             _source.FrameReady += (_, frame) =>
             {
+                // Check if the user engagement changed
+                var newEngaged = frame.Faces.Any(f => f.IsEngaged);
+                if (newEngaged != IsEngaged)
+                {
+                    IsEngaged = newEngaged;
+                    _logger.LogInformation($"User {(IsEngaged ? string.Empty : "not ")}engaged.");
+                    IsEngagedChanged?.Invoke(this, IsEngaged);
+                }
+
                 // Exit immediately if we did not find any face
                 if (frame.Faces.Count == 0)
                 {
@@ -78,5 +88,9 @@ namespace SmartApp.HAL.Implementation
 
             };
         }
+
+        public bool IsEngaged { get; private set; }
+
+        public event EventHandler<bool> IsEngagedChanged;
     }
 }

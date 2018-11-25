@@ -63,7 +63,7 @@ namespace SmartApp.HAL.Implementation
                 _kinect.Open();
             }
 
-            _framerate = 0.5f;
+            _framerate = 10f;
             _timer = new Timer(1000.0 / _framerate) { AutoReset = true, Enabled = false };
             _timer.Elapsed += OnTimerTick;
            
@@ -175,7 +175,13 @@ namespace SmartApp.HAL.Implementation
 
                                 Joint head =_bodies[f].Joints[JointType.Head];
                           
-                                VideoFrame.Face face = new VideoFrame.Face(new Rectangle(xCoord, yCoord, width, height), (long)_bodies[f].TrackingId, head.Position.Z, isSpeaking);
+                                var face = new VideoFrame.Face(
+                                    new Rectangle(xCoord, yCoord, width, height),
+                                    (long)_bodies[f].TrackingId,
+                                    head.Position.Z,
+                                    isSpeaking,
+                                    faceResult.FaceProperties[FaceProperty.Engaged] == DetectionResult.Yes
+                                );
                                 faces.Add(face);
                             }
                         }
@@ -184,11 +190,11 @@ namespace SmartApp.HAL.Implementation
                             _logger.LogTrace("Kinect: Got frame. Found {0} faces.", faces.Count);
 
                             FrameReady?.Invoke(this, new VideoFrame(
-                            DateTime.Now,
-                            faces.ToList(),
-                            frame.ToImage<Bgr, byte>(),
-                            colorFrame.FrameDescription.Width,
-                            colorFrame.FrameDescription.Height
+                                DateTime.Now,
+                                faces.ToList(),
+                                frame.ToImage<Bgr, byte>(),
+                                colorFrame.FrameDescription.Width,
+                                colorFrame.FrameDescription.Height
                             ));
                         }
 

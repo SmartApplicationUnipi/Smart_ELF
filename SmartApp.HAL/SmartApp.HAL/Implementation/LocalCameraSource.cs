@@ -76,13 +76,18 @@ namespace SmartApp.HAL.Implementation
                 // Publish a completed frame
                 FrameReady?.Invoke(this, new VideoFrame(
                     DateTime.Now,
-                    faceBounds.Select(bounds => new VideoFrame.Face(bounds,-1,-1,-1)).ToList(),
+                    faceBounds.Select(bounds => new VideoFrame.Face(bounds, -1, -1, -1, IsUserEngaged(frame, bounds))).ToList(),
                     frame.ToImage<Bgr, byte>(),
                     _frameWidth,
                     _frameHeigth
                 ));
             }
         }
+
+        // This is very simple and limited, but should be enough for local testing with a webcam
+        private bool IsUserEngaged(Mat frame, Rectangle bounds) =>
+            bounds.Width * 3 >= frame.Width
+            && bounds.Height * 3 >= frame.Height;
 
         public event EventHandler<VideoFrame> FrameReady;
 
