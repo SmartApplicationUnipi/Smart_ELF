@@ -1,57 +1,71 @@
-# Emotional NLP group
+# Emotional NLP group (ENLP)
 
-The code contained in this folder addresses two main tasks.
+The code contained in this folder addresses three main tasks.
 
-Running the file enlp_app.py will start two sevices: text to emotion and emotion to text (described below).
+Running the file enlp_app.py will start three sevices: text to emotion, emotion to text and ELF internal emotional state (described below).
 Each service runs in its own thread.
 
+The general architecture of our ENLP is pictured below, where arrows represent tuples published on the KB and arrows ending in a node represent awakening of the final node when the tuple on the edge is published.
 
-## Text to Emotion
+![ENLP architecture](imgs/ENLP_connections.png)
+
+
+## Text to Emotion (TTE)
 When the user talks with ELF he produces a sentence, often a query. The user sentence published on the KB awakes the module `EttService_c.py`  that in turn calls functions contained in `tte.py`. This module associates an emotion to the sentence and publishes in the KB a tuple made like this:
 
 ```
 tuple = {
-  "TIME_STAMP": int,
-  "VALENCE": float,
-  "AROUSAL": float,
-  "TAG": "ENLP_USER_EMOTION"
+  "time_stamp": int,
+  "valence": float,
+  "arousal": float,
+  "tag": "ENLP_USER_EMOTION"
 }
 ```
-The `TAG` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect.
+The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect.
 
-## Emotion to Text
+## ELF Internal Emotional State (IES)
+In order to provide a realistic answer to the user the module has to compute what is the emotional state of ELF itself.
+The service `IESService_c.py` is dedicated to this task. It retrieves from the KB all the useful information and then it computes the internal state.
+It publishes on the KB the result of this computation in the following format:
+```
+emotion = {
+  "time_stamp" : int,
+  "valence" : float,
+  "arousal" : float,
+  "query" : user_query,
+  "answer" : nlp_answer,
+  "tag": "ENLP_ELF_EMOTION"
+}
+```
+where `valence` and `arousal` coordinates identify the ELF's internal emotional state. The ELF emotion is related to the pair `query`, `answer` taken from NLP group.
+
+## Emotion to Text (ETT)
 When ELF reply to the user he has to do so in a human-like way. In order to accomplish this task the module `EttService_c.py` is awakened every time an answer that has to be provided to the user is published to the KB. The module calls in turn functions contained in `ett.py` in order to:
-1. Assess ELF internal emotional state based on information taken from the KB
+1. Retrieve from the KB ELF internal emotional state calculated previously with the module `IES`
 2. Elaborate a modified version of the default answer taken from the KB. This new version has some emotional content that follows ELF's internal emotional state.
 
-The module publishes in the KB 2 different tuples.
-1. The first one is made like this:
+The module publishes in the KB the tuple related to the new answer to be provided to the user, in the following format:
+
 ```
-tuple1 = {
-  "TIME_STAMP": int,
+answer = {
+  "time_stamp": int,
   "text" : colored_answer,
-  "VALENCE" : float,
-  "AROUSAL" : float,
-  "TAG": "ENLP_EMOTIVE_ANSWER"
+  "valence" : float,
+  "arousal" : float,
+  "tag": "ENLP_EMOTIVE_ANSWER"
 }
 ```
 where `valence` and `arousal` coordinates identify the emotion with which the answer has to be given to the user and `text` provides the text of the answer augmented with emotional content.
 
-2. The second one is made like this:
-```
-tuple2 = {
-  "TIME_STAMP" : int,
-  "VALENCE" : float,
-  "AROUSAL" : float,
-  "TAG": "ENLP_ELF_EMOTION"
-}
-```
-where `valence` and `arousal` coordinates identify the ELF's internal emotional state.
-
 ## Tags of other modules
-1. We use `"text_f_audio"` as the tag to identify the user sentence transcript tuple and the field `"text"` to retrieve the actual transcript.
+1. We use `"TEXT_F_AUDIO"` as the tag to identify the user sentence transcript tuple and the field `"text"` to retrieve the actual transcript. The field `"language"` identifies the text language.
 
-1. We use `"NLP_Answer"` as the tag to identify the tuple containing the text of the reply to be given to the user. The text is directly contained in the value of the tag field.
+1. We use `"NLP_ANSWER"` as the tag to identify the tuple containing the text of the reply to be given to the user. The text is directly contained in the value of the tag field.
 
-## TODO
- - Switch to multiprocess library due to python GIL. 
+## INSTALL
+`pip install -r requirements.txt`
+
+## RUN
+In order to run all the components of this module simply execute, after installing prerequisites, the command
+
+`python enlp_app.py`

@@ -1,0 +1,5 @@
+[host-config]
+host-name : ws://131.114.3.213
+port : 5666
+[security]
+token : smartapp1819

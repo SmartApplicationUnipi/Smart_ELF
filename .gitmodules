@@ -1,0 +1,3 @@
+[submodule "SmartApp.AV/pyAudioAnalysis"]
+	path = SmartApp.AV/pyAudioAnalysis
+	url = https://github.com/tyiannak/pyAudioAnalysis.git

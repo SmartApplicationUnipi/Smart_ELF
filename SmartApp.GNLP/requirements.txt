@@ -1,0 +1,6 @@
+websocket-client
+typing
+requests
+spacy
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.0.0/en_core_web_sm-2.0.0.tar.gz
+https://github.com/explosion/spacy-models/releases/download/it_core_news_sm-2.0.0/it_core_news_sm-2.0.0.tar.gz

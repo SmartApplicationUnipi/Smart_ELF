@@ -1,0 +1,52 @@
+[
+	["https://www.di.unipi.it/en/education/mcs/timetable-wif",
+		[
+			{
+				"predicate" : "teaches",
+				"subject" : ".class-list-teacher",
+				"object" : ".class-list-title",
+				"groupby" : "parent"
+			}
+		]
+	],
+	
+	["https://www.di.unipi.it/en",
+		[
+			{
+				"predicate" : "newsfeed",
+				"subject" : ".feed-link a",
+				"object" : ".feed-item-description",
+				"groupby" : "parent"
+			}
+		]
+	],
+
+	["https://unimap.unipi.it/cercapersone/elencomatricole.php?f=1DOC@489999",
+		[
+			{
+				"predicate" : "phone_number_of",
+				"subject" : ".nobreak a",
+				"object" : "td[headers=\"telefono\"]",
+				"groupby" : "parent"
+			}
+		]
+	],
+
+	["file:///C:/Users/and_s/Downloads/All%20rooms.json",
+		[
+			"$.*"
+		]
+	],
+
+
+	["generic",
+		[
+			{
+				"predicate" : "teaches",
+				"subject" : ".class-list-teacher",
+				"object" : ".class-list-title",
+				"groupby" : "try-all"
+			}
+		]
+	]
+]
