@@ -3,7 +3,7 @@ import numpy as np
 
 class HALFace():
 
-    def __init__(self, data, id = -1, face_axis_x = 0, face_axis_y =0, face_axis_z = -1, is_interlocutor = False):
+    def __init__(self, data, id=-1, face_axis_x=0, face_axis_y=0, face_axis_z=-1, is_interlocutor=False):
         """
             Params:
                 data (numpy.ndarray): image of face saved in a matrix, the size
@@ -43,25 +43,23 @@ class HALVideoPacket():
         f = []
         for face in self.packet.faces:
             array = np.array(np.frombuffer(face.data, np.uint8), dtype=np.uint8)
-            face_size = (face.rect.height, face.rect.width, 3)
-            f.append(HALFace(np.reshape(array, face_size), face.id))
+            reshape_tuple = (face.rect.height, face.rect.width, 3)
+            face_data = np.reshape(array, reshape_tuple)
+            f.append(HALFace(face_data, face.id, face.rect.left, face.rect.top, face.Z, face.speaking))
         return f
 
-    faces = property(get_numpyFaces)
+    faces = property(get_faces)
 
     ######################################################################
     # EXPOSE INNER FIELDS
     ######################################################################
 
-    # def get_faces(self):
-    #     return self.packet.faces
-    # faces = property(get_faces)
-
     def get_frameOriginalSize(self):
-        return (0,0)
-        # return self.packet.frameOriginalSize
+        return (self.packet.frameWidth, self.packet.frameHeight)
+
     frame_original_size = property(get_frameOriginalSize)
 
     def get_timestamp(self):
         return self.packet.timestamp
+
     timestamp = property(get_timestamp)
