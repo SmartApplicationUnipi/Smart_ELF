@@ -15,7 +15,7 @@ Facepp_Client
     implementation of the client for Face++ APIs.
     it provide interfaces all APIs documented in https://console.faceplusplus.com/documents/6329329
 """
-class Facepp_Client(object):
+class Facepp_Client():
 
     def __init__(self, api_key=None, api_secret=None):
 

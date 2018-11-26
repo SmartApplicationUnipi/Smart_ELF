@@ -6,7 +6,6 @@ from copy import deepcopy
 
 # TODO: Inserire la documentazione per le funzioni
 # TODO: applicare un po di refactoring
-# TODO: dividere i test dalla classe
 
 def _validate_key(key):
     not_valid = "^@,.;:&=*\'\"()[]{}"
@@ -41,11 +40,11 @@ def _take(item_or_value):
 
 class face_db():
 
-    PATH_DB = "face_db"
     OFFLINE_ID = 1
     ONLINE_ID = 2
 
-    def __init__(self):
+    def __init__(self, PATH_DB="face_db"):
+        selfself.PATH_DB = PATH_DB
         self.file = None
         self.database = None
         exist = isfile(face_db.PATH_DB)

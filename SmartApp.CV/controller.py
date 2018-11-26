@@ -65,7 +65,8 @@ class Controller():
         self._kb.registerTags(DOCS)
 
         # Ops for stram in input
-        self.is_host = not (host == "webcam")
+        # NON FUNZIONA IL CONTROLLO: E' MESSO AL CONTRARIO
+        self.is_host = (host == "webcam")
 
         self._hal = None
         self._videoID = None
@@ -85,10 +86,16 @@ class Controller():
             self.online_module = online()
             self.has_api_problem = False
         except AttributeError as e:
+            print(type(e).__name__, e)
             self.has_api_problem = True
+            print("\n It seems that there is a problem with the online module: I'm swithing to offlie module...")
 
         # Initialization of Offline Module
-        self.offline_module = offline()
+        try:
+            self.offline_module = offline()
+        except Exception as e:
+            print(type(e).__name__, e)
+            print("\n It seems that there is a problem with the offline module: I'm swithing to online module...")
 
         # Select module available
         self.module = self._getResolver()
@@ -171,7 +178,6 @@ class Controller():
             Return:
         """
         self.online_module.set_detect_attibutes(*args, **kwargs)
-        #self.online_module.set_detect_attibutes(*args, **kwargs)
 
     def watch(self, face, frame_size = (0,0)):
 
@@ -205,7 +211,7 @@ class Controller():
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.q.join()
-        self.t.join()
+        #self.t.join()
 
 
 if __name__ == '__main__':

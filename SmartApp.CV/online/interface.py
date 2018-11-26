@@ -73,10 +73,9 @@ class online_connector():
             # in one frame
             face = faces[0]
 
-            res = self.client.search(face_token = face["face_token"], faceset_token = self.faceset_token)
-            if res.get("error_message") is not None:
-                raise Exception(res.get("error_message"))
-            else:
+            try:
+                res = self.client.search(face_token = face["face_token"], faceset_token = self.faceset_token)
+
                 if len(res["results"]) > 0:
                     for candidate in res["results"]:
                         if candidate["confidence"] < 80:
@@ -94,6 +93,11 @@ class online_connector():
                     #face doesn't match add it
                     print("non ti conosco.. mi ricordero")
                     self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
+
+            except Exception as e:
+                #TODO manage different possible error (this solution resolve EMPRTY_SET VALUE ERROR)
+                print(type(e).__name__, e)
+                self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
 
             return self._jsonFace2Fact(face)
         else:

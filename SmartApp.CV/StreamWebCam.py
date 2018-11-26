@@ -1,11 +1,16 @@
 import cv2
 import sys
-from online import FacePlusPlus as online
-from controller import Controller
 from queue import *
 from threading import *
+try:
+    import online
+except ImportError:
+    sys.path.insert(0, '../../SmartApp.CV')
+
+from online import FacePlusPlus as online
+from controller import Controller
 # from offline import offline_interface as offline
-import external.kb_client as kb
+import external_modules.kb_client as kb
 
 #FIFO queue
 q = Queue(maxsize= 3)
