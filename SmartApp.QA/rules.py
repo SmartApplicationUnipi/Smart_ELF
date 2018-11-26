@@ -160,7 +160,7 @@ merge_rules =       [
                             },
                         SIBL_PRE:{
                             R_ID:CON,
-                            VALUE:["ricevimenoto($3)"]
+                            VALUE:["ricevimento($3)"]
                                 },
                         SIBL_PRE:{
                             R_ID:CON,
