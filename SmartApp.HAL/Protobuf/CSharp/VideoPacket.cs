@@ -29,7 +29,7 @@ namespace SmartApp.HAL.Model {
             "U2V0RnJhbWVyYXRlUmVxdWVzdEgAGigKE1NldEZyYW1lcmF0ZVJlcXVlc3QS",
             "EQoJZnJhbWVyYXRlGAEgASgFQgkKB1JlcXVlc3QiowIKD1ZpZGVvRGF0YVBh",
             "Y2tldBIRCgl0aW1lc3RhbXAYASABKAMSEgoKZnJhbWVXaWR0aBgCIAEoBRIT",
-            "CgtmcmFtZUhlaWd0aBgDIAEoBRIkCgVmYWNlcxgEIAMoCzIVLlZpZGVvRGF0",
+            "CgtmcmFtZUhlaWdodBgDIAEoBRIkCgVmYWNlcxgEIAMoCzIVLlZpZGVvRGF0",
             "YVBhY2tldC5GYWNlGkUKCVJlY3RhbmdsZRILCgN0b3AYASABKAUSDAoEbGVm",
             "dBgCIAEoBRINCgV3aWR0aBgDIAEoBRIOCgZoZWlnaHQYBCABKAUaZwoERmFj",
             "ZRIKCgJpZBgBIAEoAxIJCgFaGAIgASgCEhAKCHNwZWFraW5nGAMgASgFEgwK",
@@ -39,7 +39,7 @@ namespace SmartApp.HAL.Model {
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoControlPacket), global::SmartApp.HAL.Model.VideoControlPacket.Parser, new[]{ "FramerateRequest" }, new[]{ "Request" }, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest), global::SmartApp.HAL.Model.VideoControlPacket.Types.SetFramerateRequest.Parser, new[]{ "Framerate" }, null, null, null)}),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket), global::SmartApp.HAL.Model.VideoDataPacket.Parser, new[]{ "Timestamp", "FrameWidth", "FrameHeigth", "Faces" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle), global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle.Parser, new[]{ "Top", "Left", "Width", "Height" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket), global::SmartApp.HAL.Model.VideoDataPacket.Parser, new[]{ "Timestamp", "FrameWidth", "FrameHeight", "Faces" }, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle), global::SmartApp.HAL.Model.VideoDataPacket.Types.Rectangle.Parser, new[]{ "Top", "Left", "Width", "Height" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SmartApp.HAL.Model.VideoDataPacket.Types.Face), global::SmartApp.HAL.Model.VideoDataPacket.Types.Face.Parser, new[]{ "Id", "Z", "Speaking", "Data", "Rect" }, null, null, null)})
           }));
     }
@@ -375,7 +375,7 @@ namespace SmartApp.HAL.Model {
     public VideoDataPacket(VideoDataPacket other) : this() {
       timestamp_ = other.timestamp_;
       frameWidth_ = other.frameWidth_;
-      frameHeigth_ = other.frameHeigth_;
+      frameHeight_ = other.frameHeight_;
       faces_ = other.faces_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -407,14 +407,14 @@ namespace SmartApp.HAL.Model {
       }
     }
 
-    /// <summary>Field number for the "frameHeigth" field.</summary>
-    public const int FrameHeigthFieldNumber = 3;
-    private int frameHeigth_;
+    /// <summary>Field number for the "frameHeight" field.</summary>
+    public const int FrameHeightFieldNumber = 3;
+    private int frameHeight_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int FrameHeigth {
-      get { return frameHeigth_; }
+    public int FrameHeight {
+      get { return frameHeight_; }
       set {
-        frameHeigth_ = value;
+        frameHeight_ = value;
       }
     }
 
@@ -443,7 +443,7 @@ namespace SmartApp.HAL.Model {
       }
       if (Timestamp != other.Timestamp) return false;
       if (FrameWidth != other.FrameWidth) return false;
-      if (FrameHeigth != other.FrameHeigth) return false;
+      if (FrameHeight != other.FrameHeight) return false;
       if(!faces_.Equals(other.faces_)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -453,7 +453,7 @@ namespace SmartApp.HAL.Model {
       int hash = 1;
       if (Timestamp != 0L) hash ^= Timestamp.GetHashCode();
       if (FrameWidth != 0) hash ^= FrameWidth.GetHashCode();
-      if (FrameHeigth != 0) hash ^= FrameHeigth.GetHashCode();
+      if (FrameHeight != 0) hash ^= FrameHeight.GetHashCode();
       hash ^= faces_.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -476,9 +476,9 @@ namespace SmartApp.HAL.Model {
         output.WriteRawTag(16);
         output.WriteInt32(FrameWidth);
       }
-      if (FrameHeigth != 0) {
+      if (FrameHeight != 0) {
         output.WriteRawTag(24);
-        output.WriteInt32(FrameHeigth);
+        output.WriteInt32(FrameHeight);
       }
       faces_.WriteTo(output, _repeated_faces_codec);
       if (_unknownFields != null) {
@@ -495,8 +495,8 @@ namespace SmartApp.HAL.Model {
       if (FrameWidth != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(FrameWidth);
       }
-      if (FrameHeigth != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeInt32Size(FrameHeigth);
+      if (FrameHeight != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(FrameHeight);
       }
       size += faces_.CalculateSize(_repeated_faces_codec);
       if (_unknownFields != null) {
@@ -516,8 +516,8 @@ namespace SmartApp.HAL.Model {
       if (other.FrameWidth != 0) {
         FrameWidth = other.FrameWidth;
       }
-      if (other.FrameHeigth != 0) {
-        FrameHeigth = other.FrameHeigth;
+      if (other.FrameHeight != 0) {
+        FrameHeight = other.FrameHeight;
       }
       faces_.Add(other.faces_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
@@ -540,7 +540,7 @@ namespace SmartApp.HAL.Model {
             break;
           }
           case 24: {
-            FrameHeigth = input.ReadInt32();
+            FrameHeight = input.ReadInt32();
             break;
           }
           case 34: {

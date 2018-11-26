@@ -31,6 +31,6 @@ message VideoDataPacket {
 
 	int64 timestamp = 1;
 	int32 frameWidth = 2;
-	int32 frameHeigth = 3;
+	int32 frameHeight = 3;
 	repeated Face faces = 4;
 }
