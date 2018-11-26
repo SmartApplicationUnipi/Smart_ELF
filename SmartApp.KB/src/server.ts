@@ -54,7 +54,14 @@ wss.on('connection', (ws: WebSocket) => {
                     reply = JSON.stringify(kb.updateFactByID(j.params.idFact, j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
                 case 'query':
-                    reply = JSON.stringify(kb.query(j.params.jsonReq));
+                    const r = kb.query(j.params.jsonReq);
+                    if (r.success) {
+                        // need to convert map type in something jsonable
+                        const details = r.details as Matches;
+                        const d = {objects: new Array(), binds: new Array()};
+                        details.forEach( (val, key) => { d.objects.push(key); d.binds.push(val); } );
+                        reply = JSON.stringify({success: r.success, details: d});
+                    } else { reply = JSON.stringify(r); }
                     break;
                 case 'queryBind': // note: this is deprecated: will be removed 1st december 2018
                     const res = kb.query(j.params.jsonReq);

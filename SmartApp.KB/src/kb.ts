@@ -157,8 +157,6 @@ export function updateFactByID(id: number, idSource: string, tag: string, TTL: n
 }
 
 export function query(jreq: any) {
-    // FIXME: isn't it better to return a more significant boolean?
-    // tslint:disable-next-line:max-line-length
     const queryobj: any = {};
 
     if (jreq.hasOwnProperty('_id')) { queryobj._id = jreq._id; delete jreq._id; }
