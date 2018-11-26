@@ -23,7 +23,7 @@ export class Debugger {
         this.indentation--;
     }
 
-    public.resetIndentation() {
+    public resetIndentation() {
         this.indentation = 0;
     }
 

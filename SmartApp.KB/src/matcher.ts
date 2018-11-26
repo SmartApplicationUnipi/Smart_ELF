@@ -1,6 +1,4 @@
 import { Colors, Debugger } from './debugger';
-import { DataObject } from './kb';
-import { Logger } from './logger';
 
 /*                                             ,--,  ,.-.
                ,                   \,       '-,-`,'-.' | ._
@@ -28,7 +26,7 @@ import { Logger } from './logger';
  */
 
 
-const D: Debugger = new Debugger(4);
+const D: Debugger = new Debugger();
 
 export type Response = Map<object, object[]>;
 
@@ -252,6 +250,7 @@ class Matcher {
         D.clog(Colors.PINK, 'VAL', this.ID_AP, '', 'value => ' + queryValue, 4);
         if (!data.hasOwnProperty(queryKey)) {
             D.clog(Colors.RED, 'FAIL', this.ID_AP, '', 'Key `' + queryKey + '\' not found.', 2);
+            this.currBinds = [];
             return false;
         }
         if (this.currBinds.length === 0) {
@@ -346,7 +345,8 @@ class Matcher {
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey])
                 && !isObject(data[newBinds[k][queryKey]])) {
-                D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'invalid bind: name already bound to a non-object', 2);
+                D.clog(Colors.YELLOW, 'SBIND', this.ID_PO, '', 'Remove the set of bind containing <`' + queryKey + '\':`' + this.currBinds[k][queryKey]
+                    + '\'> because `' + this.currBinds[k][queryKey] + '\' should be associated to an object.', 2);
                 delete this.currBinds[k];
                 continue;
             }
@@ -355,29 +355,30 @@ class Matcher {
             if (newBinds[k] && newBinds[k].hasOwnProperty(queryKey)
                 && data.hasOwnProperty(newBinds[k][queryKey])
                 && isObject(data[newBinds[k][queryKey]])) {
-                D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'already existent correct bind', 3);
+                D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'Found a set containing a coherent bind <`' + queryKey + '\':`' + this.currBinds[k][queryKey]
+                    + '\', now check if inner object are the same.', 3);
                 D.increaseIndentation();
-                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Entering recursion', 5);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Entering recursion', 4);
                 const result = this.sortAndMatch(queryValue, data[newBinds[k][queryKey]]);
-                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Exit recursion', 5);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Exit recursion', 4);
                 D.decreaseIndentation();
                 if (!result) {
-                    D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'inner objects are different', 2);
+                    D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'Inner objects can\'t be mached, the set of bind should have been removed in the inner match.', 2);
                 } else {
-                    D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'updated an already existent bind', 3);
+                    D.clog(Colors.GREEN, 'OK', this.ID_PO, '', 'Maybe updated the current set of bind.', 3);
                 }
-                delete this.currBinds[k];
                 continue;
             }
 
             // still to bound
             for (const dataKey of dataKeys) {
                 if (!isObject(data[dataKey])) {
-                    D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'key associated to a non-object', 2);
+                    D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'Key `' + dataKey + '\' associated to a non-object', 2);
                     continue;
                 }
+                // FIXME move outside
                 if (!newBinds[k]) {
-                    D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'It\'s the first bind', 5);
+                    D.clog(Colors.YELLOW, 'BIND', this.ID_PO, '', 'Create a new set of bind containing only `' + queryKey + '\':`' + dataKey + '\'>.', 3);
                     const b: any = {};
                     b[queryKey] = dataKey;
                     this.currBinds.push(b);
@@ -385,9 +386,9 @@ class Matcher {
                     this.currBinds[k][queryKey] = dataKey;
                 }
                 D.increaseIndentation();
-                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Entering recursion', 5);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Entering recursion', 4);
                 const result = this.sortAndMatch(queryValue, data[dataKey]);
-                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Exit recursion', 5);
+                D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Exit recursion', 4);
                 D.decreaseIndentation();
                 if (!result) {
                     D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'inner objects are different', 2);
