@@ -3,6 +3,7 @@ import { security, server } from './config';
 import * as kb from './kb';
 import { Logger } from './logger';
 import { Matches } from './matcher';
+import { debug } from 'util';
 
 const port = server.port ;
 const log = Logger.getInstance();
@@ -58,7 +59,7 @@ wss.on('connection', (ws: WebSocket) => {
                 case 'queryBind': // note: this is deprecated: will be removed 1st december 2018
                     const res = kb.query(j.params.jsonReq);
                     const bind = res.details as Matches;
-                    reply = JSON.stringify({success: res.success, details: bind.values});
+                    reply = JSON.stringify({success: res.success, details: bind.values()});
                     break;
                 case 'queryFact': // note: this is deprecated: will be removed 1st december 2018
                     reply = JSON.stringify(kb.query(j.params.jsonReq));
