@@ -1,5 +1,5 @@
 import { IEmotion } from '../emotion/Emotion';
-import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION } from './event/ElfUIEvent';
+import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION, KEY_POSITION } from './event/ElfUIEvent';
 import { BaseEventReader, IElfUIEventListener } from '../reader/EventReader';
 import * as Content from '../content/Content';
 import { Point } from '../utils/Point';
@@ -31,11 +31,17 @@ export abstract class ElfUI implements IElfUIEventListener {
 	 * Method called when a new event is received from one of the registered event listeners.
 	 * @param e 
 	 */
-	public onEvent(e: ElfUIEvent) {
+	public onEvent(e: ElfUIEvent): void {
 		let emotion = e.getAny(KEY_EMOTION) as IEmotion;
 		if (emotion) {
 			this.onEmotionChanged(e.getAny(KEY_EMOTION) as IEmotion);
 		}
+		
+		let position = e.getAny(KEY_POSITION) as Point;
+		if (position) {
+			this.onPositionChanged(position);
+		}
+
 		let contents = this.getContentFactory().create(e);
 		if (contents) {
 			this.onContentChanged(contents);

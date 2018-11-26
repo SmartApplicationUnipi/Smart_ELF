@@ -12,7 +12,6 @@ export interface IAudioPlayer {
  * Default implementation of IAudioPlayer
  */
 export class AudioPlayer {
-    private logger: Logger.ILogger = Logger.getInstance();
 
     /**
      * True if the player is currently playing.
@@ -47,7 +46,7 @@ export class AudioPlayer {
             });
 
         } catch (ex) {
-            this.logger.log(Logger.LEVEL.ERROR, ex);
+            Logger.getInstance().log(Logger.LEVEL.ERROR, ex);
         }
     }
 

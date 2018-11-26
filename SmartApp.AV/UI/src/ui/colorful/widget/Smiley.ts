@@ -1,10 +1,18 @@
 import { EmotionalUIWidget } from '../../../ui/widget/UIWidget';
 import { IEmotion } from '../../../emotion/Emotion';
 import * as Logger from '../../../log/Logger';
+import { Point } from '../../../utils/Point';
+
+const MAJOR_EYE_X_MAX = 15;
+const MINOR_EYE_X_MAX = 30;
+const EYE_Y_MAX = 10;
 
 export class Smiley extends EmotionalUIWidget {
 
     private element: HTMLElement;
+
+    private leftEye: HTMLElement;
+    private rightEye: HTMLElement;
 
     private originalClassname: string;
 
@@ -13,8 +21,11 @@ export class Smiley extends EmotionalUIWidget {
         let e = document.createElement("div");
         e.innerHTML = this.render();
 
-        this.element = e.firstChild as HTMLElement;
+        this.element = e.firstElementChild.firstElementChild as HTMLElement;
         this.originalClassname = this.element.className;
+
+        this.leftEye = e.getElementsByClassName("left-eye")[0] as HTMLElement;
+        this.rightEye = e.getElementsByClassName("right-eye")[0] as HTMLElement;
     }
 
     /**
@@ -22,6 +33,24 @@ export class Smiley extends EmotionalUIWidget {
      */
     public getElement(): HTMLElement {
         return this.element;
+    }
+
+    public lookAt(p: Point): void {
+        // Eye position
+        let majorEye = this.rightEye, minorEye = this.leftEye;
+        
+        if(p.getX() < 0) {
+            majorEye = this.leftEye;
+            minorEye = this.rightEye;
+        }
+
+        minorEye.style.left = (p.getX() * MINOR_EYE_X_MAX) + "px";
+        majorEye.style.left = (p.getX() * MAJOR_EYE_X_MAX) + "px";
+
+        minorEye.style.top = (p.getY() * EYE_Y_MAX) + "px";
+        majorEye.style.top = (p.getY() * EYE_Y_MAX) + "px";
+
+        Logger.getInstance().log(Logger.LEVEL.INFO, "Eye position", p, minorEye.style.left, majorEye.style.right);
     }
 
     public onEmotionChanged(e: IEmotion): void {
@@ -60,12 +89,14 @@ export class Smiley extends EmotionalUIWidget {
     }
 
     public render(): string {
-        return '<div class="smiley">\
-            <div class="eyes">\
-                <div class="eye"></div>\
-                <div class="eye"></div>\
+        return '<div class="smiley-container">\
+            <div class="smiley">\
+                <div class="eyes">\
+                    <div class="eye left-eye"></div>\
+                    <div class="eye right-eye"></div>\
+                </div>\
+                <div class="mouth"></div>\
             </div>\
-            <div class="mouth"></div>\
         </div>';
     }
 }

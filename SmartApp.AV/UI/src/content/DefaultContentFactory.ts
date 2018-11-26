@@ -8,7 +8,6 @@ import { Emotion } from '../emotion/Emotion';
  * Default implementation of ContentFactory
  */
 export class DefaultContentFactory implements ContentFactory {
-    private logger: Logger.ILogger = Logger.getInstance();
 
     create(event: ElfUIEvent): Array<IContent> {
         let data = event.getAny(KEY_CONTENT);
@@ -25,7 +24,7 @@ export class DefaultContentFactory implements ContentFactory {
 
                         contents.push(new AudioContent(emotion, audioB64));
                     } catch (ex) {
-                        this.logger.log(Logger.LEVEL.ERROR, "Cannot elaborate audio file", data, ex);
+                        Logger.getInstance().log(Logger.LEVEL.ERROR, "Cannot elaborate audio file", data, ex);
                     }
                     break;
                 case "speech":
@@ -38,10 +37,10 @@ export class DefaultContentFactory implements ContentFactory {
                         if (text && emotion) {
                             contents.push(new SpeechContent(text, emotion));
                         } else {
-                            this.logger.log(Logger.LEVEL.ERROR, "Cannot get all data from speech content", data[key]);
+                            Logger.getInstance().log(Logger.LEVEL.ERROR, "Cannot get all data from speech content", data[key]);
                         }
                     } catch (ex) {
-                        this.logger.log(Logger.LEVEL.ERROR, "Cannot get data from speech content", data[key], ex);
+                        Logger.getInstance().log(Logger.LEVEL.ERROR, "Cannot get data from speech content", data[key], ex);
                     }
                     break;
                 case "text":

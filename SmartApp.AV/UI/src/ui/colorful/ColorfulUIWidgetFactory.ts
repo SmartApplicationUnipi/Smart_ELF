@@ -18,7 +18,7 @@ export class ColorfulUIWidgetFactory implements UIWidgetFactory {
             return [new DefaultUIWidget(content.getData())];
         }
 
-        this.logger.log(Logger.LEVEL.WARNING, "Content not recognized", content);
+        Logger.getInstance().log(Logger.LEVEL.WARNING, "Content not recognized", content);
         return null;
     }
 }
