@@ -66,7 +66,7 @@ namespace SmartApp.HAL.Implementation
                 var packet = new VideoDataPacket() {
                     Timestamp = new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds(),
                     FrameWidth = frame.FrameWidth,
-                    FrameHeigth = frame.FrameHeight
+                    FrameHeight = frame.FrameHeight
                 };
                 foreach (var face in frame.Faces)
                 {
