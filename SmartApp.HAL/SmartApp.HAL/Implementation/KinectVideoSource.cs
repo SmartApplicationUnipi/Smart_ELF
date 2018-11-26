@@ -155,14 +155,15 @@ namespace SmartApp.HAL.Implementation
                             {
                                 faceFound = true;
                                 FaceFrameResult faceResult = _faceFrameResults[f];
-                                //Return true if mouth open of moded is yes or maybe
+                                //Return -1 if maybe
                                 int isSpeaking = -1;
-                                if(faceResult.FaceProperties[FaceProperty.MouthOpen] == DetectionResult.Yes ||
+                                if (faceResult.FaceProperties[FaceProperty.MouthOpen] == DetectionResult.Yes ||
                                     faceResult.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.Yes)
                                 {
                                     isSpeaking = 1;
                                 }
-                                else
+                                else if (faceResult.FaceProperties[FaceProperty.MouthOpen] == DetectionResult.No ||
+                                    faceResult.FaceProperties[FaceProperty.MouthMoved] == DetectionResult.No)
                                 {
                                     isSpeaking = 0;
                                 }
