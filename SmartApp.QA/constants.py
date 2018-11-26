@@ -3,6 +3,7 @@ PRE="prerequisites"
 PAR_PRE="parent_prerequisites"
 CHILD_PRE="child_prerequisites"
 REL_PRE="relation_prerequisites"
+SIBL_PRE ="sibling_prerequisite"
 
 R_ID="rule_id"
 KW="keyword_matching"
