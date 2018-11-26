@@ -12,7 +12,7 @@ let factory = new ElfColorfulUIFactory(elem, window);
 
 let kbEventReader = new KBEventReader();
 let readers = [
-	// new TestEventReader(2000),
+	new TestEventReader(2000),
 	// kbEventReader,
 	// new TTSEventReader()
 ];

@@ -73,6 +73,15 @@
 }
 
 
+/* Idle animations */
+
+.smiley.blink .eye,
+#blink[type=radio]:checked~.smiley .eye {
+    animation: blink .6s;
+    animation-delay: .3s;
+}
+
+
 /* Normal animation */
 
 .smiley.normal .mouth,

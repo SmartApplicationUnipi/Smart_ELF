@@ -80,12 +80,12 @@ export class TestEventReader extends BaseEventReader {
 			.putAny(KEY_EMOTION, new Emotion(0.6, 0.9)) // Surprise
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Surprise...", emotion: new Emotion(0, 0) } })
 
-		// this.events.push(e1)
-		// this.events.push(e2)
-		// this.events.push(e3)
-		// this.events.push(e4)
-		// this.events.push(e5)
-		// this.events.push(e6)
+		this.events.push(e1)
+		this.events.push(e2)
+		this.events.push(e3)
+		this.events.push(e4)
+		this.events.push(e5)
+		this.events.push(e6)
 
 		let pos1 = new ElfUIEvent()
 			.putAny(KEY_POSITION, new Point(0.8, -0.3));

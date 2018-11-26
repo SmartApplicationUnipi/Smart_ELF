@@ -2,6 +2,7 @@ import { EmotionalUIWidget } from '../../../ui/widget/UIWidget';
 import { IEmotion } from '../../../emotion/Emotion';
 import * as Logger from '../../../log/Logger';
 import { Point } from '../../../utils/Point';
+import { CSSClassHelper } from '../../../utils/CSSClassHelper';
 
 const MAJOR_EYE_X_MAX = 15;
 const MINOR_EYE_X_MAX = 30;
@@ -14,6 +15,9 @@ export class Smiley extends EmotionalUIWidget {
     private leftEye: HTMLElement;
     private rightEye: HTMLElement;
 
+    private eyeBlinker;
+    private cssClassHelper: CSSClassHelper;
+
     private originalClassname: string;
 
     constructor(document: Document) {
@@ -22,10 +26,21 @@ export class Smiley extends EmotionalUIWidget {
         e.innerHTML = this.render();
 
         this.element = e.firstElementChild.firstElementChild as HTMLElement;
-        this.originalClassname = this.element.className;
+        
+        this.cssClassHelper = new CSSClassHelper(this.element);
+        this.cssClassHelper.setBaseClass(this.element.className);
 
         this.leftEye = e.getElementsByClassName("left-eye")[0] as HTMLElement;
         this.rightEye = e.getElementsByClassName("right-eye")[0] as HTMLElement;
+
+        this.element.addEventListener('animationend', () => {
+            this.cssClassHelper.remove("blink");
+        });
+
+        // Start eye blinking
+        this.eyeBlinker = setInterval(() => {
+            this.cssClassHelper.add("blink");
+        }, 2000);
     }
 
     /**
@@ -64,27 +79,29 @@ export class Smiley extends EmotionalUIWidget {
         }
 
         console.log("ANGLE: ", angle)
+
+        this.cssClassHelper.remove(["normal", "happy", "angry"]);
         if (angle < third) {
             // suprised
-            this.element.className = this.originalClassname + " normal"
+            this.cssClassHelper.add("normal")
         }
         else if (angle < 180.0 - third) {
             // happy
-            this.element.className = this.originalClassname + " happy"
+            this.cssClassHelper.add("happy")
         }
         else if (angle < 180.0) {
             // sad
-            this.element.className = this.originalClassname + " normal"
+            this.cssClassHelper.add("normal")
         }
         else if (angle < 180.0 + third) {
             // disgust
-            this.element.className = this.originalClassname + " normal"
+            this.cssClassHelper.add("normal")
         } else if (angle < 360 - third) {
             // anger
-            this.element.className = this.originalClassname + " angry"
+            this.cssClassHelper.add("angry")
         } else {
             // afraid
-            this.element.className = this.originalClassname + " normal"
+            this.cssClassHelper.add("normal")
         }
     }
 
