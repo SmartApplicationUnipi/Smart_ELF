@@ -2,22 +2,22 @@ package elf_kb_protocol;
 
 public class Fact {
     private String idSource;
-    private String infoSum;
+    private String tag;
     private KBTTL TTL;
     private int reliability;
     private boolean revisioning;
     private Object jsonFact;
 
-    public Fact(String infoSum, KBTTL TTL, int reliability, boolean revisioning, Object jsonFact) {
-        this.infoSum = infoSum;
+    public Fact(String tag, KBTTL TTL, int reliability, boolean revisioning, Object jsonFact) {
+        this.tag = tag;
         this.TTL = TTL;
         this.reliability = reliability;
         this.revisioning = revisioning;
         this.jsonFact = jsonFact;
     }
 
-    public String getInfoSum() {
-        return infoSum;
+    public String getTag() {
+        return tag;
     }
 
     public KBTTL getTTL() {

@@ -1,126 +1,153 @@
-import os
+from external.kb_client import KnowledgeBaseClient as kb
+import external.hal_client as hal
+from online.interface import online_connector as online
+# import offline.interface as offline
 
-from online.SDK.face_client import Facepp_Client as online
-#from offline.offvision import OffVision as offline
+from threading import *
+from queue import *
+import time
+import cv2
 
-import kb_client as kb
 
+#  Si possono avere più queue (almeno 6 dato che 6 è il numero massimo di facce
+#  riconosciute simultaneamente dal kinekt) che matengo in memoria i frame di
+#  ogni faccia che ha lo stesso id (dato da HAL-kinekt) cosi da poter avere
+#  diversi thread che eseguono le richieste al modulo separatamente per ogni
+#  persona. Cosi facendo sarà necesssario eseguire l'identifica solo una volta,
+#  la prima volta, e non eseguirla più fino a quando non subentra una nuova
+#  immagine con un nuovo id (l'id è un id generato dal kinekt per quella faccia)
+#
+#  Vedere il file StreamWebCam per un esempio di implementazione
+#  (fatto da Michele in script/StreamWebCam)
 
 class Controller():
-    def __init__(self):
-        self.kbID = kb.register()
-        self.faceset_outer_id = "Fibonacci_FaceSet_0001"
-        self.faceset_token = ""
+
+    #FIFO queue
+    q = Queue(maxsize= 5)
+
+    def __init__(self, startWorker = False, webcam = False):
+        self._kb = kb(True)
+        self._kb.registerTags({'vis':{}})
+
+        self.webcam = webcam
+
+        self._hal = None
+        self._videoID = None
+        self.video_capture = None
+
+        if not webcam:
+            self._hal = hal.HALInterface(HALAddress= "10.101.53.14")
+            self._videoID = self._hal.registerAsVideoReceiver(Controller._take_frame)
+            if self._videoID == -1:
+                print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
+                exit(-1)
+        else:
+            self.video_capture = cv2.VideoCapture(0)
 
         # Initialization of Online Module
-        self.client = online()
-        res = self.client.getFaceSets()
-        for faceset in res['facesets']:
-            if faceset['outer_id'] == self.faceset_outer_id:
-                self.faceset_token = faceset['faceset_token']
-                break
-
-        if self.faceset_token == "":
-            res = self.client.createFaceSet(outer_id = self.faceset_outer_id)
-            self.faceset_token = res['faceset_token']
+        self.online_module = online()
 
         # Initialization of Offline Module
-        #self.offline_client = offline()
-        return
+        # self.offline_client = offline()
 
+        self.module = self._getResolver()
 
-    def _thereIsNet(self):
-        import urllib
+        self.t = None
+        if startWorker:
+            # TODO Creare 6 thread che lavoreano su più persone
+            self.t = Thread(target=Controller._worker, args=[self, Controller.q])
+            self.t.daemon = True
+            self.t.start()
+
+    def _take_frame(frame_obj):
         """
-            Check there is an Internet connection.
+            Function of callback used from HAL group to send a frame
 
             Params:
-                None
-
-            Return:
-                thereIsNet (bool):
-                    True if there is False otherwise
+                frame_obj (object): object that contain all image of face in a
+                    frame
         """
+        print("frame preso")
+        if Controller.q.full():
+            Controller.q.get()
+
+        Controller.q.put(frame_obj)
+
+    def _worker(self, queue):
+        """
+            Function of thread that compute analyzation of frame.
+
+            Params:
+                queue (Queue): queue associated at thrad of frame
+        """
+
         try:
-            urllib.request.urlopen("http://api-eu.faceplusplus.com", timeout=1)
-            return True
-        except urllib.request.URLError:
-            return False
+            while True:
 
-    def _online_module(self,frame):
+                if self.webcam:
+                    ret, frame = self.video_capture.read() #np.arra
+                    frame = cv2.resize(frame, (320, 240))
+                    queue.put(frame)
+
+                frame_obj = queue.get()
+                self.watch(frame_obj.numpyFaces[0].data)
+                queue.task_done()
+        except Exception as e:
+            print(e)
+
+    def _getResolver(self):
         """
-            Utilizza delle API (Face++)
+            Get the resolver of detection.
 
             Params:
-                None
 
             Return:
-
+                result (interface): Return an object that will resolve the detection
+                    of attributes and identity of person.
         """
-        # take respose from server of face present in the frame
-        result = self.client.detect(frame)
-        # take list of faces
-        faces = result["faces"]
+        if self.online_module.is_available():
+            res = self.online_module
+        else:
+            raise NotImplementedError( " Sorry :( ..offline connector not yet available .." )
+        # elif self.offline_module.isAvailable():
+        #     res = self.offline_module
+        return res
 
-        for face in faces:
+    def setAttr(self, *args, **kwargs):
+        """
+            Set attributes that the module must be detect form future frame.
 
-            info = "face"
-            confidence = 0
-            del face["face_rectangle"]
-            face.update({"TAG": "VISION"})
-            face.update({"known": False})
-            face.update({"confidence_identity": 0})
+            Params:
+                depends on the module
 
-            print(face)
+            Return:
+        """
+        self.online_module.set_detect_attibutes(*args, **kwargs)
+        #self.online_module.set_detect_attibutes(*args, **kwargs)
 
-            facesetInfo = self.client.getFaceSetDetail(faceset_token = self.faceset_token )
-            confidence = 0
+    def watch(self, frame):
 
-            if facesetInfo['face_count'] > 0:
-                res = self.client.search(face_token = face["face_token"], faceset_token = self.faceset_token)
+        fact = self.module.analyze_face(frame)
+        if not fact:
+            print("non vedo nessuni")
+            return
 
-                if len(res["results"]) > 0:
-                    for candidate in res["results"]:
-                        if candidate["confidence"] < 80:
+        fact.update({"TAG": "VISION_FACE_ANALYSIS"})
 
-                            self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-                            print("non ti conosco.. mi ricordero")
-                        else:
-                            print("ti conosco")
+        if fact is not None:
+            self._kb.addFact("face", "vis", 1, fact['confidence_identity'], fact)
 
-                            face["face_token"] = candidate["face_token"]
-                            face.update({"known": True})
-                            face.update({"confidence_identity": candidate["confidence"]})
-                            confidence = candidate["confidence"]
+        print(fact)
 
-                            kb.addFact(self.kbID, info, 1, confidence, True, face)
-
-                else:
-                    self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-                    print("non ti conosco.. mi ricordero")
-                    kb.addFact(self.kbID, info, 1, confidence, True, face)
-            else:
-                self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-                print("non ti conosco.. mi ricordero")
-                kb.addFact(self.kbID, info, 1, confidence, True, face)
-
-            face.update({"TAG": "VISION"})
-            kb.addFact(self.kbID, info, 1, confidence, True, face)
-
-    # def _offline_module(self, frame):
-    #     return self.offline_client.analyze_frame(frame)
+    def __del__(self):
+        if self._hal is None:
+            self._hal.unregister(self._videoID)
+            self._hal.quit()
+        Controller.q.join()
+        if self.t is not None:
+            self.t.join()
 
 
-    def setAttr(self,*args, **kwargs):
-        self.client.setParamsDetect(*args, **kwargs)
-        #self.offline.setParamsDetect(*args, **kwargs)
-
-    def simple_demo(self,frame):
-        if self._thereIsNet():
-            self._online_module(frame)
-        #     self._online_module(frame)
-        # else:
-        #     self._offline_module(frame)
-
-
-        return frame
+if __name__ == '__main__':
+    controller = Controller(True)
+    input('Enter anything to close:')

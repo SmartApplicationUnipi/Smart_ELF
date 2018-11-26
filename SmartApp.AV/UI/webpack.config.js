@@ -8,6 +8,9 @@ module.exports = {
             test: /\.tsx?$/,
             use: 'ts-loader',
             exclude: /node_modules/
+        }, {
+            test: /\.css$/,
+            use: ['style-loader', 'css-loader']
         }]
     },
     resolve: {
@@ -28,6 +31,7 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin([
             { from: 'res', to: 'res' }, // Copy res folder
+            { from: 'css', to: 'css' }
         ])
     ]
 };

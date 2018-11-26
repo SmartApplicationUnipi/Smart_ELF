@@ -28,9 +28,9 @@ import { Colors, Debugger } from './debugger';
 
 const D: Debugger = new Debugger();
 
-export type Response = Map<object, object[]>;
+export type Matches = Map<object, object[]>;
 
-export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Response {
+export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Matches {
     let matcher = new Matcher();
     return matcher.start(query, dataset, initBinds);
 }
