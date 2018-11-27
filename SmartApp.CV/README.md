@@ -54,7 +54,8 @@ The module receives a frame containing a face and outputs a dictionary structure
 }
 ```
 
-### Download/Installation
+### Download/Installation (generic)
+**Windows users should refer to the next section**
 
 Using pip:
 ```
@@ -64,7 +65,20 @@ and run:
 ```
 python StreamWebCam.py
 ```
-**For Windows Users: if you have problem in installing dlib you can install it following https://github.com/charlielito/install-dlib-python-windows guide.**
+
+### Download/Installation (Windows + Ananconda)
+In the Ananconda environment, first install the prebuilt version of `dlib` with
+```
+conda install -c conda-forge dlib
+```
+then install the other requirements with
+```
+pip install -r requirements.txt
+```
+This is necessary in order to avoid buildling `dlib` from scratch, and beacuse
+the prebuilt version in Conda-forge has an unnecessary dependence on an incompatible version of `numpy`.
+
+*Alternatively, this guide could be followed: https://github.com/charlielito/install-dlib-python-windows .*
 
 ## Important
 
