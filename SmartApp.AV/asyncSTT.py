@@ -34,19 +34,20 @@ def recognize(model, audio, recognizer, language="en-US"):
         try:
             if model == "sphinx":
                 res["text"] = recognizer.recognize_sphinx(audio)
+            elif "google.cloud.speech_v1p1beta1.SpeechClient" in str(type(recognizer)):
+                config = types.RecognitionConfig(
+                    encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+                   #sample_rate_hertz=16000,
+                    language_code='en-US',
+                    #enable_automatic_punctuation=True,
+                    alternative_language_codes=['it'])
+                response = recognizer.recognize(config, audio)
+                res["text"] = response.results[0].alternatives[0].transcript
+                res["lang"] = response.results[0].language_code
+            elif "speech_recognition.Recognizer" in str(type(recognizer)):
+                res["text"] = recognizer.recognize_google(audio, language=language)
             else:
-                if "google.cloud.speech_v1p1beta1.SpeechClient" in str(type(recognizer)):
-                    config = types.RecognitionConfig(
-                        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
-                       #sample_rate_hertz=16000,
-                        language_code='en-US',
-                        #enable_automatic_punctuation=True,
-                        alternative_language_codes=['it'])
-                    response = recognizer.recognize(config, audio)
-                    res["text"] = response.results[0].alternatives[0].transcript
-                    res["lang"] = response.results[0].language_code
-                elif "speech_recognition.Recognizer" in str(type(recognizer)):
-                    res["text"] = recognizer.recognize_google(audio, language=language)
+                res["error"] = "Error"
 
             print(res["text"])
         except sr.UnknownValueError:
@@ -73,6 +74,7 @@ async def speech_to_text(queue):
                                                      'doc': 'text from audio '}})
     # Create new recogniers for all the services used
     r = sr.Recognizer()
+    google_client = None
     try:
         google_client = speech.SpeechClient()
     except exceptions.DefaultCredentialsError as e:
