@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import janus
 from google.cloud.speech_v1p1beta1 import enums
 from google.cloud.speech_v1p1beta1 import types
+from google.auth import exceptions
 from google.cloud import speech_v1p1beta1 as speech
 from Bindings import HALInterface
 from os import path
@@ -15,6 +16,7 @@ import time
 import io
 from kb import KnowledgeBaseClient
 import sentimental_analizer
+
 
 
 #TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
@@ -43,7 +45,7 @@ def recognize(model, audio, recognizer, language="en-US"):
                     response = recognizer.recognize(config, audio)
                     res["text"] = response.results[0].alternatives[0].transcript
                     res["lang"] = response.results[0].language_code
-                else:
+                elif "speech_recognition.Recognizer" in str(type(recognizer)):
                     res["text"] = recognizer.recognize_google(audio, language=language)
 
             print(res["text"])
@@ -69,13 +71,17 @@ async def speech_to_text(queue):
     kb_client = KnowledgeBaseClient(False)
     kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',
                                                      'doc': 'text from audio '}})
-
-    #myID = kb.register()
-    # TODO handle error of registration to KB
-
+    # Create new recogniers for all the services used
     r = sr.Recognizer()
-    google_client = speech.SpeechClient()
-    # TODO handle error of creation of recognizer
+    try:
+        google_client = speech.SpeechClient()
+    except exceptions.DefaultCredentialsError as e:
+        print("Failed to authenticate with Google Cloud Speech recognition")
+        print(e)
+    except :
+        print("Unexpected error. Failed to authenticate with Google Cloud Speech recognition:", sys.exc_info()[0])
+        # TODO log file
+
     with ThreadPoolExecutor() as executor:
 
         while True:
