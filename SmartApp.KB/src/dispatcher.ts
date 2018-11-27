@@ -1,64 +1,52 @@
+/*
+traslator python per esporre quesa roba
 
+func 
+*/
 
-// &isGreater([$x, 3])
+// NUMERIC PREDICATES
+function isEqual(params: string[]): boolean { return Number(params[0]) === Number(params[1]); }
+function isGreater(params: string[]): boolean { return Number(params[0]) > Number(params[1]); }
+function isGreaterEqual(params: string[]): boolean { return Number(params[0]) >= Number(params[1]); }
+function isLower(params: string[]): boolean { return Number(params[0]) < Number(params[1]); }
+function isLowerEqual(params: string[]): boolean { return Number(params[0]) <= Number(params[1]); }
 
+// DATE PREDICATES
+function isEqualDate(params: string[]): boolean { return false; }
+function isAfterDate(params: string[]): boolean { return false; }
+function isBeforeDate(params: string[]): boolean { return false;  }
 
-// callFunction<RetType>(nomeFunc, [lista params]) expect as result a list of results
-
-function isEqual(op1: string, op2: string): boolean { return Number(op1) === Number(op2); }
-function isGreater(op1: string, op2: string): boolean { return Number(op1) > Number(op2); }
-function isGreaterEqual(op1: string, op2: string): boolean { return Number(op1) >= Number(op2); }
-
-function isLower(op1: string, op2: string): boolean { return Number(op1) < Number(op2); }
-function isLowerEqual(op1: string, op2: string): boolean { return Number(op1) <= Number(op2); }
-
-function isEqualDate(op1: string, op2: string): boolean { return op1 === op2; }
-function isAfterDate(op1: string, op2: string): boolean { return op1 === op2; }
-function isBeforeDate(op1: string, op2: string): boolean { return op1 === op2; }
+// GENERIC JAVASCRIPT CODE
+function evalFunction(functionCode: string): any {
+    return eval(functionCode);
+}
 
 const avaiableFunctions = {
     'isEqual': isEqual,
     'isGreater': isGreater,
-    'isGreaterEqual' : isGreaterEqual,
+    'isGreaterEqual': isGreaterEqual,
     'isLower': isLower,
-    'isLowerEqual' : isLowerEqual,
+    'isLowerEqual': isLowerEqual,
     // ...
-    '&(LAMBDA_EXPR)' : eval
+    '\\lambda': evalFunction
 };
 
-// parte magica
-mi manda 
-const mappa = new Map < number, any[][]>(); // number a me non interessa, 
-
-
-risposta Map<id array, di booleani> 
-
-
-// in an ideal world
-console.log( avaiableFunctions['isGreater']('50', '2') );
-
-console.log( executeFunctionByNameSingleCall('isGreater(50, 2)') );
-console.log( executeFunctionByNameManyCalls('isGreater', [['50', '2'], ['2', '10']] ));
-
-export function executeSpecialPredicate(cose: Map<number, any[][]>) : Map<number, boolean[]> {
-    // do magic stuff here
-    
-    return undefined;
-
-}
-
-function executeFunctionByNameManyCalls(funcName, paramsLists: string[][]) : any[] {
-    const results = []
-    for (const e of paramsLists) {
-        results.push( avaiableFunctions[funcName](paramsLists) );
+// param   : number e' id del fatto, any[][] lista di lista di parametri
+// returns : id, un booleano per ogni possibile binding
+export function executeSpecialPredicate(functionName: string, params: string[][]): boolean[] {
+    const result: boolean[] = [];
+    for (const paramList of params) {
+        // add controls
+        result.push(avaiableFunctions[functionName](paramList));
     }
-    return results
+    return result;
 }
 
+console.log(executeSpecialPredicate('isEqual', [['50', '2'], ['2', '2']]));
 
-export function executeFunctionByNameSingleCall(funcName, paramsLists: string[][]) : any[] {
-    return avaiableFunctions[funcName](paramsLists);
-}
+// const funkyCode: string[] = [];
+// console.log(executeSpecialPredicate('lambda', [funkyCode]));
+
 //function executeFunctionByName(functionName, context /*, args */) {
 //    var args = Array.prototype.slice.call(arguments, 2);
 //    var namespaces = functionName.split(".");
