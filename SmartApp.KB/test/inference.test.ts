@@ -1,8 +1,8 @@
 import { security } from '../src/config';
 import * as kb from '../src/kb';
 
-const myid = 'testodio';
-kb.registerTags({ rdf: new kb.TagInfo('rdf triple', 'fakedoc') } );
+const myid = kb.register().details;
+kb.registerTags(myid, { rdf: new kb.TagInfo('rdf triple', 'fakedoc'), emo: new kb.TagInfo('emo triple', 'fakedoc')} );
 
 // if $prof teaches $coruse and $course is in room $room then $prof is in $room
 // { subj: '$prof', rel: 'is in', obj: '$room' } :-
@@ -41,7 +41,7 @@ const rule2 = new kb.DataRule(
     { sessionID: 1, emotion: 'switch', emoCoords: { angry: 20, neutral: '$h', happy: '$n' } },
     [{ emoCoords: { angry: 10, neutral: '$n', happy: '$h' } }]);
 
-kb.addRule(myid, 'test', rule2);
+kb.addRule(myid, 'rdf', rule2);
 
 kb.addFact(myid, 'emo', 1, 70,
     { sessionID: 1, emotion: 'neutral', emoCoords: { angry: 10, neutral: 90, happy: 10 } },

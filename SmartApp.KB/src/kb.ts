@@ -15,9 +15,10 @@ export const databaseFact = new Map<number, DataObject>();
 export const databaseRule = new Map<number, DataObject>();
 const subscriptions = new Map<object, SubCallback[]>();
 
-export const tagDetails = new Map<string, TagInfo>(); // map <tag, {desc, documentation}>
-export const moduleTags = new Map<string, string[]>(); // map<idSource, tags> // useless?
+//TAGS
+const userTags = new Map<string, Map<string, TagInfo> >();
 
+let idSource = 0;
 let uniqueFactId = 0; // move in server part
 let uniqueRuleId = 0; // move in server part
 
@@ -84,48 +85,46 @@ export class TagInfo {
     }
 }
 
-// tagsList = [ { nome_tag : {desc: , doc: } } ]
-export function registerTags(tagsList: any): Response { // tagsList is a map tag_i : tag_desc_i
-    const tags = Object.keys(tagsList);
-    const errors: string[] = [];
-
-    // check uniqueness of tags
-    for (const tag of tags) {
-        if (tagDetails.has(tag)) { errors.push(tag); }
-    }
-
-    if (errors.length > 0) {
-        return new Response(false, errors);
-    }
-
-    for (const tag of tags) { // populate the map tag_i : desc_tagi
-        tagDetails.set(tag, tagsList[tag]);
-    }
-
-    return new Response(true, {});
+export function register() {
+    var id = "id"+idSource++;
+    userTags.set(id, new Map<string, TagInfo>());
+    return new Response(true, id);
 }
 
-registerTags({ INFERENCE: new TagInfo('inference', 'inference fact added by the inference engine stub') });
+// tagsList = [ { nome_tag : {desc: , doc: } } ]
+export function registerTags(idSource: string, tagsList: any): Response { // tagsList is a map tag_i : tag_desc_i
+    if (!userTags.has(idSource)) { return new Response(false, {}) };
 
-export function getTagDetails(tags: string[]) {
-    const res: any = {};
-    let found: boolean = false;
-    tags.forEach((tag) => {
-        if (tagDetails.has(tag)) {
-            res[tag] = tagDetails.get(tag);
-            found = true;
+    const tags = Object.keys(tagsList);
+    const map = userTags.get(idSource);
+    const result : string[] = []
+    for (const tag of tags) {
+        map.set(tag, tagsList[tag]);
+        result.push(tag);
+    }
+    return new Response(true, result);
+}
+
+export function getTagDetails(idSource: string, tags : string[]) {
+    if (!userTags.has(idSource)) { return new Response(false, {}) };
+
+    const result: any = {};
+    let map = userTags.get(idSource);
+    tags.forEach(tag => {
+        if (map.has(tag)) {
+            result[tag] = map.get(tag);
         }
     });
-    if (!found) {
-        return new Response(false, {});
+    if (Object.keys(result).length == 0) {
+        return new Response(false, {})
     }
-    return new Response(true, res);
+    return new Response(true, result);
 }
 
 // tslint:disable-next-line:max-line-length
 export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    // aggiungi controllo documentazione presente tag
-    if (!(tagDetails.has(tag))) { return new Response(false, tag); }
+    if (!(userTags.has(idSource))) { return new Response(false, {}); }
+    if (!(userTags.get(idSource).has(tag))) { return new Response(false, tag); }
 
     const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
@@ -142,8 +141,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    if (!(tagDetails.has(tag))) { return new Response(false, tag); }
-
+    if (!(userTags.has(idSource))) { return new Response(false, idSource); }
     if (!databaseFact.has(id)) { return new Response(false, id); }
     const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
 
