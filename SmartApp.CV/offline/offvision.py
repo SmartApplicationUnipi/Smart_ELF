@@ -5,7 +5,7 @@ import numpy as np
 
 try:
     from .emopy import FERModel
-except Exception as e:
+except:
     from emopy import FERModel
 
 class OffVision:
@@ -72,10 +72,13 @@ class OffVision:
         if 'emotion' in self.requested_attributes:
             # predict emotion
             face_facts['emotion'] = self.emotion_model.predict_frame(frame)
+        if 'gender' in self.requested_attributes:
             face_facts['gender'] = 'Unknown'
+        if 'age' in self.requested_attributes:
             face_facts['age'] = -1 # unknown
+        if 'smile' in self.requested_attributes:
             face_facts['smile'] = 'Unknown'
-            face_facts['confidence_identity'] = self._compute_confidence_identity(frame)
+        if 'known' in self.requested_attributes:
             face_facts['known'] = 'Unknown' # TODO stub
         if return_desc:
             # compute face descriptor, if requested
@@ -84,29 +87,28 @@ class OffVision:
         else:
             return face_facts
 
-    def get_match(self, db, descriptor, desc_position, id_position):
+    def get_match(self, db, descriptor, desc_position, id_position, return_index=False):
         """
         Finds the matching id of the descriptor in the db, if there is one
         :param db: list of tuples, which contain descriptors and ids
         :param descriptor: the descriptor to match
         :param desc_position: position of the descriptor field in db tuples
         :param id_position: position of the id field in db tuples
+        :param return_index: if true returns also the position in db (None if not found)
         :return: an id if matching succeeded, else None
         """
         min_distance = float('inf')
         match_id = None
+        match_index = None
         # find closest descriptor
-        for entry in db:
-            distance = np.linalg.norm(entry[desc_position] - descriptor) # TODO: maybe use cosine similarity
+        for i, entry in enumerate(db):
+            distance = np.linalg.norm(entry[desc_position] - descriptor)
             if distance < min_distance:
                 min_distance = distance
                 match_id = entry[id_position]
+                match_index = i
         # no match above threshold
         if min_distance > self.match_dist_threshold:
             match_id = None
-        return match_id
-
-    def _compute_confidence_identity(self, frame):
-        face_desc = self.get_descriptor(frame)
-        confidence = 0.5 # TODO stub
-        return confidence
+            match_index = None
+        return (match_id, match_index) if return_index else match_id
