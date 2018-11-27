@@ -124,3 +124,25 @@ class online_connector():
     def set_detect_attibutes(self, *args, **kwargs):
         self.client.setParamsDetect(*args, **kwargs)
         return self.client.detect_params
+    
+    def get_match(self, db, descriptor, desc_position, id_position, return_index=False, return_all=False):
+        """
+        Finds the matching id of the descriptor in the db, if there is one
+        :param db: list of tuples, which contain descriptors and ids
+        :param descriptor: the descriptor to match
+        :param desc_position: position of the descriptor field in db tuples
+        :param id_position: position of the id field in db tuples
+        :param return_index: if true returns also the position in db (None if not found)
+        :param return_all: if true returns a list of all the results (pairs (id,index) if return_index=True)
+        :return: an id if matching succeeded, else None; a pair, or a list of ids, or a list of pairs, according to options
+        """
+        if return_all:
+            if return_index:
+                return [(entry[id_position], index) for index, entry in enumerate(db) if entry[desc_position] == descriptor]
+            else:
+                return [entry[id_position] for entry in db if entry[desc_position] == descriptor]
+        else:
+            for index, entry in enumerate(db):
+                if entry[desc_position] == descriptor:
+                    return (entry[id_position], index) if return_index else entry[id_position]
+            return (None, None) if return_index else None
