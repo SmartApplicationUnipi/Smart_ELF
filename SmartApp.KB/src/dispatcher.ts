@@ -1,27 +1,24 @@
-/*
-traslator python per esporre quesa roba
-
-func 
-*/
-
 // NUMERIC PREDICATES
-function isEqual(params: string[]): boolean { return Number(params[0]) === Number(params[1]); }
-function isGreater(params: string[]): boolean { return Number(params[0]) > Number(params[1]); }
-function isGreaterEqual(params: string[]): boolean { return Number(params[0]) >= Number(params[1]); }
-function isLower(params: string[]): boolean { return Number(params[0]) < Number(params[1]); }
-function isLowerEqual(params: string[]): boolean { return Number(params[0]) <= Number(params[1]); }
+// function isEqual(params: string[]): boolean { return Number(params[0]) === Number(params[1]); }
+function isEqual(op1: string, op2: string): boolean { return Number(op1) === Number(op2); }
+
+function isGreater(op1: string, op2: string): boolean { return Number(op1) > Number(op2); }
+function isGreaterEqual(op1: string, op2: string): boolean { return Number(op1) >= Number(op2); }
+function isLower(op1: string, op2: string): boolean { return Number(op1) < Number(op2);}
+function isLowerEqual(op1: string, op2: string): boolean { return Number(op1) <= Number(op2); }
 
 // DATE PREDICATES
-function isEqualDate(params: string[]): boolean { return (new Date(params[0]).getTime()) ===  (new Date(params[1]).getTime()); }
-function isAfterDate(params: string[]): boolean {  return (new Date(params[0]).getTime()) >  (new Date(params[1]).getTime()); }
-function isBeforeDate(params: string[]): boolean {  return (new Date(params[0]).getTime()) < (new Date(params[1]).getTime());  }
+function isEqualDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) ===  (new Date(op2).getTime()); }
+function isAfterDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) >  (new Date(op2).getTime()); }
+function isBeforeDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) < (new Date(op2).getTime()); }
 
 // GENERIC JAVASCRIPT CODE TO EXECUTE
-function evalFunction(functionCode: string): any {
-    return eval(functionCode);
-}
+// export function evalFunction(functionCode: string[]): boolean {
+//     return eval("function"+(functionCode[0])+functionCode[:]);
+// }
 
-const avaiableFunctions = {
+const avaiableFunctions : {[index: string]: (op1: string, op2: string) => boolean}
+= {
     'isEqual': isEqual,
     'isGreater': isGreater,
     'isGreaterEqual': isGreaterEqual,
@@ -31,7 +28,7 @@ const avaiableFunctions = {
     'isAfterDate': isAfterDate,
     'isBeforeDate': isBeforeDate,
     // ...
-    '\\lambda': evalFunction
+    //'lambda': evalFunction
 };
 
 // param   : number e' id del fatto, any[][] lista di lista di parametri
@@ -39,8 +36,7 @@ const avaiableFunctions = {
 export function executeSpecialPredicate(functionName: string, params: string[][]): boolean[] {
     const result: boolean[] = [];
     for (const paramList of params) {
-        // add controls
-        result.push(avaiableFunctions[functionName](paramList));
+        result.push(avaiableFunctions[functionName].apply(this, paramList)); // oppure bind al posto di apply, oppure con null al posto di this
     }
     return result;
 }
