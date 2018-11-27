@@ -1,4 +1,5 @@
 import { Colors, Debugger } from './debugger';
+import { executeSpecialPredicate } from './dispatcher';
 
 /*                                             ,--,  ,.-.
                ,                   \,       '-,-`,'-.' | ._
@@ -64,8 +65,10 @@ class Matcher {
 
     currBinds: { [index: string]: any }[];
 
-    public start(q: object, dataset: object[], iBinds: object[] = []) {
-        const matches: Response = new Map<object, object[]>();
+    functions: { [index: string]: string[] }[] = [];
+
+    public start(q: { [index: string]: any }, dataset: object[], iBinds: object[] = []) {
+        const matches: Matches = new Map<object, object[]>();
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
         this.initBinds = iBinds;
@@ -75,6 +78,11 @@ class Matcher {
             if (this.matchBind(this.outerQuery, this.outerSorted, data)) {
                 D.resetIndentation()
                 D.clogNoID(Colors.GREEN, 'RESULT', '', 'Match success!', 4);
+                if (q.hasOwnProperty('_predicates')) {
+                    console.log("SONO DENTRO");
+                    // FILTER
+                    this.evaluatePredicates(q['_predicates']);
+                }
                 matches.set(data, [...this.currBinds]);
             } else {
                 D.resetIndentation()
@@ -418,21 +426,41 @@ class Matcher {
         }
         return true;
     }
-    /*
-        public parseFunctions(query: object): number {
-            let result: number = 0;
-            if (!query) {
-                return result;
-            }
-            for (const k of Object.keys(query)) {
-                if (ifFunction(k) {
-    
+
+    private evaluatePredicates(predicates: any[][]): void {
+        for (const predicate of predicates) {
+            const predName = predicate[0];
+
+            for (let i = 1; i < predicate.length; ++i) {
+                const argss: string[][] = [[]];
+                let args: string[] = [];
+                for (const bindSet of this.currBinds) {
+                    for (const param of predicate[i]) {
+                        if (isPlaceholder(param) && bindSet.hasOwnProperty(param)) {
+                            args.push(bindSet[param])
+                        } else {
+                            args.push(param);
+                        }
+                    }
+                    argss.push(args);
+                    args = [];
+                    console.log(argss);
                 }
+
             }
-    
         }
-    */
-    //    { _data: {... }, _meta: {... }, & isGreater: [$x, 3] }
+    }
+
+    //    { _data: {... }, _meta: {... }, _func: { k : '&...'  } _args:
+    // func:[
+    //[&f, [x1,x2], [...], []],
+    //[&foo, [],[]...]
+
+    // _func: [foo, [x1, x2], [..], [...], bar, [[.....],[...]]]
+
+    //&isGreater: [$x, 3] }
+    // &function(...){...} : [p1, p2]
+
     // callFunctionBool('isGreater',[$x, 3]);
     // callFunctions('isGreater', [[$x0, 3], [$x1, 2]])
 
@@ -462,6 +490,9 @@ class Matcher {
 
         for (const k of keys) {
             if (isAtom(k)) {
+                if (j[k] === '_predicates') {
+                    continue;
+                }
                 if (isAtom(j[k])) {
                     stack.get(this.ID_AA).push(k);
                 } else if (isObject(j[k])) {
