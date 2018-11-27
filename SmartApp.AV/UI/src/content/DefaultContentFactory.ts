@@ -17,7 +17,10 @@ export class DefaultContentFactory implements ContentFactory {
             switch (key) {
                 case "audio":
                     try {
-                        let emotionData: {valence: number, arousal: number} = data[key]['emotion'],
+                        let emotionData: {valence: number, arousal: number} = {
+                            valence: data[key]['valence'],
+                            arousal: data[key]['arousal']
+                        },
                             audioB64 = data[key]['audio'];
 
                         let emotion = new Emotion(emotionData.valence, emotionData.arousal);

@@ -4,7 +4,7 @@ The UI module is in charge to show all the information that ELF want to show, em
 
 It can display several types of informations (see below) and provides mechanism to define a single action.
 
-It is connected to the TTS module to receive the audio data to play and with the KB in order to display different kind of informations.
+It is connected to the TTS module to receive the audio data to play and with the KB in order to display different kind of informations. If the connection goes down, the system will  try to reconnect after a certain amount of time (default: 10s).
 
 The interaction is event-based: the UI receives an event and react to it.
 
