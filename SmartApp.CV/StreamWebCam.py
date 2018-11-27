@@ -58,4 +58,4 @@ def demo(myAPI, *args, **kwargs):
 
 #demo(online.FacePlusPlus(), return_landmark = 1)
 #demo(offline.FaceOffDetect())
-demo(Controller())
+demo(Controller( host = "webcam" ))
