@@ -142,7 +142,7 @@ merge_rules =       [
                         {PAR_PRE:{
                             R_ID:CON,
                             VALUE:["location($1)"]
-                            },
+                            },  
                         CHILD_PRE:{
                             R_ID:CON,
                             VALUE:["person($2)"]
