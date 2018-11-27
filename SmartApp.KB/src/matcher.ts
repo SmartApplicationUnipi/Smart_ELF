@@ -31,6 +31,13 @@ const D: Debugger = new Debugger();
 
 export type Matches = Map<object, object[]>;
 
+/*
+  TODO (parallel performance improvment)
+  Move the main (parallel) loop in this function and create a new instance of the Matcher
+  for each element of the dataset.
+  To see the previous implementation (similar to what we want to achieve):
+  git show bbc78e1541af473d9d2f55c93c57c7f64033dffb
+*/
 export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Matches {
     let matcher = new Matcher();
     return matcher.start(query, dataset, initBinds);
@@ -79,8 +86,7 @@ class Matcher {
                 D.resetIndentation()
                 D.clogNoID(Colors.GREEN, 'RESULT', '', 'Match success!', 4);
                 if (q.hasOwnProperty('_predicates')) {
-                    console.log("SONO DENTRO");
-                    // FILTER
+                    D.clogNoID(Colors.BLUE, 'INFO', '', 'Some predicates to check!', 5);
                     this.evaluatePredicates(q['_predicates']);
                 }
                 matches.set(data, [...this.currBinds]);
@@ -427,14 +433,16 @@ class Matcher {
         return true;
     }
 
-    private evaluatePredicates(predicates: any[][]): void {
+    private evaluatePredicates(predicates: any[][]): boolean {
         for (const predicate of predicates) {
+            D.clogNoID(Colors.BLUE, 'PRED', '', 'Evaluating predicate `' + predicate[0] + '\'.', 4);
             const predName = predicate[0];
-
             for (let i = 1; i < predicate.length; ++i) {
-                const argss: string[][] = [[]];
-                let args: string[] = [];
+                D.clogNoID(Colors.BLUE, 'ARGS', '  ', 'Arguments set (' + i + '): [' + predicate[i] + '].', 4);
+                let debugString: string = '';
+                const argss: string[][] = [];
                 for (const bindSet of this.currBinds) {
+                    const args: string[] = []
                     for (const param of predicate[i]) {
                         if (isPlaceholder(param) && bindSet.hasOwnProperty(param)) {
                             args.push(bindSet[param])
@@ -443,12 +451,28 @@ class Matcher {
                         }
                     }
                     argss.push(args);
-                    args = [];
-                    console.log(argss);
+                    if (debugString.charAt(debugString.length - 1) === ']') {
+                        debugString += ', '
+                    }
+                    debugString += '[' + args.toString() + ']';
                 }
-
+                D.clogNoID(Colors.BLUE, 'ARGS', '  ', 'Instantiated parameters for set (' + i + '): [' + debugString + '].', 4);
+                const res: boolean[] = executeSpecialPredicate(predName, argss);
+                D.clogNoID(Colors.YELLOW, 'FILTER', '  ', 'Result: [' + res + '].', 4);
+                for (let j = 0; j < res.length; ++j) {
+                    if (!res[j]) {
+                        D.clogNoID(Colors.YELLOW, 'SBIND', '   ', 'Remove set of bind ' + j + '.', 4);
+                        delete this.currBinds[j];
+                    }
+                }
+                if (this.filterAndReturn(0)) {
+                    D.clogNoID(Colors.GREEN, 'OK', '  ', 'There are still ' + this.currBinds.length + ' sets of bind.', 4);
+                } else {
+                    return false;
+                }
             }
         }
+        return true;
     }
 
     //    { _data: {... }, _meta: {... }, _func: { k : '&...'  } _args:
@@ -489,10 +513,10 @@ class Matcher {
         }
 
         for (const k of keys) {
-            if (isAtom(k)) {
-                if (j[k] === '_predicates') {
-                    continue;
-                }
+            if (k === '_predicates') {
+                continue;
+            }
+            if (isAtom(k) && k) {
                 if (isAtom(j[k])) {
                     stack.get(this.ID_AA).push(k);
                 } else if (isObject(j[k])) {
