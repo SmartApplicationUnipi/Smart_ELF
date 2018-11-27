@@ -79,7 +79,6 @@ class Matcher {
                 D.resetIndentation()
                 D.clogNoID(Colors.GREEN, 'RESULT', '', 'Match success!', 4);
                 if (q.hasOwnProperty('_predicates')) {
-                    console.log("SONO DENTRO");
                     // FILTER
                     this.evaluatePredicates(q['_predicates']);
                 }
@@ -428,13 +427,15 @@ class Matcher {
     }
 
     private evaluatePredicates(predicates: any[][]): void {
-        for (const predicate of predicates) {
-            const predName = predicate[0];
 
+        for (const predicate of predicates) {
+            console.log('pred', predicate);
+            const predName = predicate[0];
             for (let i = 1; i < predicate.length; ++i) {
-                const argss: string[][] = [[]];
-                let args: string[] = [];
+                const argss: string[][] = [];
+                //                let args: string[] = [];
                 for (const bindSet of this.currBinds) {
+                    const args: string[] = []
                     for (const param of predicate[i]) {
                         if (isPlaceholder(param) && bindSet.hasOwnProperty(param)) {
                             args.push(bindSet[param])
@@ -443,10 +444,9 @@ class Matcher {
                         }
                     }
                     argss.push(args);
-                    args = [];
-                    console.log(argss);
                 }
-
+                console.log('call', predName, 'with args', argss);
+                console.log(executeSpecialPredicate(predName, argss));
             }
         }
     }
@@ -489,10 +489,10 @@ class Matcher {
         }
 
         for (const k of keys) {
-            if (isAtom(k)) {
-                if (j[k] === '_predicates') {
-                    continue;
-                }
+            if (k === '_predicates') {
+                continue;
+            }
+            if (isAtom(k) && k) {
                 if (isAtom(j[k])) {
                     stack.get(this.ID_AA).push(k);
                 } else if (isObject(j[k])) {
