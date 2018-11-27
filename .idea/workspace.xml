@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cb8ad354-5ae1-4003-8b86-907fedd21aeb" name="Default" comment="">
+    <list default="true" id="cb8ad354-5ae1-4003-8b86-907fedd21aeb" name="Default" comment="simple_queries_examples.md modified">
+      <change afterPath="$PROJECT_DIR$/SmartApp.QA/drs.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SmartApp.QA/drt.fcfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SmartApp.ENLP/simple_queries_examples.md" beforeDir="false" afterPath="$PROJECT_DIR$/SmartApp.ENLP/simple_queries_examples.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -11,22 +13,63 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CoverageDataManager">
+    <SUITE FILE_PATH="coverage/Smart_ELF$drs.coverage" NAME="drs Coverage Results" MODIFIED="1543247714803" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/SmartApp.QA" />
+  </component>
+  <component name="DockManager">
+    <window id="1">
+      <content type="file-editors">
+        <state>
+          <leaf>
+            <file pinned="false" current-in-tab="true">
+              <entry file="file://$PROJECT_DIR$/SmartApp.QA/drt.fcfg">
+                <provider selected="true" editor-type-id="text-editor">
+                  <state relative-caret-position="393">
+                    <caret line="82" lean-forward="true" selection-start-line="83" selection-end-line="83" selection-end-column="27" />
+                  </state>
+                </provider>
+              </entry>
+            </file>
+          </leaf>
+        </state>
+      </content>
+    </window>
+  </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-2039683418">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
+          <entry key="project.closed" value="1" />
           <entry key="project.open.time.40" value="1" />
-          <entry key="project.opened" value="1" />
+          <entry key="project.open.time.42" value="1" />
+          <entry key="project.opened" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="md" value="37" />
+          <entry key="fcfg" value="130" />
+          <entry key="md" value="110" />
+          <entry key="py" value="136" />
+          <entry key="txt" value="87" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Markdown" value="37" />
+          <entry key="Markdown" value="110" />
+          <entry key="PLAIN_TEXT" value="217" />
+          <entry key="Python" value="136" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="fcfg" value="4" />
+          <entry key="py" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="PLAIN_TEXT" value="4" />
+          <entry key="Python" value="1" />
         </counts>
       </usages-collector>
     </session>
@@ -36,7 +79,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/SmartApp.CV/offline/emotion_recognition_offline.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
+            <state relative-caret-position="388">
               <caret line="18" column="4" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="4" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
@@ -85,14 +128,26 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/SmartApp.ENLP/simple_queries_examples.md">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/SmartApp.QA/simple_queries_examples.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="939">
-                <caret line="55" column="2" selection-start-line="55" selection-start-column="2" selection-end-line="55" selection-end-column="2" />
+              <first_editor relative-caret-position="438">
+                <caret line="51" column="27" selection-start-line="51" selection-start-column="27" selection-end-line="51" selection-end-column="27" />
               </first_editor>
               <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/SmartApp.QA/drs.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="48">
+              <caret line="2" column="90" lean-forward="true" selection-start-line="2" selection-start-column="90" selection-end-line="2" selection-end-column="90" />
+              <folding>
+                <element signature="e#0#34#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -130,6 +185,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>◦</find>
+      <find>&gt;&gt;&gt;</find>
     </findStrings>
     <replaceStrings>
       <replace>-</replace>
@@ -150,6 +206,10 @@
         <option value="$PROJECT_DIR$/SmartApp.CV/controller.py" />
         <option value="$PROJECT_DIR$/SmartApp.CV/README.md" />
         <option value="$PROJECT_DIR$/SmartApp.ENLP/simple_queries_examples.md" />
+        <option value="$PROJECT_DIR$/SmartApp.QA/simple_queries_examples.md" />
+        <option value="$PROJECT_DIR$/SmartApp.QA/drs.oy.py" />
+        <option value="$PROJECT_DIR$/SmartApp.QA/drs.py" />
+        <option value="$PROJECT_DIR$/SmartApp.QA/grammars/book_grammars/drt.fcfg" />
       </list>
     </option>
   </component>
@@ -165,123 +225,11 @@
   <component name="NodePackageJsonFileManager">
     <packageJsonPaths>
       <path value="$PROJECT_DIR$/SmartApp.AV/UI/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/body-parser/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/connect/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/events/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/express-serve-static-core/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/express/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/mime/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/node/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/range-parser/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/serve-static/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/@types/ws/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/accepts/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/ansi-regex/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/ansi-styles/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/argparse/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/array-flatten/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/async-limiter/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/babel-code-frame/node_modules/chalk/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/babel-code-frame/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/balanced-match/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/body-parser/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/brace-expansion/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/builtin-modules/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/bytes/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/chalk/node_modules/ansi-styles/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/chalk/node_modules/supports-color/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/chalk/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/color-convert/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/color-name/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/commander/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/concat-map/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/content-disposition/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/content-type/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/cookie-signature/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/cookie/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/debug/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/depd/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/destroy/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/diff/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/ee-first/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/encodeurl/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/escape-html/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/escape-string-regexp/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/esprima/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/esutils/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/etag/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/express/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/finalhandler/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/forwarded/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/fresh/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/fs.realpath/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/glob/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/has-ansi/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/has-flag/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/http-errors/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/iconv-lite/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/inflight/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/inherits/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/ipaddr.js/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/is-typedarray/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/js-tokens/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/js-yaml/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/media-typer/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/merge-descriptors/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/methods/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/mime-db/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/mime-types/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/mime/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/minimatch/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/ms/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/nan/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/nan/tools/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/negotiator/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/on-finished/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/once/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/parseurl/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/path-is-absolute/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/path-parse/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/path-to-regexp/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/proxy-addr/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/qs/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/range-parser/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/raw-body/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/resolve/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/resolve/test/module_dir/zmodules/bbb/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/resolve/test/resolver/baz/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/resolve/test/resolver/browser_field/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/resolve/test/resolver/dot_main/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/resolve/test/resolver/dot_slash_main/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/resolve/test/resolver/incorrect_main/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/safe-buffer/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/safer-buffer/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/semver/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/send/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/serve-static/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/setprototypeof/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/sprintf-js/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/statuses/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/strip-ansi/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/supports-color/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/tslib/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/tslint/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/tsutils/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/type-is/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/typedarray-to-buffer/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/typescript/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/unpipe/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/utils-merge/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/vary/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/websocket/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/wrappy/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/ws/package.json" />
-      <path value="$PROJECT_DIR$/SmartApp.KB/node_modules/yaeti/package.json" />
       <path value="$PROJECT_DIR$/SmartApp.KB/package.json" />
     </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="75" />
+    <option name="x" value="73" />
     <option name="y" value="38" />
     <option name="width" value="1247" />
     <option name="height" value="736" />
@@ -291,6 +239,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -301,22 +250,30 @@
             <path>
               <item name="Smart_ELF" type="b2602c69:ProjectViewProjectNode" />
               <item name="Smart_ELF" type="462c0819:PsiDirectoryNode" />
-              <item name="SmartApp.ENLP" type="462c0819:PsiDirectoryNode" />
+              <item name="SmartApp.QA" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="AndroidView" />
-      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1543247690001" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.0" />
+    <property name="project.structure.side.proportion" value="0.0" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/SmartApp.QA" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -330,6 +287,35 @@
       </list>
     </option>
   </component>
+  <component name="RunManager">
+    <configuration name="drs" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Smart_ELF" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/SmartApp.QA" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/SmartApp.QA/drs.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.drs" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -340,47 +326,62 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1542052295639</updated>
-      <workItem from="1542973329748" duration="801000" />
+      <workItem from="1542973329748" duration="1623000" />
+      <workItem from="1543244013960" duration="3544000" />
     </task>
+    <task id="LOCAL-00001" summary="added Smart.QA dir">
+      <created>1542974192401</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1542974192401</updated>
+    </task>
+    <task id="LOCAL-00002" summary="simple_queries_examples.md modified">
+      <created>1542974359074</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1542974359074</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="801000" />
+    <option name="totallyTimeSpent" value="5167000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="36" width="2160" height="1404" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info id="Designer" />
-      <window_info id="Image Layers" />
-      <window_info id="UI Designer" />
-      <window_info id="Capture Tool" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.20734033" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21020019" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
+      <window_info id="Designer" order="3" />
+      <window_info id="Image Layers" order="4" />
+      <window_info id="UI Designer" order="5" />
+      <window_info id="Capture Tool" order="6" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Find" order="1" visible="true" weight="0.32980457" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32980457" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49952334" weight="0.32980457" />
       <window_info anchor="bottom" id="Terminal" order="8" />
       <window_info anchor="bottom" id="Python Console" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
-      <window_info anchor="right" id="Palette" />
-      <window_info anchor="right" id="Capture Analysis" />
-      <window_info anchor="right" id="Maven Projects" />
-      <window_info anchor="right" id="SciView" />
-      <window_info anchor="right" id="Database" />
-      <window_info anchor="right" id="Palette&#9;" />
-      <window_info anchor="right" id="Theme Preview" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.50047666" side_tool="true" weight="0.32980457" />
+      <window_info anchor="bottom" id="Database Changes" order="11" show_stripe_button="false" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="right" id="Data View" order="3" />
+      <window_info anchor="right" id="Palette" order="4" />
+      <window_info anchor="right" id="Capture Analysis" order="5" />
+      <window_info anchor="right" id="Maven Projects" order="6" />
+      <window_info anchor="right" id="SciView" order="7" />
+      <window_info anchor="right" id="Database" order="8" />
+      <window_info anchor="right" id="Palette&#9;" order="9" />
+      <window_info anchor="right" id="Theme Preview" order="10" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -388,6 +389,11 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added Smart.QA dir" />
+    <MESSAGE value="simple_queries_examples.md modified" />
+    <option name="LAST_COMMIT_MESSAGE" value="simple_queries_examples.md modified" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/SmartApp.KB/bindings/python/kb.py">
@@ -397,9 +403,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SmartApp.KB/bindings/python/config">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/SmartApp.KB/bindings/python/config" />
     <entry file="file://$PROJECT_DIR$/SmartApp.CV/offline/conf.py" />
     <entry file="file://$PROJECT_DIR$/SmartApp.CV/kb_client.py" />
     <entry file="file://$PROJECT_DIR$/SmartApp.CV/offline/offline_interface.py">
@@ -412,16 +416,6 @@
     <entry file="file://$PROJECT_DIR$/SmartApp.CV/online/FacePlusPlus.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-429" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SmartApp.CV/offline/emotion_recognition_offline.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="18" column="4" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SmartApp.CV/offline/emopy/src/fermodel.py">
@@ -465,6 +459,23 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/SmartApp.QA/drt.fcfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="5" selection-start-line="5" selection-end-line="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmartApp.QA/simple_queries_examples.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="438">
+            <caret line="51" column="27" selection-start-line="51" selection-start-column="27" selection-end-line="51" selection-end-column="27" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/SmartApp.CV/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
@@ -478,15 +489,108 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/SmartApp.ENLP/simple_queries_examples.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="939">
-            <caret line="55" column="2" selection-start-line="55" selection-start-column="2" selection-end-line="55" selection-end-column="2" />
-          </first_editor>
-          <second_editor />
+    <entry file="file://$PROJECT_DIR$/SmartApp.CV/offline/emotion_recognition_offline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="388">
+          <caret line="18" column="4" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/SmartApp.QA/drt.fcfg">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="393">
+          <caret line="82" lean-forward="true" selection-start-line="83" selection-end-line="83" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SmartApp.QA/drs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="48">
+          <caret line="2" column="90" lean-forward="true" selection-start-line="2" selection-start-column="90" selection-end-line="2" selection-end-column="90" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ArtifactsStructureConfigurable.UI">
+        <settings>
+          <artifact-editor />
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="FacetStructureConfigurable.UI">
+        <settings>
+          <last-edited>No facets are configured</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="GlobalLibrariesConfigurable.UI">
+        <settings>
+          <last-edited>Python 2.7.12 (/usr/bin/python2.7) interpreter library</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="JdkListConfigurable.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ModuleStructureConfigurable.UI">
+        <settings>
+          <last-edited>Smart_ELF</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+                <option value="0.6" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+      <state key="ProjectLibrariesConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
   </component>
 </project>
