@@ -2,8 +2,8 @@ from external_modules.kb_client import KnowledgeBaseClient as kb
 import external_modules.hal_client as hal
 from online.interface import online_connector as online
 from offline.offvision import OffVision as offline
-import numpy as np
 
+import numpy as np
 from threading import *
 from queue import Queue
 import cv2
@@ -65,8 +65,7 @@ class Controller():
         self._kb.registerTags(DOCS)
 
         # Ops for stram in input
-        # NON FUNZIONA IL CONTROLLO: E' MESSO AL CONTRARIO
-        self.is_host = (host == "webcam")
+        self.is_host = not (host == "webcam")
 
         self._hal = None
         self._videoID = None
@@ -211,6 +210,7 @@ class Controller():
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.q.join()
+        #dice che non ha una variabile t
         #self.t.join()
 
 
