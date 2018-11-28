@@ -17,6 +17,15 @@ export interface IEmotion {
 	 * Returns Valence value
 	 */
 	getValence(): number;
+
+	/**
+	 * Returns the label of the emotion (i.e. sad, happy, ...)
+	 */
+	getLabel(): string;
+}
+
+export enum EMOTION {
+	ANGER = "angry", DISGUST = "disgust", FEAR = "fear", HAPPINESS = "happy", SADNESS = "sad", SUPRISE = "surprise"
 }
 
 /**
@@ -24,8 +33,6 @@ export interface IEmotion {
  */
 export class Emotion implements IEmotion {
 	private color: string;
-
-	private third: number = 180.0 / 3;
 
 	constructor(private valence: number, private arousal: number) {
 		this.color = this.getColorFromCoord(valence, arousal);
@@ -59,6 +66,35 @@ export class Emotion implements IEmotion {
 
 	public getColor(): string {
 		return this.color;
+	}
+
+	public getLabel(): string {
+		let intensity = this.getIntensity();
+		if (intensity < 0.2) {
+			return "normal";
+		}
+
+		let angle = this.getAngle();
+
+		if (angle < 0) {
+			angle = 360 + angle;
+		}
+
+		// Emotions mapped into 6 basic ones
+		if (angle < 60.0) return EMOTION.HAPPINESS;
+		else if (angle < 120.0) return EMOTION.ANGER;
+		else if (angle < 180.0) return EMOTION.DISGUST;
+		else if (angle < 240.0) return EMOTION.SADNESS;
+		else if (angle < 300.0) return EMOTION.DISGUST;
+		else return EMOTION.SUPRISE;
+	}
+
+	private getAngle(): number {
+		return Math.atan2(this.getArousal(), this.getValence()) * 180.0 / Math.PI
+	}
+
+	private getIntensity(): number {
+		return Math.sqrt(Math.pow(this.getValence(), 2) + Math.pow(this.getArousal(), 2));
 	}
 
 	private hslToHex(h: number, s: number, l: number): string {
