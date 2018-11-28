@@ -15,7 +15,7 @@ from os import path
 import time
 import io
 from kb import KnowledgeBaseClient
-import sentimental_analizer
+#import sentimental_analizer
 
 
 
