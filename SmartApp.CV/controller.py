@@ -87,7 +87,7 @@ class Controller():
         except AttributeError as e:
             print(type(e).__name__, e)
             self.has_api_problem = True
-            print("\n It seems that there is a problem with the online module: I'm swithing to offlie module...")
+            print("\n It seems that there is a problem with the online module: I'm swithing to offline module...")
 
         # Initialization of Offline Module
         try:
@@ -214,8 +214,7 @@ class Controller():
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.q.join()
-        #dice che non ha una variabile t
-        #self.t.join()
+        self.t.join()
 
 
 if __name__ == '__main__':
