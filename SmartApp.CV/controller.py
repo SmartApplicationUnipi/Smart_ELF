@@ -161,10 +161,12 @@ class Controller():
             if self.online_module.is_available():
                 print("Using online vision module")
                 res = self.online_module
+                return res
 
         if self.offline_module.is_available():
             print("Using offline vision module")
             res = self.offline_module
+            return res
 
         if res == None:
             raise Exception("Vision Module is not available")
