@@ -3,8 +3,10 @@ import { Debugger } from './debugger';
 import { checkRules } from './inferenceStub';
 import * as matcher from './matcher';
 import { transformRule } from './compiler';
+import { Logger } from './logger';
 
 const debug = new Debugger();
+const log = Logger.getInstance();
 
 type SubCallback = (r: any) => any;
 const TOKEN = security.token;
@@ -304,10 +306,13 @@ export function removeRule(idSource: string, idRule: number) {
 
 function checkSubscriptions(obj: object) { // object is the created fact
     // this function will check if the new data inserted matches some "notification rule"
-
-    subscriptions.forEach((callbArray, k, m) => {
+        subscriptions.forEach((callbArray, k, m) => {
         const r = matcher.findMatches(k, [obj]);
-        if (r.size > 0) { callbArray.forEach((c) => c(r)); }
+        if (r.size > 0) {
+            // log.info('KB', 'Subscription triggered ', k);
+            // log.info('KB', 'triggered by ', obj);
+            callbArray.forEach((c) => c(r));
+        }
     });
 }
 
