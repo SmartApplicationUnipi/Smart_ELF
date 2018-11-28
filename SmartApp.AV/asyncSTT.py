@@ -69,9 +69,8 @@ async def speech_to_text(queue):
     :param queue: process shared queue
     """
 
-    kb_client = KnowledgeBaseClient(False)
-    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',
-                                                     'doc': 'text from audio '}})
+    #kb_client = KnowledgeBaseClient(False)
+    #kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',                                                     'doc': 'text from audio '}})
     # Create new recogniers for all the services used
     r = sr.Recognizer()
     google_client = None
@@ -131,6 +130,8 @@ async def speech_to_text(queue):
             if res["error"] is None:
                 # Add to KB that the transcription of the audio
                 print("Insert into KB the transcription of the audio, retrieved from ", res["model"])
+                print(res["text"])
+                
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
