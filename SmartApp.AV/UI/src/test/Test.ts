@@ -1,9 +1,10 @@
 import { ElfUI, ElfUIFactory } from '../ui/ElfUI';
 import { BaseEventReader } from '../reader/EventReader'
 import { IEmotion, Emotion } from '../emotion/Emotion';
-import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION } from '../ui/event/ElfUIEvent';
+import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION, KEY_POSITION } from '../ui/event/ElfUIEvent';
 import { UIWidget, UIWidgetFactory } from '../ui/widget/UIWidget'
 import { Point } from '../utils/Point';
+import { ElfColorfulUI } from '../ui/colorful/ElfColorfulUI';
 
 export class TestUI extends ElfUI {
 
@@ -55,8 +56,17 @@ export class TestEventReader extends BaseEventReader {
 	constructor(private delay: number = 0) {
 		super();
 
+		let pos1 = new ElfUIEvent()
+			.putAny(KEY_POSITION, new Point(0.8, -0.3));
+
+		let pos2 = new ElfUIEvent()
+			.putAny(KEY_POSITION, new Point(-0.8, 0.3));
+
+		let pos3 = new ElfUIEvent()
+		.putAny(KEY_POSITION, new Point(0, 0));
+
 		let e1 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.7, 0.4)) // Anger
+			.putAny(KEY_EMOTION, new Emotion(-0.3, 0.7)) // Anger
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Anger...", emotion: new Emotion(0, 0) } })
 
 		let e2 = new ElfUIEvent()
@@ -72,19 +82,26 @@ export class TestEventReader extends BaseEventReader {
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Joy...", emotion: new Emotion(0, 0) } })
 
 		let e5 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.7, -0.5)) // Sadness
+			.putAny(KEY_EMOTION, new Emotion(-0.9, -0.5)) // Sadness
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Sadness...", emotion: new Emotion(0, 0) } })
 
 		let e6 = new ElfUIEvent()
 			.putAny(KEY_EMOTION, new Emotion(0.6, 0.9)) // Surprise
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Surprise...", emotion: new Emotion(0, 0) } })
 
+		this.events.push(pos1)
+
 		this.events.push(e1)
-		this.events.push(e2)
-		this.events.push(e3)
-		this.events.push(e4)
+		// this.events.push(e2)
+		// this.events.push(e3)
+		
+		this.events.push(pos2)
+		
+		// this.events.push(e4)
 		this.events.push(e5)
-		this.events.push(e6)
+		// this.events.push(e6)
+
+		this.events.push(pos3)
 	}
 
 	private nextEvent(): ElfUIEvent {

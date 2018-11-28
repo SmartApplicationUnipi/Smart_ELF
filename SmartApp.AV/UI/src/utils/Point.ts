@@ -11,6 +11,20 @@ export class Point {
 	constructor(private x: number, private y: number) {}
 
 	/**
+	 * Returns the value of x
+	 */
+	public getX(): number {
+		return this.x;
+	}
+
+	/**
+	 * Returns the value of y
+	 */
+	public getY(): number {
+		return this.y;
+	}
+
+	/**
 	 * Returns a new Point whose coordinates are the sum between this point and p coordinates.
 	 * @param p The point holding to add.
 	 */

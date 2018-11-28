@@ -7,6 +7,9 @@
 
 .colorful-ui.ui-content {
     transition: background-color 5s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 [ui-pnotify].ui-pnotify.custom .ui-pnotify-container {
