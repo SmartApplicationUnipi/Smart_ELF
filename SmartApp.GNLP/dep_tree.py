@@ -3,6 +3,7 @@ import pprint
 import en_core_web_sm
 import it_core_news_sm
 
+
 def create_dictionary (root):
 	token = root
 
