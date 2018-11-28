@@ -3,7 +3,6 @@ import { security, server } from './config';
 import * as kb from './kb';
 import { Logger } from './logger';
 import { Matches } from './matcher';
-import { debug } from 'util';
 
 const port = server.port ;
 const log = Logger.getInstance();
@@ -30,11 +29,16 @@ wss.on('connection', (ws: WebSocket) => {
             }
 
             switch (j.method) {
+                case 'register':
+                    reply = JSON.stringify(kb.register());
+                    break;
                 case 'registerTags':
-                    reply = JSON.stringify(kb.registerTags(j.params.tagsList));
+                    // TODO: validate the input!
+                    // since tagslist is an any, we need to check it is at least an object and not an array!
+                    reply = JSON.stringify(kb.registerTags(j.params.idSource, j.params.tagsList));
                     break;
                 case 'getTagDetails':
-                    reply = JSON.stringify(kb.getTagDetails(j.params.tagsList));
+                    reply = JSON.stringify(kb.getTagDetails(j.params.idSource, j.params.tagsList));
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length
@@ -53,23 +57,21 @@ wss.on('connection', (ws: WebSocket) => {
                     // tslint:disable-next-line:max-line-length
                     reply = JSON.stringify(kb.updateFactByID(j.params.idFact, j.params.idSource, j.params.tag, j.params.TTL, j.params.reliability, j.params.jsonFact));
                     break;
+                case 'queryBind': // note: queryBind and queryFact are deprecated: will be removed 3rd december 2018
+                    const res = kb.query(j.params.jsonReq);
+                    const bind = res.details as Matches;
+                    reply = JSON.stringify({success: res.success, details: bind.values()});
+                    break;
+                case 'queryFact': // note: queryBind and queryFact are deprecated: will be removed 3rd december 2018
                 case 'query':
                     const r = kb.query(j.params.jsonReq);
                     if (r.success) {
                         // need to convert map type in something jsonable
                         const details = r.details as Matches;
-                        const d = {objects: new Array(), binds: new Array()};
-                        details.forEach( (val, key) => { d.objects.push(key); d.binds.push(val); } );
+                        const d = new Array();
+                        details.forEach( (val, key) => { d.push({object: key, binds: val} ); });
                         reply = JSON.stringify({success: r.success, details: d});
                     } else { reply = JSON.stringify(r); }
-                    break;
-                case 'queryBind': // note: this is deprecated: will be removed 1st december 2018
-                    const res = kb.query(j.params.jsonReq);
-                    const bind = res.details as Matches;
-                    reply = JSON.stringify({success: res.success, details: bind.values()});
-                    break;
-                case 'queryFact': // note: this is deprecated: will be removed 1st december 2018
-                    reply = JSON.stringify(kb.query(j.params.jsonReq));
                     break;
                 case 'subscribe':
                     const callback = (re: any) => {
