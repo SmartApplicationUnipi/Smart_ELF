@@ -22,8 +22,36 @@ and an Offline neural-network-based model to perform:
 - scene understanding (not implemented yet)
 - object tracking (not implemented yet)
 
-## Usage
+### Download/Installation (generic)
+**Windows users should refer to the next section**
 
+Using pip:
+```
+pip install -r requirements.txt
+```
+
+### Download/Installation (Windows + Ananconda)
+To avoid problem with dependencies, create a virtual enviroment and activate it
+(guide : https://conda.io/docs/user-guide/tasks/manage-environments.html)
+In the Ananconda environment, first install the prebuilt version of `dlib` with
+```
+conda install -c conda-forge dlib
+```
+then install the other requirements with
+```
+pip install -r requirements.txt
+```
+This is necessary in order to avoid buildling `dlib` from scratch, and beacuse
+the prebuilt version in Conda-forge has an unnecessary dependence on an incompatible version of `numpy`.
+
+*Alternatively, this guide could be followed: https://github.com/charlielito/install-dlib-python-windows .*
+
+
+## Usage
+run:
+```
+python controller.py
+```
 
 ## Module output
 The module receives a frame containing a face and outputs a dictionary structured as follows:
@@ -53,47 +81,12 @@ The module receives a frame containing a face and outputs a dictionary structure
 'z_index': distance of person from kinekt -- {-1} if unknown
 }
 ```
-
-### Download/Installation (generic)
-**Windows users should refer to the next section**
-
-Using pip:
-```
-pip install -r requirements.txt
-```
-and run:
-```
-python StreamWebCam.py
-```
-
-### Download/Installation (Windows + Ananconda)
-In the Ananconda environment, first install the prebuilt version of `dlib` with
-```
-conda install -c conda-forge dlib
-```
-then install the other requirements with
-```
-pip install -r requirements.txt
-```
-This is necessary in order to avoid buildling `dlib` from scratch, and beacuse
-the prebuilt version in Conda-forge has an unnecessary dependence on an incompatible version of `numpy`.
-
-*Alternatively, this guide could be followed: https://github.com/charlielito/install-dlib-python-windows .*
-
 ## Important
 
 - To use it you have to get API_KEY and API_SECRET for at least one of the services listed before.
 - set virtual enviroments variables according to the service you want to use
 
 *Variable Enviroment names*
-
-AZURE:
-- AZURE_FACE
-- AZURE_VISION
-
-SKYBIOMETRICS:
-- SKYB_KEY
-- SKYB_SECRET
 
 FACE++:
 - FACEpp_KEY
