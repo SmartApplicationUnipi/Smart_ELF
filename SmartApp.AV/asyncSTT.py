@@ -8,13 +8,15 @@ from concurrent.futures import ThreadPoolExecutor
 import janus
 from google.cloud.speech_v1p1beta1 import enums
 from google.cloud.speech_v1p1beta1 import types
+from google.auth import exceptions
 from google.cloud import speech_v1p1beta1 as speech
 from Bindings import HALInterface
 from os import path
 import time
 import io
 from kb import KnowledgeBaseClient
-import sentimental_analizer
+#import sentimental_analizer
+
 
 
 #TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
@@ -32,19 +34,20 @@ def recognize(model, audio, recognizer, language="en-US"):
         try:
             if model == "sphinx":
                 res["text"] = recognizer.recognize_sphinx(audio)
+            elif "google.cloud.speech_v1p1beta1.SpeechClient" in str(type(recognizer)):
+                config = types.RecognitionConfig(
+                    encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+                   #sample_rate_hertz=16000,
+                    language_code='en-US',
+                    #enable_automatic_punctuation=True,
+                    alternative_language_codes=['it'])
+                response = recognizer.recognize(config, audio)
+                res["text"] = response.results[0].alternatives[0].transcript
+                res["lang"] = response.results[0].language_code
+            elif "speech_recognition.Recognizer" in str(type(recognizer)):
+                res["text"] = recognizer.recognize_google(audio, language=language)
             else:
-                if "google.cloud.speech_v1p1beta1.SpeechClient" in str(type(recognizer)):
-                    config = types.RecognitionConfig(
-                        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
-                       #sample_rate_hertz=16000,
-                        language_code='en-US',
-                        #enable_automatic_punctuation=True,
-                        alternative_language_codes=['it'])
-                    response = recognizer.recognize(config, audio)
-                    res["text"] = response.results[0].alternatives[0].transcript
-                    res["lang"] = response.results[0].language_code
-                else:
-                    res["text"] = recognizer.recognize_google(audio, language=language)
+                res["error"] = "Error"
 
             print(res["text"])
         except sr.UnknownValueError:
@@ -67,31 +70,35 @@ async def speech_to_text(queue):
     """
 
     kb_client = KnowledgeBaseClient(False)
-    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',
-                                                     'doc': 'text from audio '}})
+    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',                                                     'doc': 'text from audio '}})
 
-    #myID = kb.register()
-    # TODO handle error of registration to KB
-
+    # Create new recogniers for all the services used
     r = sr.Recognizer()
-    google_client = speech.SpeechClient()
-    # TODO handle error of creation of recognizer
+    google_client = None
+    try:
+        google_client = speech.SpeechClient()
+    except exceptions.DefaultCredentialsError as e:
+        print("Failed to authenticate with Google Cloud Speech recognition")
+        print(e)
+    except :
+        print("Unexpected error. Failed to authenticate with Google Cloud Speech recognition:", sys.exc_info()[0])
+        # TODO log file
+
     with ThreadPoolExecutor() as executor:
 
         while True:
 
             # Data stored in the queue contain all the information needed to create AudioData object
-            #timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
-            #audio = sr.AudioData(data, sampleRate, bitPerSample/8)
+            timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
+            audio = sr.AudioData(data, sampleRate, bitPerSample/8)
 
-            with open(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav"), 'rb') as audio_file:
-                content = audio_file.read()
-                audio_gc = types.RecognitionAudio(content=content)
+            #with open(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav"), 'rb') as audio_file:
+            #    content = audio_file.read()
+            audio_gc = types.RecognitionAudio(content=data)
 
-
-            with sr.AudioFile(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav")) as source:
-               audio = r.record(source)
-               timestamp = time.time()
+            #with sr.AudioFile(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav")) as source:
+            #   audio = r.record(source)
+            #   timestamp = time.time()
 
             # Compute the transcription of the audio
             google_cloud = executor.submit(recognize, "google-cloud", audio_gc, google_client)
@@ -99,7 +106,7 @@ async def speech_to_text(queue):
             sphinx = executor.submit(recognize, "sphinx", audio, r)
 
             # Compute the emotion related to the audio
-            emotion = executor.submit(sentimental_analizer.my_regressionFileWrapper, audio)
+            #emotion = executor.submit(sentimental_analizer.my_regressionFileWrapper, audio)
 
             res = google_cloud.result()
             if res["error"] is None:
@@ -117,12 +124,14 @@ async def speech_to_text(queue):
                         # Add to KB Sphinx result with timestamp and ID
                         print("Insert into KB --> Sphinx result")
 
-            emotion = emotion.result()
+            emotion = None #emotion.result()
 
             myID = 'stt'
             if res["error"] is None:
                 # Add to KB that the transcription of the audio
                 print("Insert into KB the transcription of the audio, retrieved from ", res["model"])
+                print(res["text"])
+
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,

@@ -16,7 +16,6 @@ let _ = require('lodash');
  * Colorful ElfUI.
  */
 export class ElfColorfulUI extends ElfUI {
-	private logger: Logger.ILogger = Logger.getInstance();
 
 	private audioPlayer: AudioPlayer.AudioPlayer;
 	private snackbar: Snackbar;
@@ -44,7 +43,7 @@ export class ElfColorfulUI extends ElfUI {
 	}
 
 	public onEmotionChanged(e: IEmotion): void {
-		this.logger.log(Logger.LEVEL.INFO, "onEmotionChanged", e);
+		Logger.getInstance().log(Logger.LEVEL.INFO, "onEmotionChanged", e);
 
 		// Change the background color. The CSS rules will handle the animation.
 		this.content.style.backgroundColor = e.getColor();
@@ -54,10 +53,11 @@ export class ElfColorfulUI extends ElfUI {
 	
 	public onPositionChanged(p: Point): void {
 		// Do nothing (by now)
+		this.smiley.lookAt(p);
 	}
 
 	public onContentChanged(contents: Array<IContent>): void {
-		this.logger.log(Logger.LEVEL.INFO, "onContentChanged", contents);
+		Logger.getInstance().log(Logger.LEVEL.INFO, "onContentChanged", contents);
 
 		// TODO: We can do better than this
 		let audioContents = contents.filter(content => content instanceof AudioContent);
@@ -70,7 +70,7 @@ export class ElfColorfulUI extends ElfUI {
 			} if (content instanceof SpeechContent) {
 				this.snackbar.showText(content.getText());
 			} else {
-				this.logger.log(Logger.LEVEL.WARNING, "Cannot show this type of content", content);
+				Logger.getInstance().log(Logger.LEVEL.WARNING, "Cannot show this type of content", content);
 			}
 		});
 

@@ -9,9 +9,22 @@ export const enum Colors {
 
 export class Debugger {
     debugLevel: number = 0;
+    indentation: number = 0;
 
     public constructor(i: number = 0) {
         this.debugLevel = i;
+    }
+
+    public increaseIndentation() {
+        this.indentation++;
+    }
+
+    public decreaseIndentation() {
+        this.indentation--;
+    }
+
+    public resetIndentation() {
+        this.indentation = 0;
     }
 
     public setDebugLevel(i: number) {
@@ -26,13 +39,21 @@ export class Debugger {
 
     public clog(color: string, kind: string, id: number, before: string, msg: string, level: number) {
         if (level <= this.debugLevel) {
-            console.log(before + color + kind + '(' + id + ')' + Colors.WHITE + ' ' + msg);
+            let ind: string = '';
+            for (let i = 0; i < this.indentation; ++i) {
+                ind += '\t';
+            }
+            console.log(ind + before + color + kind + '(' + id + ')' + Colors.WHITE + ' ' + msg);
         }
     }
 
     public clogNoID(color: string, kind: string, before: string, msg: string, level: number) {
         if (level <= this.debugLevel) {
-            console.log(before + color + kind + Colors.WHITE + ' ' + msg);
+            let ind: string = '';
+            for (let i = 0; i < this.indentation; ++i) {
+                ind += '\t';
+            }
+            console.log(ind + before + color + kind + Colors.WHITE + ' ' + msg);
         }
     }
 

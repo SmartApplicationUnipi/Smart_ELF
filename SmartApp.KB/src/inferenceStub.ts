@@ -1,6 +1,6 @@
 import { isObject } from 'util';
 import { Colors, Debugger } from './debugger';
-import { addFact, databaseFact, databaseRule, DataRule } from './kb';
+import { addInferenceFact, databaseFact, databaseRule, DataRule } from './kb';
 import { findMatches, isPlaceholder } from './matcher';
 
 const INFERENCE_TAG = 'INFERENCE'; // TODO: change this. the user will specify the tag in the rule head!
@@ -17,42 +17,46 @@ function checkRule(head: object, body: object[], fact: object) {
     // se il fatto è uno dei predicati nel body della regola
     debug.clog(Colors.BLUE, 'INFO', 0, '', 'checkRule entered', 10);
 
+    let matches;
     let binds;
     for (const pred of body) {
         debug.clog(Colors.BLUE, 'INFO', 1, '', 'guardo il predicato', 10);
 
         // cerco se fact matcha un pred nel body
-        binds = findMatches(pred, [fact]);
-
-        debug.clog(Colors.BLUE, 'INFO', 2, '', 'primo match ha length ' + binds.size, 10);
+        matches = findMatches(pred, [fact]);
+        debug.clog(Colors.BLUE, 'INFO', 2, '', 'primo match ha length ' + matches.size, 10);
         // console.log();
-        if (binds.size > 0) {
+        if (matches.size > 0) {
             break;
         }
     }
 
-    if (binds.size > 0) {
+    if (matches.size > 0) {
         debug.clog(Colors.BLUE, 'INFO', 3, '', 'ho matchato un predicato ', 10);
         // console.log();
 
         // se ho matchato un predicato del body,
         // cerco nel dataset se esiste soluzione per ciascun degli altri pred
-        for (const pred of body) {
+        for (const pred of body) { // TODO: GLI ALTRI! bisogna filtrare
             debug.clog(Colors.BLUE, 'INFO', 4, '', 'guardo il predicato ', 10);
+            // console.log(pred);
 
             let tempbinds: any[] = [];
-            for (const bi of binds) {
+            for (const match of matches.keys()) {
+
+                const bi = matches.get(match);
                 debug.clog(Colors.BLUE, 'INFO', 5, '', 'guardo il binding ', 10);
                 // console.log(bi);
                 // console.log();
 
-                const b = findMatches({ _data: pred }, Array.from(databaseFact.values()), bi);
+                const b = findMatches(pred, Array.from(databaseFact.values()), bi);
                 // b se non è vuoto contiene i nuovi bindings (che contengono bi)
-                debug.clog(Colors.GREEN, 'OK', 5, '', 'trovata soluzione: ', 5);
-                console.log(b);
-                // console.log();
 
-                tempbinds = tempbinds.concat(b);
+                debug.clog(Colors.GREEN, 'OK', 5, '', 'trovata soluzione: ', 5);
+                // console.log(b);
+                // console.log();
+                tempbinds = tempbinds.concat([...b.values()]);
+
             }
             binds = tempbinds;
             if (binds.length === 0) {
@@ -65,8 +69,8 @@ function checkRule(head: object, body: object[], fact: object) {
         }
         // ho matchato tutti i body
         debug.clog(Colors.GREEN, 'OK', 7, '', 'HO MATCHATO TUTTI BODY', 5);
-        console.log(binds);
-        // console.log();
+//        console.log(binds);
+//        console.log();
         for (const bind of binds) {
             for (const b of bind) {
 
@@ -86,7 +90,27 @@ function checkRule(head: object, body: object[], fact: object) {
                 // tslint:disable-next-line:max-line-length
                 // addFact('inference', 'infoSum', 1, 100, true, {subject: b.$prof, relation: 'is in room', object: b.$room});
                 debug.clog(Colors.BLUE, 'DEBUG', 1, '', 'INFERENCE MAGIA ' + magia(head), 1);
-                const addres = addFact('inference', INFERENCE_TAG, 1, 100, magia(head));
+
+                const inFact = magia(head);
+
+                let tag = '_INFERENCE';
+                let idSource = '_INFERENCE';
+                let ttl = 1;
+                let reli = 0;
+
+                if (inFact.hasOwnProperty('_meta')) {
+
+                    if (inFact.hasOwnProperty('tag')) { tag = inFact._meta.tag; }
+                    if (inFact.hasOwnProperty('idSource')) { idSource = inFact._meta.idSource; }
+                    if (inFact.hasOwnProperty('ttl')) { ttl = inFact._meta.ttl; }
+                    if (inFact.hasOwnProperty('reliability')) { reli = inFact._meta.reliability; }
+
+                }
+
+                const addres = addInferenceFact(idSource, tag, ttl, reli, inFact._data);
+//                console.log('AGGIUNGO FATTO INFERITO ', addres);
+//                console.log(inFact);
+//                console.log();
                 debug.clog(Colors.BLUE, 'DEBUG', 1, '', 'INFERENCE ADDFACT' + addres, 1);
             }
         }
