@@ -18,7 +18,8 @@ class OffVision:
         """
         # configuration parameters
         self.match_dist_threshold = match_dist_threshold
-        self.requested_attributes = ['emotion']
+        # default requested attributes
+        self.requested_attributes = ['emotion', 'gender', 'age', 'smile']
         # load pre-trained models
         models_path = os.path.abspath(os.path.dirname(__file__))
         self.detector = dlib.get_frontal_face_detector()
@@ -79,8 +80,6 @@ class OffVision:
             face_facts['age'] = -1 # unknown
         if 'smile' in self.requested_attributes:
             face_facts['smile'] = 'Unknown'
-        if 'known' in self.requested_attributes:
-            face_facts['known'] = 'Unknown' # TODO stub
         if return_desc:
             # compute face descriptor, if requested
             face_desc = self.get_descriptor(frame)
