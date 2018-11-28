@@ -38,6 +38,3 @@ class FERModelEnsemble:
         sum_ = sum(predictions.values())
         predictions = {k: v / sum_ for k, v in predictions.items()}
         return predictions
-
-
-
