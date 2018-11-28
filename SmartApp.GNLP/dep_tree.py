@@ -1,39 +1,44 @@
 import spacy
 import pprint
 import en_core_web_sm
+import it_core_news_sm
 
-		
 def create_dictionary (root):
 	token = root
-	
+
 	obj = {}
-	
-	obj["0_TEXT"] = token.text
-	obj["1_COARSE_POS" ] = token.pos_
-	obj["2_FINE_POS"] = token.tag_
-	obj["3_HEAD"] = token.head.text
-	obj["4_DEP"] = token.dep_
-	obj["5_NORM"] = token.norm_
-	obj["6_LEMMA"] = token.lemma_
-	
-	obj["7_CHILDREN"] = [create_dictionary(child) for child in token.children]
-	
+
+	obj["0_text"] = token.text
+	obj["1_norm"] = token.norm_
+	obj["2_lemma"] = token.lemma_
+	obj["3_POS" ] = token.pos_
+	obj["4_tag"] = token.tag_
+	obj["5_parent"] = token.head.text
+	obj["6_dep"] = token.dep_
+	obj["7_children"] = [create_dictionary(child) for child in token.children]
+
 	return obj
 
-def get_dependency_tree(sentence):
+def get_dependency_tree(sentence, language="en"):
 
-	nlp = en_core_web_sm.load()
+	if (language == "it"):
+		nlp = it_core_news_sm.load()
+	else:
+		nlp = en_core_web_sm.load()
 	doc = nlp(sentence)
 
 	global root
 	for token in doc:
 		if token.dep_ == "ROOT":
 			root = token
-	
+
 	result = create_dictionary(root)
 	return result
-	
-	
+
+
 if __name__ == '__main__':
-	
-	get_dependency_tree("At which time Prof Poloni has lecture?")
+
+        pp = pprint.PrettyPrinter()
+        ln = 'it'
+        parsing = get_dependency_tree("Dov'è la lezione di Attardi?", ln)
+        pp.pprint(parsing)
