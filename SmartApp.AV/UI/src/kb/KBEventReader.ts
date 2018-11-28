@@ -26,7 +26,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	private eventToSubscribe: Array<object> = [
 		{ "TAG": "ENLP_EMOTIVE_ANSWER", "text": "$x", "valence": "$v", "arousal": "$a" },
 		{ "TAG": "ENLP_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
-		{ "TAG": "VISION_FACE_ANALYSIS", "isInterlocutor": "True", "lookAt": { "pinch": "$a", "yaw": "$b" } }
+		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } }
 	];
 
 	public start(): void {
