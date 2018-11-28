@@ -1,0 +1,63 @@
+#starting symbol is S
+
+% start S
+
+#frase minima
+S[SEM = <app(?subj,?vp)>] -> NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp]
+S[SEM = ?vp] -> VP[NUM=?n,SEM=?vp]
+
+#frase con complementi
+S[SEM = <app(?subj,?vp,?comp)>] -> NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp] PP[SEM=?comp]
+S[SEM = <app(?subj,?vp,?comp)>] -> PP[SEM=?comp] NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp]
+S[SEM = <app(?subj,?vp,?comp1,?comp2)>] -> PP[SEM=?comp1] NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp] PP[SEM=?comp1]
+S[SEM = <app(?vp,?comp)>] -> VP[NUM=?n,SEM=?vp] PP[SEM=?comp]
+S[SEM = <app(?vp,?comp)>] -> PP[SEM=?comp] VP[NUM=?n,SEM=?vp]
+# S[SEM = <app(?vp,?comp1,?comp2)>] -> PP[SEM=?comp1] VP[NUM=?n,SEM=?vp] PP[SEM=?comp2]
+#still not used, and introduces ambiguities
+
+#Noun phrases (si potrebbe aggiungere concordanza di genere)
+NP[NUM=?n,SEM=?np] -> N[NUM=?n,SEM=?np]
+NP[NUM=?n,SEM=<app(?np,?comp2)>] -> N[NUM=?n,SEM=?np] PP[SEM=?comp2]
+N[NUM=?n,SEM=<app(?det,?nom)> ] -> Det[NUM=?n,SEM=?det]  Nom[NUM=?n,SEM=?nom]
+N[NUM=?n,SEM=<app(?det,?adj,?nom)> ] -> Det[NUM=?n,SEM=?det] Adj[NUM=?n,SEM=?adj]  Nom[NUM=?n,SEM=?nom]
+N[NUM=?n,SEM=?np] -> PropN[NUM=?n,SEM=?np]
+N[NUM=?n,SEM=<app(?np,?nom)> ] -> Nom[NUM=?n,SEM=?nom] PropN[NUM=?n,SEM=?np]
+
+#Unrolling of adjectives list
+Adj[NUM=?n,SEM=<app(?adj1,?adj2)>] -> Adj[NUM=?n,SEM=?adj1] Adj[NUM=?n,SEM=?adj2]
+
+#Unrolling of complement list
+PP[SEM=<app(?pp1,?pp2)>] -> PP[SEM=?pp1] PP[SEM=?pp2]
+
+#Propositional phrases
+PP[SEM=<app(?gen,?nom)>] -> GEN[NUM=?n,SEM=?gen] NP[NUM=?n,SEM=?nom]
+
+#Verbal phrases
+VP[NUM=?n,SEM=?v] -> IF[NUM=?n,SEM=?v]
+VP[NUM=?n,SEM=<app(?v,?obj)>] -> TF[NUM=?n,SEM=?v] NP[SEM=?obj]
+IF[NUM=?n,SEM=?v] -> SERV[NUM=?n,SEM=?s] IV[NUM=?n,SEM=?v]
+TF[NUM=?n,SEM=?v] -> SERV[NUM=?n,SEM=?s] TV[NUM=?n,SEM=?v]
+
+#Articles
+Det[NUM=sg,SEM=<\P Q.((DRS([x],[])+P(x))+Q(x))>] -> 'un' | 'una' | 'uno'
+Det[NUM=sg,SEM=<\P Q.((DRS([x],[])+P(x))+Q(x))>] -> 'il' | 'lo' | 'la'
+# check for determinative articles(?)
+
+#Prepositions
+GEN[NUM=sg,SEM=<\X x.X(\y.DRS([],[own(x,y)]))>]  -> 'di' | 'del' | 'dello' | 'della'
+
+#Verbi servili
+SERV[NUM=sg,SEM=<\x.DRS([],[])>] -> 'posso'
+
+#Verbi transitivi
+TV[NUM=sg,SEM=<\X x.X(\y.DRS([],[be(x,y)]))>,tns=pres] -> 'trovare'
+
+#Nouns
+Nom[NUM=sg,SEM=<\x.DRS([],[lecture(x)])>] -> 'lezione'
+Nom[NUM=sg,SEM=<\x.DRS([],[professor(x)])>] -> 'professor'
+
+#Proper names
+PropN[NUM=sg,SEM=<\P.(DRS([x],[C(x)])+P(x))>] -> 'C'
+
+#One-word complements
+PP[SEM=<\x.DRS([],[place(x),unknown(x),target(x)])>] -> 'dove'

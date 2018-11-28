@@ -1,6 +1,6 @@
 ## Natural Language Toolkit: drt.fcfg
-## 
-## Author: Dan Garrette <dhgarrette@gmail.com> 
+##
+## Author: Dan Garrette <dhgarrette@gmail.com>
 ## URL: <http://nltk.orgt>
 ## For license information, see LICENSE.TXT
 
@@ -9,13 +9,15 @@
 # Grammar Rules
 #############################
 
-S[SEM = <app(?subj,?vp)>] -> NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp]
+# SR[SEM=<app(?min,?comp)>] -> S[SEM=?min] PP[SEM=?comp]
+
+S[SEM = <app(?subj,?vp,?comp)>] -> NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp] PP[SEM=?comp]
 
 NP[NUM=?n,SEM=<app(?det,?nom)> ] -> Det[NUM=?n,SEM=?det]  Nom[NUM=?n,SEM=?nom]
 NP[LOC=?l,NUM=?n,SEM=?np] -> PropN[LOC=?l,NUM=?n,SEM=?np]
 
 Nom[NUM=?n,SEM=?nom] -> N[NUM=?n,SEM=?nom]
-Nom[NUM=?n,SEM=<app(?pp,?nom)>] -> N[NUM=?n,SEM=?nom] PP[SEM=?pp]
+#Nom[NUM=?n,SEM=<app(?pp,?nom)>] -> N[NUM=?n,SEM=?nom] PP[SEM=?pp]
 
 VP[NUM=?n,SEM=?v] -> IV[NUM=?n,SEM=?v]
 VP[NUM=?n,SEM=<app(?v,?obj)>] -> TV[NUM=?n,SEM=?v] NP[SEM=?obj]
@@ -38,14 +40,14 @@ PropN[-LOC,NUM=sg,SEM=<\P.(DRS([x],[PRO(x)])+P(x))>] -> 'he'
 PropN[-LOC,NUM=sg,SEM=<\P.(DRS([x],[PRO(x)])+P(x))>] -> 'she'
 PropN[-LOC,NUM=sg,SEM=<\P.(DRS([x],[PRO(x)])+P(x))>] -> 'it'
 
-Det[NUM=sg,SEM=<\P Q.DRS([],[((DRS([x],[])+P(x)) implies Q(x))])>] -> 'every' | 'Every' 
+Det[NUM=sg,SEM=<\P Q.DRS([],[((DRS([x],[])+P(x)) implies Q(x))])>] -> 'every' | 'Every'
 Det[NUM=pl,SEM=<\P Q.DRS([],[((DRS([x],[])+P(x)) implies Q(x))])>] -> 'all' | 'All'
 Det[SEM=<\P Q.((DRS([x],[])+P(x))+Q(x))>] -> 'some' | 'Some'
 Det[NUM=sg,SEM=<\P Q.((DRS([x],[])+P(x))+Q(x))>] -> 'a' | 'A'
 Det[NUM=sg,SEM=<\P Q.(not ((DRS([x],[])+P(x))+Q(x)))>] -> 'no' | 'No'
 
 N[NUM=sg,SEM=<\x.DRS([],[boy(x)])>] -> 'boy'
-N[NUM=pl,SEM=<\x.DRS([],[boy(x)])>] -> 'boys' 
+N[NUM=pl,SEM=<\x.DRS([],[boy(x)])>] -> 'boys'
 N[NUM=sg,SEM=<\x.DRS([],[girl(x)])>] -> 'girl'
 N[NUM=pl,SEM=<\x.DRS([],[girl(x)])>] -> 'girls'
 N[NUM=sg,SEM=<\x.DRS([],[dog(x)])>] -> 'dog'
@@ -90,4 +92,4 @@ TV[NUM=sg,SEM=<\X x.X(\y.DRS([],[know(x,y)]))>,tns=pres] -> 'conosce'
 
 Det[NUM=sg,SEM=<\P Q.((DRS([x],[])+P(x))+Q(x))>] -> 'una' | 'un' | 'uno'
 
-
+PP[SEM=<\x.DRS([],[time(x)])>] -> 'oggi'
