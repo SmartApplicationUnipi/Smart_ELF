@@ -87,7 +87,7 @@ class OffVision:
         else:
             return face_facts
 
-    def get_match(self, db, descriptor, desc_position, id_position, return_index=False):
+    def get_match(self, db, descriptor, desc_position, id_position, return_index=False, return_confidence=False):
         """
         Finds the matching id of the descriptor in the db, if there is one
         :param db: list of tuples, which contain descriptors and ids
@@ -95,11 +95,13 @@ class OffVision:
         :param desc_position: position of the descriptor field in db tuples
         :param id_position: position of the id field in db tuples
         :param return_index: if true returns also the position in db (None if not found)
-        :return: an id if matching succeeded, else None
+        :param return_confidence: if true returns also the confidence of the match (None if not found)
+        :return: an id if matching succeeded, else None; also index or confidence, if requested
         """
         min_distance = float('inf')
         match_id = None
         match_index = None
+        confidence = None
         # find closest descriptor
         for i, entry in enumerate(db):
             distance = np.linalg.norm(entry[desc_position] - descriptor)
@@ -111,4 +113,11 @@ class OffVision:
         if min_distance > self.match_dist_threshold:
             match_id = None
             match_index = None
-        return (match_id, match_index) if return_index else match_id
+        else:
+            # confidence is normalized distance
+            confidence = 1 - min_distance / self.match_dist_threshold
+        # return desired stuff
+        if not return_confidence and not return_index:
+            return match_id
+        else:
+            return (match_id,) + ((match_index,) if return_index else ()) + ((confidence,) if return_confidence else ())
