@@ -7,6 +7,7 @@ import numpy as np
 from threading import *
 from queue import Queue
 import cv2
+import traceback
 
 
 #  Si possono avere più queue (almeno 6 dato che 6 è il numero massimo di facce
@@ -96,15 +97,20 @@ class Controller():
             print(type(e).__name__, e)
             print("\n It seems that there is a problem in the initialization!")
 
-        # Select module available
-        #self.module = self._getResolver()
-        self.module = self.offline_module
-
         # Ops for worker that compute all the analyzes
         # TODO Creare 6 thread che lavoreano su più persone
         self.t = Thread(target=Controller._worker, args=[self, Controller.q])
         self.t.daemon = True
         self.t.start()
+
+        # Initialization of exponential backoff machanism
+        # (note: for multithreading, this needs to be in the local storage!)
+        self.attempt = 0
+        self.exponent = 1
+        self.max_exponent = 8
+        # never attempt online module if it isn't available
+        if self.has_api_problem:
+            self.attempt = float('inf')
 
     def _take_frame(frame_obj):
         """
@@ -189,15 +195,28 @@ class Controller():
         face_position = face.face_position if hasattr(face, "face_position") else (0, 0)
         z_index = face.z_index if hasattr(face, "z_index") else -1
 
-        self.module = self._getResolver() # fare get_resolver() ogni volta?
-
+        # Exponential backoff mechanism
         try:
-            fact = self.module.analyze_face(img)
-        except Exception as e: # TODO call it RequestError or something similar
-            self.has_api_problem = True
-            self.module = self._getResolver()
-            fact = self.module.analyze_face(img)
-            self.has_api_problem = False # ?
+            if self.attempt < 1:
+                # attempt an online analysis
+                fact = self.online_module.analyze_face(img)
+                # all fine, reset backoff
+                self.exponent = 1
+            else:
+                # we're in the backoff interval, work offline
+                fact = self.offline_module.analyze_face(img)
+                # one more attempt done
+                self.attempt -= 1
+                # print('*** BACKOFF attempt', self.attempt, 'of exponent', self.exponent, '***')
+        except:
+            traceback.print_exc()
+            # something went wrong, double the attempt interval (until maximum length)
+            if self.exponent < self.max_exponent:
+                self.exponent += 1
+            # begin the new backoff interval
+            self.attempt = 2 ** self.exponent
+            # remeber, we've still to analyze this face:
+            fact = self.offline_module.analyze_face(img)
 
         if not fact:
             print("Non vedo nessuno")
