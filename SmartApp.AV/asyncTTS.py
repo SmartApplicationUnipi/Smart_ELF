@@ -96,7 +96,14 @@ async def kb_to_audio(queue):
     This function handles the subscription to KB and the production of the audio
     :param queue: blocking asynchronous queue
     """
-    def callbfun(res):
+    text = "Hello how are you?"
+    valence = 1
+    arousal = 1
+    language = "en-GB"
+
+    ttm = make_mary_text(text, valence, arousal)
+    audio = make_audio(ttm, language)
+    '''def callbfun(res):
         #TODO log
         print("callback: ", res)
 
@@ -125,7 +132,7 @@ async def kb_to_audio(queue):
                                             "text": "$input",
                                             "valence": "$v",
                                             "arousal": "$a",
-                                            "language": "$l"}}, callbfun) #todo change with appropriate tag
+                                            "language": "$l"}}, callbfun) #todo change with appropriate tag'''
 
 
 def face_communication(queue):
@@ -152,5 +159,5 @@ if __name__ == '__main__':
     q = janus.Queue(loop=loop)
 
     loop.run_until_complete(kb_to_audio(q.sync_q))
-    loop.run_until_complete(face_communication(q.async_q))
+    #loop.run_until_complete(face_communication(q.async_q))
     loop.run_forever()
