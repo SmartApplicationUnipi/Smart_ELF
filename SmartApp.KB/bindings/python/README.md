@@ -33,18 +33,26 @@
 
    * Example
 
-     `addRule(myId, 'RDF', { "_head": { "subject": "$prof", "relation": "is in", "object": "$room" },
+     ```
+     addRule(myId, 'RDF', { "_head": { "subject": "$prof", "relation": "is in", "object": "$room" },
                              "_body": [ { "subject": "$prof", "relation": "teaches", "object": "$course" },
-                                        { "subject": "$course", "relation": "is in room", "object": "$room"} ] }`
+                                        { "subject": "$course", "relation": "is in room", "object": "$room"} ] }
+                                        ```
 
      For example, suppose the KB contains the following facts:
+
      { subject: "SmartApplication", relation "is in room", object: "Room X1" }
+
      { subject: "SmartApplication", relation "is in room", object: "Room A" }
+
      { subject: "Software Validation and Verification", relation "is in room", object: "Room X3" }
+
      { subject: "Gervasi", relation "teaches", object: "Smartapplication" }
 
      The inference engine will genereate the following facts:
+
      { subject: "Gervasi", relation "is in", object: "Room X1" }
+
      { subject: "Gervasi", relation "is in", object: "Room A" }
 
 **updateFactByID(*idFact*, *idSource*, *tag*, *TTL*, *reliability*, *jsonFact*)**
