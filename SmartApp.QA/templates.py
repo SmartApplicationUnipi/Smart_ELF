@@ -71,11 +71,14 @@ def check_exact_match(input_q, dict_q, dict_answ, kwrd_list):
             print(input_q)
         if (dict_q.get(input_q, -1) == -1):
             print("key not found")
+            return (False, "Not found")
         else:
             print("sentence:\t" + input_q)
             sentence_id = dict_q.get(input_q, -1)
-
+            kb_q = dict_answ[sentence_id][0]
+            templ_answ = dict_answ[sentence_id][1]
             print("answer:\t" + dict_answ[sentence_id][1])
+            return (True, kb_q, templ_answ)
 
 
 def preprocess_sentence(sentence):
