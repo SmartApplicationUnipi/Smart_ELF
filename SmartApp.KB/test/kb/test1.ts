@@ -3,23 +3,28 @@ import * as kb from '../../src/kb';
 import { expect } from 'chai';
 import 'mocha';
 
-
 describe('registerTags', () => {
     it('should return succes', () => {
-        const tags =  {tag1: new kb.TagInfo('desc1', 'doc1'), tag2: new kb.TagInfo('desc2', 'doc2'), tag3: new kb.TagInfo('desc3', 'doc3')};
+        const tag1det = new kb.TagInfo('desc1', 'doc1');
+        const tag2det = new kb.TagInfo('desc2', 'doc2');
+        const tag3det = new kb.TagInfo('desc3', 'doc3');
+        const tags =  {tag1: tag1det, tag2: tag2det, tag3: tag3det};
         const response = kb.registerTags(tags);
         const expected = new kb.Response(true, {});
         expect(response).to.deep.equal(expected);
     });
 
     it('should return the already registered tags', () => {
-        const tags =  {tag1: new kb.TagInfo('desc1', 'doc1'), tag4: new kb.TagInfo('desc4', 'doc4'), tag6: new kb.TagInfo('desc6', 'doc6'), tag3: new kb.TagInfo('desc3', 'doc3')};
+        const tag1det = new kb.TagInfo('desc1', 'doc1');
+        const tag4det = new kb.TagInfo('desc4', 'doc4');
+        const tag3det = new kb.TagInfo('desc3', 'doc3');
+        const tag6det = new kb.TagInfo('desc6', 'doc6');
+        const tags =  {tag1: new kb.TagInfo('desc1', 'doc1'), tag4: tag4det,  tag6: tag6det, tag3: tag3det};
         const response = kb.registerTags(tags);
         const expected = new kb.Response(false, ['tag1', 'tag3']);
         expect(response).to.deep.equal(expected);
     });
 });
-
 
 describe ('getTagDetails', () => {
     it('should retrieve the documentation of the existing tags', () => {
@@ -39,154 +44,143 @@ describe ('getTagDetails', () => {
 
 describe ('addFact', () => {
     it('should correctly add a fact to the KB', () => {
-        const response = kb.addFact('proto2', 'tag1', 3, 100, { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' });
+        const data = { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' };
+        const response = kb.addFact('proto2', 'tag1', 3, 100, data);
         const expected = new kb.Response(true, 1);
         expect(response).to.deep.equal(expected);
     });
 
     it('should fail trying to add a fact with an unregistered tag', () => {
-        const response = kb.addFact('proto2', 'rdf', 3, 100, { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' });
+        const data = { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' };
+        const response = kb.addFact('proto2', 'rdf', 3, 100, data );
         const expected = new kb.Response(false, 'rdf');
         expect(response).to.deep.equal(expected);
     });
 });
 
-
-describe('queryFact', () => {
+describe('query', () => {
     it('should correctly retrieve a fact querying the _id', () => {
         const query = {_id: 1 };
-        const response = kb.queryFact(query);
+        const response = kb.query(query);
 
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
-        const meta = {idSource:'proto2', tag: 'tag1', TTL : 3, reliability : 100, timestamp : new Date(Date.now()).toLocaleDateString('en-GB')}
+        const meta = {idSource: 'proto2',  reliability : 100, tag: 'tag1',
+                      creationTime : new Date(Date.now()).toLocaleDateString('en-GB'), TTL : 3};
 
-        const expected = [{_id : id, _meta : meta, _data: data}];
+        const expected = new Map<object, object[]>();
+        expected.set({_id : id, _meta : meta, _data: data}, []);
         const expectedResponse = new kb.Response(true, expected);
         expect(response).to.deep.equal(expectedResponse);
     });
 
-    it('should correctly retrieve an empty array querying a missing _id', () => {
+    it('should correctly fail for queryin a missing _id', () => {
         const query = {_id: 17289461};
-        const response = kb.queryFact(query);
-        const expectedResponse = new kb.Response(true, []);
+        const response = kb.query(query);
+        const expectedResponse = new kb.Response(false, {});
         expect(response).to.deep.equal(expectedResponse);
     });
 
     it('should correctly retrieve a fact querying the _meta', () => {
         const query = {_meta: {tag: 'tag1'}};
-        const response = kb.queryFact(query);
-
+        const response = kb.query(query);
 
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
-        const meta = {idSource:'proto2', tag: 'tag1', TTL : 3, reliability : 100, timestamp : new Date(Date.now()).toLocaleDateString('en-GB')}
+        const meta = {idSource: 'proto2', tag: 'tag1', TTL : 3,
+                       reliability : 100, creationTime : new Date(Date.now()).toLocaleDateString('en-GB')};
 
-        const expected = [{_id : id, _meta : meta, _data: data}];
+        const expected = new Map<object, object[]>();
+        expected.set({_id : id, _meta : meta, _data: data}, []);
         const expectedResponse = new kb.Response(true, expected);
         expect(response).to.deep.equal(expectedResponse);
     });
 
     it('should correctly retrieve a fact querying the _data', () => {
-        const query = {_data: {subject: 'Gervasi', object: '$s'}};
-        const response = kb.queryFact(query);
+        const query = { _data: {subject: 'Gervasi', object: '$s'} };
+        const response = kb.query(query);
 
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
-        const meta = {idSource:'proto2', tag: 'tag1', TTL : 3, reliability : 100, timestamp : new Date(Date.now()).toLocaleDateString('en-GB')}
-        console.log(response.details[0]._meta.timestamp);
+        const meta = {idSource: 'proto2', tag: 'tag1', TTL : 3, reliability : 100,
+                      creationTime : new Date(Date.now()).toLocaleDateString('en-GB')};
 
-        const expected = [{_id : id, _meta : meta, _data: data}];
+        const expected = new Map<object, object[]>();
+        expected.set({_id : id, _meta : meta, _data: data}, [ { $s: 'SmartApplication' } ]);
         const expectedResponse = new kb.Response(true, expected);
         expect(response).to.deep.equal(expectedResponse);
     });
 
-    it('should correctly retrieve an empty array querying missing _data', () => {
+    it('should correctly fail querying missing _data', () => {
         const query = {_data: {subject: 'Frommegolde', object: '$s'}};
-        const response = kb.queryFact(query);
-        const expectedResponse = new kb.Response(true, []);
+        const response = kb.query(query);
+        const expectedResponse = new kb.Response(false, {});
         expect(response).to.deep.equal(expectedResponse);
     });
 });
 
 describe ('removeFact', () => {
     it('should correctly remove a fact from the KB', () => {
-        const metadata = {idSource: 'proto2', tag: 'tag1', TTL: 3, reliability: 100, timestamp: '$time'};
-        const data = {relation: 'teaches', subject: 'Gervasi', object: '$course'};
-        const response = kb.removeFact('proto2', {_id: '$id', _meta : metadata, _data: data});
-        const expected = new kb.Response(true, [1]);
+        const data = {testkey: 'testdata'};
+        const id = (kb.addFact('test', 'tag1', 3, 100, data)).details;
+
+        const response = kb.removeFact('proto2', data);
+        const expected = new kb.Response(true, [id]);
         expect(response).to.deep.equal(expected);
     });
 
-    it('should have actually deleted the fact', () => {
-        const data = {relation: 'teaches', subject: 'Gervasi', object: '$course'};
-        const query = {_data: data};
-        const response = kb.queryFact(query);
-        const expected = new kb.Response(true, []);
-        expect(response).to.deep.equal(expected);
-    });
-
-    it('should correctly remove many facts from the KB through _data', () => {
-        kb.addFact('proto2', 'tag1', 3, 100, { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' }); 
-        kb.addFact('proto2', 'tag1', 5, 10, { relation: 'plays', subject: 'Gervasi', object: 'Mandolino' });
-        kb.addFact('proto2', 'tag1', 7, 80, { relation: 'dances', subject: 'Gervasi', object: 'Tektokik' });
-        kb.addFact('proto2', 'tag1', 8, 100, { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' });
-        kb.addFact('proto2', 'tag1', 4, 59, { relation: 'writes', subject: 'FromGold', object: 'tests' });
-        kb.addFact('proto2', 'tag1', 6, 100, { relation: 'plays', subject: 'Frommegolde', object: 'Pharah' });
-
-        //const metadata = {idSource: 'proto2', tag: 'tag1', TTL: 3, reliability: 100, timestamp: '$time'};
-        const data = {subject: 'Gervasi'};
-        const response = kb.removeFact('proto2', {_data: data});
-        const expected = new kb.Response(true, [2,3,4,5]);
+    it('should have actually deleted the previous fact', () => {
+        const data = {testkey: 'testdata'};
+        const response = kb.query(data);
+        const expected = new kb.Response(false, {});
         expect(response).to.deep.equal(expected);
     });
 
     it('should correctly remove many facts from the KB through _data', () => {
-        const data = {relation: 'plays'};
+        const res1 = kb.addFact('proto2', 'tag1', 3, 100, {testkey: 'k' , testkey2: 'test1'});
+        const res2 = kb.addFact('proto2', 'tag1', 5, 10,  {testkey: 'k', testkey2: 'test2'});
+        const res3 = kb.addFact('proto2', 'tag1', 7, 80,  {testkey: 'k', testkey2: 'test3'});
+        const res4 = kb.addFact('proto2', 'tag1', 8, 100, {testkey: 'SmartApplication' });
+
+        const data = {testkey: 'k'};
         const response = kb.removeFact('proto2', {_data: data});
-        const expected = new kb.Response(true, [7]);
+        const expected = new kb.Response(true, [res1.details , res2.details, res3.details]);
         expect(response).to.deep.equal(expected);
     });
 
     it('should correctly remove many facts from the KB through _meta', () => {
-        const meta = {timestamp: new Date(Date.now()).toLocaleDateString('en-GB')};
+        const res1 = kb.addFact('testmultiple', 'tag1', 3, 100, {testkey: 'k' , testkey2: 'test1'});
+        const res2 = kb.addFact('testmultiple', 'tag1', 7, 10,  {testkey: 'k', testkey2: 'test2'});
+        const res3 = kb.addFact('testmultiple', 'tag1', 7, 80,  {testkey: 'k', testkey2: 'test3'});
+        const res4 = kb.addFact('testmultiple', 'tag1', 7, 100, {testkey: 'SmartApplication' });
+        const meta = {idSource: 'testmultiple'};
         const response = kb.removeFact('proto2', {_meta: meta});
-        const expected = new kb.Response(true, [6]);
+        const expected = new kb.Response(true, [res1.details, res2.details, res3.details, res4.details]);
         expect(response).to.deep.equal(expected);
     });
 });
 
-
 describe ('updateFactByID', () => {
     it('should update an existing fact through its id', () => {
-        kb.addFact('proto2', 'tag1', 3, 100, { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' });
-        kb.addFact('proto2', 'tag1', 5, 10, { relation: 'plays', subject: 'Gervasi', object: 'Mandolino' });
-        kb.addFact('proto2', 'tag1', 7, 80, { relation: 'dances', subject: 'Gervasi', object: 'Tektokik' });
-        kb.addFact('proto2', 'tag1', 8, 100, { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' });
-        kb.addFact('proto2', 'tag1', 4, 59, { relation: 'writes', subject: 'FromGold', object: 'tests' }); //id : 12
-        kb.addFact('proto2', 'tag1', 6, 100, { relation: 'plays', subject: 'Frommegolde', object: 'Pharah' });
+        const res1 = kb.addFact('test', 'tag1', 3, 100, {testkey: 'k' });
+        const updata = { relation: 'updates', subject: 'FromGold', object: 'this' };
 
-        const id = 12;
-        const response = kb.updateFactByID( id, 'proto2', 'tag1', 7, 100, { relation: 'modifies', subject: 'FromGold', object: 'stuff' });
-        const expected = new kb.Response(true, id);
+        const response = kb.updateFactByID(res1.details, 'test', 'tag1', 7, 100, updata );
+        const expected = new kb.Response(true, res1.details);
         expect(response).to.deep.equal(expected);
     });
 
     it('should have actually updated the fact', () => {
-        const query = {_data : {object: 'stuff'}}
-        const response = kb.queryFact(query);
+        const query = { relation: 'updates', subject: 'FromGold', object: 'this' };
+        const response = kb.query(query);
 
-        const id = 12;
-        const data = {relation: 'modifies', subject: 'FromGold', object: 'stuff'};
-        const meta = {idSource:'proto2', tag: 'tag1', TTL : 7, reliability : 100, timestamp : new Date(Date.now()).toLocaleDateString('en-GB')}
-        const expected = [{_id : id, _meta : meta, _data : data}]
-        const expectedResponse = new kb.Response(true, expected);
-        expect(response).to.deep.equal(expectedResponse);
+        expect(response.success).to.deep.equal(true);
     });
 
     it('should fail to update a non-existing id', () => {
         const id = 237842;
-        const response = kb.updateFactByID(id, 'proto2',  'tag1', 7, 100, { relation: 'modifies', subject: 'FromGold', object: 'stuff' });
+        const updata = { relation: 'modifies', subject: 'FromGold', object: 'stuff' };
+        const response = kb.updateFactByID(id, 'proto2',  'tag1', 7, 100, updata );
         const expected = new kb.Response(false, id);
         expect(response).to.deep.equal(expected);
     });
@@ -229,4 +223,3 @@ describe ('addRule and removeRule', () => {
         expect(response).to.deep.equal(expected);
     });
 });
-

@@ -60,9 +60,9 @@ class Controller():
             se host è webcam uso la webcam
         """
         # Ops for KB
-        self._kb = kb(persistence = True)
+        #self._kb = kb(persistence = True)
         # mi registrerò
-        self._kb.registerTags(DOCS)
+        #self._kb.registerTags(DOCS)
 
         # Ops for stram in input
         self.is_host = not (host == "webcam")
@@ -131,7 +131,7 @@ class Controller():
                 if self.is_host:
                     face_obj, frame_size  = queue.get()
                     fact = self.watch(face_obj, frame_size)
-                    self._add_fact_to_kb(fact)
+                    #self._add_fact_to_kb(fact)
                     queue.task_done()
                 else: # TODO: delete this option only for test
                     ret, frame = self.video_capture.read()

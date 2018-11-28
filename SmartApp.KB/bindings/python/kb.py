@@ -8,7 +8,7 @@ import os
 from websocket import create_connection
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
-config_file_path = r'./config-margot'
+config_file_path = r'./config-api'
 
 class KnowledgeBaseClient():
 
@@ -35,8 +35,16 @@ class KnowledgeBaseClient():
 	def close_websocket(self):
 		if(not self.persistence):
 			self.websocket.close()
-
-	def send_request(self, request: map ):
+	
+	# this method sends a message on a websocket
+	# the message format to the knowledge base api is
+	# { "method": METHODNAME, "params": PARAMSOBJECT, "token": TOKEN}
+	# METHODNAME is the method name
+	# PARAMSOBJECT is a map in which each key is the name of the parameter
+	# TOKEN is the authentiation tocken string
+	def remote_call(self, method: str, params: map ):
+		
+		request = {"method": method, "params": params, "token": self.token}
 		self.get_websocket()
 		self.websocket.send(json.dumps(request))
 		reply = json.loads(self.websocket.recv())
@@ -45,31 +53,34 @@ class KnowledgeBaseClient():
 
 	# used as a login
 	def registerTags(self, tagsList: map):
-		return self.send_request({"method": "registerTags", "params": {"tagsList": tagsList}, "token": self.token})
+		return self.remote_call("registerTags", {"tagsList": tagsList})
 
 	def getTagDetails(self, tagsList: list):
-		return self.send_request({"method": "getTagDetails", "params": {"tagsList": tagsList}, "token": self.token})
+		return self.remote_call("getTagDetails", {"tagsList": tagsList})
 
 	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
-		return self.send_request({"method": "addFact", "params": {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} , "token": self.token})
+		return self.remote_call("addFact", {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} )
 
 	def addRule(self, idSource: str, tag: str, jsonRule: map):
-		return self.send_request({"method": "addRule", "params": {"idSource": idSource, "tag": tag, "jsonRule": jsonRule}, "token": self.token})
+		return self.remote_call("addRule", {"idSource": idSource, "tag": tag, "jsonRule": jsonRule})
 
 	def updateFactByID(self, idFact:str, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map ):
-		return self.send_request({"method": "updateFactByID", "params": {"idFact": idFact, "idSource": idSource, "tag": tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} , "token": self.token})
+		return self.remote_call("updateFactByID", {"idFact": idFact, "idSource": idSource, "tag": tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} )
+
+	def query(self, jsonReq: map):
+		return self.remote_call("query",{ "jsonReq": jsonReq })
 
 	def queryBind(self, jsonReq: map):
-		return self.send_request({"method": "queryBind", "params": {"jsonReq": jsonReq}, "token": self.token})
+		return self.remote_call("queryBind", {"jsonReq": jsonReq})
 
 	def queryFact(self, jsonReq: map):
-		return self.send_request({"method": "queryFact", "params": {"jsonReq": jsonReq}, "token": self.token})
-
+		return self.remote_call("queryFact", {"jsonReq": jsonReq})
+	
 	def removeFact(self, idSource: str, jsonReq: map):
-		return self.send_request({"method": "removeFact", "params": {"idSource": idSource, "jsonReq": jsonReq}, "token": self.token})
+		return self.remote_call("removeFact", {"idSource": idSource, "jsonReq": jsonReq})
 
 	def removeRule(self, idSource: str, idRule: int):
-		return self.send_request({"method": "removeRule", "params": {"idSource": idSource, "idRule": idRule}, "token": self.token})
+		return self.remote_call("removeRule", {"idSource": idSource, "idRule": idRule})
 
 	def subscribe(self, idSource: str, jsonReq: map, callback):
 		websocketSub = create_connection("%s:%s"%(self.host, self.port))
@@ -93,4 +104,5 @@ class subscrThr (threading.Thread):
 				reply  = self.websocket.recv()
 			except:
 				print("subcription socket error")
+				return 0
 			self.callback(json.loads(reply))
