@@ -12,6 +12,7 @@ export type DatabaseFact = Map<number, DataObject>;
 export type DatabaseRule = Map<number, DataObject>;
 
 export const databaseFact = new Map<number, DataObject>();
+export const databaseInference = new Map<number, DataObject>(); // TODO: remove this asap
 export const databaseRule = new Map<number, DataObject>();
 const subscriptions = new Map<object, SubCallback[]>();
 
@@ -65,8 +66,8 @@ export class DataObject {
 
 // tslint:disable-next-line:max-classes-per-file
 export class DataRule {
-    public _body: object[];
-    public _head: object;
+    public _body: any[];
+    public _head: any;
 
     constructor(head: object, body: object[]) {
         this._body = body;
@@ -121,7 +122,6 @@ export function getTagDetails(idSource: string, tags : string[]) {
     return new Response(true, result);
 }
 
-// tslint:disable-next-line:max-line-length
 export function addFact(idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(userTags.has(idSource))) { return new Response(false, {}); }
     if (!(userTags.get(idSource).has(tag))) { return new Response(false, tag); }
@@ -135,10 +135,27 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
     };
     databaseFact.set(dataobject._id, dataobject);
     checkSubscriptions(dataobject);
-    checkRules(jsonFact);
+    checkRules(dataobject);
     return new Response(true, currentFactId);
 }
+// TODO: remove this asap
+export function addInferenceFact(idSource: string, tag: string, TTL: number, reliability: number, jsonInfer: object) {
+    // aggiungi controllo documentazione presente tag
+    // if (!(tagDetails .has(tag))) { return new Response(false, tag); }
+    // TODO: NON CI SONO I CONTROLLI SUL TAG!!
 
+    const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
+    const currentFactId = -uniqueFactId_gen();
+    const dataobject = {
+        _data: jsonInfer,
+        _id: currentFactId,
+        _meta: metadata,
+    };
+    databaseInference.set(dataobject._id, dataobject);
+    checkSubscriptions(dataobject);
+    // checkRules(dataobject);
+    return new Response(true, currentFactId);
+}
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(userTags.has(idSource))) { return new Response(false, idSource); }
@@ -167,13 +184,16 @@ export function query(jreq: any) {
         if (Object.keys(jreq).length > 0) {queryobj._data = jreq; }
     }
 
-    const m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
+    let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
+    // TODO: remove this asap
+    m = new Map([...m, ...matcher.findMatches(queryobj, Array.from(databaseInference.values()))]);
 
     if (m.size === 0) { return new Response(false, {});
     } else { return new Response(true, m); }
 }
 
-export function subscribe(idSource: string, jreq: object, callback: SubCallback) {
+export function subscribe(idSource: string, subreq: object, callback: SubCallback) {
+    const jreq = normalizeObj(subreq);
     if (!subscriptions.has(jreq)) { subscriptions.set(jreq, [callback]);
     } else { subscriptions.get(jreq).push(callback); }
     return new Response(true, 'Subscribed');
@@ -197,14 +217,59 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
     // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
     //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
     // }
+
     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()).toLocaleDateString('en-GB'), 0, 0);
     const dataobject = {
-        _data: jsonRule,
+        _data: normalizeRule(jsonRule),
+        // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
         _id: uniqueRuleId_gen(),
         _meta: metadata,
     };
+
     databaseRule.set(dataobject._id, dataobject);
     return new Response(true, dataobject._id);
+}
+
+function normalizeRule(rule: DataRule): DataRule {
+    const norm: DataRule = new DataRule({}, []);
+
+    if (rule._head.hasOwnProperty('_meta')) { norm._head._meta = rule._head._meta;  delete rule._head._meta; }
+
+    if (rule._head.hasOwnProperty('_data')) {
+        norm._head._data = rule._head._data;
+    } else {
+        if (Object.keys(rule._head).length > 0) {norm._head._data = rule._head; }
+    }
+
+    for (const pred of rule._body) {
+        const normb: any = {};
+        if (pred.hasOwnProperty('_meta')) { normb._meta = pred._meta;  delete pred._meta; }
+
+        if (pred.hasOwnProperty('_data')) {
+            normb._data = pred._data;
+        } else {
+            if (Object.keys(pred).length > 0) {normb._data = pred; }
+        }
+        norm._body.push(normb);
+    }
+
+    return norm;
+
+}
+
+function normalizeObj(sub: any) {
+    const norm: any = {};
+
+    if (sub.hasOwnProperty('_meta')) { norm._meta = sub._meta;  delete sub._meta; }
+
+    if (sub.hasOwnProperty('_data')) {
+        norm._data = sub._data;
+    } else {
+        if (Object.keys(sub).length > 0) { norm._data = sub; }
+    }
+
+    return norm;
+
 }
 
 export function removeRule(idSource: string, idRule: number) {
