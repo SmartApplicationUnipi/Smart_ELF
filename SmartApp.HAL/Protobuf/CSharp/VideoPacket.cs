@@ -797,7 +797,7 @@ namespace SmartApp.HAL.Model {
           z_ = other.z_;
           speaking_ = other.speaking_;
           data_ = other.data_;
-          rect_ = other.rect_ != null ? other.rect_.Clone() : null;
+          Rect = other.rect_ != null ? other.Rect.Clone() : null;
           _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
         }
 
