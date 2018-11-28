@@ -85,17 +85,31 @@ query_corso = [
 (32, 'In che giorno ed a che ora è la prossima lezione del corso'),
 (33, 'Qual è  l’orario settimanale del corso'),
 (34, 'Qual è l’orario  settimanale delle lezioni del corso'),
-(35, 'Quando sono le lezioni del corso')
+(35, 'Quando sono le lezioni del corso'),
+(45, 'Quando sarà la prossima lezione del corso di'),
+(46, 'A che ora è la prossima lezione del corso di'),
+(47, 'In che giorno è la prossima lezione del corso di'),
+(48, 'In che giorno ed a che ora è la prossima lezione del corso di'),
+(49, 'Qual è  l’orario settimanale del corso di'),
+(50, 'Qual è l’orario  settimanale delle lezioni del corso di '),
+(51, 'Quando sono le lezioni del corso di ')
 ]
 
 query_corso_t = [
     (29, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>." ),
     (30, {}, "La prossima lezione del corso <corso> è alle ore <time>."),
     (31, {}, "La prossima lezione del corso <corso> è il <data>."),
-    (32, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>.")
+    (32, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>."),
     (33, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
     (34, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
-    (35, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>.")
+    (35, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>."),
+    (45, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>." ),
+    (46, {}, "La prossima lezione del corso <corso> è alle ore <time>."),
+    (47, {}, "La prossima lezione del corso <corso> è il <data>."),
+    (48, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>."),
+    (49, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
+    (50, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
+    (51, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>.")
 ]
 
 query_aule = [
@@ -120,10 +134,10 @@ query_cancellazione = [
 ]
 
 query_cancellazione_t = [
-    (39, {}, "<bool>")
-    (40, {}, "<bool>")
-    (41, {}, "<bool>")
-    (42, {}, "<bool>")
-    (43, {}, "<bool>")
+    (39, {}, "<bool>"),
+    (40, {}, "<bool>"),
+    (41, {}, "<bool>"),
+    (42, {}, "<bool>"),
+    (43, {}, "<bool>"),
     (44, {}, "<bool>")
 ]
