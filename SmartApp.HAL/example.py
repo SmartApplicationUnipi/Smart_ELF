@@ -22,7 +22,7 @@ def handleVideoMessages(videoMessage):
 
 if __name__ == '__main__':
     # create interface object
-    HALAddress = "10.101.50.10"    # default
+    HALAddress = "10.101.41.242"    # default
     HALAudioPort = 2001         # default
     HALVideoPort = 2002         # default
     hal = HALInterface(HALAddress=HALAddress, HALAudioPort=HALAudioPort, HALVideoPort=HALVideoPort)

@@ -55,7 +55,7 @@ class Controller():
     #FIFO queue
     q = Queue(maxsize= 5)
 
-    def __init__(self, host = "127.0.0.1"):
+    def __init__(self, host = "10.101.41.242"):
         """
             se host è webcam uso la webcam
         """
@@ -97,7 +97,8 @@ class Controller():
             print("\n It seems that there is a problem in the initialization!")
 
         # Select module available
-        self.module = self._getResolver()
+        #self.module = self._getResolver()
+        self.module = self.offline_module
 
         # Ops for worker that compute all the analyzes
         # TODO Creare 6 thread che lavoreano su più persone
@@ -115,8 +116,8 @@ class Controller():
         """
         if Controller.q.full():
             Controller.q.get()
-        for face in frame_obj:
-            Controller.q.put((face, frame_obj.frame_original_size))
+        for face in frame_obj.faces:
+            Controller.q.put((face.img, frame_obj.frame_original_size))
 
     def _worker(self, queue):
         """
@@ -138,7 +139,7 @@ class Controller():
                     frame = cv2.resize(frame, (320, 240))
                     fact = self.watch(frame)
         except Exception as e:
-            print(e)
+            print(type(e).__name__, e)
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         try:
