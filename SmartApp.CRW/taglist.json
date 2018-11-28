@@ -1,0 +1,37 @@
+[
+  {
+    "tagName" : "crawler_room_event",
+    "desc" : "An event that was booked to a room. This can either be a class, exam, seminar, etc. While these values are harvested from an official source, note that events may be canceled or postponed, so do not assume a reliability of 100%.",
+    "doc" : ""
+  },
+  
+  {
+    "tagName" : "crawler_news",
+    "desc" : "News from the UniPi Informatica website.",
+    "doc" : ""
+  },
+  
+  {
+    "tagName" : "crawler_teacher_phone_number",
+    "desc" : "A phone number of a teacher! :) :) Yes, a teacher! Finally you can call Ferragina when you have any problems with Algorithm Engineering!",
+    "doc" : ""
+  },
+  
+  {
+	"tagName" : "crawler_room",
+    "desc" : "A room directly from the official rooms list. This information should be official",
+    "doc" : ""
+  },
+  
+  {
+	"tagName" : "crawler_course",
+    "desc" : "An UniPi course. Courses are associated with a teacher, a code, a semester, etc. These should be considered as official.",
+    "doc" : ""
+  },
+
+  {
+    "tagName" : "crawler_teacher",
+    "desc" : "A teacher from UniPi. This information should be official as it comes directly from margot.",
+    "doc" : ""
+  }
+]

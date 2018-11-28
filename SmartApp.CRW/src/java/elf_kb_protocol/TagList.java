@@ -6,12 +6,12 @@ import com.google.gson.JsonObject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class JReq {
+public class TagList {
 
     private JsonObject tags;
     private Set<String> tagSet;
 
-    public JReq() {
+    public TagList() {
         this.tags = new JsonObject();
         this.tagSet = new HashSet<>();
     }

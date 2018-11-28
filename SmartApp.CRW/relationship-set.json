@@ -5,7 +5,8 @@
 				"predicate" : "teaches",
 				"subject" : ".class-list-teacher",
 				"object" : ".class-list-title",
-				"groupby" : "parent"
+				"groupby" : "parent",
+				"tag" : "crawler_timetable"
 			}
 		]
 	],
@@ -16,7 +17,8 @@
 				"predicate" : "newsfeed",
 				"subject" : ".feed-link a",
 				"object" : ".feed-item-description",
-				"groupby" : "parent"
+				"groupby" : "parent",
+				"tag" : "crawler_news"
 			}
 		]
 	],
@@ -27,17 +29,47 @@
 				"predicate" : "phone_number_of",
 				"subject" : ".nobreak a",
 				"object" : "td[headers=\"telefono\"]",
-				"groupby" : "parent"
+				"groupby" : "parent",
+				"tag" : "crawler_teacher_phone_number"
 			}
 		]
 	],
 
-	["file:///C:/Users/and_s/Downloads/All%20rooms.json",
+	["http://margot.di.unipi.it/test12/goa/2018/1/getfullroomlist",
 		[
-			"$.*"
+			{
+				"root" : "$.*",
+				"tag" : "crawler_room"
+			}
 		]
 	],
 
+	["http://margot.di.unipi.it/test12/goa/2018/1/getlectures",
+		[
+			{
+				"root" : "$.*",
+				"tag" : "crawler_course"
+			}
+		]
+	],
+
+	["http://margot.di.unipi.it/test12/goa/2018/1/getallteachers",
+		[
+			{
+				"root" : "$.*",
+				"tag" : "crawler_teacher"
+			}
+		]
+	],
+
+	["http://gap.adm.unipi.it/GAP-A-Fibonacci/rawdata.cgi/22/10/2018-28/10/2018",
+		[
+			{
+				"tag" : "crawler_room_event",
+				"columns" : "*"
+			}
+		]
+	],
 
 	["generic",
 		[
@@ -45,7 +77,8 @@
 				"predicate" : "teaches",
 				"subject" : ".class-list-teacher",
 				"object" : ".class-list-title",
-				"groupby" : "try-all"
+				"groupby" : "try-all",
+				"tag" : "crawler_generic"
 			}
 		]
 	]
