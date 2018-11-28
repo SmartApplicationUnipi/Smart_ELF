@@ -24,16 +24,16 @@ query_prof = [
     (14, "In che giorno è la prossima lezione del professor"),
     (15, "In che giorno fa lezione il professor"),
     (16, "In che giorno ed a che ora è la prossima lezione del professor"),
-    (17, "Qual’è l’orario settimanale del professor"),
-    (18, "Qual’è l’orario settimanale delle lezioni del professor"),
+    (17, "Qual è l’orario settimanale del professor"),
+    (18, "Qual è l’orario settimanale delle lezioni del professor"),
     (19, "Quali sono le lezioni del professor"),
     (20, "In quale dipartimento fa ricevimento il professor"),
     (21, "Dove è il ricevimento del professor"),
     (22, "A che ora è il ricevimento del professor"),
     (23, "Quando è il ricevimento del professor"),
     (24, "In quale dipartimento è lo studio del professor"),
-    (25, "Qual’è lo studio del professor"),
-    (26, "Qual’è il numero dello studio del professor"),
+    (25, "Qual è lo studio del professor"),
+    (26, "Qual è il numero dello studio del professor"),
     (27, "Dove è lo studio del professor"),
     (28, "Dove si trova la Lezione del Professor"),
     ]
@@ -75,4 +75,55 @@ query_prof_t = [
     (26, {"_data":{"subject":"<professor>", "relation":"teach","object":"time"}}, "Il professor <professor> riceve al dipartimento di <department> stanza <room>"),
     (27, {"_data":{"subject":"<professor>", "relation":"teach","object":"time"}}, "Il professor <professor> riceve al dipartimento di <department>"),
     (28, {"_data":{"subject":"<professor>", "relation":"teach","object":"time"}}, "La lezione del professor <professor> è in <room>")
-    ]
+]
+
+""" Queries with corso as last word """
+query_corso = [
+(29, 'Quando sarà la prossima lezione del corso'),
+(30, 'A che ora è la prossima lezione del corso'),
+(31, 'In che giorno è la prossima lezione del corso'),
+(32, 'In che giorno ed a che ora è la prossima lezione del corso'),
+(33, 'Qual è  l’orario settimanale del corso'),
+(34, 'Qual è l’orario  settimanale delle lezioni del corso'),
+(35, 'Quando sono le lezioni del corso')
+]
+
+query_corso_t = [
+    (29, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>." ),
+    (30, {}, "La prossima lezione del corso <corso> è alle ore <time>."),
+    (31, {}, "La prossima lezione del corso <corso> è il <data>."),
+    (32, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>.")
+    (33, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
+    (34, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
+    (35, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>.")
+]
+
+query_aule = [
+(36, "Dove sta l'aula"),
+(37, "Come faccio a raggiungere l'aula"),
+(38, "Che lezione c'è in aula")
+]
+
+query_aule_t = [
+    (36, {}, "L'aula <aula> si trova qui: <mappa>"),
+    (37, {}, "Per raggiungere l'aula <aula> devi andare qui: <mappa>"),
+    (38, {}, "In aula <aula> c'è la lezione di <lezione>.")
+]
+
+query_cancellazione = [
+(39, "La lezione del professore C è stata cancellata"),
+(40, "La lezione del corso Y è stata cancellata"),
+(41, "La lezione del professore C del giorno D è stata cancellata"),
+(42, "La lezione del corso Y del giorno D è stata cancellata"),
+(43, "La lezione del professore C dell’ora Y è stata cancellata"),
+(44, "La lezione del professore C del giorno D all’ora Y è stata cancellata")
+]
+
+query_cancellazione_t = [
+    (39, {}, "<bool>")
+    (40, {}, "<bool>")
+    (41, {}, "<bool>")
+    (42, {}, "<bool>")
+    (43, {}, "<bool>")
+    (44, {}, "<bool>")
+]

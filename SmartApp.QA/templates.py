@@ -1,6 +1,8 @@
 import sys
-from simple_queries import query_prof_t, query_prof
+from simple_queries import query_prof_t, query_prof, query_corso, query_corso_t, query_cancellazione, query_cancellazione_t
+from nlt.tokenize import RegexpTokenizer
 
+tokenizer = RegexpTokenizer(r'\w+')
 
 def __main__():
     n_args = len(sys.argv)
@@ -22,15 +24,18 @@ def init_templates_dict():
         - key= sentence_id
         - value= (KB_query, answer with placeholders)
     """
-    
+
     dict_q = {}
     for tup in query_prof:
-        dict_q[tup[1].lower()] = tup[0]
+        dict_q[preprocess_sentence(tup[1])] = tup[0]
 
     dict_answ = {}
-    
+
     for tup in query_prof_t:
         dict_answ[tup[0]] = (tup[1], tup[2])
+
+    # repeat for all the tuples?
+    
     return dict_q, dict_answ
 
 
@@ -42,9 +47,9 @@ def check_exact_match(input_q, dict_q, dict_answ):
     the correspondig template of the answer should be filled with datas received
     input_q= user's question to ELF
     """
-    
+
     keywords = ["professor"]
-    input_q = input_q.lower().replace("?","")
+    input_q = preprocess_sentence(input_q)
     for kwrd in keywords:
         found_idx = input_q.find(kwrd)
         if (found_idx != -1):
@@ -58,11 +63,18 @@ def check_exact_match(input_q, dict_q, dict_answ):
         else:
             print("sentence:\t" + input_q)
             sentence_id = dict_q.get(input_q, -1)
-            
-            print("answer:\t" + dict_answ[sentence_id][1])
-    
 
-    
-    
+            print("answer:\t" + dict_answ[sentence_id][1])
+
+
+def preprocess_sentence(sentence):
+    preprocessed = sentence.lower()
+
+    preprocessed = tokenizer.tokenize(sentence)
+
+    # add stopword removal?
+
+    return preprocessed
+
 
 __main__()
