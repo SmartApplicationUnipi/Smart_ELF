@@ -188,7 +188,16 @@ class Controller():
         face_position = face.face_position if hasattr(face, "face_position") else (0, 0)
         z_index = face.z_index if hasattr(face, "z_index") else -1
 
-        fact = self.module.analyze_face(img)
+        self.module = self._getResolver() # fare get_resolver() ogni volta?
+
+        try:
+            fact = self.module.analyze_face(img)
+        except Exception as e: # TODO call it RequestError or something similar
+            self.has_api_problem = True
+            self.module = self._getResolver()
+            fact = self.module.analyze_face(img)
+            self.has_api_problem = False # ?
+
         if not fact:
             print("Non vedo nessuno")
         else:
