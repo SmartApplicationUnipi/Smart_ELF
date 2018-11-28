@@ -106,6 +106,15 @@ Channels provide a way to specify a "priority" for a certain event or action.
 
 - Support for error reporting and logs
 
+## Configuration
+
+In order to run properly, the system needs a configuration JSON file named "elfconfig.json" in the main folder. This will be packed into the final bundle by Webpack.
+
+This file contains:
+
+- KB_URL: The address of the KB module
+- TTS_URL: The address of the TTS module
+
 ## TODO
 
 - Support for position

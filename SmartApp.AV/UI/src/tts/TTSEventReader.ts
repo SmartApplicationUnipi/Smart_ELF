@@ -4,9 +4,6 @@ import { BaseEventReader } from '../reader/EventReader';
 import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 import { AutoSocket, AutoSocketListener } from '../utils/AutoSocket';
 
-const TTS_URL: string = "ws://10.101.27.153:65432" // Remote TTS Service
-// const TTS_URL: string = "ws://localhost:65432" // Local TTS Service
-
 /**
  * UI event reader for interacting with TTS module
  */
@@ -17,12 +14,16 @@ export class TTSEventReader extends BaseEventReader implements AutoSocketListene
 	 */
 	private socket: AutoSocket;
 
+	constructor(private url: string) {
+		super();
+	}
+
 	/**
 	 * Starts the reader
 	 */
 	public start(): void {
 		try {
-			this.socket = new AutoSocket(TTS_URL);
+			this.socket = new AutoSocket(this.url);
 			this.socket.setListener(this);
 
 			this.socket.start();

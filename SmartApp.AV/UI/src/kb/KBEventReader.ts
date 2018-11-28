@@ -6,9 +6,6 @@ import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 import { KBResponse } from './KBResponse';
 import { AutoSocket, AutoSocketListener } from '../utils/AutoSocket';
 
-// const KB_URL: string = "ws://localhost:5666" // Local KB
-const KB_URL: string = "ws://131.114.3.213:5666" // Remote KB
-
 /**
  * This class implements an BaseEventReader that receives messages from the KB.
  */
@@ -18,6 +15,10 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * Socket for communicatin with the KB.
 	 */
 	private socket: AutoSocket;
+
+	constructor(private url: string) {
+		super();
+	}
 
 	/**
 	 * List of queries for the KB.
@@ -30,7 +31,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 
 	public start(): void {
 		try {
-			this.socket = new AutoSocket(KB_URL);
+			this.socket = new AutoSocket(this.url);
 			this.socket.setListener(this);
 			this.socket.start();
 		} catch (ex) {
