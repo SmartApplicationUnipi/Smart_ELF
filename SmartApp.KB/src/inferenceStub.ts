@@ -1,22 +1,10 @@
 import { isObject } from 'util';
+import { Colors, Debugger } from './debugger';
 import { addFact, databaseFact, databaseRule, DataRule } from './kb';
-import { findMatchesBind, isPlaceholder } from './matcher';
+import { findMatches, isPlaceholder } from './matcher';
 
-const INFERENCE_TAG = 'INFERENCE';
-const DEBUG = 6;
-
-const WHITE = '\x1b[0m';
-const RED = '\x1b[1;31m';
-const GREEN = '\x1b[1;32m';
-const YELLOW = '\x1b[1;33m';
-const BLUE = '\x1b[1;34m';
-const PINK = '\x1b[1;35m';
-
-function clog(color: string, kind: string, id: number, before: string, msg: string, level: number) {
-    if (level < DEBUG) {
-        console.log(before + color + kind + '(' + id + ')' + WHITE + ' ' + msg);
-    }
-}
+const INFERENCE_TAG = 'INFERENCE'; // TODO: change this. the user will specify the tag in the rule head!
+const debug = new Debugger();
 
 export function checkRules(fact: object) {
     for (const rule of databaseRule.values()) {
@@ -27,40 +15,40 @@ export function checkRules(fact: object) {
 
 function checkRule(head: object, body: object[], fact: object) {
     // se il fatto è uno dei predicati nel body della regola
-    clog(BLUE, 'INFO', 0, '', 'checkRule entered', 10);
+    debug.clog(Colors.BLUE, 'INFO', 0, '', 'checkRule entered', 10);
 
     let binds;
     for (const pred of body) {
-        clog(BLUE, 'INFO', 1, '', 'guardo il predicato', 10);
+        debug.clog(Colors.BLUE, 'INFO', 1, '', 'guardo il predicato', 10);
 
         // cerco se fact matcha un pred nel body
-        binds = findMatchesBind(pred, [fact]);
+        binds = findMatches(pred, [fact]);
 
-        clog(BLUE, 'INFO', 2, '', 'primo match ha length ' + binds.length, 10);
+        debug.clog(Colors.BLUE, 'INFO', 2, '', 'primo match ha length ' + binds.size, 10);
         // console.log();
-        if (binds.length > 0) {
+        if (binds.size > 0) {
             break;
         }
     }
 
-    if (binds.length > 0) {
-        clog(BLUE, 'INFO', 3, '', 'ho matchato un predicato ', 10);
+    if (binds.size > 0) {
+        debug.clog(Colors.BLUE, 'INFO', 3, '', 'ho matchato un predicato ', 10);
         // console.log();
 
         // se ho matchato un predicato del body,
         // cerco nel dataset se esiste soluzione per ciascun degli altri pred
         for (const pred of body) {
-            clog(BLUE, 'INFO', 4, '', 'guardo il predicato ', 10);
+            debug.clog(Colors.BLUE, 'INFO', 4, '', 'guardo il predicato ', 10);
 
             let tempbinds: any[] = [];
             for (const bi of binds) {
-                clog(BLUE, 'INFO', 5, '', 'guardo il binding ', 10);
+                debug.clog(Colors.BLUE, 'INFO', 5, '', 'guardo il binding ', 10);
                 // console.log(bi);
                 // console.log();
 
-                const b = findMatchesBind({ _data: pred }, Array.from(databaseFact.values()), bi);
+                const b = findMatches({ _data: pred }, Array.from(databaseFact.values()), bi);
                 // b se non è vuoto contiene i nuovi bindings (che contengono bi)
-                clog(GREEN, 'OK', 5, '', 'trovata soluzione: ', 5);
+                debug.clog(Colors.GREEN, 'OK', 5, '', 'trovata soluzione: ', 5);
                 console.log(b);
                 // console.log();
 
@@ -76,7 +64,7 @@ function checkRule(head: object, body: object[], fact: object) {
             }
         }
         // ho matchato tutti i body
-        clog(GREEN, 'OK', 7, '', 'HO MATCHATO TUTTII BODY', 5);
+        debug.clog(Colors.GREEN, 'OK', 7, '', 'HO MATCHATO TUTTI BODY', 5);
         console.log(binds);
         // console.log();
         for (const bind of binds) {
@@ -97,21 +85,10 @@ function checkRule(head: object, body: object[], fact: object) {
                 };
                 // tslint:disable-next-line:max-line-length
                 // addFact('inference', 'infoSum', 1, 100, true, {subject: b.$prof, relation: 'is in room', object: b.$room});
-                console.log('INFERENCE MAGIA ', magia(head));
-                console.log('INFERENCE ADDFACT ', addFact('inference', INFERENCE_TAG, 1, 100, magia(head)));
+                debug.clog(Colors.BLUE, 'DEBUG', 1, '', 'INFERENCE MAGIA ' + magia(head), 1);
+                const addres = addFact('inference', INFERENCE_TAG, 1, 100, magia(head));
+                debug.clog(Colors.BLUE, 'DEBUG', 1, '', 'INFERENCE ADDFACT' + addres, 1);
             }
         }
     }
 }
-
-//     if (matchesArray.length > 0) {
-
-//         for (const match of matchesArray) {
-//             // cerco fatti degli altri predicati del body
-//             const solutions = queryBind( {subject: match.$course, relation: 'is in room',  object: '$room'} );
-
-//             for (const sol of solutions) {
-//                  // e genero la testa di cazzo che mi pare
-//                 addFact('KB', 'infoSum', 1, 100, true, {subject: match.$prof, relation: 'is in', object: sol.$room});
-//             }
-//     }

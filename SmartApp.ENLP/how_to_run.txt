@@ -1,0 +1,5 @@
+In order to launch all the components of the ENLP module simply install the requirements and then launch the application with the following commands:
+
+pip install -r requirements.txt
+
+python enlp_app.py
