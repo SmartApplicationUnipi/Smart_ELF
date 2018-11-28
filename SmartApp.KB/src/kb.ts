@@ -2,6 +2,7 @@ import { security } from './config';
 import { Debugger } from './debugger';
 import { checkRules } from './inferenceStub';
 import * as matcher from './matcher';
+import { transformRule } from './compiler';
 
 const debug = new Debugger();
 
@@ -17,7 +18,7 @@ export const databaseRule = new Map<number, DataObject>();
 const subscriptions = new Map<object, SubCallback[]>();
 
 //TAGS
-const userTags = new Map<string, Map<string, TagInfo> >();
+const userTags = new Map<string, Map<string, TagInfo>>();
 
 let idSource = 0;
 let uniqueFactId = 0; // move in server part
@@ -87,7 +88,7 @@ export class TagInfo {
 }
 
 export function register() {
-    var id = "id"+idSource++;
+    var id = "id" + idSource++;
     userTags.set(id, new Map<string, TagInfo>());
     return new Response(true, id);
 }
@@ -98,7 +99,7 @@ export function registerTags(idSource: string, tagsList: any): Response { // tag
 
     const tags = Object.keys(tagsList);
     const map = userTags.get(idSource);
-    const result : string[] = []
+    const result: string[] = []
     for (const tag of tags) {
         map.set(tag, tagsList[tag]);
         result.push(tag);
@@ -106,7 +107,7 @@ export function registerTags(idSource: string, tagsList: any): Response { // tag
     return new Response(true, result);
 }
 
-export function getTagDetails(idSource: string, tags : string[]) {
+export function getTagDetails(idSource: string, tags: string[]) {
     if (!userTags.has(idSource)) { return new Response(false, {}) };
 
     const result: any = {};
@@ -176,25 +177,27 @@ export function query(jreq: any) {
 
     if (jreq.hasOwnProperty('_id')) { queryobj._id = jreq._id; delete jreq._id; }
 
-    if (jreq.hasOwnProperty('_meta')) { queryobj._meta = jreq._meta;  delete jreq._meta; }
+    if (jreq.hasOwnProperty('_meta')) { queryobj._meta = jreq._meta; delete jreq._meta; }
 
     if (jreq.hasOwnProperty('_data')) {
         queryobj._data = jreq._data;
     } else {
-        if (Object.keys(jreq).length > 0) {queryobj._data = jreq; }
+        if (Object.keys(jreq).length > 0) { queryobj._data = jreq; }
     }
 
     let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
     // TODO: remove this asap
     m = new Map([...m, ...matcher.findMatches(queryobj, Array.from(databaseInference.values()))]);
 
-    if (m.size === 0) { return new Response(false, {});
+    if (m.size === 0) {
+        return new Response(false, {});
     } else { return new Response(true, m); }
 }
 
 export function subscribe(idSource: string, subreq: object, callback: SubCallback) {
     const jreq = normalizeObj(subreq);
-    if (!subscriptions.has(jreq)) { subscriptions.set(jreq, [callback]);
+    if (!subscriptions.has(jreq)) {
+        subscriptions.set(jreq, [callback]);
     } else { subscriptions.get(jreq).push(callback); }
     return new Response(true, 'Subscribed');
 }
@@ -230,25 +233,45 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
     return new Response(true, dataobject._id);
 }
 
-function normalizeRule(rule: DataRule): DataRule {
+export function newAddRule(idSource: string, ruleTag: string, jsonRule: string) {
+    // controllo se la regola è valida
+    // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
+    //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
+    // }
+
+    const jsonObj = transformRule(jsonRule);
+
+    const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()).toLocaleDateString('en-GB'), 0, 0);
+    const dataobject = {
+        _data: normalizeRule(jsonObj),
+        // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
+        _id: uniqueRuleId_gen(),
+        _meta: metadata,
+    };
+
+    databaseRule.set(dataobject._id, dataobject);
+    return new Response(true, dataobject._id);
+}
+
+function normalizeRule(rule: any): DataRule {
     const norm: DataRule = new DataRule({}, []);
 
-    if (rule._head.hasOwnProperty('_meta')) { norm._head._meta = rule._head._meta;  delete rule._head._meta; }
+    if (rule._head.hasOwnProperty('_meta')) { norm._head._meta = rule._head._meta; delete rule._head._meta; }
 
     if (rule._head.hasOwnProperty('_data')) {
         norm._head._data = rule._head._data;
     } else {
-        if (Object.keys(rule._head).length > 0) {norm._head._data = rule._head; }
+        if (Object.keys(rule._head).length > 0) { norm._head._data = rule._head; }
     }
 
     for (const pred of rule._body) {
         const normb: any = {};
-        if (pred.hasOwnProperty('_meta')) { normb._meta = pred._meta;  delete pred._meta; }
+        if (pred.hasOwnProperty('_meta')) { normb._meta = pred._meta; delete pred._meta; }
 
         if (pred.hasOwnProperty('_data')) {
             normb._data = pred._data;
         } else {
-            if (Object.keys(pred).length > 0) {normb._data = pred; }
+            if (Object.keys(pred).length > 0) { normb._data = pred; }
         }
         norm._body.push(normb);
     }
@@ -260,7 +283,7 @@ function normalizeRule(rule: DataRule): DataRule {
 function normalizeObj(sub: any) {
     const norm: any = {};
 
-    if (sub.hasOwnProperty('_meta')) { norm._meta = sub._meta;  delete sub._meta; }
+    if (sub.hasOwnProperty('_meta')) { norm._meta = sub._meta; delete sub._meta; }
 
     if (sub.hasOwnProperty('_data')) {
         norm._data = sub._data;
