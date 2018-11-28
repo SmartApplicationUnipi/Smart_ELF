@@ -1,0 +1,62 @@
+LEZIONI
+Dove posso trovare la lezione di $
+Dov'è la lezione di $
+Dove è la lezione di $
+Dove fa lezione $
+In che aula è la lezione di $
+Dimmi l'aula della lezione di $
+Dove devo andare per seguire la lezione di $
+Dove si trova la lezione di $
+
+LEZIONI ORARI
+A che ora inizia la lezione di $
+Sono in tempo per la lezione di $
+A che ora finisce la lezione di $
+La lezione di $ è già iniziata
+Quando inizia la lezione di $
+Quando farà lezione $
+Quando sarà la prossima lezione di $
+Quando $ terrà lezione
+A che ora fa lezione $
+In che giorno è la prossima lezione di $
+In che giorno fa lezione $
+In che giorno e a che ora è la prossima lezione di $
+In che giorno e a che ora fa lezione $
+Qual’è l’orario settimanale di $
+Qual’è l’orario settimanale delle lezioni di $
+Quali sono le lezioni di $
+
+LEZIONI ORARI CORSI
+Quando sarà la prossima lezione del corso di $
+A che ora è la prossima lezione del corso di $
+In che giorno è la prossima lezione del corso di $
+In che giorno e a che ora è la prossima lezione del corso di $
+Qual’è l’orario settimanale del corso di $
+Qual’è l’orario settimanale delle lezioni del corso di $
+Quando sono le lezioni del corso di $
+
+LEZIONI COME ARRIVARE
+Dove è l'aula $
+Dove sta l'aula $
+Come faccio a raggiungere l'aula $
+Che lezione c'è in aula $
+
+LEZIONE CANCELLATA
+La lezione di $ è stata cancellata
+La lezione del corso di $ è stata cancellata
+La lezione di $ del giorno $ è stata cancellata
+La lezione del corso di $ del giorno $ è stata cancellata
+La lezione di $ delle $ è stata cancellata
+La lezione di $ del giorno $ delle $ è stata cancellata
+
+ORARIO RICEVIMENTO
+In quale dipartimento fa ricevimento $
+Dove è il ricevimento di $
+A che ora è il ricevimento di $
+Quando è il ricevimento di $
+
+STUDIO DEL PROFESSORE
+In quale dipartimento è lo studio di $
+Qual’è lo studio di $
+Qual’è il numero dello studio di $
+Dove è lo studio di $
