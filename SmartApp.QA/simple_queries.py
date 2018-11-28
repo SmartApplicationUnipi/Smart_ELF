@@ -92,7 +92,9 @@ query_corso = [
 (48, 'In che giorno ed a che ora è la prossima lezione del corso di'),
 (49, 'Qual è  l’orario settimanale del corso di'),
 (50, 'Qual è l’orario  settimanale delle lezioni del corso di '),
-(51, 'Quando sono le lezioni del corso di ')
+(51, 'Quando sono le lezioni del corso di '),
+(52, "A che ora è la lezione del corso"),
+
 ]
 
 query_corso_t = [
@@ -109,7 +111,9 @@ query_corso_t = [
     (48, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>."),
     (49, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
     (50, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
-    (51, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>.")
+    (51, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>."),
+    (52, {}, "La prossima lezione del corso <corso> è alle ore <time>."),
+    
 ]
 
 query_aule = [
