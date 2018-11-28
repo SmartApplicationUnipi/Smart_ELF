@@ -1,4 +1,7 @@
-from emopy import FERModel
+try:
+    from .emopy import FERModel
+except:
+    from emopy import FERModel
 
 class FERModelEnsemble:
     def __init__(self):
@@ -38,6 +41,3 @@ class FERModelEnsemble:
         sum_ = sum(predictions.values())
         predictions = {k: v / sum_ for k, v in predictions.items()}
         return predictions
-
-
-

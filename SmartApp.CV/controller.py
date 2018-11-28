@@ -1,5 +1,5 @@
 from external_modules.kb_client import KnowledgeBaseClient as kb
-#import external_modules.hal_client as hal
+import external_modules.hal_client as hal
 from online.interface import online_connector as online
 from offline.offvision import OffVision as offline
 
@@ -214,9 +214,9 @@ class Controller():
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.q.join()
-        self.t.join()
+        #self.t.join()
 
 
 if __name__ == '__main__':
-    controller = Controller(host = "webcam")
+    controller = Controller()
     input('Enter anything to close:')
