@@ -19,6 +19,7 @@ tuple = {
   "valence": float,
   "arousal": float,
   "tag": "ENLP_USER_EMOTION"
+
 }
 ```
 The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect.
