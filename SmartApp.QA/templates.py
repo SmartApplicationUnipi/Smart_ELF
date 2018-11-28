@@ -1,9 +1,13 @@
-
+import sys
 from simple_queries import query_prof_t, query_prof
 
 
 def __main__():
-    input_q = "Dove si trova la Lezione del Professor Gervasi?"
+    n_args = len(sys.argv)
+    if n_args == 2:
+        input_q = sys.argv[1]
+    else:
+        input_q = "Dove si trova la Lezione del Professor Gervasi?"
     dict_q, dict_answ = init_templates_dict()
     check_exact_match(input_q, dict_q, dict_answ)
 
@@ -21,12 +25,11 @@ def init_templates_dict():
     
     dict_q = {}
     for tup in query_prof:
-        print(tup)
         dict_q[tup[1].lower()] = tup[0]
+
     dict_answ = {}
     
     for tup in query_prof_t:
-        print(tup)
         dict_answ[tup[0]] = (tup[1], tup[2])
     return dict_q, dict_answ
 
@@ -43,10 +46,13 @@ def check_exact_match(input_q, dict_q, dict_answ):
     keywords = ["professor"]
     input_q = input_q.lower().replace("?","")
     for kwrd in keywords:
-        found = input_q.find(keyword)
-        if (res != -1):
-            index = len(keyword) + res + 1
+        found_idx = input_q.find(kwrd)
+        if (found_idx != -1):
+            index = len(kwrd) + found_idx + 1
             prof = input_q[index:]
+            print(prof)
+            input_q = input_q[:index].rstrip()
+            print(input_q)
         if (dict_q.get(input_q, -1) == -1):
             print("key not found")
         else:
