@@ -30,11 +30,14 @@ wss.on('connection', (ws: WebSocket) => {
             }
 
             switch (j.method) {
+                case 'register':
+                    reply = JSON.stringify(kb.register());
+                    break;
                 case 'registerTags':
-                    reply = JSON.stringify(kb.registerTags(j.params.tagsList));
+                    reply = JSON.stringify(kb.registerTags(j.params.idSource, j.params.tagsList));
                     break;
                 case 'getTagDetails':
-                    reply = JSON.stringify(kb.getTagDetails(j.params.tagsList));
+                    reply = JSON.stringify(kb.getTagDetails(j.params.idSource, j.params.tagsList));
                     break;
                 case 'addFact':
                     // tslint:disable-next-line:max-line-length

@@ -51,6 +51,8 @@ class KnowledgeBaseClient():
 		self.close_websocket()
 		return reply
 
+	def register(self):
+		return self.remote_call("register")
 	# used as a login
 	def registerTags(self, tagsList: map):
 		return self.remote_call("registerTags", {"tagsList": tagsList})
