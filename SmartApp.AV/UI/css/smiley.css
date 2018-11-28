@@ -98,7 +98,34 @@
 
 .smiley.normal .eyes,
 #normal[type=radio]:checked~.smiley .eyes {
-    margin-top: 30%
+    margin-top: 30%;
+}
+
+
+/* sad animation */
+
+.smiley.sad .mouth,
+#sad[type=radio]:checked~.smiley .mouth {
+    border-top-left-radius: 100px;
+    border-top-right-radius: 100px;
+    border-bottom-left-radius: 100px;
+    border-bottom-right-radius: 100px;
+    height: 7%;
+    width: 40%;
+    bottom: 25%;
+    margin-left: -20%;
+    margin-bottom: -15%;
+}
+
+.smiley.sad .eyes,
+#sad[type=radio]:checked~.smiley .eyes {
+    margin-top: 60%;
+}
+
+.smiley.sad .eyes .eye,
+#sad[type=radio]:checked~.smiley .eyes .eye {
+    border-radius: 0px;
+    height: 10px;
 }
 
 

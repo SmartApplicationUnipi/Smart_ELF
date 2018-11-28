@@ -66,7 +66,7 @@ export class TestEventReader extends BaseEventReader {
 		.putAny(KEY_POSITION, new Point(0, 0));
 
 		let e1 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.7, 0.4)) // Anger
+			.putAny(KEY_EMOTION, new Emotion(-0.3, 0.7)) // Anger
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Anger...", emotion: new Emotion(0, 0) } })
 
 		let e2 = new ElfUIEvent()
@@ -82,7 +82,7 @@ export class TestEventReader extends BaseEventReader {
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Joy...", emotion: new Emotion(0, 0) } })
 
 		let e5 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.7, -0.5)) // Sadness
+			.putAny(KEY_EMOTION, new Emotion(-0.9, -0.5)) // Sadness
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Sadness...", emotion: new Emotion(0, 0) } })
 
 		let e6 = new ElfUIEvent()
@@ -92,14 +92,14 @@ export class TestEventReader extends BaseEventReader {
 		this.events.push(pos1)
 
 		this.events.push(e1)
-		this.events.push(e2)
-		this.events.push(e3)
+		// this.events.push(e2)
+		// this.events.push(e3)
 		
 		this.events.push(pos2)
 		
-		this.events.push(e4)
+		// this.events.push(e4)
 		this.events.push(e5)
-		this.events.push(e6)
+		// this.events.push(e6)
 
 		this.events.push(pos3)
 	}
