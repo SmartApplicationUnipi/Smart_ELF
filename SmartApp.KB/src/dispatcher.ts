@@ -37,8 +37,10 @@ const avaiableFunctions: { [index: string]: (op1: string, op2: string) => boolea
 
 export function executeSpecialPredicate(functionName: string, params: string[][]): boolean[] {
     const result: boolean[] = [];
-    for (const paramList of params) {
-        result.push(avaiableFunctions[functionName].apply(this, paramList));
+    if (!avaiableFunctions.hasOwnProperty(functionName)) {
+        for (const paramList of params) { result.push(false); }
+    } else {
+        for (const paramList of params) { result.push(avaiableFunctions[functionName].apply(this, paramList)); }
     }
     return result;
 }
@@ -56,7 +58,7 @@ export function executeSpecialPredicate(functionName: string, params: string[][]
 // console.log("\n");
 // console.log("equalString, expected [true, false]", executeSpecialPredicate('isEqualString', [['2018-03-11', '2018-03-11'], ['2018-03-10', '2018-03']]));
 // console.log("greaterString, expected [true, false]", executeSpecialPredicate('isGreaterString', [['zbpo', 'zapo'], ['vapor', 'wave' ]]));
-// console.log("lessString, expected [true, false]", executeSpecialPredicate('isLessString', [['aba', 'lapo'], ['lapo', 'caro']]));
+// console.log("functionNotSupported, expected [false, false]", executeSpecialPredicate('FOO', [['aba', 'lapo'], ['lapo', 'caro']]));
 
 // const funkyCode: string[] = [];
 

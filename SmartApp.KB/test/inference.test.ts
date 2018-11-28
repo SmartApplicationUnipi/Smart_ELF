@@ -2,18 +2,23 @@ import { security } from '../src/config';
 import * as kb from '../src/kb';
 
 const myid = kb.register().details;
-kb.registerTags(myid, { rdf: new kb.TagInfo('rdf triple', 'fakedoc'), emo: new kb.TagInfo('emo triple', 'fakedoc')} );
+kb.registerTags(myid, { rdf: new kb.TagInfo('rdf triple', 'fakedoc'), emo: new kb.TagInfo('emo triple', 'fakedoc') });
 
 // if $prof teaches $coruse and $course is in room $room then $prof is in $room
 // { subj: '$prof', rel: 'is in', obj: '$room' } :-
 //        { subject: '$prof', relation: 'teaches', object: '$course' },
 //        { subject: '$course', relation: 'is in room', object: '$room' }
 
-const rule1 = new kb.DataRule( { subject: '$prof', relation: 'is in', object: '$room' },
+const rule1 = new kb.DataRule({ subject: '$prof', relation: 'is in', object: '$room' },
     [{ subject: '$prof', relation: 'teaches', object: '$course' },
-    { subject: '$course', relation: 'is in room', object: '$room' }] );
+    { subject: '$course', relation: 'is in room', object: '$room' }]);
 
-kb.addRule(myid, 'test', rule1);
+const rule2 = `
+             { "subject": "$prof", "relation": "is in", "object": "$room" } <-
+                         { "subject": "$prof", "relation": "teaches", "object": "$course" }
+                         { "subject": "$course", "relation": "is in room", "object": "$room" }`
+
+kb.newAddRule(myid, 'test', rule2);
 
 kb.addFact(myid, 'rdf', 7, 100,
     { subject: 'SmartApplication', relation: 'is in room', object: 'Aula X1' },
@@ -28,7 +33,7 @@ kb.addFact(myid, 'rdf', 7, 100,
 );
 
 // tslint:disable-next-line:max-line-length
-kb.subscribe(myid, { _data: { subject: 'Gervasi', relation: 'is in', object: '$aula' }}, (r) => console.log('CALLBACK++++++++++: ', r));
+kb.subscribe(myid, { _data: { subject: 'Gervasi', relation: 'is in', object: '$aula' } }, (r) => console.log('CALLBACK++++++++++: ', r));
 
 // console.log(kb.query({subject: 'SmartApplication', relation: 'is in room', object: '$room'}));
 

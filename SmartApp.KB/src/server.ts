@@ -74,10 +74,17 @@ wss.on('connection', (ws: WebSocket) => {
                     } else { reply = JSON.stringify(r); }
                     break;
                 case 'subscribe':
-                    const callback = (re: any) => {
-                        try {
-                            ws.send(JSON.stringify(re));
-                        } catch (e) { log.error(LOGMODNAME, 'subscribe websocket connection error: ', e); }
+                    const callback = (re: Matches) => {
+                        if (re.size > 0) {
+                            // need to convert map type in something jsonable
+                            const d = new Array();
+                            re.forEach((val, key) => { d.push({ object: key, binds: val }); });
+                            try {
+                                ws.send(JSON.stringify({ success: true, details: d }));
+                            } catch (e) { log.error(LOGMODNAME, 'subscribe websocket connection error'); }
+                        } else {
+                            ws.send(JSON.stringify({success: false, details: {} }));
+                        }
                     };
                     reply = JSON.stringify(kb.subscribe(j.params.idSource, j.params.jsonReq, callback));
                     break;
