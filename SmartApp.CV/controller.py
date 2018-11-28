@@ -1,5 +1,5 @@
 from external_modules.kb_client import KnowledgeBaseClient as kb
-import external_modules.hal_client as hal
+#import external_modules.hal_client as hal
 from online.interface import online_connector as online
 from offline.offvision import OffVision as offline
 
@@ -94,7 +94,7 @@ class Controller():
             self.offline_module = offline()
         except Exception as e:
             print(type(e).__name__, e)
-            print("\n It seems that there is a problem with the offline module: I'm swithing to online module...")
+            print("\n It seems that there is a problem in the initialization!")
 
         # Select module available
         self.module = self._getResolver()
@@ -156,16 +156,18 @@ class Controller():
                 result (interface): Return an object that will resolve the detection
                     of attributes and identity of person.
         """
+        res = None
         if not self.has_api_problem:
             if self.online_module.is_available():
                 print("Using online vision module")
                 res = self.online_module
-        elif self.offline_module.is_available():
+
+        if self.offline_module.is_available():
             print("Using offline vision module")
             res = self.offline_module
-        else:
+
+        if res == None:
             raise Exception("Vision Module is not available")
-        return res
 
     def setAttr(self, *args, **kwargs):
         """
