@@ -124,7 +124,7 @@ class online_connector():
     def set_detect_attibutes(self, *args, **kwargs):
         self.client.setParamsDetect(*args, **kwargs)
         return self.client.detect_params
-    
+
     def get_match(self, db, descriptor, desc_position, id_position, return_index=False, return_all=False):
         """
         Finds the matching id of the descriptor in the db, if there is one

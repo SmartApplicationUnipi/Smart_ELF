@@ -184,30 +184,34 @@ class Controller():
         self.online_module.set_detect_attibutes(*args, **kwargs)
 
     def watch(self, face, frame_size = (0,0)):
+        img = face.img if hasattr(face, "img") else face
+        is_interlocutor = face.is_interlocutor if hasattr(face, "is_interlocutor") else False
+        face_position = face.face_position if hasattr(face, "face_position") else (0, 0)
+        z_index = face.z_index if hasattr(face, "z_index") else -1
+
+        self.module = self._getResolver() # fare get_resolver() ogni volta?
 
         try:
-            fact = self.module.analyze_face(face.img)
+            fact = self.module.analyze_face(img)
+        except Exception as e: # TODO call it RequestError or something similar
+            self.has_api_problem = True
+            self.module = self._getResolver()
+            fact = self.module.analyze_face(img)
+            self.has_api_problem = False # ?
+
+        if not fact:
+            print("Non vedo nessuno")
+        else:
+            look_at = {'pinch': 0, 'yaw':0}
+            if set(frame_size)==0:
+                look_at = list( (p/(s/2))-1 for p,s in zip(face_position, frame_size))
+                look_at = {'pinch': look_at[0], 'yaw': look_at[1]}
+
+            fact.update({"look_at": look_at})
+            fact.update({"is_interlocutor": is_interlocutor})
+            fact.update({"z_index": z_index})
+
             print(fact)
-            if not fact:
-                print("Non vedo nessuno")
-            else:
-                look_at = {'pinch': 0, 'yaw':0}
-                if face.frame_original_size is not (0,0):
-                    look_at = list( (p/(s/2))-1 for p,s in zip(face.face_position, face.frame_original_size))
-                    look_at = {'pinch': look_at[0], 'yaw': look_at[1]}
-
-                fact.update({"look_at": look_at})
-                fact.update({"is_interlocutor": face.is_interlocutor})
-                fact.update({"z_index": face.z_index})
-
-                print(fact)
-
-        except Exception as e:# TODO: delete this option only for test
-            fact = self.module.analyze_face(face)
-            if not fact:
-                print("Non vedo nessuno")
-            else:
-                print(fact)
         return fact
 
     def __del__(self):
@@ -219,5 +223,5 @@ class Controller():
 
 
 if __name__ == '__main__':
-    controller = Controller()
+    controller = Controller(host = "webcam")
     input('Enter anything to close:')

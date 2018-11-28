@@ -32,6 +32,7 @@ class Facepp_Client():
         self.detect_params = {}
 
     def _sendRequest(self, *args, **kwargs):
+        kwargs.update({'timeout':1})
         jr = json.loads(requests.post(*args, **kwargs).text)
         err = jr.get("error_message")
         if err: raise ValueError(err)
