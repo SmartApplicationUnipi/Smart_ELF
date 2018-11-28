@@ -11,6 +11,7 @@
 
 # SR[SEM=<app(?min,?comp)>] -> S[SEM=?min] PP[SEM=?comp]
 
+S[SEM = <app(?subj,?vp)>] -> NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp]
 S[SEM = <app(?subj,?vp,?comp)>] -> NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp] PP[SEM=?comp]
 
 NP[NUM=?n,SEM=<app(?det,?nom)> ] -> Det[NUM=?n,SEM=?det]  Nom[NUM=?n,SEM=?nom]
@@ -85,8 +86,8 @@ TV[NUM=pl,SEM=<\X x.X(\y.DRS([],[see(x,y)]))>,tns=pres] -> 'see'
 
 #attardi conosce la lezione
 PropN[-LOC,NUM=sg,SEM=<\P.(DRS([x],[Attardi(x)])+P(x))>] -> 'Attardi'
-N[NUM=sg,SEM=<\x.DRS([],[professor(x)])>] -> 'professore'
-N[NUM=sg,SEM=<\x.DRS([],[lesson(x)])>] -> 'lezione'
+N[NUM=sg,SEM=<\x.DRS([],[professor(x)])>] -> 'professor'
+N[NUM=sg,SEM=<\x.DRS([],[lesson(x)])>] -> 'lesson'
 
 TV[NUM=sg,SEM=<\X x.X(\y.DRS([],[know(x,y)]))>,tns=pres] -> 'conosce'
 
