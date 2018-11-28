@@ -69,8 +69,9 @@ async def speech_to_text(queue):
     :param queue: process shared queue
     """
 
-    #kb_client = KnowledgeBaseClient(False)
-    #kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',                                                     'doc': 'text from audio '}})
+    kb_client = KnowledgeBaseClient(False)
+    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',                                                     'doc': 'text from audio '}})
+
     # Create new recogniers for all the services used
     r = sr.Recognizer()
     google_client = None
@@ -88,17 +89,16 @@ async def speech_to_text(queue):
         while True:
 
             # Data stored in the queue contain all the information needed to create AudioData object
-            #timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
-            #audio = sr.AudioData(data, sampleRate, bitPerSample/8)
+            timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
+            audio = sr.AudioData(data, sampleRate, bitPerSample/8)
 
-            with open(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav"), 'rb') as audio_file:
-                content = audio_file.read()
-                audio_gc = types.RecognitionAudio(content=content)
+            #with open(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav"), 'rb') as audio_file:
+            #    content = audio_file.read()
+            audio_gc = types.RecognitionAudio(content=data)
 
-
-            with sr.AudioFile(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav")) as source:
-               audio = r.record(source)
-               timestamp = time.time()
+            #with sr.AudioFile(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav")) as source:
+            #   audio = r.record(source)
+            #   timestamp = time.time()
 
             # Compute the transcription of the audio
             google_cloud = executor.submit(recognize, "google-cloud", audio_gc, google_client)
@@ -131,7 +131,7 @@ async def speech_to_text(queue):
                 # Add to KB that the transcription of the audio
                 print("Insert into KB the transcription of the audio, retrieved from ", res["model"])
                 print(res["text"])
-                
+
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
@@ -181,6 +181,6 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    #loop.run_until_complete(myHandler(q.sync_q))
+    loop.run_until_complete(myHandler(q.sync_q))
     loop.run_until_complete(speech_to_text(q.async_q))
     loop.run_forever()
