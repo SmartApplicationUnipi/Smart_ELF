@@ -3,34 +3,59 @@
 bold=$(tput bold)
 normal=$(tput sgr0)
 
+REGISTER="
+${bold}NAME${normal}
+	register - register to the knowledge base
+
+${bold}SYNOPSIS${normal}
+	${bold}register${normal}()
+
+${bold}DESCRIPTION${normal}
+	The ${bold}register${normal}() function registers the client to the KB and returns a string id. 
+	Registering is mandatory for any call to ${bold}registerTags${normal}() and ${bold}addFact${normal}(), and it should be called as first thing when interacting with the KB.
+
+${bold}RETURN VALUE${normal}
+	The ${bold}registerTags${normal}() function returns a JSON object containing the following fields:
+		- ${bold}success${normal} : boolean value. 
+			Success evaluates to true.
+		- ${bold}details${normal} : json object.
+			Details will contain your personal idSource.
+
+${bold}EXAMPLE${normal}
+	Example of usage:
+		registerTags('myid', {'emo': {'desc': 'emotion', 'doc': 'emotion_doc'}, 'crawl': {'desc': 'crawler', 'doc': 'crawler_doc'}})
+
+	Example of return value:
+		{'success' : true, 'details': {['tag1', 'tag2', 'tag3']}}"
+
 REGISTER_TAGS="
 ${bold}NAME${normal}
 	registerTags - register tags and corresponding documentation in the knowledge base
 
 ${bold}SYNOPSIS${normal}
-	${bold}registerTags${normal}(${bold}JSON${normal} jreq)
+	${bold}registerTags${normal}(${bold}string${normal} idSource, ${bold}JSON${normal} jreq)
 
 	The jreq parameter must have the following form:
 	jreq = {'tag1' : {desc : 'desc1', doc : 'doc1'}, 'tag2' : {desc : 'desc2', doc : 'doc2'}, ...}
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}registerTags${normal}() function registers the provided tags in the knowledge base.
+	The ${bold}registerTags${normal}() function registers the provided tags in the knowledge base, but only if the user has previously registered through a call to ${bold}register${normal}().
 	Tags has to be given as a ${bold}JSON${normal} object whose keys are the tags to be registered, and whose values are json objects containing a short tag description and a complete tag documentation.
-	In case some of the given tags are already present, the operation will fail.
+	In case some of the given tags have already been submitted by the same user, they will be overwritten, so take care.
 
 ${bold}RETURN VALUE${normal}
 	The ${bold}registerTags${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal} : boolean value. 
-			Success evaluates to true if none of the provided tags had already been registered. If even one of the tags was already present, success will evaluate to false.
-		- ${bold}details${normal} : json object OR string array.
-			If success is true, details will be an empty json object. Otherwise, details will be an array of string tags that were rejected by the knowledge base because already registered.
+			Success evaluates to false only if idSource is not a correct id returned by a call to ${bold}register${normal}().
+		- ${bold}details${normal} : json object.
+			If success is true, details will contain an array containing the registered tags. Otherwise, details will be an empy object.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		registerTags({'emo': {'desc': 'emotion', 'doc': 'emotion_doc'}, 'crawl': {'desc': 'crawler', 'doc': 'crawler_doc'}})
+		registerTags('myid', {'emo': {'desc': 'emotion', 'doc': 'emotion_doc'}, 'crawl': {'desc': 'crawler', 'doc': 'crawler_doc'}})
 
 	Example of return value:
-		{'success' : true, 'details': {}}
+		{'success' : true, 'details': {['tag1', 'tag2', 'tag3']}}
 "
 
 GET_TAG_DETAILS="
@@ -38,13 +63,13 @@ ${bold}NAME${normal}
 	getTagDetails - get the details for the given tags
 
 ${bold}SYNOPSIS${normal}
-	${bold}getTagDetails${normal}(${bold}JSON${normal} jreq)
+	${bold}getTagDetails${normal}(${bold}string${normal} idSource, ${bold}JSON${normal} jreq)
 
 	The jreq parameter has to be in the following form:
 	jreq = {['tag1', 'tag2', 'tag3', ...]}
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}getTagDetails${normal}() function retrieves the tag details previously provided through a call to ${bold}registerTags${normal}().
+	The ${bold}getTagDetails${normal}() function retrieves the tag details previously provided by the user identified by idSource through a call to ${bold}registerTags${normal}().
 	Tags has to be provided as a string array containing the tags whose documentation has to be retrieved.
 	In case some of them are not registered, they will be ignored. The operation will fail only when none of the input tags has been registered.
 
@@ -212,49 +237,29 @@ ${bold}EXAMPLE${normal}
 		{'success' : true, 'details': 7}
 "
 
-QUERY_BIND="
-${bold}NAME${normal}
-	queryBind - query the KB and retrieve the bindings found
-
-${bold}SYNOPSIS${normal}
-	${bold}queryBind${normal}(${bold}JSON${normal} jreq)
-
-${bold}DESCRIPTION${normal}
-	The ${bold}queryBind${normal}() function will query the KB and find fact matching the provided jreq. A wildcard value can be specified by strings starting with the '\$' value.
-
-${bold}RETURN VALUE${normal}
-	The ${bold}queryBind${normal}() function returns a JSON object containing the following fields:
-		- ${bold}success${normal}: boolean value.
-			Success will always evaluate to true.
-		- ${bold}details${normal} : array of JSON objects.
-			Details will contain an array of the matching found for the provided jreq. 
-			Note that ${bold}queryBind${normal} only returns the bindings, i.e. the values matching the strings starting with '\$' in the jreq; if you need to retrieve the entire object matching the query, please refer to ${bold}queryFact${normal}.
-			The complete object can be retrieved through the ${bold}queryFact${normal} function.
-
-${bold}EXAMPLE${normal}
-	Example of usage:
-		queryBind({'subject': '$X', 'object': 'SmartApplication', 'relation': '$Y'})
-
-	Example of return value:
-		[{ '$X': 'Gervasi', '$Y': 'teaches' }, { '$X': 'Ferrante Francesco', '$Y': 'follows' }]
-"
-
 QUERY_FACT="
 ${bold}NAME${normal}
-	queryFact - query the KB and retrieve the full facts found
+	query - query the KB and retrieve the matching facts and the bindings
 
 ${bold}SYNOPSIS${normal}
 	${bold}queryFact${normal}(${bold}JSON${normal} jreq)
 
 ${bold}DESCRIPTION${normal}
-	The ${bold}queryFact${normal}() function will query the KB and find fact matching the provided jreq. A wildcard value can be specified by strings starting with the '\$' value.
+	The ${bold}queryFact${normal}() function will query the KB and find fact matching the provided jreq.
+	If you need to match the metadata, you can do so by addressing the '_meta' field of the jreq. The following is an example of a jreq used to query the KB for all the facts with tag 'NLP':
+	
+	{_meta : {'tag' : 'NLP'}}
+
+	Alternatively, one can query the KB for specific facts by knowing its id, previously returned by a call to ${bold}addFact${normal}(), by filling the '_id' field of the jreq, as follows:
+
+	{_id : 'my_fact_id'}
 
 ${bold}RETURN VALUE${normal}
 	The ${bold}queryFact${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal}: boolean value.
-			Success will always evaluate to true.
+			Success will evaluate to true unless no matching facts are found, in which case it will be false.
 		- ${bold}details${normal} : array of JSON objects.
-			Details will contain an array of the matching found for the provided jreq. Note that ${bold}queryFact${normal} returns the complete fact containing a match.
+			Details will contain an array of the matching found for the provided jreq. Note that ${bold}query${normal} returns the complete fact containing a match.
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
@@ -264,7 +269,7 @@ ${bold}EXAMPLE${normal}
 	[
 		{
 			'_id': 19, 
-			'_meta': {'idSource' : 'myid', 'tag': 'mytag', 'TTL': 24, 'timestamp': '10-10-2018', 'reliability' : 100}, 
+			'_meta': {'idSource' : 'myid', 'tag': 'mytag', 'TTL': 24, 'timestamp': Date_object, 'reliability' : 100}, 
 			'_data' : {'subject': 'Gervasi', 'relation': 'teaches', 'object': 'SmartApp'} 
 		}
 	]

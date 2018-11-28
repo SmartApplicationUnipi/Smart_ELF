@@ -39,9 +39,9 @@ class Metadata {
     public tag: string;
     public TTL: number;
     public reliability: number;
-    public creationTime: string;
+    public creationTime: Date;
 
-    constructor(idSource: string, tag: string, creationTime: string, TTL: number, reliability: number) {
+    constructor(idSource: string, tag: string, creationTime: Date, TTL: number, reliability: number) {
         this.idSource = idSource;
         this.tag = tag;
         this.creationTime = creationTime;
@@ -95,19 +95,6 @@ export function getAllTags() {
         allTags[user] = tagsArray;
     }
     return new Response(true, allTags);
-
-    /*
-    const allTags : any = {};
-    Object.keys(userTags).forEach(function(user) {
-        var tagsArray: any = []
-        var tags = userTags.get(user); // tags di user
-        Object.keys(tags).forEach(function(tag) {
-            tagsArray.push(tags.get(tag));
-        })
-        allTags[user] = tagsArray;
-    });
-    return new Response(true, allTags);
-    */
 }
 
 export function register() {
@@ -151,7 +138,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
     if (!(userTags.has(idSource))) { return new Response(false, {}); }
     if (!(userTags.get(idSource).has(tag))) { return new Response(false, tag); }
 
-    const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
+    const metadata = new Metadata(idSource, tag, new Date(Date.now()), TTL, reliability);
     const currentFactId = uniqueFactId_gen();
     const dataobject = {
         _data: jsonFact,
@@ -168,7 +155,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
 export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(userTags.has(idSource))) { return new Response(false, idSource); }
     if (!databaseFact.has(id)) { return new Response(false, id); }
-    const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
+    const metadata = new Metadata(idSource, tag, new Date(Date.now()), TTL, reliability);
 
     const dataobject = {
         _data: jsonFact,
@@ -222,7 +209,7 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
     // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
     //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
     // }
-    const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()).toLocaleDateString('en-GB'), 0, 0);
+    const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
     const dataobject = {
         _data: jsonRule,
         _id: uniqueRuleId_gen(),
