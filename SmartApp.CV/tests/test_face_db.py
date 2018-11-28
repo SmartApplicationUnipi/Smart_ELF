@@ -84,8 +84,8 @@ def test_db_get_value(db):
     with pytest.raises(IndexError):
         db.get_value("10")
 
-    assert set(db.get_value("gino", 1)[0]) == set(("tre"))
-    assert set(db.get_value("gino", 2)[0]) == set(("porci"))
+    assert set(db.get_value("gino", 1)[0]) == set(["tre"])
+    assert set(db.get_value("gino", 2)[0]) == set(["porci"])
 
     with pytest.raises(IndexError):
         db.get_value("gino", 3)
@@ -95,35 +95,47 @@ def test_db_get_value(db):
 
     db.delete((None, None, None))
 
-# def test_db_fuzzy_get(db):
+def test_db_soft_get(db):
+
+    db.insert(("1", "cipi", "ciopi"))
+    db.insert(("ciopi", "ciopi"))
+    db.insert(("cikpi", "ciopik"))
+    db.insert((2, "cispiq", "ciopip"))
+    db.insert(("cipiss", "ciopi"))
+
+    assert len(db.soft_get((1, "cipi", "ciopi"))) == 1
+
+    db["1"] = (None, "cio")
+    db["2"] = (None, "cio")
+    assert len(db.soft_get((None, "cio"))) == 2
+    assert list(db.soft_get((None, None, "cio"))) == list([["1", "cipi", "cio"], ["2", "cispiq", "cio"]])
+
+    db["giacomino"] = ("cipi", "gamba")
+    assert list(db.soft_get(("cipi", None))) == list([["1", "cipi", "cio"],["giacomino", "cipi", "gamba"]])
+    assert len(db.soft_get((None, "cipi", None))) == 2
+
+    db.delete((None, None, None))
 #
-#     db.insert(("1", "cipi", "ciopi"))
-#     assert len(db.fuzzy_get((1, "cipi", "ciopi"))) == 1
-#
-#     db["1"] = (None, "cio")
-#     db["2"] = (None, "cio")
-#     assert len(db.fuzzy_get((None, "cio"))) == 2
-#     assert list(db.fuzzy_get((None, None, "cio"))) == list([["1", "cipi", "cio"], ["2", "cipi", "cio"], ["3", None, "cio"]])
-#
-#     db["giacomino"] = ("cipi", "gamba")
-#     assert list(db.fuzzy_get(("cipi", None))) == list([["1", "cipi", "cio"],["giacomino", "cipi", "gamba"]])
-#     assert len(db.fuzzy_get((None, "cipi", None))) == 2
-#
-#     db.delete((None, None, None))
-#
-# def test_db_fuzzy_contains(db):
-#
-#     assert db.fuzzy_contain(1)
-#     assert db.fuzzy_contain("1")
-#     assert db.fuzzy_contain((1, "cipi", "ciopi"))
-#     assert db.fuzzy_contain((None, "cio"))
-#     assert db.fuzzy_contain((None, "cipi", None))
-#
-#     assert not db.fuzzy_contain(205)
-#     assert not db.fuzzy_contain((200, "cipi", None))
-#     assert not db.fuzzy_contain((None, "fritto", None))
-#     assert not db.fuzzy_contain((None, "cipolle"))
-#     db.delete((None, None, None))
+def test_db_soft_contains(db):
+
+    db.insert(("1","cipi", "ciopi"))
+    db.insert(("ciopi", "ciopi"))
+    db.insert(("cipi", "ciopik"))
+    db.insert(("cikpi", "cio"))
+    db.insert(("cispiq", "ciopip"))
+    db.insert(("cipiss", "ciopi"))
+
+    assert db.soft_contain(1)
+    assert db.soft_contain("1")
+    assert db.soft_contain((1, "cipi", "ciopi"))
+    assert db.soft_contain((None, "cio"))
+    assert db.soft_contain((None, "cipi", None))
+
+    assert not db.soft_contain(205)
+    assert not db.soft_contain((200, "cipi", None))
+    assert not db.soft_contain((None, "fritto", None))
+    assert not db.soft_contain((None, "cipolle"))
+    db.delete((None, None, None))
 
 def test_db_insert(db):
     db.insert(("1","cipi", "ciopi"))
@@ -135,7 +147,7 @@ def test_db_insert(db):
 
     gid = db.insert(("matro", "ciccillo"))
     assert len(db) == 6
-    id = db.fuzzy_get(("matro", "ciccillo"))[0][0]
+    id = db.soft_get(("matro", "ciccillo"))[0][0]
     assert id == gid
 
     with pytest.raises(ValueError):
@@ -143,20 +155,26 @@ def test_db_insert(db):
 
     db.delete((None, None, None))
 
-# def test_db_modify(db):
-#
-#     db.insert(("1", "cic", "ciopi"))
-#     l, mod = db.modify(1, ("cic", None))
-#     assert l == 3
-#     assert list(mod) == list([["1", "cip", "cio"], ["1", "cipi", "cio"], ["1", "cipi", "ciopi"]])
-#     assert list(db.fuzzy_get((1, "cic", None))) == list([["1", "cic", "cio"], ["1", "cic", "ciopi"]])
-#
-#     l, mod = db.modify((1, "cic", None), (35, "c0c", None))
-#     assert l == 2
-#     assert list(mod) == list([["1", "cic", "cio"], ["1", "cic", "ciopi"]])
-#     assert list(db.fuzzy_get((35, "c0c", None))) == list([["35", "c0c", "cio"], ["35", "c0c", "ciopi"]])
-#
-#     db.delete((None, None, None))
+def test_db_modify(db):
+
+    db.insert(("4", "monte", "pippo"))
+    db.insert(("1", "cip", "cio"))
+    db.insert(("0", "ciao", "pula"))
+    db.insert(("1", "cipi", "cio"))
+    db.insert(("6", "casa", "sasso"))
+    db.insert(("7", "cic", "piatto"))
+    db.insert(("1", "cipi", "ciopi"))
+    l, mod = db.modify(1, ("cic", None))
+    assert l == 3
+    assert list(mod) == list([["1", "cip", "cio"], ["1", "cipi", "cio"], ["1", "cipi", "ciopi"]])
+    assert list(db.soft_get((1, "cic", None))) == list([["1", "cic", "cio"], ["1", "cic", "ciopi"]])
+
+    l, mod = db.modify((1, "cic", None), (35, "c0c", None))
+    assert l == 2
+    assert list(mod) == list([["1", "cic", "cio"], ["1", "cic", "ciopi"]])
+    assert list(db.soft_get((35, "c0c", None))) == list([["35", "c0c", "cio"], ["35", "c0c", "ciopi"]])
+
+    db.delete((None, None, None))
 
 def test_db_delete(db):
 
@@ -169,16 +187,20 @@ def test_db_delete(db):
     db.insert(("7", "cic", "piatto"))
     db.insert(("35", "cis", "ora"))
 
-    assert db.delete((None, None, "cio")) == 2
+    n, el = db.delete((None, None, "cio"))
+    assert n == 2
     assert len(db) == 6
 
-    assert db.delete(10) == 0
+    n, el = db.delete(10)
+    assert n == 0
     assert len(db) == 6
 
-    assert db.delete(35) == 1
+    n, el = db.delete(35)
+    assert n == 1
     assert len(db) == 5
 
-    assert db.delete((0, "ciao", None)) == 1
+    n, el = db.delete((0, "ciao", None))
+    assert n == 1
     assert len(db) == 4
 
     db.delete((None, None, None)) == 4
