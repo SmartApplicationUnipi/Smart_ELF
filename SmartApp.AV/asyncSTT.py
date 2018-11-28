@@ -107,7 +107,7 @@ async def speech_to_text(queue):
             sphinx = executor.submit(recognize, "sphinx", audio, r)
 
             # Compute the emotion related to the audio
-            emotion = executor.submit(sentimental_analizer.my_regressionFileWrapper, audio)
+            #emotion = executor.submit(sentimental_analizer.my_regressionFileWrapper, audio)
 
             res = google_cloud.result()
             if res["error"] is None:
@@ -125,7 +125,7 @@ async def speech_to_text(queue):
                         # Add to KB Sphinx result with timestamp and ID
                         print("Insert into KB --> Sphinx result")
 
-            emotion = emotion.result()
+            emotion = None #emotion.result()
 
             myID = 'stt'
             if res["error"] is None:
@@ -180,6 +180,6 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    loop.run_until_complete(myHandler(q.sync_q))
+    #loop.run_until_complete(myHandler(q.sync_q))
     loop.run_until_complete(speech_to_text(q.async_q))
     loop.run_forever()

@@ -39,9 +39,16 @@ def make_audio(txt):
     mary_host = "localhost"
     mary_port = "59125"
 
-    language_in = "dfki-prudence" #TODO Improve with other models
-    language_text = "en-GB" #TODO Improve with other languages
+    language_in="en"
+    if(language_in=="it"):
+        language_in="istc-lucia-hsmm"
+        language_text = "it"
 
+    else:
+        language_in="dfki-prudence"#TODO Improve with other models
+        language_text = "en-GB" #TODO Improve with other languages
+
+        
     # Build the query
     query_hash = {"INPUT_TEXT": txt,
                   "INPUT_TYPE": "EMOTIONML", # Input text
@@ -93,25 +100,38 @@ async def kb_to_audio(queue):
     This function handles the subscription to KB and the production of the audio
     :param queue: blocking asynchronous queue
     """
+    
+
+
     def callbfun(res):
+
         print("callback:")
 
-        text = res[0]['$x']
-        valence = res[0]['$v']
-        arousal = res[0]['$a']
+        print(res)
+
+        text = res[0][0]['$input']
+        valence = 0#res[0]['$v']
+        arousal = 0#res[0]['$a']
+            
+        print(text)
+
         ttm = make_mary_text(text, valence, arousal)
 
-        audio = make_audio(ttm)
+        audio = make_audio(ttm)      
+
         queue.put({"audio": base64.b64encode(audio).decode('ascii'),
                    "id": 1234, #TODO the ID??
-                   "valence": valence,
+                   "emotion": valence,
                    "arousal": arousal,
                    "text": text})
 
         print("\n waiting...")
 
-    #subscribe(myID, {"TAG":"ENLP_EMOTIVE_ANSWER","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
-    kb.subscribe(myID, {"TAG": "AV_IN_TRANSC_EMOTION", "text": "$x", "valence": "$v", "arousal": "$a"}, callbfun) #TODO the ID??
+    kb_client = KnowledgeBaseClient(False)
+
+
+    kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', "text": "$input"}}, callbfun) #todo change with appropriate tag
+
 
 
 def face_communication(queue):
@@ -123,7 +143,8 @@ def face_communication(queue):
     async def echo(websocket, path): # on client connections
         print("-!--")
         while True:
-            data = queue.get()
+            data = await queue.get()
+
             print(data["id"])
             await websocket.send(json.dumps(data))
             print("send ", str(id))
@@ -132,33 +153,17 @@ def face_communication(queue):
 
 
 if __name__ == '__main__':
-    HOST = 'localhost'  # Standard loopback interface address (localhost)
+    HOST = '10.101.27.153'  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    #loop.run_until_complete(read_kb(q.sync_q))
-    #loop.run_until_complete(face_communication(q.async_q))
-    #loop.run_forever()
+
+    loop.run_until_complete(kb_to_audio(q.sync_q))
+    loop.run_until_complete(face_communication(q.async_q))
+    loop.run_forever()
 
 
 
 
-    kb_client = KnowledgeBaseClient(False)
-    kb_client.registerTags({ 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : 'text from audio '} })
-
-
-    print("Insert into KB that no Google or Sphinx result")
-    obj_from_stt = {
-    "tag": 'AV_IN_TRANSC_EMOTION',
-    "timestamp": 0,
-    "ID": 0,
-    "text": "where is the aula A?",
-    "language": "en"
-    }
-    myID='stt'
-    kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, obj_from_stt)
-
-
-#subscribe(myID, {"TAG":"AV_IN_TRANSC_EMOTION","text": "$x","valence": "$v","arousal": "$a"}, callbfun)

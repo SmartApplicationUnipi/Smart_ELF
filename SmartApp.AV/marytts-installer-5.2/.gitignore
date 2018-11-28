@@ -1,0 +1,13 @@
+# MaryTTS
+log/
+
+# Gradle
+.gradle/
+installed/
+
+# IDEA
+.idea/
+*.iml
+
+# OSX
+.DS_Store
