@@ -30,6 +30,9 @@ wss.on('connection', (ws: WebSocket) => {
             }
 
             switch (j.method) {
+                case 'getAllTags':
+                    reply = JSON.stringify(kb.getAllTags());
+                    break;
                 case 'register':
                     reply = JSON.stringify(kb.register());
                     break;

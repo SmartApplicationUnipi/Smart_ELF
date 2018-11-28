@@ -85,6 +85,31 @@ export class TagInfo {
     }
 }
 
+export function getAllTags() {
+    const allTags : any = {};
+    for (const [user, tags] of userTags.entries()) {
+        var tagsArray: any = {};
+        for (const [tag, tagInfo] of tags.entries()) {
+            tagsArray[tag] = tagInfo;
+        }
+        allTags[user] = tagsArray;
+    }
+    return new Response(true, allTags);
+
+    /*
+    const allTags : any = {};
+    Object.keys(userTags).forEach(function(user) {
+        var tagsArray: any = []
+        var tags = userTags.get(user); // tags di user
+        Object.keys(tags).forEach(function(tag) {
+            tagsArray.push(tags.get(tag));
+        })
+        allTags[user] = tagsArray;
+    });
+    return new Response(true, allTags);
+    */
+}
+
 export function register() {
     var id = "id"+idSource++;
     userTags.set(id, new Map<string, TagInfo>());

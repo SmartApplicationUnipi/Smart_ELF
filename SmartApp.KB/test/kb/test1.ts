@@ -6,7 +6,7 @@ import 'mocha';
 const idSource = kb.register().details;
 
 describe('registerTags', () => {
-    it('should return succes', () => {
+    it('should return success', () => {
         const tag1det = new kb.TagInfo('desc1', 'doc1');
         const tag2det = new kb.TagInfo('desc2', 'doc2');
         const tag3det = new kb.TagInfo('desc3', 'doc3');
@@ -36,6 +36,16 @@ describe('registerTags', () => {
         const response = kb.registerTags('pippo', tags);
         const expected = new kb.Response(false, {});
         expect(response).to.deep.equal(expected);
+    });
+});
+
+describe('getAllTags', () => {
+    it('should return all registered tags and corresponding user', () => {
+        const response = kb.getAllTags();
+        const expected = { 'id0' : {tag1 : {desc: 'desc1', doc: 'doc1'}, tag2: {desc: 'desc2', doc: 'doc2'}, 
+        tag3 : {desc: 'desc3', doc: 'doc3'}, tag4 : {desc: 'desc4', doc: 'doc4'}, tag6: {desc: 'desc6', doc: 'doc6'}}}
+        const expectedResponse = new kb.Response(true, expected);
+        expect(response).to.deep.equal(expectedResponse);
     });
 });
 
