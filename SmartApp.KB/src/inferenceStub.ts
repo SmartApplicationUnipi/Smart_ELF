@@ -4,7 +4,7 @@ import { addInferenceFact, databaseFact, databaseRule, DataRule } from './kb';
 import { findMatches, isPlaceholder } from './matcher';
 
 const INFERENCE_TAG = 'INFERENCE'; // TODO: change this. the user will specify the tag in the rule head!
-const debug = new Debugger(156);
+const debug = new Debugger();
 
 export function checkRules(fact: object) {
     for (const rule of databaseRule.values()) {
@@ -39,22 +39,22 @@ function checkRule(head: object, body: object[], fact: object) {
         // cerco nel dataset se esiste soluzione per ciascun degli altri pred
         for (const pred of body) { // TODO: GLI ALTRI! bisogna filtrare
             debug.clog(Colors.BLUE, 'INFO', 4, '', 'guardo il predicato ', 10);
-            console.log(pred);
+            // console.log(pred);
 
             let tempbinds: any[] = [];
             for (const match of matches.keys()) {
 
                 const bi = matches.get(match);
                 debug.clog(Colors.BLUE, 'INFO', 5, '', 'guardo il binding ', 10);
-                console.log(bi);
-                console.log();
+                // console.log(bi);
+                // console.log();
 
                 const b = findMatches(pred, Array.from(databaseFact.values()), bi);
                 // b se non è vuoto contiene i nuovi bindings (che contengono bi)
 
                 debug.clog(Colors.GREEN, 'OK', 5, '', 'trovata soluzione: ', 5);
-                console.log(b);
-                console.log();
+                // console.log(b);
+                // console.log();
                 tempbinds = tempbinds.concat([...b.values()]);
 
             }
