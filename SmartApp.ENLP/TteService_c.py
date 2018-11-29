@@ -28,7 +28,10 @@ class TteService:
         """
         Assess user emotion from a given sentence
         """
-        sentence = param[0][0][0]["$input"]
+        print(param)
+        sentence_arr = param[0]['details'] # [0]["$input"]
+        sentence = sentence_arr[0]['binds']['$input']
+        
         lang = param[0][0][0]["$lang"]
         logging.info("\tcallback TTE called")
         if (lang == "it"):
