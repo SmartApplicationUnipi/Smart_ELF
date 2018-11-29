@@ -18,10 +18,11 @@ tuple = {
   "time_stamp": int,
   "valence": float,
   "arousal": float,
+  "language" : string,
   "tag": "ENLP_USER_EMOTION"
 }
 ```
-The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect.
+The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect. `language` indicates the language of the original user sentence.
 
 ## ELF Internal Emotional State (IES)
 In order to provide a realistic answer to the user the module has to compute what is the emotional state of ELF itself.

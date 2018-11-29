@@ -36,7 +36,7 @@ class TteService:
         logging.debug("\t Language: " + lang + "\tSentence: " + sentence)
         if (lang == "it"):
             sentence = translate(sentence,self.watson_auth)
-        fact = extract_emotion(sentence)
+        fact = extract_emotion(sentence, lang)
         self.write_to_KB(fact)
         return
 
