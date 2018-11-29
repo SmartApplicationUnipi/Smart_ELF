@@ -19,7 +19,7 @@ class DRS_thread (threading.Thread):
         self.drs_obj = drs_obj
 
     def run(self):
-        self.ett_obj.start()
+        self.drs_obj.start()
 
 def _get_cl_args():
     """
@@ -44,7 +44,6 @@ def __main__():
     global kb_ID
     kb_client = KnowledgeBaseClient(False)
     kb_ID = (kb_client.register())['details']
-    print(kb_ID)
 
     logging.basicConfig(stream=sys.stderr, level=logging_lvl)
 
@@ -52,8 +51,8 @@ def __main__():
         TAG_DRS : {'desc' : 'DRS structure', 'doc' : DESC_DRS}
     }
 
-    logging.info("QA module registered")
-
+    logging.info("\tQA module registered")
+    #TODO register tags nedeed?
     drs_service = DRSService(kb_ID, logging_lvl)
     t1 = DRS_thread(drs_service)
     t1.start()
