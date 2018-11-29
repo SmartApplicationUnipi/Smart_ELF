@@ -159,7 +159,7 @@ export function addInferenceFact(idSource: string, tag: string, TTL: number, rel
     // if (!(tagDetails .has(tag))) { return new Response(false, tag); }
     // TODO: NON CI SONO I CONTROLLI SUL TAG!!
 
-    const metadata = new Metadata(idSource, tag, new Date(Date.now()).toLocaleDateString('en-GB'), TTL, reliability);
+    const metadata = new Metadata(idSource, tag, new Date(Date.now()), TTL, reliability);
     const currentFactId = -uniqueFactId_gen();
     const dataobject = {
         _data: jsonInfer,
@@ -254,7 +254,7 @@ export function newAddRule(idSource: string, ruleTag: string, jsonRule: string) 
 
     const jsonObj = transformRule(jsonRule);
 
-    const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()).toLocaleDateString('en-GB'), 0, 0);
+    const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
     const dataobject = {
         _data: normalizeRule(jsonObj),
         // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
