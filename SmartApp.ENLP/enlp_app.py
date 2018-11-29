@@ -64,9 +64,9 @@ def __main__():
         # set level to display nothing
         logging_lvl = logging.INFO
 
-    global kb_ID
-    kb_ID = 'ENLP_ID'
     kb_client = KnowledgeBaseClient(True)
+    global kb_ID
+    kb_ID = (kb_client.register())['details']
 
     logging.basicConfig(stream=sys.stderr, level=logging_lvl)
 
@@ -76,13 +76,16 @@ def __main__():
     }
 
     tag_list = [TAG_USER_EMOTION, TAG_ELF_EMOTION, TAG_COLORED_ANSWER]
+    kb_client.registerTags(kb_ID, tags)
+    """
     for tag in tag_list:
         check_tag = kb_client.getTagDetails([tag])
         if not check_tag['success']:
-            res = kb_client.registerTags( { tag : tags[tag] } )
+            res = kb_client.registerTags(kb_ID, { tag : tags[tag] } )
             if not res['success']:
                 logging.critical(res['details'])
                 return
+    """
 
     logging.info("Emotional NLP module registered")
 
