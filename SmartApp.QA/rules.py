@@ -98,7 +98,7 @@ transform_rules =   [
                         {PRE:{
                             R_ID:KW,
                             VALUE:["riceve","ricevimento"]
-                            }
+                            },
                         DRS:{
                             VARS:["$o"],
                             PREDS:["ricevimento($o)","unkwnown($o)"]
@@ -142,7 +142,7 @@ merge_rules =       [
                         {PAR_PRE:{
                             R_ID:CON,
                             VALUE:["location($1)"]
-                            },  
+                            },
                         CHILD_PRE:{
                             R_ID:CON,
                             VALUE:["person($2)"]
@@ -150,7 +150,7 @@ merge_rules =       [
                         REL_PRE:{},
                         PREDS:["own($2,$1)"]
                         },
-                        SIBL_PRE:{
+                        {SIBL_PRE:{
                             R_ID:CON,
                             VALUE:["person($1)"]
                             },
@@ -170,7 +170,7 @@ merge_rules =       [
                         PREDS:["equals($4,$2)"]
                         },
                         {PAR_PRE:{
-                            
+
                         }}
                     ]
 rules = {'local' : transform_rules, 'merge' : merge_rules}
