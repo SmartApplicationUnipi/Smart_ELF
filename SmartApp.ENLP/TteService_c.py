@@ -28,12 +28,12 @@ class TteService:
         """
         Assess user emotion from a given sentence
         """
-        print(param)
         sentence_arr = param[0]['details'] # [0]["$input"]
-        sentence = sentence_arr[0]['binds']['$input']
-        
-        lang = param[0][0][0]["$lang"]
+        sentence = sentence_arr[0]['object']['_data']['text']
+
+        lang = sentence_arr[0]['object']['_data']['language']
         logging.info("\tcallback TTE called")
+        logging.debug("\t Language: " + lang + "\tSentence: " + sentence)
         if (lang == "it"):
             sentence = translate(sentence,self.watson_auth)
         fact = extract_emotion(sentence)

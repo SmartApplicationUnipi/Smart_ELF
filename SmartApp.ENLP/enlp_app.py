@@ -87,7 +87,7 @@ def __main__():
                 return
     """
 
-    logging.info("Emotional NLP module registered")
+    logging.info("\tEmotional NLP module registered")
 
     ett_service = EttService(kb_ID, logging_lvl)
     t1 = EttThread(ett_service)
