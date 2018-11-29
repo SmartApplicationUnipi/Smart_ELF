@@ -7,6 +7,7 @@ from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from DRS_Service import DRSService
+from QA_services import QaService
 from kb import KnowledgeBaseClient
 import threading
 import argparse
@@ -20,6 +21,15 @@ class DRS_thread (threading.Thread):
 
     def run(self):
         self.drs_obj.start()
+
+class Qa_Thread (threading.Thread):
+    """ Thread class for Qa service"""
+    def __init__(self, qa_obj):
+        threading.Thread.__init__(self)
+        self.qa_obj = qa_obj
+
+    def run(self):
+        self.qa_obj.start()
 
 def _get_cl_args():
     """
@@ -53,8 +63,12 @@ def __main__():
 
     logging.info("\tQA module registered")
     #TODO register tags nedeed?
-    drs_service = DRSService(kb_ID, logging_lvl)
+    """drs_service = DRSService(kb_ID, logging_lvl)
     t1 = DRS_thread(drs_service)
-    t1.start()
+    t1.start()"""
+
+    qa_service = QaService(kb_ID,logging_lvl)
+    t2 = Qa_Thread(qa_service)
+    t2.start()
 
 __main__()

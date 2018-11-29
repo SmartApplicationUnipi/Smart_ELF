@@ -12,7 +12,8 @@ def __main__():
         input_q = sys.argv[1]
     else:
         input_q = "Dove si trova la Lezione del Professor Gervasi?"
-    dict_q, dict_answ, dict_q_corso, dict_answ_corso = init_templates_dict()
+    dict_q, dict_answ, dict_q_corso, dict_answ_corso, dict_q_aule, \
+    dict_answ_aule = init_templates_dict()
     check_exact_match(input_q, dict_q, dict_answ, ["professor", "professore"])
     check_exact_match(input_q, dict_q_corso, dict_answ_corso, ["corso", "corso di"])
 
@@ -99,4 +100,4 @@ def preprocess_sentence(sentence):
     return preprocessed
 
 
-__main__()
+#__main__()

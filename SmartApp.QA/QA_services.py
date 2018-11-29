@@ -1,5 +1,5 @@
 import sys
-from interface_tags import PATH_TO_KB_MODULE
+from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER
 sys.path.insert(0, PATH_TO_KB_MODULE)
 from kb import KnowledgeBaseClient
 import logging
@@ -35,7 +35,12 @@ class QaService:
            - tree templates matching
            - DRS extraction from the provided
         """
-        input_q = param[0][0][0]["$input"]
+        answer_arr = param[0]['details'] # [0]["$input"]
+        answer = answer_arr[0]['object']['_data']['text']
+        logging.info("\tcallback QA called")
+
+        res = self.kb_client.query({"_data" : {"tag": "$S", "text":"Professor Attardi"}})
+        print(res)
 
 
     def qa_exact_temp_matching(input_q):
@@ -53,13 +58,13 @@ class QaService:
             return True
         else:
             res = check_exact_match(input_q, query_corso, q_corso_answ, ["corso", "corso di"])
-            if (res[0] = True):
+            if (res[0] == True):
                 # perform query to kb
                 #produce answer
                 return True
             else:
                 res = check_exact_match(input_q, query_corso, q_corso_answ, ["aula"])
-                if (res[0] = True):
+                if (res[0] == True):
                     # perform query to kb
                     #produce answer
                     return True
@@ -69,12 +74,13 @@ class QaService:
 
     def start(self):
         """Subscribe and wait for data"""
-        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang"}}, self.answer_query) # from the 'gnlp' module
-        logging.info("QA service started")
+        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_ANSWER, "text": "$input"}}, self.answer_query)
+        #self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang"}}, self.answer_query) # from the 'gnlp' module
+        logging.info("\tQA service started")
 
 
 if __name__ == "__main__":
 
     global myID
-    service_qa = QaService(myID,logging_lvl=logging.DEBUG))
+    service_qa = QaService(myID,logging_lvl=logging.DEBUG)
     service_qa.start()
