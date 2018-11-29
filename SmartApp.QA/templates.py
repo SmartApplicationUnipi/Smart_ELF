@@ -1,5 +1,7 @@
 import sys
-from simple_queries import query_prof_t, query_prof, query_corso, query_corso_t, query_cancellazione, query_cancellazione_t
+from simple_queries import query_prof_t, query_prof, \
+query_corso, query_corso_t, query_cancellazione, \
+query_cancellazione_t, query_aule, query_aule_t
 from nltk.tokenize import RegexpTokenizer
 
 tokenizer = RegexpTokenizer(r'\w+')
@@ -34,7 +36,7 @@ def init_templates_dict():
 
     for tup in query_prof_t:
         dict_answ[tup[0]] = (tup[1], tup[2])
-        
+
     dict_q_corso = {}
     for tup in query_corso:
         dict_q_corso[preprocess_sentence(tup[1])] = tup[0]
@@ -43,11 +45,17 @@ def init_templates_dict():
 
     for tup in query_corso_t:
         dict_answ_corso[tup[0]] = (tup[1], tup[2])
-    
 
+    dict_q_aule = {}
+    for tup in query_aule:
+        dict_q_aule[preprocess_sentence(tup[1])] = tup[0]
+
+    dict_answ_aule = {}
+    for tup in query_aule_t:
+        dict_answ_aule[tup[0]] = (tup[1], tup[2])
     # repeat for all the tuples?
-    
-    return dict_q, dict_answ, dict_q_corso, dict_answ_corso
+
+    return dict_q, dict_answ, dict_q_corso, dict_answ_corso, dict_q_aule, dict_answ_aule
 
 
 def check_exact_match(input_q, dict_q, dict_answ, kwrd_list):
@@ -59,7 +67,7 @@ def check_exact_match(input_q, dict_q, dict_answ, kwrd_list):
     input_q= user's question to ELF
     """
 
-    keywords = kwrd_list 
+    keywords = kwrd_list
     input_q = preprocess_sentence(input_q)
     for kwrd in keywords:
         found_idx = input_q.find(kwrd)
@@ -85,7 +93,7 @@ def preprocess_sentence(sentence):
     preprocessed = sentence.lower()
     # tokens not usable in dict
     #preprocessed = tokenizer.tokenize(preprocessed)
-    
+
     # add stopword removal?
     #print(preprocessed)
     return preprocessed

@@ -17,7 +17,8 @@ class QaService:
         #logging.basicConfig(stream=sys.stderr, level=logging_lvl)
         logging.info('\tETT Service started')
         self.kb_client = KnowledgeBaseClient(True)
-        self.query_prof, self.q_prof_answ, self.query_corso, self.q_corso_answ = tp.init_templates_dict()
+        self.query_prof, self.q_prof_answ, self.query_corso, self.q_corso_answ,\
+        self.dict_q_aule, self.dict_answ_aule = tp.init_templates_dict()
 
     def write_to_KB(self, fact, tag):
         """
@@ -25,8 +26,24 @@ class QaService:
         """
         self.kb_client.addFact(self.kb_ID, tag, 1, 100, fact)
         return
-        
+
     def answer_query(self, *param):
+        """This function is called by KB once a user ask a question.
+           A number of strategies will be tried, in the following order:
+           - exact template matching (user's query is = to a question in
+                                      simple_queries.py)
+           - tree templates matching
+           - DRS extraction from the provided
+        """
+        input_q = param[0][0][0]["$input"]
+
+
+    def qa_exact_temp_matching(input_q):
+        """This function tries to match exactly the query of a user to a
+        template. Templates are in templates.py file in this module
+        If a match is found this function returns True
+        """
+
         input_q = param[0][0][0]["$input"]
         # try to match
         res_1 = check_exact_match(input_q, query_prof, q_prof_ans, ["professor", "professore", "prof"])
@@ -41,17 +58,23 @@ class QaService:
                 #produce answer
                 return True
             else:
-                return False
+                res = check_exact_match(input_q, query_corso, q_corso_answ, ["aula"])
+                if (res[0] = True):
+                    # perform query to kb
+                    #produce answer
+                    return True
+                else:
+                    return False
 
 
     def start(self):
         """Subscribe and wait for data"""
         self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang"}}, self.answer_query) # from the 'gnlp' module
         logging.info("QA service started")
-        
+
 
 if __name__ == "__main__":
-    
+
     global myID
     service_qa = QaService(myID,logging_lvl=logging.DEBUG))
     service_qa.start()
