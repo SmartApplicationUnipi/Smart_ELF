@@ -1,6 +1,6 @@
 #starting symbol is S
 
-% start S
+% start NP
 
 #frase minima
 S[SEM = <app(?subj,?vp)>] -> NP[NUM=?n,SEM=?subj] VP[NUM=?n,SEM=?vp]
@@ -17,11 +17,11 @@ S[SEM = <app(?vp,?comp)>] -> PP[SEM=?comp] VP[NUM=?n,SEM=?vp]
 
 #Noun phrases (si potrebbe aggiungere concordanza di genere)
 NP[NUM=?n,SEM=?np] -> N[NUM=?n,SEM=?np]
-NP[NUM=?n,SEM=<app(?np,?comp2)>] -> N[NUM=?n,SEM=?np] PP[SEM=?comp2]
+NP[NUM=?n,SEM=<app(?np,?comp)>] -> NP[NUM=?n,SEM=?np] PP[SEM=?comp]
 N[NUM=?n,SEM=<app(?det,?nom)> ] -> Det[NUM=?n,SEM=?det]  Nom[NUM=?n,SEM=?nom]
 N[NUM=?n,SEM=<app(?det,?adj,?nom)> ] -> Det[NUM=?n,SEM=?det] Adj[NUM=?n,SEM=?adj]  Nom[NUM=?n,SEM=?nom]
 N[NUM=?n,SEM=?np] -> PropN[NUM=?n,SEM=?np]
-N[NUM=?n,SEM=<app(?np,?nom)> ] -> Nom[NUM=?n,SEM=?nom] PropN[NUM=?n,SEM=?np]
+N[NUM=?n,SEM=<app(?np,?det)> ] -> Det[NUM=?n,SEM=?det] PropN[NUM=?n,SEM=?np]
 
 #Unrolling of adjectives list
 Adj[NUM=?n,SEM=<app(?adj1,?adj2)>] -> Adj[NUM=?n,SEM=?adj1] Adj[NUM=?n,SEM=?adj2]
@@ -44,7 +44,7 @@ Det[NUM=sg,SEM=<\P Q.((DRS([x],[])+P(x))+Q(x))>] -> 'il' | 'lo' | 'la'
 # check for determinative articles(?)
 
 #Prepositions
-GEN[NUM=sg,SEM=<\X x.X(\y.DRS([],[own(x,y)]))>]  -> 'di' | 'del' | 'dello' | 'della'
+GEN[NUM=sg,SEM=<\X x.X(\y.DRS([],[own(y,x)]))>]  -> 'di' | 'del' | 'dello' | 'della'
 
 #Verbi servili
 SERV[NUM=sg,SEM=<\x.DRS([],[])>] -> 'posso'
@@ -56,8 +56,11 @@ TV[NUM=sg,SEM=<\X x.X(\y.DRS([],[be(x,y)]))>,tns=pres] -> 'trovare'
 Nom[NUM=sg,SEM=<\x.DRS([],[lecture(x)])>] -> 'lezione'
 Nom[NUM=sg,SEM=<\x.DRS([],[professor(x)])>] -> 'professor'
 
+#Nouns as determinates
+Det[NUM=sg,SEM=<\x.DRS([],[professor(x)])>] -> 'professor'
+
 #Proper names
-PropN[NUM=sg,SEM=<\P.(DRS([x],[C(x)])+P(x))>] -> 'C'
+PropN[NUM=sg,SEM=<\P Q.(DRS([x],[Attardi(x)])+P(x)+Q(x))>] -> 'Attardi'
 
 #One-word complements
 PP[SEM=<\x.DRS([],[place(x),unknown(x),target(x)])>] -> 'dove'
