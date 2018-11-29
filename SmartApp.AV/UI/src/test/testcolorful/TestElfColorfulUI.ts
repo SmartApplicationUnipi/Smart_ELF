@@ -18,7 +18,7 @@ let _ = require('lodash');
  * Colorful ElfUI.
  */
 export class TestElfColorfulUI extends ElfUI {
-	private logger: Logger.ILogger = Logger.getInstance();
+	
 
 	private upperPanel: Element;
 	private lowerPanel: Element;
@@ -53,7 +53,7 @@ export class TestElfColorfulUI extends ElfUI {
 	}
 
 	public onEmotionChanged(e: IEmotion): void {
-		this.logger.log(Logger.LEVEL.INFO, "onEmotionChanged", e);
+		Logger.getInstance().log(Logger.LEVEL.INFO, "onEmotionChanged", e);
 
 		this.getRootElement().style.backgroundColor = e.getColor();
 
@@ -61,11 +61,11 @@ export class TestElfColorfulUI extends ElfUI {
 	}
 
 	public onPositionChanged(p: Point): void {
-		this.logger.log(Logger.LEVEL.INFO, "onPositionChanged", p);
+		Logger.getInstance().log(Logger.LEVEL.INFO, "onPositionChanged", p);
 	}
 
 	public onContentChanged(contents: Array<IContent>): void {
-		this.logger.log(Logger.LEVEL.INFO, "onContentChanged", contents);
+		Logger.getInstance().log(Logger.LEVEL.INFO, "onContentChanged", contents);
 
 		let audioContents = contents.filter(content => content instanceof AudioContent);
 
@@ -74,7 +74,7 @@ export class TestElfColorfulUI extends ElfUI {
 		// flatten the array
 		(([] as Array<UIWidget>).concat(...contents.map(content => this.widgetFactory.create(content))))
 			.filter(widget => {
-				if (!widget) this.logger.log(Logger.LEVEL.WARNING, "Null widget found");
+				if (!widget) Logger.getInstance().log(Logger.LEVEL.WARNING, "Null widget found");
 				return !!widget;
 			})
 			.map(widget => this.createElement(widget))
@@ -84,7 +84,7 @@ export class TestElfColorfulUI extends ElfUI {
 				} else if (pair.content instanceof DefaultUIWidget) {
 					this.resourcePanel.appendChild(pair.element);
 				} else {
-					this.logger.log(Logger.LEVEL.ERROR, "Pair discarded: no matching type.", pair);
+					Logger.getInstance().log(Logger.LEVEL.ERROR, "Pair discarded: no matching type.", pair);
 				}
 			});
 

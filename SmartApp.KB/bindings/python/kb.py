@@ -52,10 +52,10 @@ class KnowledgeBaseClient():
 		return reply
 
 	def register(self):
-		return self.remote_call("register")
+		return self.remote_call("register", {})
 	# used as a login
-	def registerTags(self, tagsList: map):
-		return self.remote_call("registerTags", {"tagsList": tagsList})
+	def registerTags(self, idSource: str, tagsList: map):
+		return self.remote_call("registerTags", {"idSource": idSource, "tagsList": tagsList})
 
 	def getTagDetails(self, tagsList: list):
 		return self.remote_call("getTagDetails", {"tagsList": tagsList})

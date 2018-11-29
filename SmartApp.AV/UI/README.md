@@ -4,7 +4,7 @@ The UI module is in charge to show all the information that ELF want to show, em
 
 It can display several types of informations (see below) and provides mechanism to define a single action.
 
-It is connected to the TTS module to receive the audio data to play and with the KB in order to display different kind of informations.
+It is connected to the TTS module to receive the audio data to play and with the KB in order to display different kind of informations. If the connection goes down, the system will  try to reconnect after a certain amount of time (default: 10s).
 
 The interaction is event-based: the UI receives an event and react to it.
 
@@ -106,9 +106,17 @@ Channels provide a way to specify a "priority" for a certain event or action.
 
 - Support for error reporting and logs
 
+## Configuration
+
+In order to run properly, the system needs a configuration JSON file named "elfconfig.json" in the main folder. This will be packed into the final bundle by Webpack.
+
+This file contains a JSON object with:
+
+- KB_URL: The address of the KB module
+- TTS_URL: The address of the TTS module
+
 ## TODO
 
-- Support for position
 - Support for actions
 - Support for channels
 - Design an awesome UI

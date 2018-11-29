@@ -26,7 +26,6 @@ import { executeSpecialPredicate } from './dispatcher';
  \( `   <.,../`     `-.._   _,-`
  */
 
-
 const D: Debugger = new Debugger();
 
 export type Matches = Map<object, object[]>;
@@ -39,7 +38,7 @@ export type Matches = Map<object, object[]>;
   git show bbc78e1541af473d9d2f55c93c57c7f64033dffb
 */
 export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Matches {
-    let matcher = new Matcher();
+    const matcher = new Matcher();
     return matcher.start(query, dataset, initBinds);
 }
 
@@ -78,16 +77,20 @@ class Matcher {
         const matches: Matches = new Map<object, object[]>();
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
-        this.initBinds = iBinds;
+        this.initBinds = [...iBinds];
         for (const data of dataset) {
-            this.currBinds = [...this.initBinds];
+            this.currBinds = this.initBinds.map((x) => Object.assign({}, x));
+            // this.currBinds = [...this.initBinds];
             D.newLine(1);
             if (this.matchBind(this.outerQuery, this.outerSorted, data)) {
                 D.resetIndentation()
                 D.clogNoID(Colors.GREEN, 'RESULT', '', 'Match success!', 4);
                 if (q.hasOwnProperty('_predicates')) {
                     D.clogNoID(Colors.BLUE, 'INFO', '', 'Some predicates to check!', 5);
-                    this.evaluatePredicates(q['_predicates']);
+                    if (!this.evaluatePredicates(q['_predicates'])) {
+                        D.clogNoID(Colors.RED, 'RESULT', '', 'Predicate check failed! Match failed!', 4);
+                        continue;
+                    }
                 }
                 matches.set(data, [...this.currBinds]);
             } else {
@@ -434,6 +437,7 @@ class Matcher {
     }
 
     private evaluatePredicates(predicates: any[][]): boolean {
+        // TODO: if we have only constant predicates it might go terribly wrong.
         for (const predicate of predicates) {
             D.clogNoID(Colors.BLUE, 'PRED', '', 'Evaluating predicate `' + predicate[0] + '\'.', 4);
             const predName = predicate[0];

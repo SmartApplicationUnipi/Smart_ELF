@@ -23,10 +23,14 @@ message VideoDataPacket {
 
 	message Face {
 		int64 id = 1;
-		bytes data = 2;
-		Rectangle rect = 3;
+		float Z = 2;
+		int32 speaking = 3;
+		bytes data = 4;
+		Rectangle rect = 5;
 	}
 
 	int64 timestamp = 1;
-	repeated Face faces = 2;
+	int32 frameWidth = 2;
+	int32 frameHeight = 3;
+	repeated Face faces = 4;
 }

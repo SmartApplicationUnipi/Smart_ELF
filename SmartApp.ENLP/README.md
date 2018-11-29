@@ -19,6 +19,7 @@ tuple = {
   "valence": float,
   "arousal": float,
   "tag": "ENLP_USER_EMOTION"
+
 }
 ```
 The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect.
@@ -62,8 +63,10 @@ where `valence` and `arousal` coordinates identify the emotion with which the an
 
 1. We use `"NLP_ANSWER"` as the tag to identify the tuple containing the text of the reply to be given to the user. The text is directly contained in the value of the tag field.
 
-## TODO
- - Switch to multiprocess library due to python GIL.
-
 ## INSTALL
 `pip install -r requirements.txt`
+
+## RUN
+In order to run all the components of this module simply execute, after installing prerequisites, the command
+
+`python enlp_app.py`

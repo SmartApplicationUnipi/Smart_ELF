@@ -26,6 +26,7 @@ namespace SmartApp.HAL.Implementation
 
         public void Start()
         {
+            //sample wave should be always codified as int16
             _source.SampleReady += (_, sample) =>
             {
                 // Prepare a packet and send it over the network
