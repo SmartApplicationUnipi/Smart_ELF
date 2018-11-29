@@ -1,0 +1,2042 @@
+[
+  {
+    "0_text": "trovare",
+    "2_lemma": "trovare",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "posso",
+        "2_lemma": "potere",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "Dov'è",
+    "2_lemma": "Dov'è",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "fa",
+    "2_lemma": "fare",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "aula",
+        "2_lemma": "aulire",
+        "7_children": [
+          {
+            "0_text": "In",
+            "2_lemma": "In",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "Dimmi",
+    "2_lemma": "Dimmi",
+    "7_children": [
+      {
+        "0_text": "l'aula",
+        "2_lemma": "l'aula",
+        "7_children": [
+          {
+            "0_text": "della",
+            "2_lemma": "della",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "andare",
+    "2_lemma": "andare",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "devo",
+        "2_lemma": "dovere",
+        "7_children": []
+      },
+      {
+        "0_text": "seguire",
+        "2_lemma": "seguire",
+        "7_children": [
+          {
+            "0_text": "per",
+            "2_lemma": "per",
+            "7_children": []
+          },
+          {
+            "0_text": "lezione",
+            "2_lemma": "lezione",
+            "7_children": [
+              {
+                "0_text": "la",
+                "2_lemma": "la",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "trova",
+    "2_lemma": "trovare",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "si",
+        "2_lemma": "si",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI"
+  },
+  {
+    "0_text": "inizia",
+    "2_lemma": "iniziare",
+    "7_children": [
+      {
+        "0_text": "A",
+        "2_lemma": "A",
+        "7_children": []
+      },
+      {
+        "0_text": "che",
+        "2_lemma": "che",
+        "7_children": []
+      },
+      {
+        "0_text": "ora",
+        "2_lemma": "orare",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "tempo",
+    "2_lemma": "tempo",
+    "7_children": [
+      {
+        "0_text": "Sono",
+        "2_lemma": "Sono",
+        "7_children": []
+      },
+      {
+        "0_text": "in",
+        "2_lemma": "in",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "per",
+            "2_lemma": "per",
+            "7_children": []
+          },
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "finisce",
+    "2_lemma": "finire",
+    "7_children": [
+      {
+        "0_text": "ora",
+        "2_lemma": "orare",
+        "7_children": [
+          {
+            "0_text": "A",
+            "2_lemma": "A",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "iniziata",
+    "2_lemma": "iniziato",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "La",
+            "2_lemma": "La",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "già",
+        "2_lemma": "già",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "inizia",
+    "2_lemma": "iniziare",
+    "7_children": [
+      {
+        "0_text": "Quando",
+        "2_lemma": "Quando",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "farà",
+    "2_lemma": "fare",
+    "7_children": [
+      {
+        "0_text": "Quando",
+        "2_lemma": "Quando",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "sarà",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "Quando",
+        "2_lemma": "Quando",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "prossima",
+            "2_lemma": "prossimo",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "terrà",
+    "2_lemma": "tenere",
+    "7_children": [
+      {
+        "0_text": "Quando",
+        "2_lemma": "Quando",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "fa",
+    "2_lemma": "fare",
+    "7_children": [
+      {
+        "0_text": "A",
+        "2_lemma": "A",
+        "7_children": []
+      },
+      {
+        "0_text": "che",
+        "2_lemma": "che",
+        "7_children": []
+      },
+      {
+        "0_text": "ora",
+        "2_lemma": "orare",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "giorno",
+        "2_lemma": "giorno",
+        "7_children": [
+          {
+            "0_text": "In",
+            "2_lemma": "In",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "prossima",
+            "2_lemma": "prossimo",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "fa",
+    "2_lemma": "fare",
+    "7_children": [
+      {
+        "0_text": "giorno",
+        "2_lemma": "giorno",
+        "7_children": [
+          {
+            "0_text": "In",
+            "2_lemma": "In",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "giorno",
+    "2_lemma": "giorno",
+    "7_children": [
+      {
+        "0_text": "In",
+        "2_lemma": "In",
+        "7_children": []
+      },
+      {
+        "0_text": "che",
+        "2_lemma": "che",
+        "7_children": []
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": [
+          {
+            "0_text": "e",
+            "2_lemma": "e",
+            "7_children": []
+          },
+          {
+            "0_text": "ora",
+            "2_lemma": "orare",
+            "7_children": [
+              {
+                "0_text": "a",
+                "2_lemma": "a",
+                "7_children": []
+              },
+              {
+                "0_text": "che",
+                "2_lemma": "che",
+                "7_children": []
+              }
+            ]
+          },
+          {
+            "0_text": "lezione",
+            "2_lemma": "lezione",
+            "7_children": [
+              {
+                "0_text": "la",
+                "2_lemma": "la",
+                "7_children": []
+              },
+              {
+                "0_text": "prossima",
+                "2_lemma": "prossimo",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "giorno",
+    "2_lemma": "giorno",
+    "7_children": [
+      {
+        "0_text": "In",
+        "2_lemma": "In",
+        "7_children": []
+      },
+      {
+        "0_text": "che",
+        "2_lemma": "che",
+        "7_children": []
+      },
+      {
+        "0_text": "fa",
+        "2_lemma": "fare",
+        "7_children": [
+          {
+            "0_text": "e",
+            "2_lemma": "e",
+            "7_children": []
+          },
+          {
+            "0_text": "a",
+            "2_lemma": "a",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          },
+          {
+            "0_text": "ora",
+            "2_lemma": "orare",
+            "7_children": []
+          },
+          {
+            "0_text": "lezione",
+            "2_lemma": "lezione",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": []
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "l’orario",
+    "2_lemma": "l’orario",
+    "7_children": [
+      {
+        "0_text": "Qual’è",
+        "2_lemma": "Qual’è",
+        "7_children": []
+      },
+      {
+        "0_text": "settimanale",
+        "2_lemma": "settimanale",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": [
+          {
+            "0_text": "di",
+            "2_lemma": "di",
+            "7_children": []
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "l’orario",
+    "2_lemma": "l’orario",
+    "7_children": [
+      {
+        "0_text": "Qual’è",
+        "2_lemma": "Qual’è",
+        "7_children": []
+      },
+      {
+        "0_text": "settimanale",
+        "2_lemma": "settimanale",
+        "7_children": []
+      },
+      {
+        "0_text": "lezioni",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "delle",
+            "2_lemma": "della",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "Quali",
+    "2_lemma": "Quali",
+    "7_children": [
+      {
+        "0_text": "sono",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "lezioni",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "le",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI"
+  },
+  {
+    "0_text": "sarà",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "Quando",
+        "2_lemma": "Quando",
+        "7_children": []
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "prossima",
+            "2_lemma": "prossimo",
+            "7_children": []
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI CORSI"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "ora",
+        "2_lemma": "orare",
+        "7_children": [
+          {
+            "0_text": "A",
+            "2_lemma": "A",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "prossima",
+            "2_lemma": "prossimo",
+            "7_children": []
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI CORSI"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "giorno",
+        "2_lemma": "giorno",
+        "7_children": [
+          {
+            "0_text": "In",
+            "2_lemma": "In",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "la",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "prossima",
+            "2_lemma": "prossimo",
+            "7_children": []
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI CORSI"
+  },
+  {
+    "0_text": "giorno",
+    "2_lemma": "giorno",
+    "7_children": [
+      {
+        "0_text": "In",
+        "2_lemma": "In",
+        "7_children": []
+      },
+      {
+        "0_text": "che",
+        "2_lemma": "che",
+        "7_children": []
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": [
+          {
+            "0_text": "e",
+            "2_lemma": "e",
+            "7_children": []
+          },
+          {
+            "0_text": "ora",
+            "2_lemma": "orare",
+            "7_children": [
+              {
+                "0_text": "a",
+                "2_lemma": "a",
+                "7_children": []
+              },
+              {
+                "0_text": "che",
+                "2_lemma": "che",
+                "7_children": []
+              }
+            ]
+          },
+          {
+            "0_text": "lezione",
+            "2_lemma": "lezione",
+            "7_children": [
+              {
+                "0_text": "la",
+                "2_lemma": "la",
+                "7_children": []
+              },
+              {
+                "0_text": "prossima",
+                "2_lemma": "prossimo",
+                "7_children": []
+              }
+            ]
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI CORSI"
+  },
+  {
+    "0_text": "l’orario",
+    "2_lemma": "l’orario",
+    "7_children": [
+      {
+        "0_text": "Qual’è",
+        "2_lemma": "Qual’è",
+        "7_children": []
+      },
+      {
+        "0_text": "settimanale",
+        "2_lemma": "settimanale",
+        "7_children": []
+      },
+      {
+        "0_text": "corso",
+        "2_lemma": "correre",
+        "7_children": [
+          {
+            "0_text": "del",
+            "2_lemma": "del",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI CORSI"
+  },
+  {
+    "0_text": "l’orario",
+    "2_lemma": "l’orario",
+    "7_children": [
+      {
+        "0_text": "Qual’è",
+        "2_lemma": "Qual’è",
+        "7_children": []
+      },
+      {
+        "0_text": "settimanale",
+        "2_lemma": "settimanale",
+        "7_children": []
+      },
+      {
+        "0_text": "lezioni",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "delle",
+            "2_lemma": "della",
+            "7_children": []
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              }
+            ]
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI CORSI"
+  },
+  {
+    "0_text": "sono",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "Quando",
+        "2_lemma": "Quando",
+        "7_children": []
+      },
+      {
+        "0_text": "lezioni",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "le",
+            "2_lemma": "la",
+            "7_children": []
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              }
+            ]
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI ORARI CORSI"
+  },
+  {
+    "0_text": "l'aula",
+    "2_lemma": "l'aula",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI COME ARRIVARE"
+  },
+  {
+    "0_text": "sta",
+    "2_lemma": "stare",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "l'aula",
+        "2_lemma": "l'aula",
+        "7_children": [
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": []
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI COME ARRIVARE"
+  },
+  {
+    "0_text": "faccio",
+    "2_lemma": "fare",
+    "7_children": [
+      {
+        "0_text": "Come",
+        "2_lemma": "Come",
+        "7_children": []
+      },
+      {
+        "0_text": "raggiungere",
+        "2_lemma": "raggiungere",
+        "7_children": [
+          {
+            "0_text": "a",
+            "2_lemma": "a",
+            "7_children": []
+          },
+          {
+            "0_text": "l'aula",
+            "2_lemma": "l'aula",
+            "7_children": [
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "LEZIONI COME ARRIVARE"
+  },
+  {
+    "0_text": "c'è",
+    "2_lemma": "c'è",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "Che",
+            "2_lemma": "Che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "aula",
+        "2_lemma": "aulire",
+        "7_children": [
+          {
+            "0_text": "in",
+            "2_lemma": "in",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONI COME ARRIVARE"
+  },
+  {
+    "0_text": "cancellata",
+    "2_lemma": "cancellare",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "La",
+            "2_lemma": "La",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "stata",
+        "2_lemma": "stare",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONE CANCELLATA"
+  },
+  {
+    "0_text": "cancellata",
+    "2_lemma": "cancellare",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "La",
+            "2_lemma": "La",
+            "7_children": []
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "stata",
+        "2_lemma": "stare",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONE CANCELLATA"
+  },
+  {
+    "0_text": "cancellata",
+    "2_lemma": "cancellare",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "La",
+            "2_lemma": "La",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "giorno",
+                "2_lemma": "giorno",
+                "7_children": [
+                  {
+                    "0_text": "del",
+                    "2_lemma": "del",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "stata",
+        "2_lemma": "stare",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONE CANCELLATA"
+  },
+  {
+    "0_text": "cancellata",
+    "2_lemma": "cancellare",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "La",
+            "2_lemma": "La",
+            "7_children": []
+          },
+          {
+            "0_text": "corso",
+            "2_lemma": "correre",
+            "7_children": [
+              {
+                "0_text": "del",
+                "2_lemma": "del",
+                "7_children": []
+              },
+              {
+                "0_text": "$",
+                "2_lemma": "$",
+                "7_children": [
+                  {
+                    "0_text": "di",
+                    "2_lemma": "di",
+                    "7_children": []
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "0_text": "giorno",
+        "2_lemma": "giorno",
+        "7_children": [
+          {
+            "0_text": "del",
+            "2_lemma": "del",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "stata",
+        "2_lemma": "stare",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONE CANCELLATA"
+  },
+  {
+    "0_text": "cancellata",
+    "2_lemma": "cancellare",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "La",
+            "2_lemma": "La",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": [
+          {
+            "0_text": "delle",
+            "2_lemma": "della",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "stata",
+        "2_lemma": "stare",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONE CANCELLATA"
+  },
+  {
+    "0_text": "cancellata",
+    "2_lemma": "cancellare",
+    "7_children": [
+      {
+        "0_text": "lezione",
+        "2_lemma": "lezione",
+        "7_children": [
+          {
+            "0_text": "La",
+            "2_lemma": "La",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "0_text": "giorno",
+        "2_lemma": "giorno",
+        "7_children": [
+          {
+            "0_text": "del",
+            "2_lemma": "del",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": [
+          {
+            "0_text": "delle",
+            "2_lemma": "della",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "stata",
+        "2_lemma": "stare",
+        "7_children": []
+      }
+    ],
+    "8_class": "LEZIONE CANCELLATA"
+  },
+  {
+    "0_text": "fa",
+    "2_lemma": "fare",
+    "7_children": [
+      {
+        "0_text": "dipartimento",
+        "2_lemma": "dipartimento",
+        "7_children": [
+          {
+            "0_text": "In",
+            "2_lemma": "In",
+            "7_children": []
+          },
+          {
+            "0_text": "quale",
+            "2_lemma": "quale",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "ricevimento",
+        "2_lemma": "ricevimento",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": []
+      }
+    ],
+    "8_class": "ORARIO RICEVIMENTO"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "ricevimento",
+        "2_lemma": "ricevimento",
+        "7_children": [
+          {
+            "0_text": "il",
+            "2_lemma": "il",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "ORARIO RICEVIMENTO"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "ora",
+        "2_lemma": "orare",
+        "7_children": [
+          {
+            "0_text": "A",
+            "2_lemma": "A",
+            "7_children": []
+          },
+          {
+            "0_text": "che",
+            "2_lemma": "che",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "ricevimento",
+        "2_lemma": "ricevimento",
+        "7_children": [
+          {
+            "0_text": "il",
+            "2_lemma": "il",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "ORARIO RICEVIMENTO"
+  },
+  {
+    "0_text": "ricevimento",
+    "2_lemma": "ricevimento",
+    "7_children": [
+      {
+        "0_text": "Quando",
+        "2_lemma": "Quando",
+        "7_children": []
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "il",
+        "2_lemma": "il",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": [
+          {
+            "0_text": "di",
+            "2_lemma": "di",
+            "7_children": []
+          }
+        ]
+      }
+    ],
+    "8_class": "ORARIO RICEVIMENTO"
+  },
+  {
+    "0_text": "studio",
+    "2_lemma": "studiare",
+    "7_children": [
+      {
+        "0_text": "dipartimento",
+        "2_lemma": "dipartimento",
+        "7_children": [
+          {
+            "0_text": "In",
+            "2_lemma": "In",
+            "7_children": []
+          },
+          {
+            "0_text": "quale",
+            "2_lemma": "quale",
+            "7_children": []
+          }
+        ]
+      },
+      {
+        "0_text": "è",
+        "2_lemma": "essere",
+        "7_children": []
+      },
+      {
+        "0_text": "lo",
+        "2_lemma": "il",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": [
+          {
+            "0_text": "di",
+            "2_lemma": "di",
+            "7_children": []
+          }
+        ]
+      }
+    ],
+    "8_class": "STUDIO DEL PROFESSORE"
+  },
+  {
+    "0_text": "studio",
+    "2_lemma": "studiare",
+    "7_children": [
+      {
+        "0_text": "Qual’è",
+        "2_lemma": "Qual’è",
+        "7_children": []
+      },
+      {
+        "0_text": "lo",
+        "2_lemma": "il",
+        "7_children": []
+      },
+      {
+        "0_text": "$",
+        "2_lemma": "$",
+        "7_children": [
+          {
+            "0_text": "di",
+            "2_lemma": "di",
+            "7_children": []
+          }
+        ]
+      }
+    ],
+    "8_class": "STUDIO DEL PROFESSORE"
+  },
+  {
+    "0_text": "numero",
+    "2_lemma": "numerare",
+    "7_children": [
+      {
+        "0_text": "Qual’è",
+        "2_lemma": "Qual’è",
+        "7_children": []
+      },
+      {
+        "0_text": "il",
+        "2_lemma": "il",
+        "7_children": []
+      },
+      {
+        "0_text": "dello",
+        "2_lemma": "del",
+        "7_children": [
+          {
+            "0_text": "studio",
+            "2_lemma": "studiare",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "STUDIO DEL PROFESSORE"
+  },
+  {
+    "0_text": "è",
+    "2_lemma": "essere",
+    "7_children": [
+      {
+        "0_text": "Dove",
+        "2_lemma": "Dove",
+        "7_children": []
+      },
+      {
+        "0_text": "studio",
+        "2_lemma": "studiare",
+        "7_children": [
+          {
+            "0_text": "lo",
+            "2_lemma": "il",
+            "7_children": []
+          },
+          {
+            "0_text": "$",
+            "2_lemma": "$",
+            "7_children": [
+              {
+                "0_text": "di",
+                "2_lemma": "di",
+                "7_children": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "8_class": "STUDIO DEL PROFESSORE"
+  }
+]
