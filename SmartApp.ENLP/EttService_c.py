@@ -28,7 +28,8 @@ class EttService:
         to the user in order to transform it with respect to some emotion
         extrapolated by ELF internal state (tuples)
         """
-        answer = param[0][0][0]["$input"]
+        answer_arr = param[0]['details'] # [0]["$input"]
+        answer = answer_arr[0]['object']['_data']['text']
         logging.info("\tcallback ett called")
         a_fact, e_fact = prepare_answer(answer)
         self.write_to_KB(a_fact, TAG_COLORED_ANSWER)
