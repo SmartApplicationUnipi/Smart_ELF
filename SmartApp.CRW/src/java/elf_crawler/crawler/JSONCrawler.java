@@ -17,6 +17,7 @@ import net.minidev.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class JSONCrawler extends Crawler {
 
@@ -58,7 +59,7 @@ public class JSONCrawler extends Crawler {
                     entries.add(new DataEntry(super.file.getLink().getUrl(), r.getTag(), super.timestamp, DataEntryType.JSON, e));
             }
 
-            if (resultJson instanceof JSONObject)
+            if (resultJson instanceof JSONObject || resultJson instanceof Map)
                 entries.add(new DataEntry(super.file.getLink().getUrl(), r.getTag(), super.timestamp, DataEntryType.JSON, resultJson));
         }
 

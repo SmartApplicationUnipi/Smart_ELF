@@ -56,7 +56,7 @@
 	["http://margot.di.unipi.it/test12/goa/2018/1/getallteachers",
 		[
 			{
-				"root" : "$.*",
+				"root" : "$",
 				"tag" : "crawler_teacher"
 			}
 		]
