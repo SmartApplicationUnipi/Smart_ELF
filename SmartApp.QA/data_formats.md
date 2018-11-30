@@ -1,5 +1,5 @@
 
-##### AULE ######
+##   Aule
 ```javascript
 {
     "object": {
@@ -79,8 +79,8 @@
 }
 ```
 
-######## CORSI #############
-```
+## Corsi
+```javascript
 {
     "object": {
         "_data": {
@@ -138,5 +138,31 @@
             }
         }
     ]
+}
+```
+
+
+## Teachers #############
+
+```javascript
+{
+    "object": {
+        "_data": {
+            "source": "http://margot.di.unipi.it/test12/goa/2018/1/getallteachers",
+            "tag": "crawler_teacher",
+            "timestamp": 1543597424012,
+            "type": "json",
+            "data": "1377"
+        },
+        "_id": 5970,
+        "_meta": {
+            "idSource": "id10",
+            "tag": "crawler_teacher",
+            "creationTime": "30/11/2018",
+            "TTL": 1,
+            "reliability": 100
+        }
+    },
+    "binds": []
 }
 ```
