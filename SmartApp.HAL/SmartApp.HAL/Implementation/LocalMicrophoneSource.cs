@@ -20,6 +20,7 @@ namespace SmartApp.HAL.Implementation
         private readonly byte[] _waveBuffer;
         private int _waveBufferPosition = 0;
         private DateTime _startRecordTime;
+        private bool _isRecording = false;
 
         public LocalMicrophoneSource(ILogger<LocalMicrophoneSource> logger)
         {
@@ -76,6 +77,7 @@ namespace SmartApp.HAL.Implementation
 
         public void Start()
         {
+            _isRecording = true;
             _waveIn.StartRecording();
             _startRecordTime = DateTime.Now;
             _logger.LogInformation("Recording started.");
@@ -83,6 +85,7 @@ namespace SmartApp.HAL.Implementation
 
         public void Stop()
         {
+            _isRecording = false;
             _waveIn.StopRecording();
             _logger.LogInformation("Recording stopped.");
         }
@@ -92,6 +95,11 @@ namespace SmartApp.HAL.Implementation
             // Stop the recording and dispose the audio source
             Stop();
             _waveIn.Dispose();
+        }
+
+        public bool IsRecording()
+        {
+            return _isRecording;
         }
     }
 }

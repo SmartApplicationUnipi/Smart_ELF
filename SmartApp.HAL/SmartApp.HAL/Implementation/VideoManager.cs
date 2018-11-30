@@ -37,25 +37,6 @@ namespace SmartApp.HAL.Implementation
         {
             _videoSource.FrameReady += (_, frame) =>
             {
-                // Check if the user engagement changed
-                var newEngaged = frame.Faces.Any(f => f.IsEngaged);
-                if (newEngaged != IsEngaged)
-                {
-                    // Start recording audio when the user is engaged
-                    if (newEngaged)
-                    {
-                        _audioSource.Start();
-                    }
-                    else
-                    {
-                        _audioSource.Stop();
-                    }
-
-                    IsEngaged = newEngaged;
-                    _logger.LogInformation($"User {(IsEngaged ? string.Empty : "not ")}engaged.");
-                    IsEngagedChanged?.Invoke(this, IsEngaged);
-                }
-
                 // Exit immediately if we did not find any face
                 if (frame.Faces.Count == 0)
                 {
