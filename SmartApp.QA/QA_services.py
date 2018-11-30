@@ -4,6 +4,7 @@ sys.path.insert(0, PATH_TO_KB_MODULE)
 from kb import KnowledgeBaseClient
 import logging
 import templates as tp
+#  libreria spacy matcher per
 
 
 """
@@ -35,11 +36,12 @@ class QaService:
            - tree templates matching
            - DRS extraction from the provided
         """
-        answer_arr = param[0]['details'] # [0]["$input"]
-        answer = answer_arr[0]['object']['_data']['text']
+        answer_arr = param[0]["details"] # [0]["$input"]
+        answer = answer_arr[0]["object"]["_data"]["text"]
         logging.info("\tcallback QA called")
 
-        res = self.kb_client.query({"_data" : {"tag": "$S", "text":"Professor Attardi"}})
+        #res = self.kb_client.query({"_data" : {"tag": "$S", "text":"Professor Attardi"}})
+        res = self.kb_client.query({"_data" :"$X" })
         print(res)
 
 
@@ -51,19 +53,19 @@ class QaService:
 
         input_q = param[0][0][0]["$input"]
         # try to match
-        res_1 = check_exact_match(input_q, query_prof, q_prof_ans, ["professor", "professore", "prof"])
+        res_1 = tp.check_exact_match(input_q, query_prof, q_prof_ans, ["professor", "professore", "prof"])
         if (res[0] is True):
             # perform query to kb
             # produce answer
             return True
         else:
-            res = check_exact_match(input_q, query_corso, q_corso_answ, ["corso", "corso di"])
+            res = tp.check_exact_match(input_q, query_corso, q_corso_answ, ["corso", "corso di"])
             if (res[0] == True):
                 # perform query to kb
                 #produce answer
                 return True
             else:
-                res = check_exact_match(input_q, query_corso, q_corso_answ, ["aula"])
+                res = tp.check_exact_match(input_q, query_corso, q_corso_answ, ["aula"])
                 if (res[0] == True):
                     # perform query to kb
                     #produce answer
