@@ -1,12 +1,15 @@
 from external_modules.kb_client import KnowledgeBaseClient as kb
 import external_modules.hal_client as hal
-from online.interface import online_connector as online
+from online.online_module import online_module as online
 from offline.offvision import OffVision as offline
 
 import numpy as np
 from threading import *
 from queue import Queue
 import cv2
+
+from face_db import face_db as db
+
 import traceback
 
 

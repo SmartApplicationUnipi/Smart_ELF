@@ -1,7 +1,7 @@
-import urllib
 from online.SDK.face_client import Facepp_Client as online
+import urllib
 
-class online_connector():
+class online_module():
 
     def __init__(self):
         self.faceset_outer_id = "Fibonacci_FaceSet_0001"
@@ -42,7 +42,7 @@ class online_connector():
         if 'known' not in json:
             json.update({"known": False})
         if 'confidence_identity' in json:
-            json['confidence_identity']  = round(json['confidence_identity']/100, 3)
+            json['confidence_identity']  = round(json['confidence_identity']/100, 4)
         else:
             json.update({"confidence_identity": 0})
 
@@ -50,6 +50,24 @@ class online_connector():
         json.update(attr)
 
         return json
+
+    def is_available(self):
+        """
+            Check server availability.
+
+            Params:
+
+            Return:
+                result (bool): if server is available
+                    - True: if is possible to connect to the service
+                    - False: otherwise
+        """
+        res = True
+        try:
+            urllib.request.urlopen(self.HOST, timeout=1)
+        except urllib.request.URLError:
+            res = False
+        return res
 
     def analyze_face(self, frame, toIdentify = True):
         """
@@ -103,38 +121,28 @@ class online_connector():
         else:
             return None
 
-    def is_available(self):
-        """
-            Check server availability.
-
-            Params:
-
-            Return:
-                result (bool): if server is available
-                    - True: if is possible to connect to the service
-                    - False: otherwise
-        """
-        res = True
-        try:
-            urllib.request.urlopen(self.HOST, timeout=1)
-        except urllib.request.URLError:
-            res = False
-        return res
-
     def set_detect_attibutes(self, *args, **kwargs):
         self.client.setParamsDetect(*args, **kwargs)
         return self.client.detect_params
 
+    def cmp_descriptor(first_descriptor, second_descriptor):
+        return first_descriptor == second_descriptor, 1
+
     def get_match(self, db, descriptor, desc_position, id_position, return_index=False, return_all=False):
         """
         Finds the matching id of the descriptor in the db, if there is one
-        :param db: list of tuples, which contain descriptors and ids
-        :param descriptor: the descriptor to match
-        :param desc_position: position of the descriptor field in db tuples
-        :param id_position: position of the id field in db tuples
-        :param return_index: if true returns also the position in db (None if not found)
-        :param return_all: if true returns a list of all the results (pairs (id,index) if return_index=True)
-        :return: an id if matching succeeded, else None; a pair, or a list of ids, or a list of pairs, according to options
+
+        Params:
+            db: list of tuples, which contain descriptors and ids
+            descriptor: the descriptor to match
+            desc_position: position of the descriptor field in db tuples
+            id_position: position of the id field in db tuples
+            return_index: if true returns also the position in db (None if not found)
+            return_all: if true returns a list of all the results (pairs
+                (id,index) if return_index=True)
+        Return:
+            result (int) or (tuple): An id if matching succeeded, else None;
+                a pair, or a list of ids, or a list of pairs, according to options
         """
         if return_all:
             if return_index:

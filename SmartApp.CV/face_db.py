@@ -4,6 +4,7 @@ from random import choice as pick
 from string import ascii_lowercase as letters
 from copy import deepcopy
 
+# TODO:
 
 def _validate_key(key):
     not_valid = "^@,.;:&=*\'\"()[]{}"
@@ -36,6 +37,9 @@ def _take(item_or_value):
 
     return key, value
 
+def equality(first, seconds):
+    return first == seconds
+
 class face_db():
     """
         Shared database of faces used by the Vision module's Controller.
@@ -50,11 +54,10 @@ class face_db():
     DESCRIPTOR = 1
     TOKEN = 2
 
-    def __init__(self, comparator_descriptor, comparator_token, PATH_DB="face_db"):
-        self.PATH_DB = PATH_DB
+    def __init__(self, path_db = "face_db"):
+        self.PATH_DB = path_db
         self.file = None
         self.database = None
-        self.cmp = [comparator_descriptor, comparator_token]
 
         exist = isfile(self.PATH_DB)
         if exist:
@@ -63,6 +66,15 @@ class face_db():
         else:
             self.file = open(self.PATH_DB, 'w')
             self.database = []
+
+    def _comparator_token(first_token, second_token):
+        return first_token == second_token, 1
+
+    from numpy import dot
+    from numpy.linalg import norm
+    def _comparator_descriptor(first_descriptor, second_descriptor, threshold = 0.6):
+        var = dot(first_descriptor, second_descriptor)/(norm(first_descriptor)*norm(second_descriptor))
+        return True if var > 0.6 else False, var
 
     def __getitem__(self, key):
         """
@@ -152,12 +164,13 @@ class face_db():
             else:
                 item_or_value_or_key = (key, None, None)
 
+        cmp = [_comparator_descriptor, _comparator_token]
         res = []
         key, item = _take(item_or_value_or_key)
         i = 1 if item[0] is None else 0
         j = 1 if item[1] is None else 2
         for p, e in enumerate(self.database):
-            if any(self.cmp[c](x,y) for x,y,c in zip(e[i+1:j+1], item[i:j], [0,1][i:j])) or item[i:j] is ():
+            if any(cmp[c](x,y) for x,y,c in zip(e[i+1:j+1], item[i:j], [0,1][i:j])) or item[i:j] is ():
                 if key is None:
                     res.append(p)
                 elif key == e[0]:

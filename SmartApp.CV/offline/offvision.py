@@ -74,6 +74,8 @@ class OffVision:
         if 'emotion' in self.requested_attributes:
             # predict emotion
             face_facts['emotion'] = self.emotion_model.predict_frame(frame)
+            for i in face_facts['emotion']:
+                face_facts['emotion'].update({i: round(face_facts['emotion'][i]/100, 4)})
         if 'gender' in self.requested_attributes:
             face_facts['gender'] = 'Unknown'
         if 'age' in self.requested_attributes:
