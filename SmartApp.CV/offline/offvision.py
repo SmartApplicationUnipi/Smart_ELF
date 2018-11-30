@@ -51,7 +51,8 @@ class OffVision:
             else:
                 self.requested_attributes.append('emotion')
         return self.requested_attributes
-
+        
+    @staticmethod
     def get_descriptor(self, frame):
         """
         Computes the face descriptor

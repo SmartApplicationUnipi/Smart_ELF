@@ -144,6 +144,9 @@ class Controller():
                     face_obj, frame_size  = queue.get()
                     fact, tuple = self.watch(face_obj, frame_size)
 
+                    #########################################
+                    #######     NOT TESTED    ###############
+                    #########################################
                     if fact is not None and tuple is not None:
                         res = self.db.get(tuple)
                         # res = [ [ tuple1, confidence1 ] ... [tuple_n, confidence_n] ]
@@ -169,7 +172,7 @@ class Controller():
 
                             if len(res) > 0:
                                 #something matches
-                                #return ID and update record
+                                #return ID and update record with the token
                                 fact['personID'] = res[0][0]
                                 fact['confidence_identity'] = res[0][1]
                                 fact['known'] = True
