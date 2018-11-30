@@ -10,6 +10,7 @@ class online_module():
 
         self.client = online()
         res = self.client.getFaceSets()
+
         for faceset in res['facesets']:
             if faceset['outer_id'] == self.faceset_outer_id:
                 self.faceset_token = faceset['faceset_token']

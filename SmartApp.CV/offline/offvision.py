@@ -64,7 +64,7 @@ class OffVision:
         face_desc = np.array(face_desc)
         return face_desc
 
-    def analyze_face(self, frame, return_desc=False):
+    def analyze_face(self, frame):
         """
         Analyzes and describes a single face image
         :param frame: numpy frame of the face
@@ -76,20 +76,16 @@ class OffVision:
             # predict emotion
             face_facts['emotion'] = self.emotion_model.predict_frame(frame)
             face_facts['emotion'] = {k: round(v, 4) for k, v in face_facts['emotion'].items()}
-            #for i in face_facts['emotion']:
-            #    face_facts['emotion'].update({i: round(face_facts['emotion'][i], 4)})
         if 'gender' in self.requested_attributes:
             face_facts['gender'] = 'Unknown'
         if 'age' in self.requested_attributes:
             face_facts['age'] = -1 # unknown
         if 'smile' in self.requested_attributes:
             face_facts['smile'] = 'Unknown'
-        if return_desc:
-            # compute face descriptor, if requested
-            face_desc = self.get_descriptor(frame)
-            return (face_facts, face_desc)
-        else:
-            return face_facts
+
+        descriptor = self.get_descriptor(frame)
+
+        return face_facts, (descriptor, None)
 
     def get_match(self, db, descriptor, desc_position, id_position, return_index=False, return_confidence=False):
         """
