@@ -68,9 +68,8 @@ class Controller():
         # mi registrerò
         #self._kb.registerTags(DOCS)
 
-        # Ops for stram in input
+        # Ops for stream in input
         self.is_host = not (host == "webcam")
-
         self._hal = None
         self._videoID = None
         self.video_capture = None
@@ -89,8 +88,8 @@ class Controller():
             self.online_module = online()
             self.has_api_problem = False
         except AttributeError as e:
-            print(type(e).__name__, e)
             self.has_api_problem = True
+            print(type(e).__name__, e)
             print("\n It seems that there is a problem with the online module: I'm swithing to offline module...")
 
         # Initialization of Offline Module
@@ -99,6 +98,9 @@ class Controller():
         except Exception as e:
             print(type(e).__name__, e)
             print("\n It seems that there is a problem in the initialization!")
+
+        # DB initialization
+        self.db = db()
 
         # Ops for worker that compute all the analyzes
         # TODO Creare 6 thread che lavoreano su più persone
@@ -140,7 +142,44 @@ class Controller():
             while True:
                 if self.is_host:
                     face_obj, frame_size  = queue.get()
-                    fact = self.watch(face_obj, frame_size)
+                    fact, tuple = self.watch(face_obj, frame_size)
+
+                    if fact is not None and tuple is not None:
+                        res = self.db.get(tuple)
+                        # res = [ [ tuple1, confidence1 ] ... [tuple_n, confidence_n] ]
+
+                        if len(res) > 0:
+                            #something matches
+                            fact['personID'] = res[0][0]
+                            fact['confidence_identity'] = res[0][1]
+                            fact['known'] = True
+
+                        elif self.has_api_problem:
+                            #offline module case
+                            fact['personID'] = self.db.insert(tuple)
+                            fact['confidence_identity'] = 0
+                            fact['known'] = False
+
+                        else:
+                            #online module case
+                            #compute descriptor
+                            descriptor = offline.get_descriptor(face_obj.img)
+                            #search descriptor
+                            res = self.db.get(( descriptor, None )
+
+                            if len(res) > 0:
+                                #something matches
+                                #return ID and update record
+                                fact['personID'] = res[0][0]
+                                fact['confidence_identity'] = res[0][1]
+                                fact['known'] = True
+                                self.db.modify( descriptor, fact['personID'] )
+                            else:
+                                #no match add it to db
+                                fact['personID'] = self.db.insert(( descriptor, None ))
+                                fact['confidence_identity'] = 0
+                                fact['known'] = False
+
                     #self._add_fact_to_kb(fact)
                     queue.task_done()
                 else: # TODO: delete this option only for test
@@ -202,12 +241,12 @@ class Controller():
         try:
             if self.attempt < 1:
                 # attempt an online analysis
-                fact = self.online_module.analyze_face(img)
+                fact, tuple = self.online_module.analyze_face(img)
                 # all fine, reset backoff
                 self.exponent = 1
             else:
                 # we're in the backoff interval, work offline
-                fact = self.offline_module.analyze_face(img)
+                fact, tuple = self.offline_module.analyze_face(img)
                 # one more attempt done
                 self.attempt -= 1
                 # print('*** BACKOFF attempt', self.attempt, 'of exponent', self.exponent, '***')
@@ -219,7 +258,7 @@ class Controller():
             # begin the new backoff interval
             self.attempt = 2 ** self.exponent
             # remeber, we've still to analyze this face:
-            fact = self.offline_module.analyze_face(img)
+            fact, tuple = self.offline_module.analyze_face(img)
 
         if not fact:
             print("Non vedo nessuno")
@@ -233,8 +272,7 @@ class Controller():
             fact.update({"is_interlocutor": is_interlocutor})
             fact.update({"z_index": z_index})
 
-            print(fact)
-        return fact
+        return fact, tuple
 
     def __del__(self):
         if self._hal is not None:

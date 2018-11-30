@@ -78,7 +78,7 @@ class online_module():
             Params:
                 frame: matrix-like, filepath, file descriptor of the image.
 
-            Return:
+            Return: json-like fact, tuple in the format (None, token)
         """
         # take respose from server of face present in the frame
         result = self.client.detect(frame)
@@ -117,9 +117,9 @@ class online_module():
                 print(type(e).__name__, e)
                 self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
 
-            return self._jsonFace2Fact(face)
+            return self._jsonFace2Fact(face), (None, face["face_token"])
         else:
-            return None
+            return None, None
 
     def set_detect_attibutes(self, *args, **kwargs):
         self.client.setParamsDetect(*args, **kwargs)
