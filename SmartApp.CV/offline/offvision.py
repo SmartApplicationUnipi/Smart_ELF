@@ -2,8 +2,10 @@
 import os
 import dlib
 import numpy as np
-from scipy.spatial.distance import cosine
 from offline.FERModelEnsemble import FERModelEnsemble
+
+from numpy import dot
+from numpy.linalg import norm
 
 try:
      from .emopy import FERModel
@@ -51,7 +53,7 @@ class OffVision:
             else:
                 self.requested_attributes.append('emotion')
         return self.requested_attributes
-        
+
     @staticmethod
     def get_descriptor(self, frame):
         """
@@ -105,7 +107,7 @@ class OffVision:
         confidence = None
         # find closest descriptor
         for i, entry in enumerate(db):
-            distance = cosine(entry[desc_position], descriptor) # cosine distance
+            distance = dot(first_descriptor, second_descriptor)/(norm(first_descriptor)*norm(second_descriptor)) # cosine distance
             if distance < min_distance:
                 min_distance = distance
                 match_id = entry[id_position]
