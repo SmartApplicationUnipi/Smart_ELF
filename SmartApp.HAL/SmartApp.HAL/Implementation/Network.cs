@@ -17,19 +17,18 @@ namespace SmartApp.HAL.Implementation
     internal class Network : INetwork
     {
         private readonly ILogger<Network> _logger;
-        private readonly IVideoSource _videoSource;
+        private IVideoManager _videoManager;
         private readonly ProtobufServer<AudioDataPacket, AudioDataPacket> _audioServer;
         private readonly ProtobufServer<VideoDataPacket, VideoControlPacket> _videoServer;
 
-        public Network(Options options, IVideoSource videoSource, ILogger<Network> logger, ILoggerFactory loggerFactory)
+        public Network(Options options, ILogger<Network> logger, ILoggerFactory loggerFactory)
         {
             if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _videoSource = videoSource ?? throw new ArgumentNullException(nameof(videoSource));
-
+            
             // Starts the audio and video servers
             _audioServer = new ProtobufServer<AudioDataPacket, AudioDataPacket>(
                 options.BindToAddress,
@@ -73,7 +72,7 @@ namespace SmartApp.HAL.Implementation
             switch (packet.RequestCase)
             {
                 case VideoControlPacket.RequestOneofCase.FramerateRequest:
-                    _videoSource.Framerate = packet.FramerateRequest.Framerate;
+                   if(_videoManager!=null) _videoManager.Framerate = packet.FramerateRequest.Framerate;
                     break;
 
                 default:
@@ -81,7 +80,13 @@ namespace SmartApp.HAL.Implementation
             }
         }
 
-
+        public void RegisterVideoManager(IVideoManager manager)
+        {
+            if (manager != null)
+            {
+                _videoManager = manager;
+            }
+        }
 
         private class ProtobufServer<TDataPacket, TControlPacket> : IDisposable
             where TDataPacket : IMessage<TDataPacket>

@@ -160,17 +160,15 @@ namespace SmartApp.HAL.Implementation
                             StopEngagmentCheck(colorFrame);
                             if (_audioSource.IsRecording())
                             {
-                                _logger.LogTrace("Check stop recording");
                                 CheckStopRecording(colorFrame);
                             }
                             else
                             {
-                                _logger.LogTrace("Check start recording");
                                 CheckStartRecording(colorFrame);
                             }
                            
                            
-                            //SendFaces(colorFrame);
+                            SendFaces(colorFrame);
                         }
                     }
                     else if(_isEngaged) //no color frame -> if engaged check not engagment
@@ -411,28 +409,7 @@ namespace SmartApp.HAL.Implementation
             }
         }
 
-        
-
-        public float Framerate
-        {
-            get
-            {
-                lock (this)
-                {
-                    return _framerate;
-                }
-            }
-            set
-            {
-                lock (this)
-                {
-                    _framerate = value;
-                    _timer.Interval = 1000.0 / value;
-                    _logger.LogInformation("New framerate: {0} fps.", value);
-                }
-            }
-        }
-
+       
         public bool IsAvailable { get; private set; }
 
         public event EventHandler<VideoFrame> FrameReady;

@@ -103,26 +103,6 @@ namespace SmartApp.HAL.Implementation
             _logger.LogInformation("Capture stopped.");
         }
 
-        public float Framerate
-        {
-            get
-            {
-                lock (this)
-                {
-                    return _framerate;
-                }
-            }
-            set
-            {
-                lock (this)
-                {
-                    _framerate = value;
-                    _timer.Interval = 1000.0 / value;
-                    _logger.LogInformation("New framerate: {0} fps.", value);
-                }
-            }
-        }
-
         public bool IsAvailable{ get; set; }
         
 
