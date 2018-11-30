@@ -4,7 +4,8 @@ from random import choice as pick
 from string import ascii_lowercase as letters
 from copy import deepcopy
 
-# TODO:
+from numpy import dot
+from numpy.linalg import norm
 
 def _validate_key(key):
     not_valid = "^@,.;:&=*\'\"()[]{}"
@@ -34,11 +35,14 @@ def _take(item_or_value):
         value = item_or_value
     else:
         raise AttributeError("attribute must be a item or a value")
-
     return key, value
 
-def equality(first, seconds):
-    return first == seconds
+def _comparator_token(first_token, second_token):
+    return first_token == second_token, 1
+
+def _comparator_descriptor(first_descriptor, second_descriptor, threshold = 0.8):
+    var = dot(first_descriptor, second_descriptor)/(norm(first_descriptor)*norm(second_descriptor))
+    return True if var > 0.6 else False, var
 
 class face_db():
     """
@@ -66,15 +70,6 @@ class face_db():
         else:
             self.file = open(self.PATH_DB, 'w')
             self.database = []
-
-    def _comparator_token(first_token, second_token):
-        return first_token == second_token, 1
-
-    from numpy import dot
-    from numpy.linalg import norm
-    def _comparator_descriptor(first_descriptor, second_descriptor, threshold = 0.6):
-        var = dot(first_descriptor, second_descriptor)/(norm(first_descriptor)*norm(second_descriptor))
-        return True if var > 0.6 else False, var
 
     def __getitem__(self, key):
         """
@@ -165,22 +160,29 @@ class face_db():
                 item_or_value_or_key = (key, None, None)
 
         cmp = [_comparator_descriptor, _comparator_token]
+        # cmp = [_comparator_token, _comparator_token] #for tests
         res = []
         key, item = _take(item_or_value_or_key)
         i = 1 if item[0] is None else 0
         j = 1 if item[1] is None else 2
         for p, e in enumerate(self.database):
-            if any(cmp[c](x,y) for x,y,c in zip(e[i+1:j+1], item[i:j], [0,1][i:j])) or item[i:j] is ():
+            match = []
+            conf = 1
+            for x,y,c in zip(e[i+1:j+1], item[i:j], [0,1][i:j]):
+                _match, _conf = cmp[c](x,y)
+                match.append(_match)
+                conf = min(conf, _conf)
+            if any(match) or item[i:j] is ():
                 if key is None:
-                    res.append(p)
+                    res.append([p, conf])
                 elif key == e[0]:
-                    res.append(p)
+                    res.append([p, conf])
                 if not do_list and len(res) > 0:
                     return True
 
         if not do_list:
             return False
-        return res if res != [] else None
+        return res
 
     def soft_contain(self, item_or_value_or_key):
         """
@@ -210,7 +212,7 @@ class face_db():
                     database.
         """
         res = self._soft(item_or_value_or_key, do_list = True)
-        return [self.database[i] for i in res] if res else None
+        return sorted([[self.database[i], conf] for i, conf in res], key=lambda x: -x[1])
 
     def __len__(self):
         return len(self.database)
@@ -327,9 +329,9 @@ class face_db():
         if to_mod is None:
             raise Exception("Not valid operation: you try to insert an element not modify one")
 
-        ele_mod = deepcopy([self.database[i] for i in to_mod])
+        ele_mod = deepcopy([self.database[i] for i, _ in to_mod])
         value = (key_m, *value_m)
-        for i in to_mod:
+        for i, _ in to_mod:
             self.database[i] = ([self.database[i][l] if value[l] is None else value[l] for l in range(3)])
 
         self._remove_duplicate()
@@ -351,8 +353,8 @@ class face_db():
         to_del = self._soft(item_or_value_or_key, True)
         if to_del is None: return 0, []
 
-        ele_del = deepcopy([self.database[i] for i in to_del])
-        for i in to_del[::-1]:
+        ele_del = deepcopy([self.database[i] for i, _ in to_del])
+        for i, _ in to_del[::-1]:
             del self.database[i]
         return len(to_del), ele_del
 

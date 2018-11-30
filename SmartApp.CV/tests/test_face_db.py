@@ -108,10 +108,10 @@ def test_db_soft_get(db):
     db["1"] = (None, "cio")
     db["2"] = (None, "cio")
     assert len(db.soft_get((None, "cio"))) == 2
-    assert list(db.soft_get((None, None, "cio"))) == list([["1", "cipi", "cio"], ["2", "cispiq", "cio"]])
+    assert list(db.soft_get((None, None, "cio"))) == list([[["1", "cipi", "cio"], 1], [["2", "cispiq", "cio"], 1]])
 
     db["giacomino"] = ("cipi", "gamba")
-    assert list(db.soft_get(("cipi", None))) == list([["1", "cipi", "cio"],["giacomino", "cipi", "gamba"]])
+    assert list(db.soft_get(("cipi", None))) == list([[["1", "cipi", "cio"], 1],[["giacomino", "cipi", "gamba"], 1]])
     assert len(db.soft_get((None, "cipi", None))) == 2
 
     db.delete((None, None, None))
@@ -147,7 +147,8 @@ def test_db_insert(db):
 
     gid = db.insert(("matro", "ciccillo"))
     assert len(db) == 6
-    id = db.soft_get(("matro", "ciccillo"))[0][0]
+    # [[[id, desc, token],1]] so [0][0][0]
+    id = db.soft_get(("matro", "ciccillo"))[0][0][0]
     assert id == gid
 
     with pytest.raises(ValueError):
@@ -167,12 +168,12 @@ def test_db_modify(db):
     l, mod = db.modify(1, ("cic", None))
     assert l == 3
     assert list(mod) == list([["1", "cip", "cio"], ["1", "cipi", "cio"], ["1", "cipi", "ciopi"]])
-    assert list(db.soft_get((1, "cic", None))) == list([["1", "cic", "cio"], ["1", "cic", "ciopi"]])
+    assert list(db.soft_get((1, "cic", None))) == list([[["1", "cic", "cio"], 1], [["1", "cic", "ciopi"], 1]])
 
     l, mod = db.modify((1, "cic", None), (35, "c0c", None))
     assert l == 2
     assert list(mod) == list([["1", "cic", "cio"], ["1", "cic", "ciopi"]])
-    assert list(db.soft_get((35, "c0c", None))) == list([["35", "c0c", "cio"], ["35", "c0c", "ciopi"]])
+    assert list(db.soft_get((35, "c0c", None))) == list([[["35", "c0c", "cio"], 1], [["35", "c0c", "ciopi"], 1]])
 
     db.delete((None, None, None))
 
