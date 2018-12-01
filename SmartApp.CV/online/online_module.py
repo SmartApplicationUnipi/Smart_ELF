@@ -126,9 +126,6 @@ class online_module():
         self.client.setParamsDetect(*args, **kwargs)
         return self.client.detect_params
 
-    def cmp_descriptor(first_descriptor, second_descriptor):
-        return first_descriptor == second_descriptor, 1
-
     def get_match(self, db, descriptor, desc_position, id_position, return_index=False, return_all=False):
         """
         Finds the matching id of the descriptor in the db, if there is one
