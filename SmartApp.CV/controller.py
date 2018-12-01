@@ -168,7 +168,7 @@ class Controller():
                             #compute descriptor
                             descriptor = offline.get_descriptor(face_obj.img)
                             #search descriptor
-                            res = self.db.get(( descriptor, None )
+                            res = self.db.get(( descriptor, None ))
 
                             if len(res) > 0:
                                 #something matches
