@@ -62,3 +62,14 @@ def get_class(tree_input):
             return template_tree['8_class']
 
     return "NoClass"
+
+
+def get_id(tree_input):
+    template_list = load_templates("query_template.json")
+
+    for template_tree in template_list:
+
+        if match_tree(tree_input, template_tree):
+            return template_tree['9_id']
+
+    return "NoId"

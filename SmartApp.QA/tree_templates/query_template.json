@@ -36,7 +36,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "1"
   },
   {
     "0_text": "Dov'è",
@@ -65,7 +66,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "2"
   },
   {
     "0_text": "è",
@@ -99,7 +101,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "2"
   },
   {
     "0_text": "fa",
@@ -121,7 +124,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "3"
   },
   {
     "0_text": "è",
@@ -166,7 +170,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "4"
   },
   {
     "0_text": "Dimmi",
@@ -201,7 +206,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "5"
   },
   {
     "0_text": "andare",
@@ -251,7 +257,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "6"
   },
   {
     "0_text": "trova",
@@ -290,7 +297,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI"
+    "8_class": "LEZIONI",
+    "9_id": "28"
   },
   {
     "0_text": "inizia",
@@ -334,7 +342,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "7"
   },
   {
     "0_text": "tempo",
@@ -378,7 +387,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "8"
   },
   {
     "0_text": "finisce",
@@ -423,7 +433,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "9"
   },
   {
     "0_text": "iniziata",
@@ -462,7 +473,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "8"
   },
   {
     "0_text": "inizia",
@@ -496,7 +508,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "10"
   },
   {
     "0_text": "farà",
@@ -518,7 +531,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "11"
   },
   {
     "0_text": "sarà",
@@ -557,7 +571,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "12"
   },
   {
     "0_text": "terrà",
@@ -579,7 +594,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "12"
   },
   {
     "0_text": "fa",
@@ -611,7 +627,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "13"
   },
   {
     "0_text": "è",
@@ -661,7 +678,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "14"
   },
   {
     "0_text": "fa",
@@ -694,7 +712,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "15"
   },
   {
     "0_text": "giorno",
@@ -765,7 +784,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "16"
   },
   {
     "0_text": "giorno",
@@ -818,7 +838,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "16"
   },
   {
     "0_text": "l’orario",
@@ -846,7 +867,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "17"
   },
   {
     "0_text": "l’orario",
@@ -885,7 +907,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "18"
   },
   {
     "0_text": "Quali",
@@ -919,7 +942,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI"
+    "8_class": "LEZIONI ORARI",
+    "9_id": "19"
   },
   {
     "0_text": "sarà",
@@ -969,7 +993,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI CORSI"
+    "8_class": "LEZIONI ORARI CORSI",
+    "9_id": "29"
   },
   {
     "0_text": "è",
@@ -1030,7 +1055,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI CORSI"
+    "8_class": "LEZIONI ORARI CORSI",
+    "9_id": "30"
   },
   {
     "0_text": "è",
@@ -1091,7 +1117,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI CORSI"
+    "8_class": "LEZIONI ORARI CORSI",
+    "9_id": "31"
   },
   {
     "0_text": "giorno",
@@ -1173,7 +1200,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI CORSI"
+    "8_class": "LEZIONI ORARI CORSI",
+    "9_id": "32"
   },
   {
     "0_text": "l’orario",
@@ -1212,7 +1240,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI CORSI"
+    "8_class": "LEZIONI ORARI CORSI",
+    "9_id": "33"
   },
   {
     "0_text": "l’orario",
@@ -1262,7 +1291,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI CORSI"
+    "8_class": "LEZIONI ORARI CORSI",
+    "9_id": "34"
   },
   {
     "0_text": "sono",
@@ -1307,7 +1337,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI ORARI CORSI"
+    "8_class": "LEZIONI ORARI CORSI",
+    "9_id": "51"
   },
   {
     "0_text": "l'aula",
@@ -1329,7 +1360,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI COME ARRIVARE"
+    "8_class": "LEZIONI COME ARRIVARE",
+    "9_id": "36"
   },
   {
     "0_text": "sta",
@@ -1352,7 +1384,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI COME ARRIVARE"
+    "8_class": "LEZIONI COME ARRIVARE",
+    "9_id": "36"
   },
   {
     "0_text": "faccio",
@@ -1386,7 +1419,8 @@
         ]
       }
     ],
-    "8_class": "LEZIONI COME ARRIVARE"
+    "8_class": "LEZIONI COME ARRIVARE",
+    "9_id": "37"
   },
   {
     "0_text": "c'è",
@@ -1420,7 +1454,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONI COME ARRIVARE"
+    "8_class": "LEZIONI COME ARRIVARE",
+    "9_id": "38"
   },
   {
     "0_text": "cancellata",
@@ -1459,7 +1494,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONE CANCELLATA"
+    "8_class": "LEZIONE CANCELLATA",
+    "9_id": "39"
   },
   {
     "0_text": "cancellata",
@@ -1509,7 +1545,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONE CANCELLATA"
+    "8_class": "LEZIONE CANCELLATA",
+    "9_id": "40"
   },
   {
     "0_text": "cancellata",
@@ -1565,7 +1602,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONE CANCELLATA"
+    "8_class": "LEZIONE CANCELLATA",
+    "9_id": "41"
   },
   {
     "0_text": "cancellata",
@@ -1631,7 +1669,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONE CANCELLATA"
+    "8_class": "LEZIONE CANCELLATA",
+    "9_id": "42"
   },
   {
     "0_text": "cancellata",
@@ -1681,7 +1720,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONE CANCELLATA"
+    "8_class": "LEZIONE CANCELLATA",
+    "9_id": "43"
   },
   {
     "0_text": "cancellata",
@@ -1747,7 +1787,8 @@
         "7_children": []
       }
     ],
-    "8_class": "LEZIONE CANCELLATA"
+    "8_class": "LEZIONE CANCELLATA",
+    "9_id": "44"
   },
   {
     "0_text": "fa",
@@ -1780,7 +1821,8 @@
         "7_children": []
       }
     ],
-    "8_class": "ORARIO RICEVIMENTO"
+    "8_class": "ORARIO RICEVIMENTO",
+    "9_id": "20"
   },
   {
     "0_text": "è",
@@ -1814,7 +1856,8 @@
         ]
       }
     ],
-    "8_class": "ORARIO RICEVIMENTO"
+    "8_class": "ORARIO RICEVIMENTO",
+    "9_id": "21"
   },
   {
     "0_text": "è",
@@ -1859,7 +1902,8 @@
         ]
       }
     ],
-    "8_class": "ORARIO RICEVIMENTO"
+    "8_class": "ORARIO RICEVIMENTO",
+    "9_id": "22"
   },
   {
     "0_text": "ricevimento",
@@ -1892,7 +1936,8 @@
         ]
       }
     ],
-    "8_class": "ORARIO RICEVIMENTO"
+    "8_class": "ORARIO RICEVIMENTO",
+    "9_id": "23"
   },
   {
     "0_text": "studio",
@@ -1936,7 +1981,8 @@
         ]
       }
     ],
-    "8_class": "STUDIO DEL PROFESSORE"
+    "8_class": "STUDIO DEL PROFESSORE",
+    "9_id": "24"
   },
   {
     "0_text": "studio",
@@ -1964,7 +2010,8 @@
         ]
       }
     ],
-    "8_class": "STUDIO DEL PROFESSORE"
+    "8_class": "STUDIO DEL PROFESSORE",
+    "9_id": "25"
   },
   {
     "0_text": "numero",
@@ -2003,7 +2050,8 @@
         ]
       }
     ],
-    "8_class": "STUDIO DEL PROFESSORE"
+    "8_class": "STUDIO DEL PROFESSORE",
+    "9_id": "26"
   },
   {
     "0_text": "è",
@@ -2037,6 +2085,7 @@
         ]
       }
     ],
-    "8_class": "STUDIO DEL PROFESSORE"
+    "8_class": "STUDIO DEL PROFESSORE",
+    "9_id": "27"
   }
 ]
