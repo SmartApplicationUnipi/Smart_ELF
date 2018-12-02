@@ -173,7 +173,7 @@ export function addInferenceFact(idSource: string, tag: string, TTL: number, rel
 }
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
-    if (!(userTags.has(idSource))) { return new Response(false, idSource); }
+    if (!(userTags.has(idSource))) { return new Response(false, {}); }
     if (!databaseFact.has(id)) { return new Response(false, id); }
     const metadata = new Metadata(idSource, tag, new Date(Date.now()), TTL, reliability);
 

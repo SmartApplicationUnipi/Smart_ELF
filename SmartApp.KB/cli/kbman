@@ -15,7 +15,7 @@ ${bold}DESCRIPTION${normal}
 	Registering is mandatory for any call to ${bold}registerTags${normal}() and ${bold}addFact${normal}(), and it should be called as first thing when interacting with the KB.
 
 ${bold}RETURN VALUE${normal}
-	The ${bold}registerTags${normal}() function returns a JSON object containing the following fields:
+	The ${bold}register${normal}() function returns a JSON object containing the following fields:
 		- ${bold}success${normal} : boolean value. 
 			Success evaluates to true.
 		- ${bold}details${normal} : json object.
@@ -23,10 +23,10 @@ ${bold}RETURN VALUE${normal}
 
 ${bold}EXAMPLE${normal}
 	Example of usage:
-		registerTags('myid', {'emo': {'desc': 'emotion', 'doc': 'emotion_doc'}, 'crawl': {'desc': 'crawler', 'doc': 'crawler_doc'}})
+		register()
 
 	Example of return value:
-		{'success' : true, 'details': {['tag1', 'tag2', 'tag3']}}"
+		{'success' : true, 'details': 'id5'}"
 
 REGISTER_TAGS="
 ${bold}NAME${normal}
@@ -98,8 +98,7 @@ ${bold}SYNOPSIS${normal}
 
 ${bold}DESCRIPTION${normal}
 	The ${bold}addFact${normal}() function adds a new fact to the Knowledge Base, provided that the client has already registered its ${bold}tag${normal} through a call to ${bold}registerTags${normal}().
-	If so, the client has to provide, for the submitted jsonFact, also the desidered ${bold}TTL${normal} in hours and its ${bold}reliability${normal} expressed as an integer from 1 to 100, which is how much the information has to be trusted.
-	${bold}idSource${normal} is a string that each module should choose once and for all, and use it to call the kb methods.
+	If so, the client has to provide, for the submitted jsonFact, also the desired ${bold}TTL${normal} in hours and its ${bold}reliability${normal} expressed as an integer from 1 to 100, which is how much the information has to be trusted.
 	The jsonFact can have any fields, but it's good practice to use always the same structure for objects having the same tag, and to specify this structure in the corresponding documentation.
 
 ${bold}RETURN VALUE${normal}
