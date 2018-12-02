@@ -189,7 +189,7 @@ class Controller():
         except Exception as e:
             print("Could not add fact", e)
 
-    def _bake_off(img):
+    def _bake_off(self, img):
         try:
             if self.attempt < 1: # attempt an online analysis
                 fact, tuple = self.online_module.analyze_face(img)

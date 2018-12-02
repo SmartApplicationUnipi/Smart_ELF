@@ -31,7 +31,7 @@ class Facepp_Client():
         self.url_params = { 'api_key': api_key, 'api_secret': api_secret}
         self.detect_params = {}
 
-        sefl.timeout = timeout_request
+        self.timeout = timeout_request
 
     def _sendRequest(self, *args, **kwargs):
         jr = json.loads(requests.post(*args, **kwargs, timeout = self.timeout).text)
