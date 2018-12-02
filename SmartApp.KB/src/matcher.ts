@@ -42,6 +42,17 @@ export function findMatches(query: object, dataset: object[], initBinds: object[
     return matcher.start(query, dataset, initBinds);
 }
 
+// per ogni oggetto ho dei bind iniziali diversi
+export function findMatches2(query: object, dataset: object[], initBinds: object[][]): Matches {
+    const matches = new Map<object, object[]>();
+    let m;
+    for (let i = 0; i < initBinds.length && i < dataset.length; i++) {
+        m = findMatches(query, [dataset[i]], initBinds[i]);
+        if ( m.size > 0) {matches.set(dataset[i], m.get(dataset[i])); }
+    }
+    return matches;
+}
+
 export function isPlaceholder(v: any) {
     return (typeof (v) === 'string' && v.charAt(0) === '$');
 }
@@ -57,21 +68,21 @@ type SortMap = Map<number, string[]>;
 
 class Matcher {
 
-    ID_AA = 0;
-    ID_AO = 1;
-    ID_AP = 2;
-    ID_PA = 3;
-    ID_PO = 4;
-    ID_PP = 5;
-    BINDS_CAT = 6;
+    private ID_AA = 0;
+    private ID_AO = 1;
+    private ID_AP = 2;
+    private ID_PA = 3;
+    private ID_PO = 4;
+    private ID_PP = 5;
+    private BINDS_CAT = 6;
 
-    outerQuery: object;
-    outerSorted: SortMap;
-    initBinds: { [index: string]: any }[];
+    private outerQuery: object;
+    private outerSorted: SortMap;
+    private initBinds: { [index: string]: any }[];
 
-    currBinds: { [index: string]: any }[];
+    private currBinds: { [index: string]: any }[];
 
-    functions: { [index: string]: string[] }[] = [];
+    private functions: { [index: string]: string[] }[] = [];
 
     public start(q: { [index: string]: any }, dataset: object[], iBinds: object[] = []) {
         const matches: Matches = new Map<object, object[]>();
@@ -83,22 +94,29 @@ class Matcher {
             // this.currBinds = [...this.initBinds];
             D.newLine(1);
             if (this.matchBind(this.outerQuery, this.outerSorted, data)) {
-                D.resetIndentation()
+                D.resetIndentation();
                 D.clogNoID(Colors.GREEN, 'RESULT', '', 'Match success!', 4);
                 if (q.hasOwnProperty('_predicates')) {
                     D.clogNoID(Colors.BLUE, 'INFO', '', 'Some predicates to check!', 5);
-                    if (!this.evaluatePredicates(q['_predicates'])) {
+                    if (!this.evaluatePredicates(q._predicates)) {
                         D.clogNoID(Colors.RED, 'RESULT', '', 'Predicate check failed! Match failed!', 4);
                         continue;
                     }
                 }
                 matches.set(data, [...this.currBinds]);
             } else {
-                D.resetIndentation()
+                D.resetIndentation();
                 D.clogNoID(Colors.RED, 'RESULT', '', 'Match failed!', 4);
             }
         }
         return matches;
+    }
+
+    public compareRules(q: { [index: string]: any }, ruleDataset: object[]) {
+        for (const head of ruleDataset) {
+            const s = this.sort(head);
+
+        }
     }
 
     private sortAndMatch(query: any, data: object): boolean {
@@ -168,6 +186,7 @@ class Matcher {
             if (!this.matchAtomAtom(queryKey, query[queryKey], data)) {
                 return false;
             }
+            
         }
         D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Exit case Atom : Atom', 5);
         return true;

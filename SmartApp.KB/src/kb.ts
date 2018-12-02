@@ -1,6 +1,6 @@
 import { security } from './config';
 import { Debugger } from './debugger';
-import { checkRules } from './inferenceStub';
+import { checkRules, queryRules } from './inferenceStub';
 import * as matcher from './matcher';
 import { transformRule } from './compiler';
 import { Logger } from './logger';
@@ -19,7 +19,7 @@ export const databaseInference = new Map<number, DataObject>(); // TODO: remove 
 export const databaseRule = new Map<number, DataObject>();
 const subscriptions = new Map<object, SubCallback[]>();
 
-//TAGS
+// TAGS
 const userTags = new Map<string, Map<string, TagInfo>>();
 
 let idSource = 0;
@@ -38,7 +38,7 @@ export class Response {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class Metadata {
+export class Metadata {
     public idSource: string;
     public tag: string;
     public TTL: number;
@@ -153,24 +153,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
     checkRules(dataobject);
     return new Response(true, currentFactId);
 }
-// TODO: remove this asap
-export function addInferenceFact(idSource: string, tag: string, TTL: number, reliability: number, jsonInfer: object) {
-    // aggiungi controllo documentazione presente tag
-    // if (!(tagDetails .has(tag))) { return new Response(false, tag); }
-    // TODO: NON CI SONO I CONTROLLI SUL TAG!!
 
-    const metadata = new Metadata(idSource, tag, new Date(Date.now()), TTL, reliability);
-    const currentFactId = -uniqueFactId_gen();
-    const dataobject = {
-        _data: jsonInfer,
-        _id: currentFactId,
-        _meta: metadata,
-    };
-    databaseInference.set(dataobject._id, dataobject);
-    checkSubscriptions(dataobject);
-    // checkRules(dataobject);
-    return new Response(true, currentFactId);
-}
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(userTags.has(idSource))) { return new Response(false, {}); }
@@ -200,8 +183,8 @@ export function query(jreq: any) {
     }
 
     let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
-    // TODO: remove this asap
-    m = new Map([...m, ...matcher.findMatches(queryobj, Array.from(databaseInference.values()))]);
+    const m2 = queryRules(jreq);
+    m = new Map([...m, ...m2]);
 
     if (m.size === 0) {
         return new Response(false, {});
@@ -315,7 +298,7 @@ export function removeRule(idSource: string, idRule: number) {
     return new Response(true, idRule);
 }
 
-function checkSubscriptions(obj: object) { // object is the created fact
+export function checkSubscriptions(obj: object) { // object is the created fact
     // this function will check if the new data inserted matches some "notification rule"
     subscriptions.forEach((callbArray, k, m) => {
         const r = matcher.findMatches(k, [obj]);

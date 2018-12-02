@@ -7,7 +7,7 @@
     "build-ts": "tsc",
     "start": "npm run build-ts && npm run serve",
     "serve": "node dist/src/server.js",
-    "test": "mocha -r ts-node/register test/kb/*.ts",
+    "test": "mocha -r ts-node/register test/unificator.test.ts",
     "test-matcher": "npm run build-ts && node dist/test/matcher.test.js"
   },
   "dependencies": {
