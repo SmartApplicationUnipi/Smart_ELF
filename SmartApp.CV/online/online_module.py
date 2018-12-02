@@ -112,13 +112,12 @@ class online_module():
                     #face doesn't match add it
                     print("non ti conosco.. mi ricordero")
                     self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-
             except Exception as e:
                 #TODO manage different possible error (this solution resolve EMPRTY_SET VALUE ERROR)
                 print(type(e).__name__, e)
                 self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-
-            return self._jsonFace2Fact(face), (None, face["face_token"])
+            token = face["face_token"]
+            return self._jsonFace2Fact(face), (None, token)
         else:
             return None, None
 

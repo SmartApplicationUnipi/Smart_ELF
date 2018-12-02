@@ -9,6 +9,8 @@ from threading import Thread
 from queue import Queue
 import cv2
 
+# TODO:  inserire il Thread che salva el face_db
+# TODO: risolvere il problema del del limite inesistente su Face++
 
 #  IDEA: Si possono avere più queue (almeno 6 dato che 6 è il numero massimo di
 #  facce riconosciute simultaneamente dal kinekt) che matengo in memoria i frame
@@ -80,11 +82,15 @@ class Controller():
         else:
             self.video_capture = cv2.VideoCapture(0)
 
+        # DB initialization
+        self.db = db()
+        self.t = None
+
         # Initialization of Online Module
         try:
             self.online_module = online()
             self.has_api_problem = False
-        except AttributeError as e:
+        except Exception as e:
             self.has_api_problem = True
             print(type(e).__name__, e)
             print("\n It seems that there is a problem with the online module: I'm swithing to offline module...")
@@ -95,9 +101,6 @@ class Controller():
         except Exception as e:
             print(type(e).__name__, e)
             print("\n It seems that there is a problem in the initialization!")
-
-        # DB initialization
-        self.db = db()
 
         # Ops for worker that compute all the analyzes
         self.t = Thread(target=Controller._worker, args=[self, Controller.q])
@@ -125,7 +128,7 @@ class Controller():
         for face in frame_obj.faces:
             Controller.q.put((face.img, frame_obj.frame_original_size))
 
-    def _get_id_person(fact, tuple):
+    def _get_id_person(self, fact, tuple, img):
         if fact is not None and tuple is not None:
             res = self.db.soft_get(tuple)
             # res = [ [ tuple1, confidence1 ] ... [tuple_n, confidence_n] ]
@@ -137,7 +140,7 @@ class Controller():
                 vals = [self.db.insert(tuple), 0, False]
 
             else: #online module case
-                descriptor = self.offline_module.get_descriptor(face_obj.img)
+                descriptor = self.offline_module.get_descriptor(img)
 
                 res = self.db.soft_get((descriptor, None))
                 if len(res) > 0: #something matches
@@ -148,9 +151,13 @@ class Controller():
                     #no match add it to db
                     vals = [self.db.insert((descriptor, None)), 0, False]
 
+            print("\tHo scitto:")
             atts = ['personID', 'confidence_identity', 'known']
             for att, val in zip(atts, vals):
-                setattr(fact, att, val)
+                fact.update({att:val})
+                print("\t\t"+str(att)+":"+str(val))
+
+            print("\tOra il db è:"+ str(self.db))
 
         return fact
 
@@ -161,27 +168,31 @@ class Controller():
             Params:
                 queue (Queue): queue associated at thrad of frame
         """
-
-        try:
-            while True:
+        print("inizio Worker")
+        face_obj, frame_size, img = None, None, None
+        while True:
+            try:
+                print("Prendo Frame")
                 if self.is_host:
                     face_obj, frame_size  = queue.get()
-                    fact, tuple = self.watch(face_obj, frame_size)
-                    # tuple = (descriptor, token)
-
-                    #########################################
-                    #######     NOT TESTED    ###############
-                    #########################################
-                    fact = self._get_id_person(fact, tuple)
-
-                    #self._add_fact_to_kb(fact)
+                    img = face_obj.img
                     queue.task_done()
                 else: # TODO: delete this option only for test
                     ret, frame = self.video_capture.read()
-                    frame = cv2.resize(frame, (320, 240))
-                    fact = self.watch(frame)
-        except Exception as e:
-            print(type(e).__name__, e)
+                    frame_size = (320, 240)
+                    img = face_obj = cv2.resize(frame, frame_size)
+
+                print("Inizio Watch")
+                fact, tuple = self.watch(face_obj, frame_size)
+                # tuple = (descriptor, token)
+                print("Ho visto chi sta: "+str((fact, tuple))+"\n data"+str(self.db))
+                print("Inizio _get_id_person")
+                fact = self._get_id_person(fact, tuple, img)
+                print("Ora so:"+str(fact))
+
+                #self._add_fact_to_kb(fact)
+            except Exception as e:
+                print("_worker function ->"+type(e).__name__, e)
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         try:
@@ -191,28 +202,36 @@ class Controller():
 
     def _bake_off(self, img):
         try:
+            print("\t\tVerifico quale modulo utilizzare")
             if self.attempt < 1: # attempt an online analysis
+                print("\t\tUtilizzo Online")
                 fact, tuple = self.online_module.analyze_face(img)
                 self.exponent = 1 # all fine, reset backoff
             else: # we're in the backoff interval, work offline
+                print("\t\tUtilizzo Offline")
                 fact, tuple = self.offline_module.analyze_face(img)
                 self.attempt -= 1 # one more attempt done
                 # print('*** BACKOFF attempt', self.attempt, 'of exponent', self.exponent, '***')
-        except:
+        except Exception as e:
+            print("\t\t\tErrore Durante l'utilizzo del Modulo")
+            print("_bake_off Function ->" + type(e).__name__, e)
             # something went wrong, double the attempt interval (until maximum length)
             if self.exponent < self.max_exponent:
                 self.exponent += 1
             # begin the new backoff interval
             self.attempt = 2 ** self.exponent
             # remeber, we've still to analyze this face:
+            print("\t\t\tUtilizzo Offline per rimediare")
             fact, tuple = self.offline_module.analyze_face(img)
 
         return fact, tuple
 
     def watch(self, face, frame_size = (0,0)):
-
+        print("\tInizio bakeOff")
         fact, tuple = self._bake_off(face.img if hasattr(face, "img") else face)
+        print("\tFine bakeOff")
 
+        print("\tInizio integrazione fact")
         if fact:
             look_at = {'pinch': 0, 'yaw':0}
             if set(frame_size)==0:
@@ -228,16 +247,25 @@ class Controller():
         else:
             print("Non vedo nessuno")
 
+        print("\tFine integrazione fact")
         return fact, tuple
 
-    def __del__(self):
+    def close(self):
+        print("Chiusura controller")
+
         if self._hal is not None:
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.q.join()
-        #self.t.join()
+        self.db.close()
+        # if self.t is not None:
+        #     self.t.join()
+
+    def __del__(self):
+        self.close()
 
 
 if __name__ == '__main__':
     controller = Controller(host = "webcam")
     input('Enter anything to close:')
+    controller.close()

@@ -4,8 +4,15 @@ from random import choice as pick
 from string import ascii_lowercase as letters
 from copy import deepcopy
 
+from numpy import ndarray
 from numpy import dot
 from numpy.linalg import norm
+
+# from time import sleep
+# from threading import Thread
+# from logging import getLogger
+# log = getLogger("Face_Database.Saver")
+
 
 def _validate_key(key):
     not_valid = "^@,.;:&=*\'\"()[]{}"
@@ -58,18 +65,30 @@ class face_db():
     DESCRIPTOR = 1
     TOKEN = 2
 
-    def __init__(self, path_db = "face_db"):
+    def __init__(self, path_db = "face_db", save_every_minute = 10):
         self.PATH_DB = path_db
         self.file = None
-        self.database = None
+        self.database = []
 
         exist = isfile(self.PATH_DB)
         if exist:
-            self.database = json.load(open(self.PATH_DB, 'r+'))
-            self.file = open(self.PATH_DB, 'w')
-        else:
-            self.file = open(self.PATH_DB, 'w')
-            self.database = []
+            try:
+                with open(self.PATH_DB, 'r+') as f:
+                    self.database = json.load(f)
+            except json.decoder.JSONDecodeError:
+                pass
+
+    #     self.t = Thread(target=self._saver, args=[save_every_minute])
+    #     self.t.daemon = True
+    #     self.t.start()
+    #
+    # def _saver(self, save_every_minute):
+    #     log.debug("The DataBase will be save every " + str(save_every_minute) + " minutes.")
+    #     while True:
+    #         sleep(save_every_minute * 60)
+    #         log.debug("The DataBase has been permanently saved on the disk")
+    #         self.close()
+
 
     def __getitem__(self, key):
         """
@@ -361,6 +380,11 @@ class face_db():
     def __str__(self):
         return str(self.database)
 
+    def close(self):
+        self.database = [[list(j) if isinstance(j, ndarray) else j for j in i] for i in self.database]
+        with open(self.PATH_DB, 'w') as file:
+            json.dump(self.database, file)
+
     def __del__(self):
-        json.dump(self.database, self.file)
-        self.file.close()
+        self.close()
+        # self.t.join()

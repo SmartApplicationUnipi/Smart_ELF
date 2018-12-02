@@ -34,7 +34,8 @@ class Facepp_Client():
         self.timeout = timeout_request
 
     def _sendRequest(self, *args, **kwargs):
-        jr = json.loads(requests.post(*args, **kwargs, timeout = self.timeout).text)
+        kwargs.update({"timeout": self.timeout})
+        jr = json.loads(requests.post(*args, **kwargs).text)
         err = jr.get("error_message")
         if err: raise ValueError(err)
         return jr
