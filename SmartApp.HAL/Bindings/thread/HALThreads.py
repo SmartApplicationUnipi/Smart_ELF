@@ -19,7 +19,7 @@ class HALThread(Threading.Thread):
     Override the `handleSoc`
     """
 
-    def __init__(self, HALAddress, HALReadingPort, clientID, callback, *args, **kwargs):
+    def __init__(self, HALAddress, HALReadingPort, clientID, callback, *args, **kwargs, errback):
         Threading.Thread.__init__(self)
         # Config
         self.HALAddress = HALAddress
@@ -28,6 +28,7 @@ class HALThread(Threading.Thread):
         self.clientID = clientID
         self.callback = callback
         self.callback_params = {'args': args, 'kwargs': kwargs}
+        self.errback = errback
         # HALCommunication
         self.mustTerminate = False
         self.isConnected = False
@@ -64,6 +65,7 @@ class HALThread(Threading.Thread):
                     data, size, position = self._readFromStream()
                     if data == None and size == None and position == None:
                         Log.error("Socket closed by HALModule.")
+                        self.errback()
                         break
 
                     # subclasses MUST specify how to handle the message
@@ -79,6 +81,7 @@ class HALThread(Threading.Thread):
                     continue  # check if must terminate
                 except Socket.error as e:
                     Log.error("HALThread for client %s. Socket error occurs %s" % (self.clientID, e))
+                    self.errback()
                     break
         finally:
             self._cleanUp()
@@ -134,3 +137,4 @@ class HALThread(Threading.Thread):
             self.socket = None
         self.callback = None
         self.callback_params = None
+        self.errback = None
