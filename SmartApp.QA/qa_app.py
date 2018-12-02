@@ -9,6 +9,7 @@ sys.path.insert(0, PATH_TO_KB_MODULE)
 from DRS_Service import DRSService
 from QA_services import QaService
 from kb import KnowledgeBaseClient
+from Constant_from_kB import ConstantFromkB
 import threading
 import argparse
 import logging
@@ -30,6 +31,15 @@ class Qa_Thread (threading.Thread):
 
     def run(self):
         self.qa_obj.start()
+
+class K_Thread (threading.Thread):
+    """ Thread class for Constant from KB service"""
+    def __init__(self, K_obj):
+        threading.Thread.__init__(self)
+        self.K_obj = K_obj
+
+    def run(self):
+        self.K_obj.start()
 
 def _get_cl_args():
     """
@@ -70,5 +80,11 @@ def __main__():
     qa_service = QaService(kb_ID,logging_lvl)
     t2 = Qa_Thread(qa_service)
     t2.start()
+
+    K_service = ConstantFromkB(kb_ID,logging_lvl)
+    t3 = K_Thread(K_service)
+    t3.start()
+
+
 
 __main__()
