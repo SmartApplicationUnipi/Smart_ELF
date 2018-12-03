@@ -1,9 +1,10 @@
+import { readFile, writeFile } from 'fs';
+import { transformRule } from './compiler';
 import { security } from './config';
 import { Debugger } from './debugger';
 import { checkRules } from './inferenceStub';
-import * as matcher from './matcher';
-import { transformRule } from './compiler';
 import { Logger } from './logger';
+import * as matcher from './matcher';
 
 const debug = new Debugger();
 const log = Logger.getInstance();
@@ -14,17 +15,63 @@ const TOKEN = security.token;
 export type DatabaseFact = Map<number, DataObject>;
 export type DatabaseRule = Map<number, DataObject>;
 
-export const databaseFact = new Map<number, DataObject>();
+export let databaseFact = new Map<number, DataObject>();
 export const databaseInference = new Map<number, DataObject>(); // TODO: remove this asap
-export const databaseRule = new Map<number, DataObject>();
-const subscriptions = new Map<object, SubCallback[]>();
+export let databaseRule = new Map<number, DataObject>();
+let subscriptions = new Map<object, SubCallback[]>();
+let userTags = new Map<string, Map<string, TagInfo>>();
+let baseIdSource = 0;
+let uniqueFactId = 0;
+let uniqueRuleId = 0;
 
-//TAGS
-const userTags = new Map<string, Map<string, TagInfo>>();
+readFile('./db/databaseFact', 'utf8', (err, b) => {
+        if (err) { console.log('init:', err); } else { databaseFact = new Map(JSON.parse(b)); }
+    });
+readFile('./db/databaseRule', 'utf8', (err, b) => {
+        if (err) { console.log('init:', err); } else { databaseRule = new Map(JSON.parse(b)); }
+    });
 
-let idSource = 0;
-let uniqueFactId = 0; // move in server part
-let uniqueRuleId = 0; // move in server part
+readFile('./db/subscriptions', 'utf8', (err, b) => {
+        if (err) { console.log('init:', err); } else { subscriptions = new Map(JSON.parse(b)); }
+    });
+
+readFile('./db/userTags', 'utf8', (err, b) => {
+        if (err) { console.log('init:', err); } else { userTags = new Map(JSON.parse(b)); }
+    });
+
+readFile('./db/uniqueFactId', 'utf8', (err, b) => {
+        if (err) { console.log('init:', err); } else { uniqueFactId = parseInt(b, 10); }
+    });
+readFile('./db/uniqueRuleId', 'utf8', (err, b) => {
+        if (err) { console.log('init:', err); } else { uniqueRuleId = parseInt(b, 10); }
+    });
+
+// const repetitionTime = 86400000 / 2;
+const repetitionTime = 60 * 60 * 1000;
+const now = new Date();
+const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0, 0);
+let millsToDump = dumpDate.getTime() - now.getTime();
+if (millsToDump <= 0) {
+     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
+}
+
+function writeCallback(filename: string, err: any) {
+    if (err) { log.error('KB', 'error saving ' + filename, err); } else { log.info('KB', filename + ' saved'); }
+}
+
+function dumpDatabase() {
+
+    writeFile('./db/databaseFact', JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) );
+    writeFile('./db/databaseRule', JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) );
+    // tslint:disable-next-line:max-line-length
+    writeFile('./db/subscriptions', JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) );
+    writeFile('./db/userTags', JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) );
+    writeFile('./db/uniqueFactId', uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e));
+    writeFile('./db/uniqueRuleId', uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e));
+    setTimeout(dumpDatabase, repetitionTime );
+}
+
+setTimeout(dumpDatabase, millsToDump);
 
 export class Response {
     public success: boolean;
@@ -92,7 +139,7 @@ export class TagInfo {
 export function getAllTags() {
     const allTags: any = {};
     for (const [user, tags] of userTags.entries()) {
-        var tagsArray: any = {};
+        const tagsArray: any = {};
         for (const [tag, tagInfo] of tags.entries()) {
             tagsArray[tag] = tagInfo;
         }
@@ -102,18 +149,18 @@ export function getAllTags() {
 }
 
 export function register() {
-    var id = "id" + idSource++;
+    const id = 'id' + baseIdSource++;
     userTags.set(id, new Map<string, TagInfo>());
     return new Response(true, id);
 }
 
 // tagsList = [ { nome_tag : {desc: , doc: } } ]
 export function registerTags(idSource: string, tagsList: any): Response { // tagsList is a map tag_i : tag_desc_i
-    if (!userTags.has(idSource)) { return new Response(false, {}) };
+    if (!userTags.has(idSource)) { return new Response(false, {}); }
 
     const tags = Object.keys(tagsList);
     const map = userTags.get(idSource);
-    const result: string[] = []
+    const result: string[] = [];
     for (const tag of tags) {
         map.set(tag, tagsList[tag]);
         result.push(tag);
@@ -122,17 +169,17 @@ export function registerTags(idSource: string, tagsList: any): Response { // tag
 }
 
 export function getTagDetails(idSource: string, tags: string[]) {
-    if (!userTags.has(idSource)) { return new Response(false, {}) };
+    if (!userTags.has(idSource)) { return new Response(false, {}); }
 
     const result: any = {};
-    let map = userTags.get(idSource);
-    tags.forEach(tag => {
+    const map = userTags.get(idSource);
+    tags.forEach((tag) => {
         if (map.has(tag)) {
             result[tag] = map.get(tag);
         }
     });
-    if (Object.keys(result).length == 0) {
-        return new Response(false, {})
+    if (Object.keys(result).length === 0) {
+        return new Response(false, {});
     }
     return new Response(true, result);
 }
@@ -241,7 +288,7 @@ export function removeFact(idSource: string, jreq: object) {
 //         _id: uniqueRuleId_gen(),
 //         _meta: metadata,
 //     };
-// 
+//
 //     databaseRule.set(dataobject._id, dataobject);
 //     return new Response(true, dataobject._id);
 // }
