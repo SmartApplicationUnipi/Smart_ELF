@@ -2,42 +2,42 @@
   {
     "tagName" : "crawler_room_event",
     "desc" : "An event that was booked to a room. This can either be a class, exam, seminar, etc. While these values are harvested from an official source, note that events may be canceled or postponed, so do not assume a reliability of 100%.",
-    "doc" : ""
+    "doc" : "## crawler_room_event\nThe **Facts** with this tag contain one json object, with fields:\n- *data* : date of the event (lesson, exam, etc.)\n- *giorno* : italian name of the day\n- *aula*: name of the room\n- *dalle*: hour of beginning event\n- *alle*: hour of end event\n- *tipo*: which type of event is\n- *descrizione*: title of the event\n- *segreteria*: owner department\n- *durata*: duration in mins\nOne **example** of the object:\n\"data\": \"22/10/2018\",\n\"giorno\": \"Lunedì\",\n\"aula\": \"Fib D3\",\n\"dalle\": \"14:00\",\n\"alle\": \"16:00\",\n\"tipo\": \"Lezione\",\n\"descrizione\": \"Igiene (affine) [BIO-L]\",\n\"segreteria\": \":Biologia \",\n\"durata\": \"120\""
   },
   
   {
     "tagName" : "crawler_news",
     "desc" : "News from the UniPi Informatica website.",
-    "doc" : ""
+    "doc" : "## crawler_news\nThis Tag it's used for news data content crawled from the Web.\n**Facts** with this tag contain an *Rdf* triple with the following fields:\n- Subject: title of the news\n- Predicate: newsfeed\n- Object: body of the news\nAn example of a triple with this tag:\nSubject: \"Grande novità al Polo Fibonacci\"\nPredicate: newsfeed\nObject: Fantastica intelligenza artificiale costruita da alcuni ragazzi geniali."
   },
   
   {
     "tagName" : "crawler_teacher_phone_number",
     "desc" : "A phone number of a teacher! :) :) Yes, a teacher! Finally you can call Ferragina when you have any problems with Algorithm Engineering!",
-    "doc" : ""
+    "doc" : "## crawler_teacher_phone_number\nThis Tag it's used for phone numbers of CS teachers, crawled from the Web.\n**Facts** with this tag contain an *Rdf* triple with the following fields:\n- Subject: Name of the owner\n- Predicate: phone_number_of\n- Object: Phone Number\nAn example of a triple with this tag:\nSubject: Vincenzo Gervasi\nPredicate: phone_number_of\nObject: 0881123456"
   },
   
   {
 	"tagName" : "crawler_room",
     "desc" : "A room directly from the official rooms list. This information should be official",
-    "doc" : ""
+    "doc" : "## crawler_room\nThe **Facts** with this tag contain one json object, with fields:\n- *name* : name of the room\n- *seats* : number of available seats in the room\n- *location*: info on the location\n- *building*: name of the building where the room is located\n- *features*: coded string on further features of the room\n- *note*: possible notes\n- *owner*: json array showing the owners of the room\n- *guest*: json array showing possible guests of the room\n- *class*: json object showing info on the departments that are using the room\nOne **example** of the object:\n\"name\": \"Fib A\",\n\"seats\": \"217\",\n\"location\":\"piano terra\",\n\"building\": \"Polo Fibonacci B\",\n\"features\": \"VHRA\",\n\"note\": \"\",\n\"owner\": [\n\"Ateneo\",\n\"Fisica\",\n\":Fisica\",\n\"Informatica\",\n\":Informatica\",\n\"Fibonacci\"\n],\n\"guest\": [],\n\"class\": {\n\"Ateneo\": \"0\",\n\"Fisica\": \"1\",\n\":Fisica\": \"1\",\n\"Informatica\": \"3\",\n\":Informatica\": \"3\"\n}"
   },
   
   {
 	"tagName" : "crawler_course",
     "desc" : "An UniPi course. Courses are associated with a teacher, a code, a semester, etc. These should be considered as official.",
-    "doc" : ""
+    "doc" : "## crawler_course\nThe **Facts** with this tag contain one json object, with fields:\n- *id* : id of the course\n- *attf_id* : id without characters\n- *name*: name of the course\n- *owner id*: id of the course of study\n- *ownername*: string code of the ocurse of study\n- *semester*: semester (number)\n- *partition*: if the course is partitioned\n- *teacher_id*: id of the teacher of the course\n- *teacher_name*: name of the teacher of the course\n- *cfu*: number of cfu\n- *users*: json object explaining the course of study (it can be shared among different degrees)\nOne **example** of the object:\n\"id\": \"66471_u\",\n\"attf_id\": \"66471\",\n\"name\": \"Storia delle culture e delle mentalita in eta moderna\",\n\"ownerid\": \"3147\",\n\"ownername\": \"WAV-LM\",\n\"parent\": \"66301\",\n\"semester\": \"2\",\n\"partition\": \"-\",\n\"teacher_id\": \"-1\",\n\"teacher_name\": \"Pippo Franco\",\n\"cfu\": \"6\",\n\"users\": {\n\"WAV-LM\": 0\n}"
   },
 
   {
     "tagName" : "crawler_teacher",
     "desc" : "Teachers from UniPi. This information should be official as it comes directly from margot.",
-    "doc" : ""
+    "doc" : "## crawler_teacher tag\nThe Facts with this tag contain one json object, where the **keys** are the names of the professors of the University of Pisa, while the **values** are numerical identifiers associated with each.\nOne **example** of the object:\nMichele Raffaello: 1234\nVincenzo Ravasi: 123\ncrawler_teacher tag\nThe Facts with this tag contain one json object, where the keys are the names of the professors of the University of Pisa, while the values are numerical identifiers associated with each.\nOne example of the object:\nMichele Raffaello: 1234\nVincenzo Ravasi: 123"
   },
 
   {
     "tagName" : "crawler_cds_owner",
     "desc" : "A course of study, with correspondent department.",
-    "doc" : ""
+    "doc" : "## crawler_cds_owner tag\nThe **Facts** with this tag contain one json object, with fields:\n- *prog_id* : id of the course of study\n- *cod_s3* : string identifier\n- *cds*: name of the course of study\n- *aa regolamento*: year of the regulation\n- *dipartimento*: name of the department\n- *nota*: possible notes\nOne **example** of the object:\nprog_id : 1712\ncod_s3 : \"BFM-L\"\ncds : \"Banca Finanza e Mercati Finanziari\"\naa regolamento : \"2013/14\"\ndipartimento : \"Economia\"\nnota : null"
   }
 ]
