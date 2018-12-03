@@ -117,10 +117,10 @@ class Matcher {
         return matches;
     }
 
-    public compareRules(q: { [index: string]: any }, ruleSet: Map<object, object>): object[] {
+    public compareRules(q: { [index: string]: any }, ruleSet: Map<number, object>): object[] {
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
-        const result[] = [];
+        const result = [];
         for (const key of ruleSet.keys()) {
             const sortedRule = this.sort(ruleSet.get(key));
             if (this.compareRule(q, this.outerSorted, ruleSet.get(key), sortedRule)) {
@@ -146,25 +146,25 @@ class Matcher {
                     break;
                 }
                 case this.ID_AO: {
-                    if (!this.compareAtomObject(query, sortedQeury, rule, sortedRule) {
+                    if (!this.compareAtomObject(query, sortedQeury, rule, sortedRule)) {
                         return false;
                     }
                     break;
                 }
                 case this.ID_AP: {
-                    if (!this.compareAtomPlaceholder(query, sortedQeury, rule, sortedRule) {
+                    if (!this.compareAtomPlaceholder(query, sortedQeury, rule, sortedRule)) {
                         return false;
                     }
                     break;
                 }
                 case this.ID_PA: {
-                    if (!this.comparePlaceholderAtom(query, sortedQeury, rule, sortedRule) {
+                    if (!this.comparePlaceholderAtom(query, sortedQeury, rule, sortedRule)) {
                         return false;
                     }
                     break;
                 }
                 case this.ID_PO: {
-                    if (!this.comparePlaceholderObject(query, sortedQeury, rule, sortedRule) {
+                    if (!this.comparePlaceholderObject(query, sortedQeury, rule, sortedRule)) {
                         return false;
                     }
                     break;
@@ -553,7 +553,7 @@ class Matcher {
     private compareAtomAtom(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Enter case compare Atom : Atom', 5);
         for (const queryKey of sortedQuery.get(this.ID_AA)) {
-            if (rule.hasOwnProperty(q) && query[queryKey] === rule[queryKey]) {
+            if (rule.hasOwnProperty(queryKey) && query[queryKey] === rule[queryKey]) {
                 continue;
             }
             for (const ruleKey of sortedRule.get(this.ID_PA)) {

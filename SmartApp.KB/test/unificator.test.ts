@@ -52,37 +52,37 @@ describe('single key', () => {
 
 });
 
-describe('two keys', () => {
-    let query;
-    let data;
-    let res;
-    it('should fail if query has more keys than data', () => {
-        query = { k: '$x', kk: '$y' };
-        data = { k: '$x' };
-        res = unify(query, data, {});
-        return !res.s;
+// describe('two keys', () => {
+//     let query;
+//     let data;
+//     let res;
+//     it('should fail if query has more keys than data', () => {
+//         query = { k: '$x', kk: '$y' };
+//         data = { k: '$x' };
+//         res = unify(query, data, {});
+//         return !res.s;
 
-    });
+//     });
 
-    it('should match if query has less keys than data', () => {
-        query = { k: '$x' };
-        data = { k: '$x', kk: '$y' };
-        res = unify(query, data, {});
-        return res.s;
-    });
+//     it('should match if query has less keys than data', () => {
+//         query = { k: '$x' };
+//         data = { k: '$x', kk: '$y' };
+//         res = unify(query, data, {});
+//         return res.s;
+//     });
 
-    it('should match and bind mixed query to ground data', () => {
-        query = { a: 1, b: '$b' };
-        data = { a: 1, b: 2 };
-        res = unify(query, data, {});
-        return res.s;
-    });
+//     it('should match and bind mixed query to ground data', () => {
+//         query = { a: 1, b: '$b' };
+//         data = { a: 1, b: 2 };
+//         res = unify(query, data, {});
+//         return res.s;
+//     });
 
-    it('should match and bind mixed query to variable data', () => {
-        query = { a: 1, b: '$b' };
-        data = { a: '$a', b: '$b' };
-        res = unify(query, data, {});
-        return res.s && res.binds.$a === 1;
-    });
+//     it('should match and bind mixed query to variable data', () => {
+//         query = { a: 1, b: '$b' };
+//         data = { a: '$a', b: '$b' };
+//         res = unify(query, data, {});
+//         return res.s && res.binds.$a === 1;
+//     });
 
-});
+// });
