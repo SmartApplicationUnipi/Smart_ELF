@@ -229,24 +229,25 @@ export function removeFact(idSource: string, jreq: object) {
     } else { return new Response(false, 'no matching facts'); }
 }
 
-export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
-    // controllo se la regola è valida
-    // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
-    //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
-    // }
-    const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
-    const dataobject = {
-        _data: normalizeRule(jsonRule),
-        // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
-        _id: uniqueRuleId_gen(),
-        _meta: metadata,
-    };
+// export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
+//     // controllo se la regola è valida
+//     // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
+//     //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
+//     // }
+//     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
+//     const dataobject = {
+//         _data: normalizeRule(jsonRule),
+//         // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
+//         _id: uniqueRuleId_gen(),
+//         _meta: metadata,
+//     };
+// 
+//     databaseRule.set(dataobject._id, dataobject);
+//     return new Response(true, dataobject._id);
+// }
 
-    databaseRule.set(dataobject._id, dataobject);
-    return new Response(true, dataobject._id);
-}
-
-export function newAddRule(idSource: string, ruleTag: string, jsonRule: string) {
+// export function newAddRule(idSource: string, ruleTag: string, jsonRule: string) {
+export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
     // controllo se la regola è valida
     // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
     //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');

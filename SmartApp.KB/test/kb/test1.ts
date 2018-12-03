@@ -214,12 +214,13 @@ describe ('updateFactByID', () => {
 
 describe ('addRule and removeRule', () => {
     it('should correctly add a new rule', () => {
-        const rule = new kb.DataRule({ subject: '$prof', relation: 'is in', object: '$room' },
-        [{ subject: '$prof', relation: 'teaches', object: '$course' },
-        { subject: '$course', relation: 'is in room', object: '$room' }]);
+        const rule1 = `
+        { "subject": "$prof", "relation": "is in", "object": "$room" } <-
+                    { "subject": "$prof", "relation": "teaches", "object": "$course" }
+                    { "subject": "$course", "relation": "is in room", "object": "$room" }`;
 
         const id = 1;
-        const response = kb.addRule(idSource, 'myRuleTag', rule);
+        const response = kb.addRule(idSource, 'myRuleTag', rule1);
         const expected = new kb.Response(true, id);
         expect(response).to.deep.equal(expected);
     });
@@ -230,17 +231,6 @@ describe ('addRule and removeRule', () => {
         const expected = new kb.Response(true, id);
         expect(response).to.deep.equal(expected);
     });
-
-    // it('should fail adding an invalid rule', () => {
-    //     const rule = new kb.DataRule(
-    //         body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
-    //         { subject: '$course', relation: 'is in room', object: '$room' }]
-    //     };
-
-    //     const response = kb.addRule(idSource, 'myRuleTag', rule);
-    //     const expected = new kb.Response(false, 'Rules must have a \'head\' and a \'body\'');
-    //     expect(response).to.deep.equal(expected);
-    // });
 
     it('should fail removing a non-existing rule', () => {
         const id = 123123;

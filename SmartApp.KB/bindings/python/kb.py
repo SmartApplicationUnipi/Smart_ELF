@@ -63,7 +63,7 @@ class KnowledgeBaseClient():
 	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
 		return self.remote_call("addFact", {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} )
 
-	def addRule(self, idSource: str, tag: str, jsonRule: map):
+	def addRule(self, idSource: str, tag: str, jsonRule: str):
 		return self.remote_call("addRule", {"idSource": idSource, "tag": tag, "jsonRule": jsonRule})
 
 	def updateFactByID(self, idFact:str, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map ):
