@@ -71,6 +71,15 @@
 		]
 	],
 
+	["http://margot.di.unipi.it/test12/goa/2018/1/getcdsowners",
+		[
+			{
+				"root" : "$.*",
+				"tag" : "crawler_cds_owner"
+			}
+		]
+	],
+
 	["generic",
 		[
 			{
