@@ -8,7 +8,10 @@ public enum DataEntryType {
     RDF("rdf"),
 
     @SerializedName("json")
-    JSON("json");
+    JSON("json"),
+
+    @SerializedName("csv")
+    CSV("csv");
 
     private final String text;
     DataEntryType(final String text){
