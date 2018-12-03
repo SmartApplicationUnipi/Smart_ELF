@@ -48,9 +48,14 @@ export function findMatches2(query: object, dataset: object[], initBinds: object
     let m;
     for (let i = 0; i < initBinds.length && i < dataset.length; i++) {
         m = findMatches(query, [dataset[i]], initBinds[i]);
-        if ( m.size > 0) {matches.set(dataset[i], m.get(dataset[i])); }
+        if (m.size > 0) { matches.set(dataset[i], m.get(dataset[i])); }
     }
     return matches;
+}
+
+export function findCompatibleRules(query: object, ruleSet: Map<number, object>): object[] {
+    const matcher = new Matcher();
+    return matcher.compareRules(query, ruleSet);
 }
 
 export function isPlaceholder(v: any) {
@@ -112,16 +117,63 @@ class Matcher {
         return matches;
     }
 
-    public compareRules(q: { [index: string]: any }, ruleDataset: object[]) {
-        for (const head of ruleDataset) {
-            const s = this.sort(head);
+    public compareRules(q: { [index: string]: any }, ruleSet: Map<object, object>): object[] {
+        this.outerQuery = q;
+        this.outerSorted = this.sort(q);
+        const result[] = [];
+        for (const key of ruleSet.keys()) {
+            const sortedRule = this.sort(ruleSet.get(key));
+            if (this.compareRule(q, this.outerSorted, ruleSet.get(key), sortedRule)) {
+                result.push(ruleSet.get(key));
+            }
 
         }
+        return result;
     }
 
     private sortAndMatch(query: any, data: object): boolean {
         const sorted = this.sort(query);
         return this.matchBind(query, sorted, data);
+    }
+
+    private compareRule(query: object, sortedQeury: SortMap, rule: object, sortedRule: SortMap): boolean {
+        for (let i = 0; i < this.BINDS_CAT; ++i) {
+            switch (i) {
+                case this.ID_AA: {
+                    if (!this.compareAtomAtom(query, sortedQeury, rule, sortedRule)) {
+                        return false;
+                    }
+                    break;
+                }
+                case this.ID_AO: {
+                    if (!this.compareAtomObject(query, sortedQeury, rule, sortedRule) {
+                        return false;
+                    }
+                    break;
+                }
+                case this.ID_AP: {
+                    if (!this.compareAtomPlaceholder(query, sortedQeury, rule, sortedRule) {
+                        return false;
+                    }
+                    break;
+                }
+                case this.ID_PA: {
+                    if (!this.comparePlaceholderAtom(query, sortedQeury, rule, sortedRule) {
+                        return false;
+                    }
+                    break;
+                }
+                case this.ID_PO: {
+                    if (!this.comparePlaceholderObject(query, sortedQeury, rule, sortedRule) {
+                        return false;
+                    }
+                    break;
+                }
+                case this.ID_PP: {
+                    break;;
+                }
+            }
+        }
     }
 
     private matchBind(query: any, sorted: SortMap, data: object): boolean {
@@ -186,7 +238,7 @@ class Matcher {
             if (!this.matchAtomAtom(queryKey, query[queryKey], data)) {
                 return false;
             }
-            
+
         }
         D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Exit case Atom : Atom', 5);
         return true;
@@ -495,6 +547,101 @@ class Matcher {
                 }
             }
         }
+        return true;
+    }
+
+    private compareAtomAtom(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Enter case compare Atom : Atom', 5);
+        for (const queryKey of sortedQuery.get(this.ID_AA)) {
+            if (rule.hasOwnProperty(q) && query[queryKey] === rule[queryKey]) {
+                continue;
+            }
+            for (const ruleKey of sortedRule.get(this.ID_PA)) {
+                if (rule[ruleKey] === query[queryKey]) {
+                    continue;
+                }
+            }
+            if (sortedRule.get(this.ID_PP).length > 0) {
+                continue;
+            }
+            return false;
+        }
+        D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Exit case compareAtom : Atom', 5);
+        return true;
+    }
+
+    private compareAtomObject(_query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Enter case compare Atom : Object', 5);
+        for (const queryKey of sortedQuery.get(this.ID_AO)) {
+            if (rule.hasOwnProperty(queryKey)) {
+                if (isObject(rule[queryKey])) {
+                    continue; // TODO: too much relaxed
+                } else {
+                    return false;
+                }
+            }
+            if (sortedRule.get(this.ID_PO).length > 0
+                || sortedRule.get(this.ID_PP).length > 0) {
+                continue;
+            }
+            return false;
+        }
+        D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
+        return true;
+    }
+
+    private compareAtomPlaceholder(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_AP, '', 'Enter case compare Atom : Placeholder', 5);
+        for (const queryKey of sortedQuery.get(this.ID_AP)) {
+            if (rule.hasOwnProperty(queryKey) && query[queryKey] === rule[queryKey]) {
+                continue;
+            }
+            if (sortedRule.get(this.ID_PA).length > 0
+                || sortedRule.get(this.ID_PO).length > 0
+                || sortedRule.get(this.ID_PP).length > 0) {
+                continue;
+            }
+            return false;
+        }
+        D.clog(Colors.BLUE, 'INFO', this.ID_AP, '', 'Exit case compare Atom : Placeholder', 5);
+        return true;
+    }
+
+    private comparePlaceholderAtom(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_PA, '', 'Enter case compare Placeholder : Atom', 5);
+        for (const queryKey of sortedQuery.get(this.ID_PA)) {
+            for (const ruleKey of sortedRule.get(this.ID_AA)) {
+                if (query[queryKey] === rule[ruleKey]) {
+                    continue;
+                }
+            }
+            for (const ruleKey of sortedRule.get(this.ID_PA)) {
+                if (query[queryKey] === rule[ruleKey]) {
+                    continue;
+                }
+            }
+            if (sortedRule.get(this.ID_PP).length > 0) {
+                continue;
+            }
+            return false;
+
+        }
+        D.clog(Colors.BLUE, 'INFO', this.ID_PA, '', 'Exit case compare Placeholder : Atom', 5);
+        return true;
+    }
+
+    private comparePlaceholderObject(_query: { [index: string]: any }, sortedQuery: SortMap, _rule: { [index: string]: any }, sortedRule: SortMap): boolean {
+        D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Enter case compare Placeholder : Object', 5);
+        for (const q of sortedQuery.get(this.ID_PO)) {
+            if (sortedRule.get(this.ID_AO).length > 0
+                || sortedRule.get(this.ID_PO).length > 0
+                || sortedRule.get(this.ID_PP).length > 0) {
+                continue;
+                // TODO: too much relaxed
+            }
+            return false;
+        }
+        D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Exit case compare Placeholder : Object', 5);
         return true;
     }
 

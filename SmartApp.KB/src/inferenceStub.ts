@@ -1,7 +1,7 @@
 import { isObject } from 'util';
 import { Colors, Debugger } from './debugger';
 import { checkSubscriptions, databaseFact, databaseRule, DataObject, DataRule, Metadata } from './kb';
-import { findMatches, findMatches2, isPlaceholder } from './matcher';
+import { findMatches, findMatches2, isPlaceholder, findCompatibleRules } from './matcher';
 import { unify } from './unificator';
 
 const INFERENCE_TAG = 'INFERENCE'; // TODO: change this. the user will specify the tag in the rule head!
@@ -70,8 +70,8 @@ function checkRule(head: object, body: object[], fact: object) {
         }
         // ho matchato tutti i body
         debug.clog(Colors.GREEN, 'OK', 7, '', 'HO MATCHATO TUTTI BODY', 5);
-//        console.log(binds);
-//        console.log();
+        //        console.log(binds);
+        //        console.log();
         for (const bind of binds) {
             for (const b of bind) {
 
@@ -110,9 +110,9 @@ function checkRule(head: object, body: object[], fact: object) {
                 const metadata = new Metadata(idSource, tag, undefined, ttl, reli);
                 const headFact = new DataObject(-1, metadata, inFact._data);
                 const addres = checkSubscriptions(headFact);
-//                console.log('AGGIUNGO FATTO INFERITO ', addres);
-//                console.log(inFact);
-//                console.log();
+                //                console.log('AGGIUNGO FATTO INFERITO ', addres);
+                //                console.log(inFact);
+                //                console.log();
                 debug.clog(Colors.BLUE, 'DEBUG', 1, '', 'INFERENCE CHECK SUBS' + headFact, 1);
             }
         }
@@ -123,9 +123,11 @@ export function queryRules(jReq: object) {
     let rule;
     const matches = new Array();
 
-    for (const entry of databaseRule.values()) {
+    const goodRules = findCompatibleRules(jReq, databaseRule);
+
+    for (const entry of goodRules) {
         rule = entry._data as DataRule;
-        const b = unify(jReq, rule._head, {});
+        //const b = unify(jReq, rule._head, {});
         if (b.s) {
             const m = findBodySolutions(rule._body);
 
@@ -187,7 +189,7 @@ function findBodySolutions(body: object[]) {
     let matches = findMatches(body[i], Array.from(databaseFact.values()));
 
     // cerco nel dataset se esiste soluzione per ciascun pred
-    while ( i < body.length && matches.size > 0 ) {
+    while (i < body.length && matches.size > 0) {
         debug.clogNoID(Colors.GREEN, 'OK', '', 'trovata soluzione: ', 5);
 
         debug.clogNoID(Colors.BLUE, 'INFO', '', 'guardo il predicato ' + i, 10);
