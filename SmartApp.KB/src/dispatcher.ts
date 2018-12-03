@@ -14,6 +14,9 @@ function isBeforeDate(op1: string, op2: string): boolean { return (new Date(op1)
 function isEqualString(op1: string, op2: string): boolean { return op1 === op2; }
 function isGreaterString(op1: string, op2: string): boolean { return op1 > op2; }
 function isLessString(op1: string, op2: string): boolean { return op1 < op2; }
+function containsStringCaseSensitive(op1: string, op2: string): boolean { return op2.toLocaleLowerCase().indexOf(op1.toLocaleLowerCase()) >= 0; }
+function containsString(op1: string, op2: string): boolean { return op2.indexOf(op1) >= 0; }
+
 // GENERIC JAVASCRIPT CODE TO EXECUTE
 // export function evalFunction(functionCode: string[]): boolean {
 //     return eval("function"+(functionCode[0])+functionCode[:]);
@@ -32,6 +35,8 @@ const avaiableFunctions: { [index: string]: (op1: string, op2: string) => boolea
     'isEqualString': isEqualString,
     'isGreaterString': isGreaterString,
     'isLessString': isLessString,
+    'containsString': containsString,
+    'containsStringCaseSensitive': containsStringCaseSensitive,
     // 'lambda': evalFunction
 };
 
@@ -61,5 +66,8 @@ export function executeSpecialPredicate(functionName: string, params: string[][]
 // console.log("functionNotSupported, expected [false, false]", executeSpecialPredicate('FOO', [['aba', 'lapo'], ['lapo', 'caro']]));
 
 // const funkyCode: string[] = [];
+
+// console.log(containsString('SOLAIRE', 'tesSOLAIrEstoocasluealierchee ritorna false perche non contiene la parola. PRAISE THE SUN'));
+// console.log(containsStringCaseSensitive('SOLAIrE', 'tessolairestoocasluealierchee ritorna false perche non contiene la parola. PRAISE THE SUN'));
 
 // console.log(executeSpecialPredicate('lambda', [funkyCode]));
