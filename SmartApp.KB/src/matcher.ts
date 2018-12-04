@@ -179,6 +179,7 @@ class Matcher {
                 }
             }
         }
+        return true;
     }
 
     private matchBind(query: any, sorted: SortMap, data: object): boolean {
@@ -616,16 +617,16 @@ class Matcher {
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'key => ' + queryKey, 4);
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'value => ' + query[queryKey], 4);
             if (rule.hasOwnProperty(queryKey)) {
-                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the same key associated to something (don\'t care what)', 3);
+                D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'Rule has the same key associated to something (don\'t care what)', 3);
                 continue;
             }
             if (sortedRule.get(this.ID_PA).length > 0
                 || sortedRule.get(this.ID_PO).length > 0
                 || sortedRule.get(this.ID_PP).length > 0) {
-                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has a relaxed compatibility (P:A, P:O or P:P)', 3);
+                D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'Rule has a relaxed compatibility (P:A, P:O or P:P)', 3);
                 continue;
             }
-            D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'Found nothing compatible', 3);
+            D.clog(Colors.RED, 'FAIL', this.ID_AP, '', 'Found nothing compatible', 3);
             D.clog(Colors.RED, 'INFO', this.ID_AP, '', 'Exit case compare Atom : Placeholder', 5);
             return false;
         }
@@ -668,12 +669,12 @@ class Matcher {
     private comparePlaceholderObject(_query: { [index: string]: any }, sortedQuery: SortMap, _rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Enter case compare Placeholder : Object', 5);
         for (const queryKey of sortedQuery.get(this.ID_PO)) {
-            D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'key => ' + queryKey, 4);
-            D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'value => some object...', 4);
+            D.clog(Colors.BLUE, 'KEY', this.ID_PO, '', 'key => ' + queryKey, 4);
+            D.clog(Colors.BLUE, 'KEY', this.ID_PO, '', 'value => some object...', 4);
             if (sortedRule.get(this.ID_AO).length > 0
                 || sortedRule.get(this.ID_PO).length > 0
                 || sortedRule.get(this.ID_PP).length > 0) {
-                D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', '(TOO MUCH RELAXED) Rule has an object as value of some key or a pair P:P', 3);
+                D.clog(Colors.YELLOW, 'OK', this.ID_PO, '', '(TOO MUCH RELAXED) Rule has an object as value of some key or a pair P:P', 3);
                 continue;
                 // TODO: too much relaxed
             }
