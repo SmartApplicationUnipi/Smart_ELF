@@ -7,10 +7,9 @@ from copy import deepcopy
 from numpy import ndarray
 from numpy.linalg import norm
 
-# from time import sleep
-# from threading import Thread
-# from logging import getLogger
-# log = getLogger("Face_Database.Saver")
+from threading import Timer, Event
+from logging import getLogger
+log = getLogger("Face_Database.Saver")
 
 
 def _validate_key(key):
@@ -77,16 +76,15 @@ class face_db():
             except json.decoder.JSONDecodeError:
                 pass
 
-    #     self.t = Thread(target=self._saver, args=[save_every_minute])
-    #     self.t.daemon = True
-    #     self.t.start()
-    #
-    # def _saver(self, save_every_minute):
-    #     log.debug("The DataBase will be save every " + str(save_every_minute) + " minutes.")
-    #     while True:
-    #         sleep(save_every_minute * 60)
-    #         log.debug("The DataBase has been permanently saved on the disk")
-    #         self.close()
+        self.t = None
+        self._saver(save_every_minute)
+        log.debug("The DataBase will be save every " + str(save_every_minute) + " minutes.")
+
+    def _saver(self, save_every_minute):
+        self.close()
+        log.debug("The DataBase has been permanently saved on the disk")
+        self.t = Timer(save_every_minute * 60, self._saver, [save_every_minute])
+        self.t.start()
 
 
     def __getitem__(self, key):
@@ -385,5 +383,4 @@ class face_db():
             json.dump(self.database, file)
 
     def __del__(self):
-        self.close()
-        # self.t.join()
+        self.t.cancel()
