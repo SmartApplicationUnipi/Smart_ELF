@@ -136,12 +136,12 @@ export class TagInfo {
     }
 }
 
-export function getAllTags() {
+export function getAllTags(includeShortDesc: boolean) {
     const allTags: any = {};
     for (const [user, tags] of userTags.entries()) {
         const tagsArray: any = {};
         for (const [tag, tagInfo] of tags.entries()) {
-            tagsArray[tag] = tagInfo;
+            tagsArray[tag] = includeShortDesc ? tagInfo.desc : null;
         }
         allTags[user] = tagsArray;
     }
