@@ -1,4 +1,5 @@
 import { PropertyAdapter } from "./PropertyAdapter";
+import { Eyebrow } from "../component/SVGFaceComponents";
 
 export class EyeOpenessPropertyAdapter extends PropertyAdapter {
 
@@ -14,7 +15,7 @@ export class EyeOpenessPropertyAdapter extends PropertyAdapter {
 
     anger(anger: number): object {
         return {
-            ry: 22
+            ry: 6
         };
     }
 
@@ -39,44 +40,54 @@ export class EyeOpenessPropertyAdapter extends PropertyAdapter {
 
 export class EyebrowRotationPropertyAdapter extends PropertyAdapter {
 
+    constructor(private eyebrow: Eyebrow) {
+        super();
+    }
+
     sadness(sadness: number): object {
         return {
             firstControlPointX: 10,
             firstControlPointY: 10,
-            secondControlPointX: 10,
+            secondControlPointX: -10,
             secondControlPointY: 10
         };
     }
 
     disgust(disgust: number): object {
         return {
-
+            firstControlPointX: 10,
+            firstControlPointY: 10,
+            secondControlPointX: -10,
+            secondControlPointY: -10
         };
     }
 
     anger(anger: number): object {
         return {
+
         };
     }
 
     surprise(surprise: number): object {
         return {
             firstControlPointX: 10,
-            firstControlPointY: -10,
-            secondControlPointX: 10,
-            secondControlPointY: -10
+            firstControlPointY: -60,
+            secondControlPointX: -10,
+            secondControlPointY: -60
         };
     }
 
     fear(fear: number): object {
-        return {};
+        return {
+            // TODO: needs of the start and end positions
+        };
     }
 
     happiness(happiness: number): object {
         return {
             firstControlPointX: 10,
             firstControlPointY: -10,
-            secondControlPointX: 10,
+            secondControlPointX: -10,
             secondControlPointY: -10
         };
     }
@@ -98,7 +109,7 @@ export class MouthRotationPropertyAdapter extends PropertyAdapter {
             firstControlPointX: 0,
             firstControlPointY: 10,
             secondControlPointX: 0,
-            secondControlPointY: 10
+            secondControlPointY: -10
         };
     }
 

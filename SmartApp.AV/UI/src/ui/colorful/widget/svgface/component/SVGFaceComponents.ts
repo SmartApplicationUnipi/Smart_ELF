@@ -68,21 +68,20 @@ export class Eye extends AbstractSVGFaceComponent implements IAnimated {
 
 export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
 
-    constructor(id: string, private x: number = 0, private y: number = 0, private width: number = 100.75, private height: number = 30.625,
-        public firstControlPoint: Point = new Point(0, 0), public secondControlPoint: Point = new Point(0, 0)) {
+    constructor(id: string, private height: number = 30.625,
+        public leftAnchorPoint: Point = new Point(0, 0), public rightAnchorPoint: Point = new Point(100.75, 0),
+        public firstControlPoint: Point = new Point(0, 0), public secondControlPoint: Point = new Point(0, 0), public specular: boolean = false) {
         super(id);
 
         this.properties = [
-            (e: ISBEEmotion) => (new EyebrowRotationPropertyAdapter()).getPropertyValues(e) // Eyes opennes
+            (e: ISBEEmotion) => (new EyebrowRotationPropertyAdapter(this)).getPropertyValues(e) // Eyes opennes
         ];
     }
 
     public setX(x: number) {
-        this.x = x;
     }
 
     public setY(y: number) {
-        this.y = y;
     }
 
     public render(): string {
@@ -95,6 +94,13 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
         console.log(updates);
 
         // TODO: we need to handle better the bezier courve points...
+        let lp = {
+            x: this.leftAnchorPoint.getX(),
+            y: this.leftAnchorPoint.getY()
+        }, rp = {
+            x: this.rightAnchorPoint.getX(),
+            y: this.rightAnchorPoint.getY()
+        };
         let fpc = {
             x: this.firstControlPoint.getX(),
             y: this.firstControlPoint.getY()
@@ -103,6 +109,7 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
             y: this.secondControlPoint.getY()
         };
 
+        // Control points
         if (updates["firstControlPointX"]) {
             fpc.x = updates["firstControlPointX"];
         }
@@ -116,8 +123,24 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
             spc.y = updates["secondControlPointY"];
         }
 
+        // Anchor points
+        if (updates["x1"]) {
+            lp.x = updates["x1"];
+        }
+        if (updates["y1"]) {
+            lp.y = updates["y1"];
+        }
+        if (updates["x2"]) {
+            rp.x = updates["x2"];
+        }
+        if (updates["y2"]) {
+            rp.y = updates["y2"];
+        }
+
         this.firstControlPoint = new Point(fpc.x, fpc.y);
         this.secondControlPoint = new Point(spc.x, spc.y);
+        this.leftAnchorPoint = new Point(lp.x, lp.y);
+        this.rightAnchorPoint = new Point(rp.x, rp.y);
 
         updates['d'] = this.buildSvgPath();
 
@@ -134,7 +157,7 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
     }
 
     private buildSvgPath(): string {
-        return 'M' + this.x + ' ' + this.y + ' C ' + (this.x + this.firstControlPoint.getX()) + ' ' + (this.y + this.firstControlPoint.getY()) + ', ' + (this.x + this.width - this.secondControlPoint.getX()) + ' ' + (this.y + this.secondControlPoint.getY()) + ', ' + (this.x + this.width) + ' ' + this.y
+        return 'M' + this.leftAnchorPoint.getX() + ' ' + this.leftAnchorPoint.getY() + ' C ' + (this.leftAnchorPoint.getX() + this.firstControlPoint.getX()) + ' ' + (this.leftAnchorPoint.getY() + this.firstControlPoint.getY()) + ', ' + (this.rightAnchorPoint.getX() + this.secondControlPoint.getX()) + ' ' + (this.rightAnchorPoint.getY() + this.secondControlPoint.getY()) + ', ' + this.rightAnchorPoint.getX() + ' ' + this.rightAnchorPoint.getY()
     }
 }
 

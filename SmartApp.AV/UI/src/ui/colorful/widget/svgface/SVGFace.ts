@@ -23,8 +23,25 @@ export class SVGFace extends Face implements IAnimated {
     constructor(document: Document) {
         super(null);
 
-        this.leftEyebrow = new Eyebrow("leftEyebrow", 108.125, 70.435);
-        this.rightEyebrow = new Eyebrow("rightEyebrow", 282.125, 70.435);
+        let wpoint = new Point(100.75, 0); // width
+        let lanchor1 = new Point(108.125, 70.435);
+        let ranchor1 = lanchor1.add(wpoint);
+        let lct1 = new Point(10, 0);
+        let rct1 = new Point(-10, 0);
+
+        //let rbase = new Point(282.125, 70.435);
+        let diff = new Point(182.125, 0);
+        let lanchor2 = lanchor1.add(diff);
+        let ranchor2 = ranchor1.add(diff);
+        let lct2 = lct1;
+        let rct2 = rct1;
+
+        this.leftEyebrow = new Eyebrow("leftEyebrow", 30.625, 
+            lanchor1, ranchor1, 
+            lct1, rct1
+        );
+        // this.rightEyebrow = new Eyebrow("rightEyebrow", 30.625, lanchor2, rbase.add(new Point(100.75, 0)), rbase.add(new Point(10, 10)), rbase.add(new Point(100.75, 0)));
+        this.rightEyebrow = new Eyebrow("rightEyebrow", 30.625, lanchor2, ranchor2, lct2, rct2, true);
         this.leftEye = new Eye("leftEye", 157.651, 175.289);
         this.rightEye = new Eye("rightEye", 332.349, 175.289);
         this.mouth = new Mouth("mouth", 153.125, 317.435);
