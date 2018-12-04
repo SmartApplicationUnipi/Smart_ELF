@@ -567,12 +567,22 @@ class Matcher {
                     continue;
                 }
             }
-            for (const ruleKey of sortedRule.get(this.ID_PA)) {
-                if (rule[ruleKey] === query[queryKey]) {
-                    D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has the same value associated to a placeholder', 3);
-                    continue;
+
+            const checkPA = () => {
+                // inner function to move continue int he external loop
+                for (const ruleKey of sortedRule.get(this.ID_PA)) {
+                    if (rule[ruleKey] === query[queryKey]) {
+                        return true;
+                    }
                 }
+                return false;
+            };
+
+            if (checkPA()) {
+                D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has the same value associated to a placeholder', 3);
+                continue;
             }
+
             if (sortedRule.get(this.ID_PP).length > 0) {
                 D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has a placeholder placehoder pair', 3);
                 continue;
@@ -594,8 +604,11 @@ class Matcher {
                 if (isObject(rule[queryKey])) {
                     D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', '(TOO MUCH RELAXED) Rule has an object associated to the key', 3);
                     continue; // TODO: too much relaxed
+                } else if (isPlaceholder(rule[queryKey])) {
+                    D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', 'Rule has a placeholder associated to the key', 3);
+                    continue; // TODO: too much relaxed
                 } else {
-                    D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'In the rule the key `' + queryKey + '\' is not associated to an object', 3);
+                    D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'In the rule the key `' + queryKey + '\' is associated to an atom', 3);
                     D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
                     return false;
                 }
@@ -641,19 +654,31 @@ class Matcher {
         for (const queryKey of sortedQuery.get(this.ID_PA)) {
             D.clog(Colors.BLUE, 'KEY', this.ID_PA, '', 'key => ' + queryKey, 4);
             D.clog(Colors.BLUE, 'KEY', this.ID_PA, '', 'value => ' + query[queryKey], 4);
-            for (const ruleKey of sortedRule.get(this.ID_AA)) {
-                if (query[queryKey] === rule[ruleKey]) {
-                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the compatible pair `' + ruleKey + ', '
-                        + rule[ruleKey] + '\'.', 3);
-                    continue;
+            const innerAA = () => {
+                for (const ruleKey of sortedRule.get(this.ID_AA)) {
+                    if (query[queryKey] === rule[ruleKey]) {
+                        D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the compatible pair `' + ruleKey + ', '
+                            + rule[ruleKey] + '\'.', 3);
+                        return true;
+                    }
                 }
+                return false;
+            };
+            const innerPA = () => {
+                for (const ruleKey of sortedRule.get(this.ID_PA)) {
+                    if (query[queryKey] === rule[ruleKey]) {
+                        D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the compatible pair `' + ruleKey + ', '
+                            + rule[ruleKey] + '\'.', 3);
+                        return true;;
+                    }
+                }
+                return false;
+            };
+            if (innerAA()) {
+                continue;
             }
-            for (const ruleKey of sortedRule.get(this.ID_PA)) {
-                if (query[queryKey] === rule[ruleKey]) {
-                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the compatible pair `' + ruleKey + ', '
-                        + rule[ruleKey] + '\'.', 3);
-                    continue;
-                }
+            if (innerPA()) {
+                continue;
             }
             if (sortedRule.get(this.ID_PP).length > 0) {
                 D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has a placeholder placehoder pair', 3);
@@ -674,9 +699,10 @@ class Matcher {
             D.clog(Colors.BLUE, 'KEY', this.ID_PO, '', 'key => ' + queryKey, 4);
             D.clog(Colors.BLUE, 'KEY', this.ID_PO, '', 'value => some object...', 4);
             if (sortedRule.get(this.ID_AO).length > 0
+                || sortedRule.get(this.ID_AP).length > 0
                 || sortedRule.get(this.ID_PO).length > 0
                 || sortedRule.get(this.ID_PP).length > 0) {
-                D.clog(Colors.YELLOW, 'OK', this.ID_PO, '', '(TOO MUCH RELAXED) Rule has an object as value of some key or a pair P:P', 3);
+                D.clog(Colors.YELLOW, 'OK', this.ID_PO, '', '(TOO MUCH RELAXED) Rule has a relaxed compatibility (A:O, A:P, P:O or P:P)', 3);
                 continue;
                 // TODO: too much relaxed
             }
