@@ -101,12 +101,12 @@ abstract class SVGFaceComponent {
 
 abstract class PropertyAdapter {
     public getPropertyValues(emotion: ISBEEmotion): object {
-        let values: Array<{alpha: number, value: object}> = [
-            {alpha: emotion.getDisgust(), value: this.disgust(emotion.getDisgust())},
-            {alpha: emotion.getAnger(), value: this.anger(emotion.getAnger())},
-            {alpha: emotion.getSurprise(), value: this.surprise(emotion.getSurprise())},
-            {alpha: emotion.getFear(), value: this.fear(emotion.getFear())},
-            {alpha: emotion.getHappiness(), value: this.happiness(emotion.getHappiness())}
+        let values: Array<{ alpha: number, value: object }> = [
+            { alpha: emotion.getDisgust(), value: this.disgust(emotion.getDisgust()) },
+            { alpha: emotion.getAnger(), value: this.anger(emotion.getAnger()) },
+            { alpha: emotion.getSurprise(), value: this.surprise(emotion.getSurprise()) },
+            { alpha: emotion.getFear(), value: this.fear(emotion.getFear()) },
+            { alpha: emotion.getHappiness(), value: this.happiness(emotion.getHappiness()) }
         ];
 
         let combiners = values.reduce((dict, val) => {
@@ -119,11 +119,11 @@ abstract class PropertyAdapter {
             // });
 
             Object.keys(val.value).map(property => {
-                if(!dict[property]) {
+                if (!dict[property]) {
                     dict[property] = new WeightedMeanCombiner(); // TODO: Let the concrete class choose the Combiner
                 }
 
-                dict[property].set({weight: val.alpha, element: val.value[property]});
+                dict[property].set({ weight: val.alpha, element: val.value[property] });
             });
 
             return dict;
@@ -165,7 +165,8 @@ class EyeOpenessPropertyAdapter extends PropertyAdapter {
 
     fear(fear: number): object {
         return {
-            ry: 30
+            ry: 30,
+            rx: 70
         };
     }
 
@@ -179,9 +180,9 @@ class EyeOpenessPropertyAdapter extends PropertyAdapter {
 const DEFAULT_EYE_RADIUS = 42.64;
 
 class Eye extends SVGFaceComponent implements IAnimated {
-    private properties = {
-        OPENNESS: (e: ISBEEmotion) => (new EyeOpenessPropertyAdapter()).getPropertyValues(e)
-    }
+    private properties = [
+        (e: ISBEEmotion) => (new EyeOpenessPropertyAdapter()).getPropertyValues(e) // Eyes opennes
+    ]
 
     private lastEmotion: ISBEEmotion;
 
@@ -207,17 +208,27 @@ class Eye extends SVGFaceComponent implements IAnimated {
     public lookAt(p: Point): void {
         // Do nothing
     }
-    
+
     public onEmotionChanged(e: ISBEEmotion): void {
         // this.eyeRadiusY = this.properties.OPENNESS(e) * DEFAULT_EYE_RADIUS;
 
-        let openess = this.properties.OPENNESS(e);
-        openess['targets'] = '#' + this.getId();
-        openess['easing'] = 'easeInOutQuart';
+        let updates = this.properties
+            .map(f => f(e))
+            .reduce((res, current) => {
+                Object.keys(current).forEach(key => {
+                    res[key] = current[key];
+                });
+                return res;
+            });
+
+        updates['targets'] = '#' + this.getId();
+        updates['easing'] = 'easeInOutQuart';
+
+        console.log(updates);
 
         this.update();
 
-        anime(openess);
+        anime(updates);
 
         this.lastEmotion = e;
     }

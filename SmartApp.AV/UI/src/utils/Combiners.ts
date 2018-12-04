@@ -1,6 +1,5 @@
 export interface Combiner<Input, Output> {
     set(input: Input): Combiner<Input, Output>;
-
     result(): Output;
 }
 
@@ -34,7 +33,11 @@ export class WeightedMeanCombiner implements Combiner<{ element: number, weight:
             return 0;
         }
 
-        return this.elements.reduce((sum, val) => sum + val.element * val.weight, 0) / this.elements.length;
+        if(this.elements.length == 1) {
+            return this.elements[0].weight * this.elements[0].element;
+        }
+
+        return this.elements.reduce((sum, val) => sum + val.element * val.weight, 0) / this.elements.reduce((sum, val) => sum + val.weight, 0);
     }
 }
 
