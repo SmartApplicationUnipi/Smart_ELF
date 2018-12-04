@@ -14,7 +14,8 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { a: 'a' } });
         res = findCompatibleRules(query, data);
-        return res.length > 0;
+        console.log(res);
+        return res.length === 1;
     });
 
     it('should fail if query keys are not in data', () => {
@@ -22,7 +23,8 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { b: 'b' } });
         res = findCompatibleRules(query, data);
-        return res.length > 0;
+        console.log(res);
+        return res.length === 0;
     });
 
     it('should match variable in query with ground data', () => {
@@ -30,6 +32,7 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { a: 'a' } });
         res = findCompatibleRules(query, data);
+        console.log(res);
         return res.length > 0;
 
     });
@@ -39,6 +42,7 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { k: '$x' } });
         res = findCompatibleRules(query, data);
+        console.log(res);
         return res.length > 0;
     });
 
@@ -47,6 +51,7 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { k: '$x' } });
         res = findCompatibleRules(query, data);
+        console.log(res);
         return res.length > 0;
     });
 

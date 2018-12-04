@@ -26,7 +26,7 @@ import { executeSpecialPredicate } from './dispatcher';
  \( `   <.,../`     `-.._   _,-`
  */
 
-const D: Debugger = new Debugger();
+const D: Debugger = new Debugger(4);
 
 export type Matches = Map<object, object[]>;
 
@@ -53,7 +53,7 @@ export function findMatches2(query: object, dataset: object[], initBinds: object
     return matches;
 }
 
-export function findCompatibleRules(query: object, ruleSet: Map<number, object>): object[] {
+export function findCompatibleRules(query: object, ruleSet: Map<number, object>): { [index: string]: any }[] {
     const matcher = new Matcher();
     return matcher.compareRules(query, ruleSet);
 }
@@ -117,17 +117,22 @@ class Matcher {
         return matches;
     }
 
-    public compareRules(q: { [index: string]: any }, ruleSet: Map<number, object>): object[] {
+    public compareRules(q: { [index: string]: any }, ruleSet: Map<number, { [index: string]: any }>): { [index: string]: any }[] {
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
         const result = [];
+        console.log('Current Ruleset:', ruleSet);
+
         for (const key of ruleSet.keys()) {
-            const sortedRule = this.sort(ruleSet.get(key));
-            if (this.compareRule(q, this.outerSorted, ruleSet.get(key), sortedRule)) {
+            const rule = ruleSet.get(key)['_head'];
+            const sortedRule = this.sort(rule);
+            if (this.compareRule(q, this.outerSorted, rule, sortedRule)) {
+                console.log('good match');
                 result.push(ruleSet.get(key));
             }
 
         }
+        console.log(result);
         return result;
     }
 
@@ -553,95 +558,130 @@ class Matcher {
     private compareAtomAtom(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Enter case compare Atom : Atom', 5);
         for (const queryKey of sortedQuery.get(this.ID_AA)) {
+            D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'key => ' + queryKey, 4);
+            D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'value => ' + query[queryKey], 4);
             if (rule.hasOwnProperty(queryKey) && query[queryKey] === rule[queryKey]) {
+                D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has the same pair key value', 3);
                 continue;
             }
             for (const ruleKey of sortedRule.get(this.ID_PA)) {
                 if (rule[ruleKey] === query[queryKey]) {
+                    D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has the same value associated to a placeholder', 3);
                     continue;
                 }
             }
             if (sortedRule.get(this.ID_PP).length > 0) {
+                D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has a placeholder placehoder pair', 3);
                 continue;
             }
+            D.clog(Colors.RED, 'FAIL', this.ID_AA, '', 'Found nothing compatible', 3);
+            D.clog(Colors.RED, 'INFO', this.ID_AA, '', 'Exit case compare Atom : Atom', 5);
             return false;
         }
-        D.clog(Colors.BLUE, 'INFO', this.ID_AA, '', 'Exit case compareAtom : Atom', 5);
+        D.clog(Colors.GREEN, 'INFO', this.ID_AA, '', 'Exit case compare Atom : Atom', 5);
         return true;
     }
 
     private compareAtomObject(_query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Enter case compare Atom : Object', 5);
         for (const queryKey of sortedQuery.get(this.ID_AO)) {
+            D.clog(Colors.BLUE, 'KEY', this.ID_AO, '', 'key => ' + queryKey, 4);
+            D.clog(Colors.BLUE, 'KEY', this.ID_AO, '', 'value => some object...', 4);
             if (rule.hasOwnProperty(queryKey)) {
                 if (isObject(rule[queryKey])) {
+                    D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', '(TOO MUCH RELAXED) Rule has an object associated to the key', 3);
                     continue; // TODO: too much relaxed
                 } else {
+                    D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'In the rule the key `' + queryKey + '\' is not associated to an object', 3);
+                    D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
                     return false;
                 }
             }
             if (sortedRule.get(this.ID_PO).length > 0
                 || sortedRule.get(this.ID_PP).length > 0) {
+                D.clog(Colors.GREEN, 'OK', this.ID_AO, '', 'Rule has a placeholder associated to an object or to another placeholder', 3);
                 continue;
             }
+            D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'Found nothing compatible', 3);
+            D.clog(Colors.RED, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
             return false;
         }
-        D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
+        D.clog(Colors.GREEN, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
         return true;
     }
 
     private compareAtomPlaceholder(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_AP, '', 'Enter case compare Atom : Placeholder', 5);
         for (const queryKey of sortedQuery.get(this.ID_AP)) {
-            if (rule.hasOwnProperty(queryKey) && query[queryKey] === rule[queryKey]) {
+            D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'key => ' + queryKey, 4);
+            D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'value => ' + query[queryKey], 4);
+            if (rule.hasOwnProperty(queryKey)) {
+                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the same key associated to something (don\'t care what)', 3);
                 continue;
             }
             if (sortedRule.get(this.ID_PA).length > 0
                 || sortedRule.get(this.ID_PO).length > 0
                 || sortedRule.get(this.ID_PP).length > 0) {
+                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has a relaxed compatibility (P:A, P:O or P:P)', 3);
                 continue;
             }
+            D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'Found nothing compatible', 3);
+            D.clog(Colors.RED, 'INFO', this.ID_AP, '', 'Exit case compare Atom : Placeholder', 5);
             return false;
         }
-        D.clog(Colors.BLUE, 'INFO', this.ID_AP, '', 'Exit case compare Atom : Placeholder', 5);
+        D.clog(Colors.GREEN, 'INFO', this.ID_AP, '', 'Exit case compare Atom : Placeholder', 5);
         return true;
     }
 
     private comparePlaceholderAtom(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_PA, '', 'Enter case compare Placeholder : Atom', 5);
         for (const queryKey of sortedQuery.get(this.ID_PA)) {
+            D.clog(Colors.BLUE, 'KEY', this.ID_PA, '', 'key => ' + queryKey, 4);
+            D.clog(Colors.BLUE, 'KEY', this.ID_PA, '', 'value => ' + query[queryKey], 4);
             for (const ruleKey of sortedRule.get(this.ID_AA)) {
                 if (query[queryKey] === rule[ruleKey]) {
+                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the compatible pair `' + ruleKey + ', '
+                        + rule[ruleKey] + '\'.', 3);
                     continue;
                 }
             }
             for (const ruleKey of sortedRule.get(this.ID_PA)) {
                 if (query[queryKey] === rule[ruleKey]) {
+                    D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has the compatible pair `' + ruleKey + ', '
+                        + rule[ruleKey] + '\'.', 3);
                     continue;
                 }
             }
             if (sortedRule.get(this.ID_PP).length > 0) {
+                D.clog(Colors.GREEN, 'OK', this.ID_PA, '', 'Rule has a placeholder placehoder pair', 3);
                 continue;
             }
+            D.clog(Colors.RED, 'FAIL', this.ID_PA, '', 'Found nothing compatible', 3);
+            D.clog(Colors.RED, 'INFO', this.ID_PA, '', 'Exit case compare Placeholder : Atom', 5);
             return false;
 
         }
-        D.clog(Colors.BLUE, 'INFO', this.ID_PA, '', 'Exit case compare Placeholder : Atom', 5);
+        D.clog(Colors.GREEN, 'INFO', this.ID_PA, '', 'Exit case compare Placeholder : Atom', 5);
         return true;
     }
 
     private comparePlaceholderObject(_query: { [index: string]: any }, sortedQuery: SortMap, _rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Enter case compare Placeholder : Object', 5);
-        for (const q of sortedQuery.get(this.ID_PO)) {
+        for (const queryKey of sortedQuery.get(this.ID_PO)) {
+            D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'key => ' + queryKey, 4);
+            D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'value => some object...', 4);
             if (sortedRule.get(this.ID_AO).length > 0
                 || sortedRule.get(this.ID_PO).length > 0
                 || sortedRule.get(this.ID_PP).length > 0) {
+                D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', '(TOO MUCH RELAXED) Rule has an object as value of some key or a pair P:P', 3);
                 continue;
                 // TODO: too much relaxed
             }
+            D.clog(Colors.RED, 'FAIL', this.ID_PO, '', 'Found nothing compatible', 3);
+            D.clog(Colors.RED, 'INFO', this.ID_PO, '', 'Exit case compare Placeholder : Object', 5);
             return false;
         }
-        D.clog(Colors.BLUE, 'INFO', this.ID_PO, '', 'Exit case compare Placeholder : Object', 5);
+        D.clog(Colors.GREEN, 'INFO', this.ID_PO, '', 'Exit case compare Placeholder : Object', 5);
         return true;
     }
 

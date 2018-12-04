@@ -123,57 +123,57 @@ export function queryRules(jReq: object) {
     let rule;
     const matches = new Array();
 
-    const goodRules = findCompatibleRules(jReq, databaseRule);
+    const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, databaseRule);
 
     for (const entry of goodRules) {
-        rule = entry._data as DataRule;
+        //rule = entry._data as DataRule;
         //const b = unify(jReq, rule._head, {});
-        if (b.s) {
-            const m = findBodySolutions(rule._body);
+        //if (b.s) {
+        const m = findBodySolutions(entry['_body']);
 
-            for (const binds of m.values()) {
-                for (const bind of binds) {
-                    const bAny = bind as any; // TODO: find a better way!we need to have bind explicitly declared as any
+        for (const binds of m.values()) {
+            for (const bind of binds) {
+                const bAny = bind as any; // TODO: find a better way!we need to have bind explicitly declared as any
 
-                    const magia = (h: any) => {
-                        const hh = Object.assign({}, h);
-                        const ks = Object.keys(h);
-                        for (const key of ks) {
-                            if (isPlaceholder(h[key])) {
-                                hh[key] = bAny[h[key]]; // becouse of this we needed bany
-                            }
-                            if (isObject(h[key])) {
-                                hh[key] = magia(h[key]);
-                            }
+                const magia = (h: any) => {
+                    const hh = Object.assign({}, h);
+                    const ks = Object.keys(h);
+                    for (const key of ks) {
+                        if (isPlaceholder(h[key])) {
+                            hh[key] = bAny[h[key]]; // becouse of this we needed bany
                         }
-                        return hh;
-                    };
-
-                    const instHead = magia(rule._head);
-
-                    let tag = '_INFERENCE';
-                    let idSource = '_INFERENCE';
-                    let ttl = 1;
-                    let reli = 0;
-
-                    if (instHead.hasOwnProperty('_meta')) {
-
-                        if (instHead.hasOwnProperty('tag')) { tag = instHead._meta.tag; }
-                        if (instHead.hasOwnProperty('idSource')) { idSource = instHead._meta.idSource; }
-                        if (instHead.hasOwnProperty('ttl')) { ttl = instHead._meta.ttl; }
-                        if (instHead.hasOwnProperty('reliability')) { reli = instHead._meta.reliability; }
-
+                        if (isObject(h[key])) {
+                            hh[key] = magia(h[key]);
+                        }
                     }
+                    return hh;
+                };
 
-                    const metadata = new Metadata(idSource, tag, undefined, ttl, reli);
-                    const headFact = new DataObject(-1, metadata, instHead._data);
+                const instHead = magia(entry['_head']);
 
-                    debug.clogNoID(Colors.BLUE, 'DEBUG', '', 'INFERENCE ADDFACT' + headFact, 1);
+                let tag = '_INFERENCE';
+                let idSource = '_INFERENCE';
+                let ttl = 1;
+                let reli = 0;
 
-                    matches.push(headFact);
+                if (instHead.hasOwnProperty('_meta')) {
+
+                    if (instHead.hasOwnProperty('tag')) { tag = instHead._meta.tag; }
+                    if (instHead.hasOwnProperty('idSource')) { idSource = instHead._meta.idSource; }
+                    if (instHead.hasOwnProperty('ttl')) { ttl = instHead._meta.ttl; }
+                    if (instHead.hasOwnProperty('reliability')) { reli = instHead._meta.reliability; }
+
                 }
+
+                const metadata = new Metadata(idSource, tag, undefined, ttl, reli);
+                const headFact = new DataObject(-1, metadata, instHead._data);
+
+                debug.clogNoID(Colors.BLUE, 'DEBUG', '', 'INFERENCE ADDFACT' + headFact, 1);
+
+                matches.push(headFact);
             }
         }
+        //}
     }
 
     return findMatches(jReq, matches);
