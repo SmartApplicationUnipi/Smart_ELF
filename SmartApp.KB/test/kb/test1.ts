@@ -41,9 +41,9 @@ describe('registerTags', () => {
 
 describe('getAllTags', () => {
     it('should return all registered tags and corresponding user', () => {
-        const response = kb.getAllTags();
-        const expected = { 'id0' : {tag1 : {desc: 'desc1', doc: 'doc1'}, tag2: {desc: 'desc2', doc: 'doc2'}, 
-        tag3 : {desc: 'desc3', doc: 'doc3'}, tag4 : {desc: 'desc4', doc: 'doc4'}, tag6: {desc: 'desc6', doc: 'doc6'}}}
+        const response = kb.getAllTags(true);
+        const expected = { 'id0' : {tag1 : 'desc1', tag2: 'desc2',
+        tag3: 'desc3', tag4 : 'desc4', tag6: 'desc6' }};
         const expectedResponse = new kb.Response(true, expected);
         expect(response).to.deep.equal(expectedResponse);
     });

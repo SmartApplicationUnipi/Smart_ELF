@@ -60,6 +60,9 @@ class KnowledgeBaseClient():
 	def getTagDetails(self, tagsList: list):
 		return self.remote_call("getTagDetails", {"tagsList": tagsList})
 
+	def getAllTags(self, includeShortDesc):
+		return self.remote_call("getAllTags", {"includeShortDesc": includeShortDesc})
+
 	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
 		return self.remote_call("addFact", {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} )
 
