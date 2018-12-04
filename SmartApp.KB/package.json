@@ -8,17 +8,16 @@
     "start": "npm run build-ts && npm run serve",
     "serve": "node dist/src/server.js",
     "test": "mocha -r ts-node/register test/unificator.test.ts",
-    "test-matcher": "npm run build-ts && node dist/test/matcher.test.js"
+    "install": "mkdir db",
+    "clear": "rm -rf node_modules/ && rm -rf db/"
   },
   "dependencies": {
     "@types/chai": "latest",
     "@types/deep-equal": "^1.0.1",
-    "@types/express": "^4.16.0",
     "@types/mocha": "latest",
     "@types/ws": "^6.0.1",
     "chai": "latest",
     "deep-equal": "^1.0.1",
-    "express": "^4.16.4",
     "mocha": "latest",
     "mocha-typescript": "^1.1.17",
     "ts-node": "latest",
