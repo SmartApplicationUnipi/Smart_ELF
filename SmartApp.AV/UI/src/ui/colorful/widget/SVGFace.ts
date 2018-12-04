@@ -165,8 +165,7 @@ class EyeOpenessPropertyAdapter extends PropertyAdapter {
 
     fear(fear: number): object {
         return {
-            ry: 30,
-            rx: 70
+            ry: 30
         };
     }
 
