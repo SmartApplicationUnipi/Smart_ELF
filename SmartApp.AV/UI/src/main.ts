@@ -16,9 +16,9 @@ if (kbUrl && tts_url) {
 
 	let kbEventReader = new KBEventReader(kbUrl);
 	let readers = [
-		new TestEventReader(2000),
-		// kbEventReader,
-		// new TTSEventReader(tts_url)
+		// new TestEventReader(2000),
+		kbEventReader,
+		new TTSEventReader(tts_url)
 	];
 
 	let ui = new Builder(factory)
