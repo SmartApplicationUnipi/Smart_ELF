@@ -1,8 +1,8 @@
 import { readFile, writeFile } from 'fs';
-import { transformRule } from './compiler';
 import { security } from './config';
 import { Debugger } from './debugger';
-import { checkRules } from './inferenceStub';
+import { checkRules, queryRules } from './inferenceStub';
+import { transformRule } from './compiler';
 import { Logger } from './logger';
 import * as matcher from './matcher';
 
@@ -25,26 +25,26 @@ let uniqueFactId = 0;
 let uniqueRuleId = 0;
 
 readFile('./db/databaseFact', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { databaseFact = new Map(JSON.parse(b)); }
-    });
+    if (err) { console.log('init:', err); } else { databaseFact = new Map(JSON.parse(b)); }
+});
 readFile('./db/databaseRule', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { databaseRule = new Map(JSON.parse(b)); }
-    });
+    if (err) { console.log('init:', err); } else { databaseRule = new Map(JSON.parse(b)); }
+});
 
 readFile('./db/subscriptions', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { subscriptions = new Map(JSON.parse(b)); }
-    });
+    if (err) { console.log('init:', err); } else { subscriptions = new Map(JSON.parse(b)); }
+});
 
 readFile('./db/userTags', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { userTags = new Map(JSON.parse(b)); }
-    });
+    if (err) { console.log('init:', err); } else { userTags = new Map(JSON.parse(b)); }
+});
 
 readFile('./db/uniqueFactId', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { uniqueFactId = parseInt(b, 10); }
-    });
+    if (err) { console.log('init:', err); } else { uniqueFactId = parseInt(b, 10); }
+});
 readFile('./db/uniqueRuleId', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { uniqueRuleId = parseInt(b, 10); }
-    });
+    if (err) { console.log('init:', err); } else { uniqueRuleId = parseInt(b, 10); }
+});
 
 // const repetitionTime = 86400000 / 2;
 const repetitionTime = 60 * 60 * 1000;
@@ -52,7 +52,7 @@ const now = new Date();
 const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0, 0);
 let millsToDump = dumpDate.getTime() - now.getTime();
 if (millsToDump <= 0) {
-     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
+    millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
 }
 
 function writeCallback(filename: string, err: any) {
@@ -61,14 +61,14 @@ function writeCallback(filename: string, err: any) {
 
 function dumpDatabase() {
 
-    writeFile('./db/databaseFact', JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) );
-    writeFile('./db/databaseRule', JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) );
+    writeFile('./db/databaseFact', JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e));
+    writeFile('./db/databaseRule', JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e));
     // tslint:disable-next-line:max-line-length
-    writeFile('./db/subscriptions', JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) );
-    writeFile('./db/userTags', JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) );
+    writeFile('./db/subscriptions', JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e));
+    writeFile('./db/userTags', JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e));
     writeFile('./db/uniqueFactId', uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e));
-    writeFile('./db/uniqueRuleId', uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e));
-    setTimeout(dumpDatabase, repetitionTime );
+    writeFile('./db/uniqueRuleId', uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e));
+    setTimeout(dumpDatabase, repetitionTime);
 }
 
 setTimeout(dumpDatabase, millsToDump);
@@ -85,7 +85,7 @@ export class Response {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class Metadata {
+export class Metadata {
     public idSource: string;
     public tag: string;
     public TTL: number;
@@ -200,24 +200,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
     checkRules(dataobject);
     return new Response(true, currentFactId);
 }
-// TODO: remove this asap
-export function addInferenceFact(idSource: string, tag: string, TTL: number, reliability: number, jsonInfer: object) {
-    // aggiungi controllo documentazione presente tag
-    // if (!(tagDetails .has(tag))) { return new Response(false, tag); }
-    // TODO: NON CI SONO I CONTROLLI SUL TAG!!
 
-    const metadata = new Metadata(idSource, tag, new Date(Date.now()), TTL, reliability);
-    const currentFactId = -uniqueFactId_gen();
-    const dataobject = {
-        _data: jsonInfer,
-        _id: currentFactId,
-        _meta: metadata,
-    };
-    databaseInference.set(dataobject._id, dataobject);
-    checkSubscriptions(dataobject);
-    // checkRules(dataobject);
-    return new Response(true, currentFactId);
-}
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(userTags.has(idSource))) { return new Response(false, {}); }
@@ -247,8 +230,8 @@ export function query(jreq: any) {
     }
 
     let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
-    // TODO: remove this asap
-    m = new Map([...m, ...matcher.findMatches(queryobj, Array.from(databaseInference.values()))]);
+    const m2 = queryRules(jreq);
+    m = new Map([...m, ...m2]);
 
     if (m.size === 0) {
         return new Response(false, {});
@@ -363,7 +346,7 @@ export function removeRule(idSource: string, idRule: number) {
     return new Response(true, idRule);
 }
 
-function checkSubscriptions(obj: object) { // object is the created fact
+export function checkSubscriptions(obj: object) { // object is the created fact
     // this function will check if the new data inserted matches some "notification rule"
     subscriptions.forEach((callbArray, k, m) => {
         const r = matcher.findMatches(k, [obj]);
