@@ -12,7 +12,7 @@ renderer.code = (code, language) =>
 // GET home page
 router.get('/', async (req, res, next) => {
     try {
-        const data = await req.kb.listTags({ includeShortDesc: true });
+        const data = await req.kb.getAllTags({ includeShortDesc: true });
         res.render('index', { data });
     } catch (e) {
         next(e);

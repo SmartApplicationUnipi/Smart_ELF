@@ -42,7 +42,7 @@ module.exports = class KBClient {
         ws.on('message', this._onMessage.bind(this));
 
         // Helpers for known methods
-        for (let k of ['listTags', 'getTagDetails']) {
+        for (let k of ['getAllTags', 'getTagDetails']) {
             this[k] = params => this.invoke(k, params);
         }
     }
