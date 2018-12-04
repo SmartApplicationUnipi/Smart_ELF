@@ -266,30 +266,8 @@ export function removeFact(idSource: string, jreq: object) {
     } else { return new Response(false, 'no matching facts'); }
 }
 
-// export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
-//     // controllo se la regola è valida
-//     // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
-//     //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
-//     // }
-//     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
-//     const dataobject = {
-//         _data: normalizeRule(jsonRule),
-//         // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
-//         _id: uniqueRuleId_gen(),
-//         _meta: metadata,
-//     };
-//
-//     databaseRule.set(dataobject._id, dataobject);
-//     return new Response(true, dataobject._id);
-// }
-
-// export function newAddRule(idSource: string, ruleTag: string, jsonRule: string) {
 export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
-    // controllo se la regola è valida
-    // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
-    //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
-    // }
-
+    if (!(userTags.has(idSource))) { return new Response(false, {}); }
     const jsonObj = transformRule(jsonRule);
 
     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
@@ -314,7 +292,6 @@ function normalizeRule(rule: any): DataRule {
     } else {
         if (Object.keys(rule._head).length > 0) { norm._head._data = rule._head; }
     }
-
     for (const pred of rule._body) {
         const normb: any = {};
         if (pred.hasOwnProperty('_meta')) { normb._meta = pred._meta; delete pred._meta; }
@@ -326,9 +303,7 @@ function normalizeRule(rule: any): DataRule {
         }
         norm._body.push(normb);
     }
-
     return norm;
-
 }
 
 function normalizeObj(sub: any) {
