@@ -131,7 +131,8 @@ async def speech_to_text(queue):
                                                                          "ID": timestamp,
                                                                          "text": res["text"],
                                                                          "language": res["lang"],
-                                                                         "emotion": emotion
+                                                                         "valence": emotion["valence"],
+                                                                         "arousal": emotion["arousal"]
                                                                          })
                 # TODO adjust "text_f_audio", 2, 50, 'false'
 
@@ -143,7 +144,8 @@ async def speech_to_text(queue):
                                                                          "ID": timestamp,
                                                                          "text": "",
                                                                          "language": res["lang"],
-                                                                         "emotion": emotion
+                                                                         "valence": emotion["valence"],
+                                                                         "arousal": emotion["arousal"]
                                                                          })
 
 

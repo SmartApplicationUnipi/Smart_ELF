@@ -27,12 +27,13 @@ def emotion_from_speech(Fs, x, model_name="pyAudioAnalysis/pyAudioAnalysis/data/
     for r in regression_models:
         regression_names.append(r[r.rfind("_")+1::])
 
+    emotion = {"valence": None, "arousal":None}
     # Feature extraction
     x = np.fromstring(x, np.int16)
     if model_type == 'svm' or model_type == "svm_rbf" or model_type == 'randomforest':
         [_, _, _, mt_win, mt_step, st_win, st_step, compute_beat] = aT.load_model(regression_models[0], True)
     else:
-        return None
+        return emotion
 
     [mt_features, s, _] = aF.mtFeatureExtraction(x, Fs, mt_win * Fs, mt_step * Fs, round(Fs * st_win), round(Fs * st_step))
     mt_features = mt_features.mean(axis=1)        # long term averaging of mid-term statistics
@@ -46,16 +47,38 @@ def emotion_from_speech(Fs, x, model_name="pyAudioAnalysis/pyAudioAnalysis/data/
     for ir, r in enumerate(regression_models):
         if not os.path.isfile(r):
             print("fileClassification: input model_name not found!")
-            return None
+            return emotion
         if model_type == 'svm' or model_type == "svm_rbf" or model_type == 'randomforest':
             [model, MEAN, STD, mt_win, mt_step, st_win, st_step, compute_beat] = aT.load_model(r, True)
         curFV = (mt_features - MEAN) / STD                  # normalization
         R.append(aT.regressionWrapper(model, model_type, curFV))
-    return R, regression_names
+
+    if R[0] > 1:
+        emotion["valence"] = 1
+        print("valence > 1")
+        # TODO log
+    elif R[0] < -1:
+        print("valence < -1")
+        # TODO log
+        emotion["valence"] = -1
+    else:
+        emotion["valence"] = R[0]
+
+    if R[1] > 1:
+        emotion["arousal"] = 1
+        print("arousal > 1")
+        # TODO log
+    elif R[1] < -1:
+        print("arousal < -1")
+        # TODO log
+        emotion["arousal"] = -1
+    else:
+        emotion["arousal"] = R[1]
+    return emotion
 
 '''
 type_model = "svm"
 model_name = "pyAudioAnalysis/pyAudioAnalysis/data/svmSpeechEmotion"
-d = pickle.load(open("d.p", "rb"))
+d = pickle.load(open("data_audio/d.p", "rb"))
 print(emotion_from_speech(d["sr"], d["data"], model_name, type_model))
 '''
