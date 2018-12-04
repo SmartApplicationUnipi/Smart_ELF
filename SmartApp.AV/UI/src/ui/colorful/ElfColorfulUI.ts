@@ -10,7 +10,7 @@ import { Point } from '../../utils/Point';
 import { EmotionalUIWidget } from '../widget/UIWidget';
 import { Smiley } from './widget/Smiley';
 import { Face } from './widget/face/Face';
-import { SVGFace } from './widget/SVGFace';
+import { SVGFace } from './widget/svgface/SVGFace';
 
 let _ = require('lodash');
 

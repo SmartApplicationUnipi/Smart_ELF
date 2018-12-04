@@ -89,6 +89,10 @@ export class TestEventReader extends BaseEventReader {
 			.putAny(KEY_EMOTION, new ValenceArousalEmotion(0.6, 0.9)) // Surprise
 			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Surprise...", emotion: new ValenceArousalEmotion(0, 0) } })
 
+		let e7 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(0.0, 0.0)) // Surprise
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Normal...", emotion: new ValenceArousalEmotion(0, 0) } })
+
 		// this.events.push(pos1)
 
 		// this.events.push(e1)
@@ -100,6 +104,7 @@ export class TestEventReader extends BaseEventReader {
 		this.events.push(e4)
 		this.events.push(e5)
 		this.events.push(e6)
+		this.events.push(e7)
 
 		// this.events.push(pos3)
 	}
