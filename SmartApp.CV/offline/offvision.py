@@ -4,7 +4,6 @@ import dlib
 import numpy as np
 from offline.FERModelEnsemble import FERModelEnsemble
 
-from numpy import dot
 from numpy.linalg import norm
 
 try:
@@ -106,7 +105,7 @@ class OffVision:
         confidence = None
         # find closest descriptor
         for i, entry in enumerate(db):
-            distance = dot(first_descriptor, second_descriptor)/(norm(first_descriptor)*norm(second_descriptor)) # cosine distance
+            distance = norm(descriptor - entry[desc_position])
             if distance < min_distance:
                 min_distance = distance
                 match_id = entry[id_position]

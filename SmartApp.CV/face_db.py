@@ -5,7 +5,6 @@ from string import ascii_lowercase as letters
 from copy import deepcopy
 
 from numpy import ndarray
-from numpy import dot
 from numpy.linalg import norm
 
 # from time import sleep
@@ -47,9 +46,9 @@ def _take(item_or_value):
 def _comparator_token(first_token, second_token):
     return first_token == second_token, 1
 
-def _comparator_descriptor(first_descriptor, second_descriptor, threshold = 0.8):
-    var = dot(first_descriptor, second_descriptor)/(norm(first_descriptor)*norm(second_descriptor))
-    return True if var > 0.6 else False, var
+def _comparator_descriptor(first_descriptor, second_descriptor, threshold = 0.6):
+    distance = norm(first_descriptor - second_descriptor)
+    return (distance < threshold), max(1 - distance/threshold, 0)
 
 class face_db():
     """
