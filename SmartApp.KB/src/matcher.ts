@@ -26,7 +26,7 @@ import { executeSpecialPredicate } from './dispatcher';
  \( `   <.,../`     `-.._   _,-`
  */
 
-const D: Debugger = new Debugger(4);
+const D: Debugger = new Debugger();
 
 export type Matches = Map<object, object[]>;
 
@@ -121,18 +121,14 @@ class Matcher {
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
         const result = [];
-        console.log('Current Ruleset:', ruleSet);
-
         for (const key of ruleSet.keys()) {
             const rule = ruleSet.get(key)['_head'];
             const sortedRule = this.sort(rule);
             if (this.compareRule(q, this.outerSorted, rule, sortedRule)) {
-                console.log('good match');
                 result.push(ruleSet.get(key));
             }
 
         }
-        console.log(result);
         return result;
     }
 
@@ -561,9 +557,15 @@ class Matcher {
         for (const queryKey of sortedQuery.get(this.ID_AA)) {
             D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'key => ' + queryKey, 4);
             D.clog(Colors.BLUE, 'KEY', this.ID_AA, '', 'value => ' + query[queryKey], 4);
-            if (rule.hasOwnProperty(queryKey) && query[queryKey] === rule[queryKey]) {
-                D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has the same pair key value', 3);
-                continue;
+            if (rule.hasOwnProperty(queryKey)) {
+                if (query[queryKey] === rule[queryKey]) {
+                    D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has the same pair key value', 3);
+                    continue;
+                }
+                if (isPlaceholder(rule[queryKey])) {
+                    D.clog(Colors.GREEN, 'OK', this.ID_AA, '', 'Rule has the same key associated to a placeholder', 3);
+                    continue;
+                }
             }
             for (const ruleKey of sortedRule.get(this.ID_PA)) {
                 if (rule[ruleKey] === query[queryKey]) {

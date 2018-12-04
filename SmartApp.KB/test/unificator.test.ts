@@ -7,6 +7,7 @@ describe('single key', () => {
     let query;
     let data;
     let res;
+    let expected: object[];
 
     it('should match ground query and ground data', () => {
 
@@ -14,8 +15,8 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { a: 'a' } });
         res = findCompatibleRules(query, data);
-        console.log(res);
-        return res.length === 1;
+        expected = [{ _head: { a: 'a' } }];
+        expect(res).to.deep.equal(expected);
     });
 
     it('should fail if query keys are not in data', () => {
@@ -23,8 +24,8 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { b: 'b' } });
         res = findCompatibleRules(query, data);
-        console.log(res);
-        return res.length === 0;
+        expected = [];
+        expect(res).to.deep.equal(expected);
     });
 
     it('should match variable in query with ground data', () => {
@@ -32,8 +33,8 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { a: 'a' } });
         res = findCompatibleRules(query, data);
-        console.log(res);
-        return res.length > 0;
+        expected = [{ _head: { a: 'a' } }];
+        expect(res).to.deep.equal(expected);
 
     });
 
@@ -42,8 +43,8 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { k: '$x' } });
         res = findCompatibleRules(query, data);
-        console.log(res);
-        return res.length > 0;
+        expected = [{ _head: { k: '$x' } }];
+        expect(res).to.deep.equal(expected);
     });
 
     it('should match variable query in variable data', () => {
@@ -51,43 +52,52 @@ describe('single key', () => {
         data = new Map<number, object>();
         data.set(0, { _head: { k: '$x' } });
         res = findCompatibleRules(query, data);
-        console.log(res);
-        return res.length > 0;
+        expected = [{ _head: { k: '$x' } }];
+        expect(res).to.deep.equal(expected);
     });
 
 });
 
-// describe('two keys', () => {
-//     let query;
-//     let data;
-//     let res;
-//     it('should fail if query has more keys than data', () => {
-//         query = { k: '$x', kk: '$y' };
-//         data = { k: '$x' };
-//         res = unify(query, data, {});
-//         return !res.s;
+describe('two keys', () => {
+    let query;
+    let data;
+    let res;
+    let expected: object[];
 
-//     });
+    it('should fail if query has more keys than data', () => {
+        query = { k: '$x', kk: '$y' };
+        data = new Map<number, object>();
+        data.set(0, { _head: { k: '$x' } });
+        res = findCompatibleRules(query, data);
+        expected = [];
+        expect(res).to.deep.equal(expected);
+    });
 
-//     it('should match if query has less keys than data', () => {
-//         query = { k: '$x' };
-//         data = { k: '$x', kk: '$y' };
-//         res = unify(query, data, {});
-//         return res.s;
-//     });
+    it('should match if query has less keys than data', () => {
+        query = { k: '$x' };
+        data = new Map<number, object>();
+        data.set(0, { _head: { k: '$x', kk: '$y' } });
+        res = findCompatibleRules(query, data);
+        expected = [{ _head: { k: '$x', kk: '$y' } }];
+        expect(res).to.deep.equal(expected);
+    });
 
-//     it('should match and bind mixed query to ground data', () => {
-//         query = { a: 1, b: '$b' };
-//         data = { a: 1, b: 2 };
-//         res = unify(query, data, {});
-//         return res.s;
-//     });
+    it('should match and bind mixed query to ground data', () => {
+        query = { a: 1, b: '$b' };
+        data = new Map<number, object>();
+        data.set(0, { _head: { a: 1, b: 2 } });
+        res = findCompatibleRules(query, data);
+        expected = [{ _head: { a: 1, b: 2 } }];
+        expect(res).to.deep.equal(expected);
+    });
 
-//     it('should match and bind mixed query to variable data', () => {
-//         query = { a: 1, b: '$b' };
-//         data = { a: '$a', b: '$b' };
-//         res = unify(query, data, {});
-//         return res.s && res.binds.$a === 1;
-//     });
+    it('should match and bind mixed query to variable data', () => {
+        query = { a: 1, b: '$b' };
+        data = new Map<number, object>();
+        data.set(0, { _head: { a: '$a', b: '$b' } });
+        res = findCompatibleRules(query, data);
+        expected = [{ _head: { a: '$a', b: '$b' } }];
+        expect(res).to.deep.equal(expected);
+    });
 
-// });
+});
