@@ -24,27 +24,34 @@ let baseIdSource = 0;
 let uniqueFactId = 0;
 let uniqueRuleId = 0;
 
-readFile('./db/databaseFact', 'utf8', (err, b) => {
-    if (err) { console.log('init:', err); } else { databaseFact = new Map(JSON.parse(b)); }
-});
-readFile('./db/databaseRule', 'utf8', (err, b) => {
-    if (err) { console.log('init:', err); } else { databaseRule = new Map(JSON.parse(b)); }
-});
+const DATABASEFACTPATH = './db/databaseFact';
+const DATABASERULEPATH = './db/databaseRule';
+const SUBSCRIPTIONSPATH = './db/subscriptions';
+const USERTAGSPATH = './db/userTags';
+const UNIQUEFACTIDPATH = './db/uniqueFactId';
+const UNIQUERULEIDPATH = './db/uniqueRuleId';
+
+readFile(DATABASEFACTPATH, 'utf8', (err, b) => {
+        if (err) { log.info('KB', 'file load error', err); } else { databaseFact = new Map(JSON.parse(b)); }
+    });
+readFile(DATABASERULEPATH, 'utf8', (err, b) => {
+        if (err) { log.info('KB', 'file load error', err); } else { databaseRule = new Map(JSON.parse(b)); }
+    });
 
 readFile('./db/subscriptions', 'utf8', (err, b) => {
-    if (err) { console.log('init:', err); } else { subscriptions = new Map(JSON.parse(b)); }
-});
+        if (err) { log.info('KB', 'file load error', err); } else { subscriptions = new Map(JSON.parse(b)); }
+    });
 
-readFile('./db/userTags', 'utf8', (err, b) => {
-    if (err) { console.log('init:', err); } else { userTags = new Map(JSON.parse(b)); }
-});
+readFile(USERTAGSPATH, 'utf8', (err, b) => {
+        if (err) { log.info('KB', 'file load error', err); } else { userTags = new Map(JSON.parse(b)); }
+    });
 
-readFile('./db/uniqueFactId', 'utf8', (err, b) => {
-    if (err) { console.log('init:', err); } else { uniqueFactId = parseInt(b, 10); }
-});
-readFile('./db/uniqueRuleId', 'utf8', (err, b) => {
-    if (err) { console.log('init:', err); } else { uniqueRuleId = parseInt(b, 10); }
-});
+readFile(UNIQUEFACTIDPATH, 'utf8', (err, b) => {
+        if (err) { log.info('KB', 'file load error', err); } else { uniqueFactId = parseInt(b, 10); }
+    });
+readFile(UNIQUERULEIDPATH, 'utf8', (err, b) => {
+        if (err) { log.info('KB', 'file load error', err); } else { uniqueRuleId = parseInt(b, 10); }
+    });
 
 // const repetitionTime = 86400000 / 2;
 const repetitionTime = 60 * 60 * 1000;
@@ -61,14 +68,14 @@ function writeCallback(filename: string, err: any) {
 
 function dumpDatabase() {
 
-    writeFile('./db/databaseFact', JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e));
-    writeFile('./db/databaseRule', JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e));
+    writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) );
+    writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) );
     // tslint:disable-next-line:max-line-length
-    writeFile('./db/subscriptions', JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e));
-    writeFile('./db/userTags', JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e));
-    writeFile('./db/uniqueFactId', uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e));
-    writeFile('./db/uniqueRuleId', uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e));
-    setTimeout(dumpDatabase, repetitionTime);
+    writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) );
+    writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) );
+    writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e));
+    writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e));
+    setTimeout(dumpDatabase, repetitionTime );
 }
 
 setTimeout(dumpDatabase, millsToDump);
