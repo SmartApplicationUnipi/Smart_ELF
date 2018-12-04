@@ -94,6 +94,8 @@ class Controller():
             self.has_api_problem = True
             print(type(e).__name__, e)
             print("\n It seems that there is a problem with the online module: I'm swithing to offline module...")
+        # option to retry initialization if it has failed (eg, no internet connection during init)
+        self.retry_init_online_module = False
 
         # Initialization of Offline Module
         try:
@@ -111,9 +113,15 @@ class Controller():
         self.attempt = 0
         self.exponent = 1
         self.max_exponent = 8
-        # never attempt online module if it isn't available
+        # decide what to do with online module initialization failure
         if self.has_api_problem:
-            self.attempt = float('inf')
+            if self.retry_init_online_module:
+                # retry init over longest interval
+                self.exponent = self.max_exponent
+                self.attempt = 2 ** self.exponent
+            else:
+                # always go offline
+                self.attempt = float('inf')
 
     def _take_frame(frame_obj):
         """
@@ -204,6 +212,10 @@ class Controller():
         try:
             print("\t\tVerifico quale modulo utilizzare")
             if self.attempt < 1: # attempt an online analysis
+                if self.has_api_problem and self.retry_init_online_module:
+                    print("\t\tReinizializzo Online")
+                    self.online_module = online()
+                    self.has_api_problem = False
                 print("\t\tUtilizzo Online")
                 fact, tuple = self.online_module.analyze_face(img)
                 self.exponent = 1 # all fine, reset backoff
