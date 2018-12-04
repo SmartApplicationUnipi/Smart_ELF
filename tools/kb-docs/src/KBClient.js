@@ -3,7 +3,9 @@ const debug = require('debug')('kb-docs:kbclient');
 const config = require('../config.json');
 
 class Deferred {
-    constructor(timeout = 5000) {
+    constructor(id, timeout = 5000) {
+
+        this.id = id;
 
         // Register the timeout handler
         const t = setTimeout(() => {
@@ -33,10 +35,16 @@ module.exports = class KBClient {
         }
         this._ws = ws;
         this._token = token;
-        this._pendingRequests = [];
+        this._lastRequestId = 0;
+        this._pendingRequests = {};
 
         ws.on('error close', this._onError.bind(this));
         ws.on('message', this._onMessage.bind(this));
+
+        // Helpers for known methods
+        for (let k of ['listTags', 'getTagDetails']) {
+            this[k] = params => this.invoke(k, params);
+        }
     }
 
     /**
@@ -72,18 +80,19 @@ module.exports = class KBClient {
      */
     invoke(method, params) {
         
-        const d = new Deferred();
-        this._pendingRequests.push(d);
+        const d = new Deferred(this._lastRequestId++);
+        this._pendingRequests[d.id] = d;
 
         // Sends the request
         this._ws.send(JSON.stringify({
+            reqId: d.id,
             method,
             params,
             token: this._token
         }), e => {
             if (e) {
                 d.reject(e);
-                this._pendingRequests.pop();
+                delete this._pendingRequests[d.id];
             } else {
                 debug('Request sent. Method: %s, params: %o.', method, params);
             }
@@ -93,14 +102,19 @@ module.exports = class KBClient {
     }
 
     _onMessage(message) {
-        const d = this._pendingRequests.pop();
-
+        
         // Parse the message from the server
         let m;
         try {
             m = JSON.parse(message);
         } catch (e) {
             d.reject(e);
+            return;
+        }
+
+        const d = this._pendingRequests[m.reqId];
+        if (!d) {
+            debug('Got spurious response from server. Ignored.');
             return;
         }
 
@@ -111,14 +125,20 @@ module.exports = class KBClient {
         } else {
             d.reject(new Error('KB error: ' + m.details));
         }
+        delete this._pendingRequests[d.id];
+        
     }
 
     _onError(e) {
         debug('Connection terminated: %o', e);
 
         e = e || new Error('Underlying connection terminated.');
-        this._pendingRequests.forEach(req => req.reject(e));
-        this._pendingRequests = [];
+        for (var k in this._pendingRequests) {
+            if (Object.prototype.hasOwnProperty.call(this._pendingRequests, k)) {
+                this._pendingRequests[k].reject(e);
+            }
+        }
+        this._pendingRequests = {};
     }
 
 };
