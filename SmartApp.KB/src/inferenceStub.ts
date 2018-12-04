@@ -2,7 +2,6 @@ import { isObject } from 'util';
 import { Colors, Debugger } from './debugger';
 import { checkSubscriptions, databaseFact, databaseRule, DataObject, DataRule, Metadata } from './kb';
 import { findMatches, findMatches2, isPlaceholder, findCompatibleRules } from './matcher';
-import { unify } from './unificator';
 
 const INFERENCE_TAG = 'INFERENCE'; // TODO: change this. the user will specify the tag in the rule head!
 const debug = new Debugger(11);
