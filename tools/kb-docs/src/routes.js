@@ -1,5 +1,13 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const marked = require('marked');
+const hljs = require('highlight.js');
+const router = express.Router();
+
+// Monkey patch the default markdown renderer to allow code highlighting
+const renderer = new marked.Renderer();
+renderer.code = (code, language) =>
+    `<pre><code class="hljs ${language}">${hljs.highlightAuto(code, language ? [language] : null).value}</code></pre>`;
+
 
 // GET home page
 router.get('/', async (req, res, next) => {
@@ -22,7 +30,11 @@ router.get('/:source/:tag', async (req, res, next) => {
             idSource: source,
             tagName: tag,
             shortDesc: data[tag].desc,
-            longDesc: data[tag].doc
+            longDesc: marked(data[tag].doc, {
+                gfm: true,
+                tables: true,
+                renderer
+            })
         });
     } catch (e) {
         next(e);
