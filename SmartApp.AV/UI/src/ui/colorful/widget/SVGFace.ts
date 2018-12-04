@@ -8,7 +8,7 @@ import { LinearCombiner, Combiner, WeightedMeanCombiner } from '../../../utils/C
 
 let anime = require("animejs");
 
-export class SVGFace extends Face {
+export class SVGFace extends Face implements IAnimated {
 
     private leftEyebrow: SVGFaceComponent;
     private rightEyebrow: SVGFaceComponent;
@@ -23,8 +23,8 @@ export class SVGFace extends Face {
     constructor(document: Document) {
         super(null);
 
-        this.leftEyebrow = new Eyebrow("leftEyebrow", 108.125, 70.435)
-        this.rightEyebrow = new Eyebrow("rightEyebrow", 282.125, 70.435)
+        this.leftEyebrow = new Eyebrow("leftEyebrow", 108.125, 70.435);
+        this.rightEyebrow = new Eyebrow("rightEyebrow", 282.125, 70.435);
         this.leftEye = new Eye("leftEye", 157.651, 175.289);
         this.rightEye = new Eye("rightEye", 332.349, 175.289);
         this.mouth = new Mouth("mouth", 153.125, 317.435);
@@ -34,6 +34,18 @@ export class SVGFace extends Face {
         let e = document.createElement("div");
         e.innerHTML = this.render();
         this.setElement(e.firstElementChild as HTMLElement);
+
+        setTimeout(() => {
+            let updates = {
+                targets: '#svgface',
+                translateY: 10,
+                direction: 'alternate',
+                easing: 'easeOutSine',
+                loop: true
+            };
+
+            anime(updates);
+        }, 0);
     }
 
     public lookAt(p: Point): void {
@@ -48,8 +60,17 @@ export class SVGFace extends Face {
         this.components.forEach(c => c.onEmotionChanged(e));
     }
 
+    public update(updates: object): void {
+        Logger.getInstance().log(Logger.LEVEL.INFO, this);
+
+        updates['targets'] = '.svgface';
+        updates['easing'] = 'easeInOutQuart';
+
+        anime(updates);
+    }
+
     public render(): string {
-        return '<div class="svgface">\
+        return '<div id="svgface" class="svgface">\
             <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\
                     viewBox="0 0 490 490" style="enable-background:new 0 0 490 490;" xml:space="preserve">\
             <g>\
@@ -81,15 +102,28 @@ export class SVGFace extends Face {
  */
 
 interface IAnimated {
-    update(): void;
+    update(updates: object): void;
 }
 
 abstract class SVGFaceComponent {
+
+    protected properties = [];
 
     constructor(private id: string) { }
 
     public getId(): string {
         return this.id;
+    }
+
+    protected computePropertiesUpdates(e: ISBEEmotion): object {
+        return this.properties
+            .map(f => f(e))
+            .reduce((res, current) => {
+                Object.keys(current).forEach(key => {
+                    res[key] = current[key]; // TODO: This does not merge properties! It's ok?
+                });
+                return res;
+            });
     }
 
     abstract setX(x: number): void;
@@ -102,6 +136,7 @@ abstract class SVGFaceComponent {
 abstract class PropertyAdapter {
     public getPropertyValues(emotion: ISBEEmotion): object {
         let values: Array<{ alpha: number, value: object }> = [
+            { alpha: emotion.getSadness(), value: this.sadness(emotion.getSadness()) },
             { alpha: emotion.getDisgust(), value: this.disgust(emotion.getDisgust()) },
             { alpha: emotion.getAnger(), value: this.anger(emotion.getAnger()) },
             { alpha: emotion.getSurprise(), value: this.surprise(emotion.getSurprise()) },
@@ -110,14 +145,6 @@ abstract class PropertyAdapter {
         ];
 
         let combiners = values.reduce((dict, val) => {
-            // Object.keys(val.value).map(property => {
-            //     if(!dict[property]) {
-            //         dict[property] = new LinearCombiner(); // TODO: Let the concrete class choose the Combiner
-            //     }
-
-            //     dict[property].set({alpha: val.alpha, term: val.value[property]});
-            // });
-
             Object.keys(val.value).map(property => {
                 if (!dict[property]) {
                     dict[property] = new WeightedMeanCombiner(); // TODO: Let the concrete class choose the Combiner
@@ -136,6 +163,7 @@ abstract class PropertyAdapter {
         return combiners;
     }
 
+    abstract sadness(sadness: number): object;
     abstract disgust(disgust: number): object;
     abstract anger(anger: number): object;
     abstract surprise(surprise: number): object;
@@ -144,6 +172,10 @@ abstract class PropertyAdapter {
 }
 
 class EyeOpenessPropertyAdapter extends PropertyAdapter {
+
+    sadness(sadness: number): object {
+        return { ry: 10 }
+    }
 
     disgust(disgust: number): object {
         return {
@@ -179,25 +211,29 @@ class EyeOpenessPropertyAdapter extends PropertyAdapter {
 const DEFAULT_EYE_RADIUS = 42.64;
 
 class Eye extends SVGFaceComponent implements IAnimated {
-    private properties = [
-        (e: ISBEEmotion) => (new EyeOpenessPropertyAdapter()).getPropertyValues(e) // Eyes opennes
-    ]
-
     private lastEmotion: ISBEEmotion;
 
     constructor(id: string, private x: number = 0, private y: number = 0,
         private eyeRadiusX: number = DEFAULT_EYE_RADIUS, private eyeRadiusY: number = DEFAULT_EYE_RADIUS) {
         super(id);
+
+        this.properties = [
+            (e: ISBEEmotion) => (new EyeOpenessPropertyAdapter()).getPropertyValues(e) // Eyes opennes
+        ]
     }
 
     public setX(x: number) {
         this.x = x;
-        this.update();
+        this.update({
+            cx: x
+        });
     }
 
     public setY(y: number) {
         this.y = y;
-        this.update();
+        this.update({
+            cy: y
+        });
     }
 
     public render(): string {
@@ -209,40 +245,21 @@ class Eye extends SVGFaceComponent implements IAnimated {
     }
 
     public onEmotionChanged(e: ISBEEmotion): void {
-        // this.eyeRadiusY = this.properties.OPENNESS(e) * DEFAULT_EYE_RADIUS;
-
-        let updates = this.properties
-            .map(f => f(e))
-            .reduce((res, current) => {
-                Object.keys(current).forEach(key => {
-                    res[key] = current[key];
-                });
-                return res;
-            });
-
-        updates['targets'] = '#' + this.getId();
-        updates['easing'] = 'easeInOutQuart';
-
+        let updates = this.computePropertiesUpdates(e);
         console.log(updates);
 
-        this.update();
-
-        anime(updates);
+        this.update(updates);
 
         this.lastEmotion = e;
     }
 
-    public update(): void {
-        Logger.getInstance().log(Logger.LEVEL.INFO, this.toString());
+    public update(updates: object): void {
+        Logger.getInstance().log(Logger.LEVEL.INFO, this);
 
-        // anime({
-        //     targets: '#' + this.getId(),
-        //     cx: this.x,
-        //     cy: this.y,
-        //     rx: this.eyeRadiusX,
-        //     ry: this.eyeRadiusY,
-        //     easing: 'easeInOutQuart'
-        // });
+        updates['targets'] = '#' + this.getId();
+        updates['easing'] = 'easeInOutQuart';
+
+        anime(updates);
     }
 
     public toString(): string {
@@ -250,10 +267,61 @@ class Eye extends SVGFaceComponent implements IAnimated {
     }
 }
 
+class EyebrowRotationPropertyAdapter extends PropertyAdapter {
+
+    sadness(sadness: number): object {
+        return {
+            firstControlPointX: 10,
+            firstControlPointY: 10,
+            secondControlPointX: 10,
+            secondControlPointY: 10
+        };
+    }
+
+    disgust(disgust: number): object {
+        return {
+
+        };
+    }
+
+    anger(anger: number): object {
+        return {
+        };
+    }
+
+    surprise(surprise: number): object {
+        return {
+            firstControlPointX: 10,
+            firstControlPointY: -10,
+            secondControlPointX: 10,
+            secondControlPointY: -10
+        };
+    }
+
+    fear(fear: number): object {
+        return {};
+    }
+
+    happiness(happiness: number): object {
+        return {
+            firstControlPointX: 10,
+            firstControlPointY: -10,
+            secondControlPointX: 10,
+            secondControlPointY: -10
+        };
+    }
+}
+
+
 class Eyebrow extends SVGFaceComponent implements IAnimated {
 
-    constructor(id: string, private x: number = 0, private y: number = 0, private width: number = 100.75, private height: number = 30.625) {
+    constructor(id: string, private x: number = 0, private y: number = 0, private width: number = 100.75, private height: number = 30.625,
+        public firstControlPoint: Point = new Point(0, 0), public secondControlPoint: Point = new Point(0, 0)) {
         super(id);
+
+        this.properties = [
+            (e: ISBEEmotion) => (new EyebrowRotationPropertyAdapter()).getPropertyValues(e) // Eyes opennes
+        ];
     }
 
     public setX(x: number) {
@@ -265,28 +333,112 @@ class Eyebrow extends SVGFaceComponent implements IAnimated {
     }
 
     public render(): string {
-        return '<rect id="' + this.getId() + '" class="eyebrow" x="' + this.x + '" y="' + this.y + '" width="' + this.width + '" height="' + this.height + '"/>';
+        return '<path id="' + this.getId() + '" d="' + this.buildSvgPath() + '" stroke="black" stroke-width="' + this.height + '" fill="transparent"/>';
     }
-    public lookAt(p: Point): void {
-        return null;
-    }
+    public lookAt(p: Point): void { }
+
     public onEmotionChanged(e: ISBEEmotion): void {
-        return null;
+        let updates = this.computePropertiesUpdates(e);
+        console.log(updates);
+
+        // TODO: we need to handle better the bezier courve points...
+        let fpc = {
+            x: this.firstControlPoint.getX(),
+            y: this.firstControlPoint.getY()
+        }, spc = {
+            x: this.secondControlPoint.getX(),
+            y: this.secondControlPoint.getY()
+        };
+
+        if (updates["firstControlPointX"]) {
+            fpc.x = updates["firstControlPointX"];
+        }
+        if (updates["firstControlPointY"]) {
+            fpc.y = updates["firstControlPointY"];
+        }
+        if (updates["secondControlPointX"]) {
+            spc.x = updates["secondControlPointX"];
+        }
+        if (updates["secondControlPointY"]) {
+            spc.y = updates["secondControlPointY"];
+        }
+
+        this.firstControlPoint = new Point(fpc.x, fpc.y);
+        this.secondControlPoint = new Point(spc.x, spc.y);
+
+        updates['d'] = this.buildSvgPath();
+
+        this.update(updates);
     }
 
-    public update(): void {
-        anime({
-            targets: "#" + this.getId(),
-            x: this.x,
-            y: this.y
-        });
+    public update(updates: object): void {
+        Logger.getInstance().log(Logger.LEVEL.INFO, this);
+
+        updates['targets'] = '#' + this.getId();
+        updates['easing'] = 'easeInOutQuart';
+
+        anime(updates);
+    }
+
+    private buildSvgPath(): string {
+        return 'M' + this.x + ' ' + this.y + ' C ' + (this.x + this.firstControlPoint.getX()) + ' ' + (this.y + this.firstControlPoint.getY()) + ', ' + (this.x + this.width - this.secondControlPoint.getX()) + ' ' + (this.y + this.secondControlPoint.getY()) + ', ' + (this.x + this.width) + ' ' + this.y
+    }
+}
+
+class MouthRotationPropertyAdapter extends PropertyAdapter {
+
+    sadness(sadness: number): object {
+        return {
+            firstControlPointX: 10,
+            firstControlPointY: -50,
+            secondControlPointX: 10,
+            secondControlPointY: -50
+        };
+    }
+
+    disgust(disgust: number): object {
+        return {
+
+        };
+    }
+
+    anger(anger: number): object {
+        return {
+        };
+    }
+
+    surprise(surprise: number): object {
+        return {
+            firstControlPointX: 10,
+            firstControlPointY: 20,
+            secondControlPointX: 10,
+            secondControlPointY: 20
+        };
+    }
+
+    fear(fear: number): object {
+        return {};
+    }
+
+    happiness(happiness: number): object {
+        return {
+            firstControlPointX: 10,
+            firstControlPointY: 50,
+            secondControlPointX: 10,
+            secondControlPointY: 50
+        };
     }
 }
 
 class Mouth extends SVGFaceComponent implements IAnimated {
 
-    constructor(id: string, private x: number = 0, private y: number = 0, private width: number = 184.0, private height: number = 30.62) {
+    constructor(id: string, private x: number = 0, private y: number = 0, private width: number = 184.0, private height: number = 30.62,
+        public firstControlPoint: Point = new Point(0, 0), public secondControlPoint: Point = new Point(0, 0)) {
         super(id);
+
+        this.properties = [
+            (e: ISBEEmotion) => (new MouthRotationPropertyAdapter()).getPropertyValues(e) // Eyes opennes
+        ];
     }
 
     public setX(x: number) {
@@ -298,20 +450,54 @@ class Mouth extends SVGFaceComponent implements IAnimated {
     }
 
     public render(): string {
-        return '<rect id="' + this.getId() + '" class="mouth" x="' + this.x + '" y="' + this.y + '" width="' + this.width + '" height="' + this.height + '"/>';
+        return '<path id="' + this.getId() + '" d="' + this.buildSvgPath() + '" stroke="black" stroke-width="' + this.height + '" fill="transparent"/>';
     }
-    public lookAt(p: Point): void {
-        return null;
-    }
+    public lookAt(p: Point): void { }
+
     public onEmotionChanged(e: ISBEEmotion): void {
-        return null;
+        let updates = this.computePropertiesUpdates(e);
+        console.log(updates);
+
+        // TODO: we need to handle better the bezier courve points...
+        let fpc = {
+            x: this.firstControlPoint.getX(),
+            y: this.firstControlPoint.getY()
+        }, spc = {
+            x: this.secondControlPoint.getX(),
+            y: this.secondControlPoint.getY()
+        };
+
+        if (updates["firstControlPointX"]) {
+            fpc.x = updates["firstControlPointX"];
+        }
+        if (updates["firstControlPointY"]) {
+            fpc.y = updates["firstControlPointY"];
+        }
+        if (updates["secondControlPointX"]) {
+            spc.x = updates["secondControlPointX"];
+        }
+        if (updates["secondControlPointY"]) {
+            spc.y = updates["secondControlPointY"];
+        }
+
+        this.firstControlPoint = new Point(fpc.x, fpc.y);
+        this.secondControlPoint = new Point(spc.x, spc.y);
+
+        updates['d'] = this.buildSvgPath();
+
+        this.update(updates);
     }
 
-    public update(): void {
-        anime({
-            targets: "#" + this.getId(),
-            x: this.x,
-            y: this.y
-        });
+    public update(updates: object): void {
+        Logger.getInstance().log(Logger.LEVEL.INFO, this);
+
+        updates['targets'] = '#' + this.getId();
+        updates['easing'] = 'easeInOutQuart';
+
+        anime(updates);
+    }
+
+    private buildSvgPath(): string {
+        return 'M' + this.x + ' ' + this.y + ' C ' + (this.x + this.firstControlPoint.getX()) + ' ' + (this.y + this.firstControlPoint.getY()) + ', ' + (this.x + this.width - this.secondControlPoint.getX()) + ' ' + (this.y + this.secondControlPoint.getY()) + ', ' + (this.x + this.width) + ' ' + this.y
     }
 }
