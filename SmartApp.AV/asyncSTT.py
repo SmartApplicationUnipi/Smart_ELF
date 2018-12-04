@@ -14,15 +14,14 @@ from Bindings import HALInterface
 from os import path
 import time
 import io
-from kb import KnowledgeBaseClient
-#import sentimental_analizer
+import sentimental_analizer
 
 
 
 #TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
 
 
-def recognize(model, audio, recognizer, language="en-US"):
+def recognize(model, audio, recognizer, language="it_IT"): #en_US"):
         """
         This function implements the trancription from speech to text
         :param model: name of the API to use (google / sphinx)
@@ -69,8 +68,9 @@ async def speech_to_text(queue):
     :param queue: process shared queue
     """
 
-    kb_client = KnowledgeBaseClient(False)
-    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',                                                     'doc': 'text from audio '}})
+    kb_client = kb.KnowledgeBaseClient(False)
+    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',
+                                                     'doc': 'text from audio '}})
 
     # Create new recogniers for all the services used
     r = sr.Recognizer()
@@ -90,15 +90,9 @@ async def speech_to_text(queue):
 
             # Data stored in the queue contain all the information needed to create AudioData object
             timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
+
             audio = sr.AudioData(data, sampleRate, bitPerSample/8)
-
-            #with open(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav"), 'rb') as audio_file:
-            #    content = audio_file.read()
             audio_gc = types.RecognitionAudio(content=data)
-
-            #with sr.AudioFile(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav")) as source:
-            #   audio = r.record(source)
-            #   timestamp = time.time()
 
             # Compute the transcription of the audio
             google_cloud = executor.submit(recognize, "google-cloud", audio_gc, google_client)
@@ -106,7 +100,7 @@ async def speech_to_text(queue):
             sphinx = executor.submit(recognize, "sphinx", audio, r)
 
             # Compute the emotion related to the audio
-            #emotion = executor.submit(sentimental_analizer.my_regressionFileWrapper, audio)
+            emotion = executor.submit(sentimental_analizer.emotion_from_speech, sampleRate, audio)
 
             res = google_cloud.result()
             if res["error"] is None:
@@ -124,7 +118,7 @@ async def speech_to_text(queue):
                         # Add to KB Sphinx result with timestamp and ID
                         print("Insert into KB --> Sphinx result")
 
-            emotion = None #emotion.result()
+            emotion = emotion.result()
 
             myID = 'stt'
             if res["error"] is None:
@@ -139,13 +133,7 @@ async def speech_to_text(queue):
                                                                          "language": res["lang"],
                                                                          "emotion": emotion
                                                                          })
-
-                #print(kb.addFact(myID, "text_f_audio", 2, 50, 'false', {"TAG": "text_f_audio",
-                #                                                        "ID": timestamp,
-                #                                                        "timestamp": timestamp,
-                #                                                        "text": res["text"],
-                #                                                        "language": res["lang"],
-                #                                                        "emotion": emotion}))  # TODO adjust "text_f_audio", 2, 50, 'false'
+                # TODO adjust "text_f_audio", 2, 50, 'false'
 
             else:
                 # Add to KB that none of google and sphinx retrieved a result
@@ -175,7 +163,7 @@ async def myHandler(queue):
 
 
 if __name__ == '__main__':
-    HALAddress = "10.101.53.14"  # default
+    HALAddress = "10.101.60.139"  # default
     HALAudioPort = 2001  # default
 
     loop = asyncio.get_event_loop()
