@@ -9,7 +9,6 @@ except ImportError:
 
 from online import FacePlusPlus as online
 from controller import Controller
-# from offline import offline_interface as offline
 import external_modules.kb_client as kb
 
 #FIFO queue
