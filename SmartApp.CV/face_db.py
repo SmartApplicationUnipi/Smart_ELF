@@ -308,6 +308,7 @@ class face_db():
             key = key if not (_random_key(), None, None) in self else None
 
         if not (key, *value) in self:
+            print(str([key, *value]))
             self.database.append([key, *value])
             return key
         else:

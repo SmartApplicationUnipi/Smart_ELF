@@ -66,10 +66,9 @@ class Controller():
         """
         # Ops for KB
         self._kb = kb(True)
-        self._kb_ID = (self.kb.register())['details']
+        self._kb_ID = (self._kb.register())['details']
         #mi registrerò
-        self._kb.registerTags(DOCS)
-
+        self._kb.registerTags(self._kb_ID, DOCS)
         # Ops for stream in input
         self.is_host = not (host == "webcam")
         self._hal = None
@@ -118,12 +117,12 @@ class Controller():
             print("\n It seems that there is a problem in the initialization!")
 
         #initializzation acitve module
-        if self.online_module:
-            self.active_module = self.online_module
-        elif self.offline_module:
+        if self.has_api_problem:
             self.active_module = self.offline_module
+        elif self.online_module :
+            self.active_module = self.online_module
         else:
-            raise Exception("No module avaulable...")
+            raise Exception("No module available...")
 
         # Ops for worker that compute all the analyzes
         self.t = Thread(target=Controller._worker, args=[self, Controller.q])
@@ -158,7 +157,6 @@ class Controller():
             # res = [ [ tuple1, confidence1 ] ... [tuple_n, confidence_n] ]
             if len(res) > 0: #something matches
                 vals = [res[0][0], res[0][1], True]
-
             elif self.has_api_problem: #offline module case
                 vals = [self.db.insert(tuple), 0, False]
 
@@ -168,7 +166,7 @@ class Controller():
                 if len(res) > 0: #something matches
                     #return ID and update record with the token
                     vals = [res[0][0], res[0][1], True]
-                    self.db[fact['personID']] = (descriptor, None)
+                    n, va = self.db.modify((None, None, fact['personID']), (None, descriptor, None))
                 else:
                     #no match add it to db
                     vals = [self.db.insert((descriptor, None)), 0, False]
@@ -272,7 +270,8 @@ class Controller():
     def close(self):
         print("Chiusura controller")
 
-        self.flag.set()
+        if hasattr(self, "flag"):
+            self.flag.set()
         if self._hal is not None:
             self._hal.unregister(self._videoID)
             self._hal.quit()
@@ -282,9 +281,6 @@ class Controller():
             self.t.join()
         if self.timer:
             self.timer.cancel()
-
-    def __del__():
-        self.close()
 
 if __name__ == '__main__':
     controller = Controller(host = "webcam")
