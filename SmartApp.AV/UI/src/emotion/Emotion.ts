@@ -124,7 +124,13 @@ export abstract class EmotionColorAdapter {
 		}
 
 		Logger.getInstance().log(Logger.LEVEL.ERROR, "Emotion not recognized: ", emotion);
-		return null;
+		return new DefaultColorAdapter();
+	}
+}
+
+class DefaultColorAdapter extends EmotionColorAdapter {
+	getColor(emotion: ISBEEmotion): string {
+		return "#FFF";
 	}
 }
 
