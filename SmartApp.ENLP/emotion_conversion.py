@@ -9,7 +9,9 @@ EMOTIONS_COORD = {
     'Fear' : (-0.6,0.8),
     'Sarcasm' : (0.,0.3),
     'Sad' : (-0.9,-0.6),
-    'Neutral' : (0.,0.)
+    'Neutral' : (0.,0.),
+    'surprise' : (0., 1.),
+    'disgust' : (-0.9, 0.1)
 }
 
 def _distance(a,b):
