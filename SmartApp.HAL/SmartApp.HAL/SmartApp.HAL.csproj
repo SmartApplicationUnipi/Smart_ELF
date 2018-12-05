@@ -340,6 +340,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="KBWrapper\KBWrapper.csproj">
+      <Project>{945b7743-aa89-4fa4-b3ad-669c36f44195}</Project>
+      <Name>KBWrapper</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\EMGU.CV.3.4.3.3016\build\EMGU.CV.targets" Condition="Exists('..\packages\EMGU.CV.3.4.3.3016\build\EMGU.CV.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

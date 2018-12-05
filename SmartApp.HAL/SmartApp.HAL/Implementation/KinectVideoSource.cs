@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Timers;
 
 namespace SmartApp.HAL.Implementation
@@ -29,8 +30,10 @@ namespace SmartApp.HAL.Implementation
         //reader polling the color camera
         private MultiSourceFrameReader _multiSourceFrameReader = null;
 
-        private readonly Timer _timer;
+        private readonly System.Timers.Timer _timer;
         private float _framerate;
+
+        KBWrapper.IKbWrapper _KB;
 
         private bool _isEngaged = false;
         private float _distanceEngaged = 2.5f; //meters within engaged accepted
@@ -42,11 +45,12 @@ namespace SmartApp.HAL.Implementation
         private short _frameStopTalking = 0; //number of frame without talking
 
 
-        public KinectVideoSource(ILogger<KinectVideoSource> logger, IAudioSource audioSource)
+        public KinectVideoSource(ILogger<KinectVideoSource> logger, IAudioSource audioSource, KBWrapper.IKbWrapper kb)
         {
             _logger = logger;
             _logger.LogInformation("Kinect video source loaded.");
             _audioSource = audioSource;
+            _KB = kb;
 
             _kinect = KinectSensor.GetDefault();
             //kinect availability callback
@@ -76,19 +80,19 @@ namespace SmartApp.HAL.Implementation
             }
 
             _framerate = 15f;
-            _timer = new Timer(1000.0 / _framerate) { AutoReset = true, Enabled = false };
+            _timer = new System.Timers.Timer(1000.0 / _framerate) { AutoReset = true, Enabled = false };
             _timer.Elapsed += OnTimerTick;
            
         }
         
-
+        
         private void Sensor_IsAvailableChanged(object sender, IsAvailableChangedEventArgs e)
         {
             IsAvailable = _kinect.IsAvailable;
             _logger.LogInformation("Kinect available = {0}", IsAvailable);
         }
 
-        //Callback for a face arrived
+        //Callback for a face arrive
         private void Face_FrameArrived(object sender, FaceFrameArrivedEventArgs e)
         {
             using (FaceFrame faceFrame = e.FrameReference.AcquireFrame())
@@ -145,6 +149,7 @@ namespace SmartApp.HAL.Implementation
         //When the timer ticks the colorframe is polled and checked if there is a face
         private void OnTimerTick(object sender, ElapsedEventArgs e)
         {
+           
             MultiSourceFrame multiSourceFrame = _multiSourceFrameReader.AcquireLatestFrame();
             if (multiSourceFrame != null) {
                 using (ColorFrame colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame())
@@ -191,6 +196,7 @@ namespace SmartApp.HAL.Implementation
             if (_frameEngaged > _framerate * _timeEngaged)
             {
                 _logger.LogTrace("User engaged");
+                _KB.WriteUserEngaged();
                 _isEngaged = true;
                 if(!_audioSource.IsRecording()) _audioSource.Start();
                 _frameStopTalking = 0;
@@ -209,6 +215,7 @@ namespace SmartApp.HAL.Implementation
             if (_frameNotEngaged > _framerate * _timeNotEngaged)
             {
                 _logger.LogTrace("User not engaged");
+                _KB.RemoveUserEngaged();
                 _isEngaged = false;
                 if (_audioSource.IsRecording())
                 {

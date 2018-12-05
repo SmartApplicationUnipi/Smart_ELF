@@ -45,7 +45,10 @@ namespace SmartApp.HAL
             services.AddSingleton<IAudioManager, AudioManager>();
 
             // User interface
-            services.AddSingleton<IUserInterface, WinFormsUI>();
+            //services.AddSingleton<IUserInterface, WinFormsUI>();
+
+            // KB wrapper
+            services.AddSingleton<KBWrapper.IKbWrapper, KBWrapper.Wrapper>();
 
             // Network
             services.AddSingleton<INetwork, Network>();
@@ -82,6 +85,7 @@ namespace SmartApp.HAL
             //    : (IVideoSource)serviceProvider.GetService<LocalCameraSource>();
         }
 
+
         public static void Main(string[] args)
         {
             var serviceProvider = BuildDIContainer();
@@ -90,16 +94,49 @@ namespace SmartApp.HAL
             using (serviceProvider.GetRequiredService<IVideoSource>())
             using (serviceProvider.GetRequiredService<IAudioSource>())
             {
+                //init KB wrapper
+                KBWrapperInit(serviceProvider.GetRequiredService<KBWrapper.IKbWrapper>());
                 // Start the audio and video managers
                 serviceProvider.GetRequiredService<IVideoManager>().Start();
                 serviceProvider.GetRequiredService<IAudioManager>().Start();
+                serviceProvider.GetRequiredService<IVideoSource>().Start();
 
                 // Run the sample application
-                serviceProvider.GetRequiredService<IUserInterface>().Run();
+                //serviceProvider.GetRequiredService<IUserInterface>().Run();
+                while (true)
+                {
+                    Console.ReadLine();
+                }
             }
-
             // Explicitely shutdown NLog
             NLog.LogManager.Shutdown();
+        }
+
+        private static void KBWrapperInit(KBWrapper.IKbWrapper kb)
+        {
+            kb.OnOpen += (sender, e) => {
+                Console.WriteLine("Wrapper: onOpen");
+            };
+
+            kb.OnClose += (sender, e) => {
+                Console.WriteLine("Wrapper: onClose");
+            };
+
+            kb.OnConnected += (sender, e) => {
+                Console.WriteLine("Wrapper: OnConnected");
+            };
+
+            kb.OnMessage += (sender, e) => {
+                Console.WriteLine("Wrapper: onMessage: " + e.asString);
+            };
+
+            kb.OnError += (sender, e) => {
+                Console.WriteLine("Wrapper: onError " + e.message);
+            };
+
+            kb.Connect();
+
+
         }
     }
 }
