@@ -119,16 +119,14 @@ function checkRule(head: object, body: object[], fact: object) {
 }
 
 export function queryRules(jReq: object) {
-    let rule;
     const matches = new Array();
 
     const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, databaseRule);
 
     for (const entry of goodRules) {
-        //rule = entry._data as DataRule;
-        //const b = unify(jReq, rule._head, {});
-        //if (b.s) {
-        const m = findBodySolutions(entry['_body']);
+        console.log('QUERYRULES:', goodRules, entry);
+        console.log(entry._body[0]);
+        const m = findBodySolutions(entry._body);
 
         for (const binds of m.values()) {
             for (const bind of binds) {
@@ -195,10 +193,10 @@ function findBodySolutions(body: object[]) {
         // console.log(pred);
 
         matches = findMatches2(body[i], Array.from(matches.keys()), Array.from(matches.values()));
+        i++;
     }
     if (matches.size > 0) {
         debug.clogNoID(Colors.GREEN, 'OK', '', 'trovata soluzione per tutti i predicati! ', 5);
-        i++;
     } else {
         debug.clogNoID(Colors.RED, 'FAIL', '', 'la regola non matcha', 10);
     }

@@ -262,7 +262,7 @@ export function query(jreq: any) {
     }
 
     let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
-    const m2 = queryRules(jreq);
+    const m2 = queryRules(queryobj);
     m = new Map([...m, ...m2]);
 
     if (m.size === 0) {
