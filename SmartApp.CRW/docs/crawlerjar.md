@@ -11,7 +11,18 @@ Running the jar file:
   
 All flags can be inserted in any order you desire. Some flags are mandatory and others are optional. For the optional ones, not providing them will load the default values.  
 <br>  
+
+**-continuous** 
+<br>
+*Optional*
+
+Sets the crawler to run continuously, with a default value of 720 minutes *(12 hours)* between each crawl cycle.
   
+**-continuous [sleep-time-minutes]**  
+*Optional*
+
+Sets the crawler to run continuously, with a given sleep time in minutes between each crawl cycle.
+ 
 **-d [depth]**  
 *Optional, DEFAULT = 1*  
   
