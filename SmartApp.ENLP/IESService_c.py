@@ -7,7 +7,6 @@ from kb import KnowledgeBaseClient
 import random
 import emotion_conversion as em_conv
 import logging
-from Emo
 
 import math
 class IESService:
