@@ -35,6 +35,7 @@ class OffVision:
         """
         return True
 
+    # TODO: delete
     def set_detect_attibutes(self, *args, **kwargs):
         """
         Sets the attributes to be analyzed on the face (list of admissible ones follows)
@@ -72,7 +73,7 @@ class OffVision:
         :return: the requested attributes' values (as in KB fact specification), and the descriptor (if requested)
         """
         face_facts = {}
-        if 'emotion' in self.requested_attributes:
+        if 'emotion' in self.requested_attributes: # TODO: delete if statements
             # predict emotion
             face_facts['emotion'] = self.emotion_model.predict_frame(frame)
             face_facts['emotion'] = {k: round(v, 4) for k, v in face_facts['emotion'].items()}
