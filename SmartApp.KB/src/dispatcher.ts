@@ -14,7 +14,7 @@ function isBeforeDate(op1: string, op2: string): boolean { return (new Date(op1)
 function isEqualString(op1: string, op2: string): boolean { return op1 === op2; }
 function isGreaterString(op1: string, op2: string): boolean { return op1 > op2; }
 function isLessString(op1: string, op2: string): boolean { return op1 < op2; }
-function containsString(op1: string, op2: string): boolean { return op2.toLocaleLowerCase().indexOf(op1.toLocaleLowerCase()) >= 0; }
+function containsString(op1: string, op2: string): boolean { return op1.toLocaleLowerCase().indexOf(op2.toLocaleLowerCase()) >= 0; }
 
 // EDIT DISTANCE PREDICATES
 function editDistanceEqual(w1: string, w2: string, num: string): boolean { return solveEditDistance(w1, w2) === Number(num); }

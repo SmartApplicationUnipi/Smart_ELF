@@ -16,7 +16,6 @@ export type DatabaseFact = Map<number, DataObject>;
 export type DatabaseRule = Map<number, DataObject>;
 
 export let databaseFact = new Map<number, DataObject>();
-export const databaseInference = new Map<number, DataObject>(); // TODO: remove this asap
 export let databaseRule = new Map<number, DataObject>();
 let subscriptions = new Map<object, SubCallback[]>();
 let userTags = new Map<string, Map<string, TagInfo>>();
