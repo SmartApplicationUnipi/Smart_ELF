@@ -2,13 +2,12 @@ import { ContentFactory, IContent, AudioContent, SpeechContent, TextContent, Gen
 import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 
 import * as Logger from '../log/Logger';
-import { Emotion } from '../emotion/Emotion';
+import { ValenceArousalEmotion } from '../emotion/Emotion';
 
 /**
  * Default implementation of ContentFactory
  */
 export class DefaultContentFactory implements ContentFactory {
-    private logger: Logger.ILogger = Logger.getInstance();
 
     create(event: ElfUIEvent): Array<IContent> {
         let data = event.getAny(KEY_CONTENT);
@@ -18,14 +17,17 @@ export class DefaultContentFactory implements ContentFactory {
             switch (key) {
                 case "audio":
                     try {
-                        let emotionData: {valence: number, arousal: number} = data[key]['emotion'],
+                        let emotionData: {valence: number, arousal: number} = {
+                            valence: data[key]['valence'],
+                            arousal: data[key]['arousal']
+                        },
                             audioB64 = data[key]['audio'];
 
-                        let emotion = new Emotion(emotionData.valence, emotionData.arousal);
+                        let emotion = new ValenceArousalEmotion(emotionData.valence, emotionData.arousal);
 
                         contents.push(new AudioContent(emotion, audioB64));
                     } catch (ex) {
-                        this.logger.log(Logger.LEVEL.ERROR, "Cannot elaborate audio file", data, ex);
+                        Logger.getInstance().log(Logger.LEVEL.ERROR, "Cannot elaborate audio file", data, ex);
                     }
                     break;
                 case "speech":
@@ -33,15 +35,15 @@ export class DefaultContentFactory implements ContentFactory {
                         let text = data[key]['text'];
                         let emotionData: {valence: number, arousal: number} = data[key]['emotion'];
 
-                        let emotion = new Emotion(emotionData.valence, emotionData.arousal);
+                        let emotion = new ValenceArousalEmotion(emotionData.valence, emotionData.arousal);
 
                         if (text && emotion) {
                             contents.push(new SpeechContent(text, emotion));
                         } else {
-                            this.logger.log(Logger.LEVEL.ERROR, "Cannot get all data from speech content", data[key]);
+                            Logger.getInstance().log(Logger.LEVEL.ERROR, "Cannot get all data from speech content", data[key]);
                         }
                     } catch (ex) {
-                        this.logger.log(Logger.LEVEL.ERROR, "Cannot get data from speech content", data[key], ex);
+                        Logger.getInstance().log(Logger.LEVEL.ERROR, "Cannot get data from speech content", data[key], ex);
                     }
                     break;
                 case "text":

@@ -2,9 +2,8 @@ package elf_crawler.crawler;
 
 import elf_crawler.CrawlingManager;
 import elf_crawler.Link;
-import elf_crawler.relationship.RdfRelation;
-import elf_crawler.relationship.RelationQuery;
-import elf_crawler.relationship.RelationshipSet;
+import elf_crawler.relationship.*;
+import elf_crawler.util.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,8 +30,7 @@ public class HTMLCrawler extends Crawler {
         super.timestamp = System.currentTimeMillis();
         this.doc = Jsoup.parse(this.file.getContent());
 
-        List<RdfRelation> relations = buildRdfData();
-        List<DataEntry> entries = buildEntries(relations);
+        List<DataEntry> entries = buildEntries();
 
         return new CrawledData(this.file.getLink(), getAllLinks(doc), entries);
     }
@@ -78,41 +76,21 @@ public class HTMLCrawler extends Crawler {
         return links;
     }
 
-    /* Retrieve elements in a doc which contains a certain text */
-    private Elements getElementsContainingText(Document doc, String text){
-        return doc.select("*:containsOwn("+text+")");
-    }
-
-    /* Retrieve all the tables within a Document */
-    private Elements getAllTables(Document doc){
-        return doc.select("table");
-    }
-
-    /* Retrieve all the elements in a column of a table*/
-    private Elements getColElementsFromTable(Element table, int index){
-        return table.select("td:eq("+index+")");
-    }
-
-    private String[] elementsToStringArr(Elements e)
-    {
-        String[] arr = new String[e.size()];
-        int i = 0;
-        for (Element el : e)
-            arr[i++] = el.html();
-
-        return arr;
-    }
-
-    private List<RdfRelation> buildRdfData()
+    private List<DataEntry> buildEntries()
     {
         List<RelationQuery> relations = this.rs.getWebsiteRelations(this.file.getLink().getUrl());
-        List<RdfRelation> builtRelations = new ArrayList<>(relations.size());
+        List<DataEntry> entries = new ArrayList<>(relations.size());
 
         for (RelationQuery r : relations) {
+            if (!(r instanceof RdfRelation)) {
+                Logger.error(String.format("A wrong relationship exists for the document %s.", this.file.getLink().getUrl()));
+                continue;
+            }
+
             RdfRelation rdf = (RdfRelation) r;
             switch (rdf.getGroupBy()) {
                 case GROUP_BY_DOM_PARENT:
-                    builtRelations.addAll(groupByDomParent(this.doc, rdf));
+                    entries.addAll(groupByDomParent(this.doc, rdf));
                     break;
                 case GROUP_BY_TRY_ALL:
                     break;
@@ -121,26 +99,17 @@ public class HTMLCrawler extends Crawler {
             }
         }
 
-        return builtRelations;
-    }
-
-    private List<DataEntry> buildEntries(List<RdfRelation> relations) {
-        List<DataEntry> entries = new ArrayList<>(relations.size());
-
-        for (RdfRelation r : relations)
-            entries.add(new DataEntry(this.file.getLink().getUrl(), super.timestamp, DataEntryType.RDF, r));
-
         return entries;
     }
 
-    private List<RdfRelation> groupByDomParent(Document doc, RdfRelation r) {
+    private List<DataEntry> groupByDomParent(Document doc, RdfRelation r) {
         Elements subjects = doc.select(r.getSubject());
         String predicate = r.getPredicate();
 
         if (subjects.size() == 0)
             return Collections.emptyList();
 
-        List<RdfRelation> relations = new ArrayList<>(subjects.size());
+        List<DataEntry> entries = new ArrayList<>(subjects.size());
         for (Element subject : subjects)
         {
             Element parent = subject.parent();
@@ -157,10 +126,12 @@ public class HTMLCrawler extends Crawler {
             }
             if (parent == null) continue;
 
-            for (Element object : objects)
-                relations.add(new RdfRelation(predicate, subject.text(), object.text()));
+            for (Element object : objects) {
+                RdfRelation builtRdf = new RdfRelation(r.getTag(), predicate, subject.text(), object.text(), r.getGroupBy().getText());
+                entries.add(new DataEntry(this.file.getLink().getUrl(), builtRdf.getTag(), super.timestamp, DataEntryType.RDF, builtRdf));
+            }
         }
 
-        return relations;
+        return entries;
     }
 }

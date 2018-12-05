@@ -22,7 +22,9 @@ namespace SmartApp.HAL.Implementation
     {
         private readonly ILogger<LocalCameraSource> _logger;
         private readonly Timer _timer;
-        private int _framerate = 10; // fps
+        private float _framerate = 10; // fps
+        private readonly int _frameWidth = 640;
+        private readonly int _frameHeigth = 480;
 
         private readonly VideoCapture _capture = new VideoCapture();
         private readonly CascadeClassifier _faceDetector = new CascadeClassifier("OpenCV/haarcascade_frontalface_default.xml");
@@ -51,7 +53,7 @@ namespace SmartApp.HAL.Implementation
                 }
 
                 // Resize the frame
-                CvInvoke.ResizeForFrame(frame, frame, new Size(640, 480), Inter.Cubic, scaleDownOnly: true);
+                CvInvoke.ResizeForFrame(frame, frame, new Size(_frameWidth, _frameHeigth), Inter.Cubic, scaleDownOnly: true);
 
                 // Convert to grayscale
                 CvInvoke.CvtColor(frame, ugray, ColorConversion.Bgr2Gray);
@@ -74,11 +76,18 @@ namespace SmartApp.HAL.Implementation
                 // Publish a completed frame
                 FrameReady?.Invoke(this, new VideoFrame(
                     DateTime.Now,
-                    faceBounds.Select(bounds => new VideoFrame.Face(bounds,-1)).ToList(),
-                    frame.ToImage<Bgr, byte>()
+                    faceBounds.Select(bounds => new VideoFrame.Face(bounds, -1, -1, -1, IsUserEngaged(frame, bounds))).ToList(),
+                    frame.ToImage<Bgr, byte>(),
+                    _frameWidth,
+                    _frameHeigth
                 ));
             }
         }
+
+        // This is very simple and limited, but should be enough for local testing with a webcam
+        private bool IsUserEngaged(Mat frame, Rectangle bounds) =>
+            bounds.Width * 3 >= frame.Width
+            && bounds.Height * 3 >= frame.Height;
 
         public event EventHandler<VideoFrame> FrameReady;
 
@@ -94,7 +103,7 @@ namespace SmartApp.HAL.Implementation
             _logger.LogInformation("Capture stopped.");
         }
 
-        public int Framerate
+        public float Framerate
         {
             get
             {

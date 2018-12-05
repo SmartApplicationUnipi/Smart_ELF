@@ -9,7 +9,7 @@ namespace SmartApp.HAL.Implementation
 {
     /// <summary>
     /// Uses the local microphone as an audio source.
-    /// Samples are collected every 10 seconds (approx).
+    /// Samples are collected every 30 seconds (approx).
     /// </summary>
     internal class LocalMicrophoneSource : IAudioSource
     {
@@ -27,7 +27,7 @@ namespace SmartApp.HAL.Implementation
             _logger.LogInformation("Local microphone audio source loaded.");
 
             // Prepare the buffer to hold the data
-            _waveBuffer = new byte[_waveIn.WaveFormat.AverageBytesPerSecond * 10];
+            _waveBuffer = new byte[_waveIn.WaveFormat.AverageBytesPerSecond * 30];
 
             // Add the event handlers
             _waveIn.DataAvailable += OnDataAvailable;
@@ -69,7 +69,7 @@ namespace SmartApp.HAL.Implementation
         {
             // Publish a new complete sample
             _logger.LogTrace("New audio sample with WaveFormat: " + _waveIn.WaveFormat);
-            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, _waveBuffer, _waveBufferPosition, _waveIn.WaveFormat));
+            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, _waveBuffer, _waveBufferPosition, new AudioSample.FixedWaveFormat(_waveIn.WaveFormat.SampleRate)));
         }
 
         public event EventHandler<AudioSample> SampleReady;

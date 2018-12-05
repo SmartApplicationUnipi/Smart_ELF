@@ -13,13 +13,14 @@ from interface_tags import TAG_USER_TRANSCRIPT
 
 def __main__():
     kb_client = KnowledgeBaseClient(False)
-    kb_client.registerTags({ TAG_USER_TRANSCRIPT : {'desc' : 'Fake by ENLP', 'doc' : 'FAKE by ENLP'} })
+    kb_ID = (kb_client.register())['details']
+    kb_client.registerTags(kb_ID, { TAG_USER_TRANSCRIPT : {'desc' : 'Fake by ENLP', 'doc' : 'FAKE by ENLP'} })
     obj_from_stt = {
 	"tag": TAG_USER_TRANSCRIPT,
 	"text": "We will build a great wall",
     "language": "en"
 	}
-    myID='fake_stt'
-    kb_client.addFact(myID, TAG_USER_TRANSCRIPT, 1, 100, obj_from_stt)
+    res = kb_client.addFact(kb_ID, TAG_USER_TRANSCRIPT, 1, 100, obj_from_stt)
+    print(res)
 
 __main__()
