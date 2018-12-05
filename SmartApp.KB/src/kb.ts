@@ -33,41 +33,45 @@ const UNIQUERULEIDPATH = './db/uniqueRuleId';
 // TODO: this has to be a nice init fuction
 let file;
 try {
-file = readFileSync(DATABASEFACTPATH, 'utf8');
-databaseFact = new Map(JSON.parse(file));
+    file = readFileSync(DATABASEFACTPATH, 'utf8');
+    databaseFact = new Map(JSON.parse(file));
 } catch (e) {
     log.warn('KB', 'error loading ' + DATABASEFACTPATH, e);
 }
 try {
-file = readFileSync(DATABASERULEPATH, 'utf8');
-databaseRule = new Map(JSON.parse(file));
+    file = readFileSync(DATABASERULEPATH, 'utf8');
+    databaseRule = new Map(JSON.parse(file));
 } catch (e) {
     log.warn('KB', 'error loading ' + DATABASERULEPATH, e);
 }
 try {
-file = readFileSync('./db/subscriptions', 'utf8');
-subscriptions = new Map(JSON.parse(file));
+    file = readFileSync('./db/subscriptions', 'utf8');
+    subscriptions = new Map(JSON.parse(file));
 
 } catch (e) {
     log.warn('KB', 'error loading ' + SUBSCRIPTIONSPATH, e);
 }
 try {
-file = readFileSync(USERTAGSPATH, 'utf8');
-userTags = new Map(JSON.parse(file));
+    file = readFileSync(USERTAGSPATH, 'utf8');
+    userTags = new Map(JSON.parse(file));
 } catch (e) {
     log.warn('KB', 'error loading ' + USERTAGSPATH, e);
 }
 try {
-file = readFileSync(UNIQUEFACTIDPATH, 'utf8');
-uniqueFactId = parseInt(file, 10);
+    file = readFileSync(UNIQUEFACTIDPATH, 'utf8');
+    uniqueFactId = parseInt(file, 10);
 } catch (e) {
     log.warn('KB', 'error loading ' + UNIQUEFACTIDPATH, e);
 }
 try {
-file = readFileSync(UNIQUERULEIDPATH, 'utf8');
-uniqueRuleId = parseInt(file, 10);
+    file = readFileSync(UNIQUERULEIDPATH, 'utf8');
+    uniqueRuleId = parseInt(file, 10);
 } catch (e) {
     log.warn('KB', 'error loading ' + UNIQUERULEIDPATH, e);
+}
+
+if (!databaseFact.has(42)) {
+    databaseFact.set(42, { _id: 42, _meta: { idSource: 'God', tag: 'Everything', TTL: 42, reliability: 100, creationTime: new Date() }, _data: { text: 'That\'s the answer.' } });
 }
 
 // const repetitionTime = 86400000 / 2;
@@ -85,17 +89,18 @@ function writeCallback(filename: string, err: any) {
 
 function dumpDatabase() {
     // tslint:disable-next-line:max-line-length
-    const f1 = () => { writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) ); };
+    const f1 = () => { writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e)); };
     // tslint:disable-next-line:max-line-length
-    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) ); };
+    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e)); };
     // tslint:disable-next-line:max-line-length
-    const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) ); };
+    const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e)); };
     // tslint:disable-next-line:max-line-length
-    const f4 = () => { writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) ); };
+    const f4 = () => { writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e)); };
     const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
-    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e)); };
+    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
+    log.info('KB', 'starting backup');
     Promise.all([f1(), f2(), f3(), f4(), f5(), f6()])
-    .then(() => { setTimeout(dumpDatabase, repetitionTime ); });
+        .then(() => { setTimeout(dumpDatabase, repetitionTime); });
 }
 
 setTimeout(dumpDatabase, millsToDump);
@@ -361,6 +366,9 @@ export function checkSubscriptions(obj: object) { // object is the created fact
 }
 
 function uniqueFactId_gen() {
+    if (uniqueFactId === 41) {
+        uniqueFactId++;
+    }
     uniqueFactId++;
     return uniqueFactId;
 }
