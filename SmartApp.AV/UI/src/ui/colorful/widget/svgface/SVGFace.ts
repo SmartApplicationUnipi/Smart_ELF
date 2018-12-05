@@ -42,8 +42,8 @@ export class SVGFace extends Face implements IAnimated {
         );
         // this.rightEyebrow = new Eyebrow("rightEyebrow", 30.625, lanchor2, rbase.add(new Point(100.75, 0)), rbase.add(new Point(10, 10)), rbase.add(new Point(100.75, 0)));
         this.rightEyebrow = new Eyebrow("rightEyebrow", 30.625, lanchor2, ranchor2, lct2, rct2, true);
-        this.leftEye = new Eye("leftEye", 157.651, 175.289);
-        this.rightEye = new Eye("rightEye", 332.349, 175.289);
+        this.leftEye = new Eye("leftEye", new Point(157.651, 175.289));
+        this.rightEye = new Eye("rightEye", new Point(332.349, 175.289));
         this.mouth = new Mouth("mouth", 153.125, 317.435);
 
         this.components = [this.leftEyebrow, this.rightEyebrow, this.leftEye, this.rightEye, this.mouth];
@@ -66,6 +66,24 @@ export class SVGFace extends Face implements IAnimated {
     }
 
     public lookAt(p: Point): void {
+        let majorEye = this.rightEye, minorEye = this.leftEye;
+
+        if (p.getX() < 0) {
+            majorEye = this.leftEye;
+            minorEye = this.rightEye;
+        }
+
+        let minorUpdates = {
+            x: p.getX() * 30,
+            y: p.getY() * 30
+        };
+
+        minorEye.setX(minorUpdates.x);
+        minorEye.setY(minorUpdates.y);
+
+        majorEye.setX(minorUpdates.x);
+        majorEye.setY(minorUpdates.y);
+
         this.components.forEach(c => c.lookAt(p));
 
         this.lastLooked = p;

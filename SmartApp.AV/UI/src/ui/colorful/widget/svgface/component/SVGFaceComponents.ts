@@ -12,7 +12,7 @@ const DEFAULT_EYE_RADIUS = 42.64;
 export class Eye extends AbstractSVGFaceComponent implements IAnimated {
     private lastEmotion: ISBEEmotion;
 
-    constructor(id: string, private x: number = 0, private y: number = 0,
+    constructor(id: string, private location: Point = new Point(0, 0),
         private eyeRadiusX: number = DEFAULT_EYE_RADIUS, private eyeRadiusY: number = DEFAULT_EYE_RADIUS) {
         super(id);
 
@@ -21,22 +21,22 @@ export class Eye extends AbstractSVGFaceComponent implements IAnimated {
         ]
     }
 
+    // Set the  x diff from the location
     public setX(x: number) {
-        this.x = x;
         this.update({
-            cx: x
+            cx: this.location.getX() + x
         });
     }
 
+    // Set the y diff from the location
     public setY(y: number) {
-        this.y = y;
         this.update({
-            cy: y
+            cy: this.location.getY() + y
         });
     }
 
     public render(): string {
-        return '<ellipse id="' + this.getId() + '" class="eye" cx="' + this.x + '" cy="' + this.y + '" rx="' + this.eyeRadiusX + '" ry="' + this.eyeRadiusY + '"/>';
+        return '<ellipse id="' + this.getId() + '" class="eye" cx="' + this.location.getX() + '" cy="' + this.location.getY() + '" rx="' + this.eyeRadiusX + '" ry="' + this.eyeRadiusY + '"/>';
     }
 
     public lookAt(p: Point): void {

@@ -102,7 +102,7 @@ export class TestEventReader extends BaseEventReader {
 		this.events.push(pos2)
 		
 		this.events.push(e4)
-		// this.events.push(e5)
+		this.events.push(e5)
 		// this.events.push(e6)
 		// this.events.push(e7)
 
