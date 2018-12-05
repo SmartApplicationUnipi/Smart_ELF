@@ -9,8 +9,11 @@ from threading import Thread, Timer, Event
 from queue import Queue
 import cv2
 
-# TODO:  inserire il Thread che salva el face_db
-# TODO: risolvere il problema del del limite inesistente su Face++
+from time import sleep
+
+#TODO: fuzione di call back che viene chiamata quanto hal si schianta questa funzione non deve fare altro che
+#TODO: riprovare a registrarsi e nel caso in cui non avvenga la rigistrazione ho un meno uno quei aspetto e ci riporovo poco dopo
+
 
 #  IDEA: Si possono avere più queue (almeno 6 dato che 6 è il numero massimo di
 #  facce riconosciute simultaneamente dal kinekt) che matengo in memoria i frame
@@ -75,7 +78,7 @@ class Controller():
 
         if self.is_host:
             self._hal = hal.HALInterface(HALAddress= host)
-            self._videoID = self._hal.registerAsVideoReceiver(Controller._take_frame)
+            self._videoID = self._hal.registerAsVideoReceiver(callback = self._take_frame, errback = self._crash_of_HAL)
             if self._videoID == -1:
                 print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
                 exit(-1)
@@ -126,7 +129,16 @@ class Controller():
         self.t.daemon = True
         self.t.start()
 
-    def _take_frame(frame_obj):
+    def _crash_of_HAL(self):
+        loop = True
+        while loop:
+            sleep(5)
+            self._videoID = self._hal.registerAsVideoReceiver(callback = Controller._take_frame, errback = Controller._errHAL)
+            if self._videoID != -1:
+                loop = False
+
+
+    def _take_frame(self, frame_obj):
         """
             Function of callback used from HAL group to send a frame
 
@@ -134,10 +146,10 @@ class Controller():
                 frame_obj (object): object that contain all image of face in a
                     frame
         """
-        if Controller.q.full():
-            Controller.q.get()
+        if self.q.full():
+            self.q.get()
         for face in frame_obj.faces:
-            Controller.q.put((face.img, frame_obj.frame_original_size))
+            self.q.put((face.img, frame_obj.frame_original_size))
 
     def _get_id_person(self, fact, tuple, img):
         if fact is not None and tuple is not None:
@@ -245,7 +257,7 @@ class Controller():
             look_at = {'pinch': 0, 'yaw':0}
             if set(frame_size)==0:
                 face_position = face.face_position if hasattr(face, "face_position") else (0, 0)
-                look_at = list( (p/(s/2))-1 for p,s in zip(face_position, frame_size))
+                look_at = list( round((p/(s/2))-1, 4) for p,s in zip(face_position, frame_size))
                 look_at = {'pinch': look_at[0], 'yaw': look_at[1]}
 
             fact.update({
