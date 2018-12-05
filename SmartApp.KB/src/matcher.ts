@@ -26,7 +26,7 @@ import { executeSpecialPredicate } from './dispatcher';
  \( `   <.,../`     `-.._   _,-`
  */
 
-const D: Debugger = new Debugger();
+const D: Debugger = new Debugger(4);
 
 export type Matches = Map<object, object[]>;
 
@@ -122,10 +122,10 @@ class Matcher {
         this.outerSorted = this.sort(q);
         const result = [];
         for (const key of ruleSet.keys()) {
-            const rule = ruleSet.get(key)['_head'];
+            const rule = ruleSet.get(key)._data._head;
             const sortedRule = this.sort(rule);
             if (this.compareRule(q, this.outerSorted, rule, sortedRule)) {
-                result.push(ruleSet.get(key));
+                result.push(ruleSet.get(key)._data);
             }
 
         }
@@ -631,6 +631,7 @@ class Matcher {
         for (const queryKey of sortedQuery.get(this.ID_AP)) {
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'key => ' + queryKey, 4);
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'value => ' + query[queryKey], 4);
+            console.log('asdasadsasdasdadsads ', rule, queryKey);
             if (rule.hasOwnProperty(queryKey)) {
                 D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'Rule has the same key associated to something (don\'t care what)', 3);
                 continue;
