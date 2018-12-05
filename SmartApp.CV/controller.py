@@ -16,7 +16,7 @@ from time import sleep
 
 
 #  IDEA: Si possono avere più queue (almeno 6 dato che 6 è il numero massimo di
-#  facce riconosciute simultaneamente dal kinekt) che matengo in memoria i frame
+#  facce riconosciute simultaneamente dal kinect) che matengo in memoria i frame
 #  di ogni faccia che ha lo stesso id (dato da HAL-kinekt) cosi da poter avere
 #  diversi thread che eseguono le richieste al modulo separatamente per ogni
 #  persona. Cosi facendo sarà necesssario eseguire l'identifica solo una volta,
@@ -58,87 +58,88 @@ DOCS = {
 class Controller():
 
     #FIFO queue
-    q = Queue(maxsize= 5)
+    task_queue = Queue(maxsize= 5)
 
     def __init__(self, host = "10.101.41.242"):
         """
             se host è webcam uso la webcam
         """
-        # Ops for KB
+        # KB initialization
         self._kb = kb(True)
         self._kb_ID = (self._kb.register())['details']
-        #mi registrerò
         self._kb.registerTags(self._kb_ID, DOCS)
-        # Ops for stream in input
+
+        # input stream setupS
         self.is_host = not (host == "webcam")
         self._hal = None
         self._videoID = None
-        self.video_capture = None
-        self.flag = Event()
+        self._video_capture = None
 
+        #input stream initialization
         if self.is_host:
             self._hal = hal.HALInterface(HALAddress= host)
-            self._videoID = self._hal.registerAsVideoReceiver(callback = self._take_frame, errback = self._crash_of_HAL)
+            self._videoID = self._hal.registerAsVideoReceiver(callback = self._get_frame, errback = self._crash_of_HAL)
             if self._videoID == -1:
                 print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
                 exit(-1)
         else:
-            self.video_capture = cv2.VideoCapture(0)
+            self._video_capture = cv2.VideoCapture(0)
 
         # DB initialization
         self.db = db()
-        self.t = None
+        self._worker = None
 
-        #module initialization
-        self.online_module = None
-        self.offline_module = None
+        #switcher setup
+        self.terminate = Event()
+        self.plan_checking = False
+        self.connection_planner = None
+
+        # Modules initialization
+        self._online_module = None
+        self._offline_module = None
         self.active_module = None
 
-        #switcher Initialization
-        self.plan_checking = False
-        self.timer = None
-
-        # Initialization of Online Module
+        # Online Module Initialization
         try:
-            self.online_module = online()
+            self._online_module = online()
             self.has_api_problem = False
         except Exception as e:
             self.has_api_problem = True
             print(type(e).__name__, e)
             print("\n It seems that there is a problem with the online module: I'm swithing to offline module...")
+
         # option to retry initialization if it has failed (eg, no internet connection during init)
         self.retry_init_online_module = False
 
-        # Initialization of Offline Module
+        # Offline Module Initialization
         try:
-            self.offline_module = offline()
+            self._offline_module = offline()
         except Exception as e:
             print(type(e).__name__, e)
             print("\n It seems that there is a problem in the initialization!")
 
-        #initializzation acitve module
+        #Active module initializzation
         if self.has_api_problem:
-            self.active_module = self.offline_module
-        elif self.online_module :
-            self.active_module = self.online_module
+            self.active_module = self._offline_module
+        elif self._online_module :
+            self.active_module = self._online_module
         else:
             raise Exception("No module available...")
 
-        # Ops for worker that compute all the analyzes
-        self.t = Thread(target=Controller._worker, args=[self, Controller.q])
-        self.t.daemon = True
-        self.t.start()
+        # worker initialization
+        self._worker = Thread(target=Controller._job, args=[self, Controller.task_queue])
+        self._worker.daemon = True
+        self._worker.start()
 
     def _crash_of_HAL(self):
         loop = True
         while loop:
             sleep(5)
-            self._videoID = self._hal.registerAsVideoReceiver(callback = Controller._take_frame, errback = Controller._errHAL)
+            self._videoID = self._hal.registerAsVideoReceiver(callback = Controller._get_frame, errback = Controller._errHAL)
             if self._videoID != -1:
                 loop = False
 
-
-    def _take_frame(self, frame_obj):
+    def _get_frame(self, frame_obj):
         """
             Function of callback used from HAL group to send a frame
 
@@ -146,23 +147,29 @@ class Controller():
                 frame_obj (object): object that contain all image of face in a
                     frame
         """
-        if self.q.full():
-            self.q.get()
+        if self.task_queue.full():
+            self.task_queue.get()
         for face in frame_obj.faces:
-            self.q.put((face.img, frame_obj.frame_original_size))
+            self.task_queue.put((face.img, frame_obj.frame_original_size))
 
-    def _get_id_person(self, fact, tuple, img):
+    def _get_person_id(self, fact, tuple, img):
+        """
+            Function ?????????????????????????????????
+
+            Params:
+                fact: ?
+                tuple: ?
+                img: ?
+        """
         if fact is not None and tuple is not None:
             res = self.db.soft_get(tuple)
-
             # res = [ [ tuple1, confidence1 ] ... [tuple_n, confidence_n] ]
             if len(res) > 0: #something matches
                 vals = [res[0][0][0], res[0][1], True]
             elif self.has_api_problem: #offline module case
                 vals = [self.db.insert(tuple), 0, False]
-
             else: #online module case
-                descriptor = self.offline_module.get_descriptor(img)
+                descriptor = self._offline_module.get_descriptor(img)
                 res = self.db.soft_get((descriptor, None))
                 if len(res) > 0: #something matches
                     #return ID and update record with the token
@@ -178,7 +185,7 @@ class Controller():
 
         return fact
 
-    def _worker(self, queue):
+    def _job(self, queue):
         """
             Function of thread that compute all the analyzes of frame.
 
@@ -187,7 +194,7 @@ class Controller():
         """
         face_obj, frame_size, img = None, None, None
         while True:
-            if self.flag.is_set():
+            if self.terminate.is_set():
                 break
             try:
                 if self.is_host:
@@ -195,13 +202,13 @@ class Controller():
                     img = face_obj.img
                     queue.task_done()
                 else: # TODO: delete this option only for test
-                    ret, frame = self.video_capture.read()
+                    ret, frame = self._video_capture.read()
                     frame_size = (320, 240)
                     img = face_obj = cv2.resize(frame, frame_size)
                 fact, tuple = self.watch(face_obj, frame_size)
                 # tuple = (descriptor, token)
                 if fact and tuple:
-                    fact = self._get_id_person(fact, tuple, img)
+                    fact = self._get_person_id(fact, tuple, img)
                     self._add_fact_to_kb(fact)
             except Exception as e:
                 print("_worker function ->"+type(e).__name__, e)
@@ -209,45 +216,81 @@ class Controller():
 
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
+        """
+            add a fact to kb: THIS FUNCTION WILL BE CHANGED SOON!!
+        """
         try:
-            print(fact)
             self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
         except Exception as e:
             print("Could not add fact", e)
 
-    def _switch_module_event(self):
+    # def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
+    #     try:
+    #         result = self._kb.query({"_meta":{"tag":"VISION_FACE_ANALYSIS"}, "_data":{"is_interlocutor":"True"}})
+    #         if result["success"]:
+    #             if len(result["details"]) > 0:
+    #                 self._kb._update_fact_to_kb(fact)
+    #             else:
+    #                 self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
+    #     except Exception as e:
+    #         print("Could not add fact", e)
+    #
+    # def _update_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
+    #     try:
+    #         #res = self._kb.query({"_meta":{"tag":"VISION_FACE_ANALYSIS"}, "_data":{"is_interlocutor":"True"}})
+    #         #primo campo inutile per se è adata a buon fine
+    #         #ilsecondo list di risultato
+    #         self._kb.updateFactByID(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
+    #     except Exception as e:
+    #         print("Could not add fact", e)
 
-        print("\nVerifico la connessione")
-        if self.online_module is None:
-            print("\nonline non inizializzato")
+    def _switch_module_event(self):
+        """
+            Switch to online/offline according to the network status
+
+        """
+        print("\nChecking connection")
+        if self._online_module is None:
             #try initialization
             try:
-                self.online_module = online()
+                self._online_module = online()
             except Exception as e:
-                print("\nerrore nell'inizializzazione")
+                print("\nInitializzation Error")
                 print(type(e).__name__, e)
-                self.active_module = self.offline_module
+                self.active_module = self._offline_module
 
-        if self.online_module.is_available():
-            print("\nUso il modulo online")
-            self.active_module = self.online_module
+        if self._online_module.is_available():
+            print("\nUsing online module")
+            self.active_module = self._online_module
             self.plan_checking = False
             self.has_api_problem = False
         else:
-            print("\nUso il modulo offline")
-            self.active_module = self.offline_module
+            print("\nUsing offline module")
+            self.active_module = self._offline_module
 
         self.plan_checking = False
 
     def watch(self, face, frame_size = (0,0)):
+        """
+            Analyze a frame and return a json-like object and a tuple according to information extracted (typically recognition and emotions)
+
+            Params:
+                face: face frame to be analyzed
+                frame_size: if provided is considered in computing head posing information like pinch and yaw
+            return:
+                fact:  in the format required by KB
+                tuple:  in form of a triple (id, descriptor, token). the tuple can contain one or more None values.
+
+            N.B. : both face and tuple could be None if it doens't recognize a face in the frame or something inexpected happens.
+        """
 
         if self.has_api_problem and self.plan_checking == False:
-            self.timer = Timer(5.0, self._switch_module_event)
-            self.timer.start()
+            self.connection_planner = Timer(5.0, self._switch_module_event)
+            self.connection_planner.start()
             self.plan_checking = True
 
-        if self.has_api_problem == False and self.timer is not None and self.timer.is_alive():
-                self.timer.cancel()
+        if self.has_api_problem == False and self.connection_planner is not None and self.connection_planner.is_alive():
+                self.connection_planner.cancel()
 
         fact, tuple = self.active_module.analyze_face(face)
 
@@ -264,24 +307,28 @@ class Controller():
                 "z_index": face.z_index if hasattr(face, "z_index") else -1,
             })
         else:
-            print("Non vedo nessuno")
+            print("I can't see anyone")
 
         return fact, tuple
 
     def close(self):
-        print("Chiusura controller")
+        """
+            Close each I/O stream and realease resources.
+            N.B. : Since asynchronous calls are running during the execution, some processes could be terminated soon after this call.
+        """
+        print("turning off the controller...")
 
         if hasattr(self, "flag"):
-            self.flag.set()
+            self.terminate.set()
         if self._hal is not None:
             self._hal.unregister(self._videoID)
             self._hal.quit()
-        Controller.q.join()
+        Controller.task_queue.join()
         self.db.close()
-        if self.t:
-            self.t.join()
-        if self.timer:
-            self.timer.cancel()
+        if self._worker:
+            self._worker.join()
+        if self.connection_planner:
+            self.connection_planner.cancel()
 
 if __name__ == '__main__':
     controller = Controller(host = "webcam")
