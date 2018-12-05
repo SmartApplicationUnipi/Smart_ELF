@@ -1,6 +1,5 @@
 package elf_crawler.crawler;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
@@ -9,7 +8,6 @@ import com.opencsv.CSVReaderBuilder;
 import elf_crawler.relationship.*;
 import elf_crawler.util.Logger;
 
-import javax.xml.crypto.Data;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,13 +38,13 @@ public class CSVCrawler extends Crawler {
 
         List<DataEntry> entries = buildEntries();
 
-        return new CrawledData(this.file.getLink(), null, entries);
+        return new CrawledData(this.file.getCrawlerAddress(), null, entries);
     }
 
     /* Creates a list with one entry for each row of the CSV File */
     private List<DataEntry> buildEntries() {
         List<DataEntry> entries = new ArrayList<>(this.csvRecords.size() - 1);
-        List<RelationQuery> relations = this.rs.getWebsiteRelations(this.file.getLink().getUrl());
+        List<RelationQuery> relations = this.rs.getWebsiteRelations(this.file.getCrawlerAddress());
 
         String[] keys = this.csvRecords.get(0);
         Map<String, Integer> csvColumnIndex = new HashMap<>(keys.length);
@@ -63,7 +61,7 @@ public class CSVCrawler extends Crawler {
             // For each relation, build an entry
             for (RelationQuery r : relations) {
                 if (!(r instanceof CSVRelation)) {
-                    Logger.error(String.format("A wrong relationship exists for the document %s.", this.file.getLink().getUrl()));
+                    Logger.error(String.format("A wrong relationship exists for the document %s.", this.file.getCrawlerAddress().getUrl()));
                     continue;
                 }
 
@@ -84,7 +82,7 @@ public class CSVCrawler extends Crawler {
                         jo.addProperty(keys[index], iValues[index]);
                     }
 
-                entries.add(new DataEntry(this.file.getLink().getUrl(), rel.getTag(), this.timestamp, DataEntryType.CSV, jo));
+                entries.add(new DataEntry(this.file.getCrawlerAddress().getUrl(), rel.getTag(), this.timestamp, DataEntryType.CSV, jo));
             }
 
             //Fill the json object with right values
@@ -93,7 +91,7 @@ public class CSVCrawler extends Crawler {
                 jo.addProperty(keys[i], iValues[i]);
             }*/
 
-            //entries.add(new DataEntry(this.file.getLink().getUrl(), this.timestamp, DataEntryType.JSON, jo));
+            //entries.add(new DataEntry(this.file.getCrawlerAddress().getUrl(), this.timestamp, DataEntryType.JSON, jo));
         }
 
         return entries;

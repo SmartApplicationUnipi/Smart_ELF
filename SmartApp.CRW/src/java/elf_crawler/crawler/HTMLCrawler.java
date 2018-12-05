@@ -1,7 +1,7 @@
 package elf_crawler.crawler;
 
+import elf_crawler.CrawlerAddress;
 import elf_crawler.CrawlingManager;
-import elf_crawler.Link;
 import elf_crawler.relationship.*;
 import elf_crawler.util.Logger;
 import org.jsoup.Jsoup;
@@ -32,7 +32,7 @@ public class HTMLCrawler extends Crawler {
 
         List<DataEntry> entries = buildEntries();
 
-        return new CrawledData(this.file.getLink(), getAllLinks(doc), entries);
+        return new CrawledData(this.file.getCrawlerAddress(), getAllLinks(doc), entries);
     }
 
     private String removeHashtag(String url)
@@ -59,31 +59,31 @@ public class HTMLCrawler extends Crawler {
         return false;
     }
 
-    private List<Link> getAllLinks(Document doc)
+    private List<CrawlerAddress> getAllLinks(Document doc)
     {
-        int parentDepth = this.file.getLink().getDepth();
+        int parentDepth = this.file.getCrawlerAddress().getDepth();
         Elements hrefs = doc.select("a[href]");
 
-        List<Link> links = new LinkedList<>();
+        List<CrawlerAddress> crawlerAddresses = new LinkedList<>();
         for (Element e : hrefs) {
             String url = e.attr("abs:href");
             url = removeHashtag(url);
 
             if (isURLValid(url))
-                links.add(new Link(url, parentDepth + 1));
+                crawlerAddresses.add(new CrawlerAddress(url, parentDepth + 1));
         }
 
-        return links;
+        return crawlerAddresses;
     }
 
     private List<DataEntry> buildEntries()
     {
-        List<RelationQuery> relations = this.rs.getWebsiteRelations(this.file.getLink().getUrl());
+        List<RelationQuery> relations = this.rs.getWebsiteRelations(this.file.getCrawlerAddress());
         List<DataEntry> entries = new ArrayList<>(relations.size());
 
         for (RelationQuery r : relations) {
             if (!(r instanceof RdfRelation)) {
-                Logger.error(String.format("A wrong relationship exists for the document %s.", this.file.getLink().getUrl()));
+                Logger.error(String.format("A wrong relationship exists for the document %s.", this.file.getCrawlerAddress().getUrl()));
                 continue;
             }
 
@@ -128,7 +128,7 @@ public class HTMLCrawler extends Crawler {
 
             for (Element object : objects) {
                 RdfRelation builtRdf = new RdfRelation(r.getTag(), predicate, subject.text(), object.text(), r.getGroupBy().getText());
-                entries.add(new DataEntry(this.file.getLink().getUrl(), builtRdf.getTag(), super.timestamp, DataEntryType.RDF, builtRdf));
+                entries.add(new DataEntry(this.file.getCrawlerAddress().getUrl(), builtRdf.getTag(), super.timestamp, DataEntryType.RDF, builtRdf));
             }
         }
 

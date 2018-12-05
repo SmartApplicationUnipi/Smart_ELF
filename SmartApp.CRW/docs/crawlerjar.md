@@ -15,7 +15,7 @@ All flags can be inserted in any order you desire. Some flags are mandatory and 
 **-d [depth]**  
 *Optional, DEFAULT = 1*  
   
-Sets the maximum depth that will be crawled. Basically, whenever an *HTML* document contains links to other websites, the Crawler will add them to the crawling queue. This is done up to a limit, which is called the **maximum crawling depth**. All the urls in the *URLSet* have a depth of 0. Any url found on any *HTML* document of these urls will have a depth of 1 and so on. A document is only crawled if it has a depth lower than $maxdepth - 1$. Depth must be an integer equal or greater than 1.  
+Sets the maximum depth that will be crawled. Basically, whenever an *HTML* document contains crawlerAddresses to other websites, the Crawler will add them to the crawling queue. This is done up to a limit, which is called the **maximum crawling depth**. All the urls in the *URLSet* have a depth of 0. Any url found on any *HTML* document of these urls will have a depth of 1 and so on. A document is only crawled if it has a depth lower than $maxdepth - 1$. Depth must be an integer equal or greater than 1.  
   
 *Example:*  
 ```  
