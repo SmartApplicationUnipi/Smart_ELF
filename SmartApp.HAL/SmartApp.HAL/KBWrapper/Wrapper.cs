@@ -8,7 +8,7 @@ namespace KBWrapper {
     //---------------------------------------------------------------
     // Wrapper Class
     //---------------------------------------------------------------
-    public class Wrapper {
+    public class Wrapper :IKbWrapper{
 
         private static readonly string USER_ENGAGED = "USER_ENGAGED";
 

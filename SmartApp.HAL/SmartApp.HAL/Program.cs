@@ -127,7 +127,7 @@ namespace SmartApp.HAL
             };
 
             kb.OnMessage += (sender, e) => {
-                Console.WriteLine("Wrapper: onMessage: " + e.asString);
+                Console.WriteLine("Wrapper: onMessage: " + e.Value);
             };
 
             kb.OnError += (sender, e) => {
