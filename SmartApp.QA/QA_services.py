@@ -2,6 +2,8 @@ import sys
 from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER
 sys.path.insert(0, PATH_TO_KB_MODULE)
 from kb import KnowledgeBaseClient
+from tree_templates.tree_matcher import match_tree
+from drs import f
 import logging
 import templates as tp
 #  libreria spacy matcher per
@@ -36,13 +38,18 @@ class QaService:
            - tree templates matching
            - DRS extraction from the provided
         """
-        answer_arr = param[0]["details"] # [0]["$input"]
-        answer = answer_arr[0]["object"]["_data"]["text"]
         logging.info("\tcallback QA called")
-
-        #res = self.kb_client.query({"_data" : {"tag": "$S", "text":"Professor Attardi"}})
-        res = self.kb_client.query({"_data" :"$X" })
-        print(res)
+        answer_arr = param[0]["details"] # [0]["$input"]
+        question_answered = self.qa_exact_temp_matching(answer_arr)
+        if question_answered==True:
+            return
+        else:
+            question_answered = match_tree(answer_arr)
+            if question_answered==True:
+                return
+            else:
+                question_answered = f(answer_arr,"TEST_rules.fcfg")
+                return question_answered
 
 
     def qa_exact_temp_matching(input_q):

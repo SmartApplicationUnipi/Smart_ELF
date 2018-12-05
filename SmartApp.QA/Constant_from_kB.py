@@ -57,6 +57,7 @@ class ConstantFromkB:
         #answer query
         answ = self.kb_client.query({"_meta": {"tag": tag}})
         if answ['success'] == False:
+            print("fail")
             return
         else:
             file.write("\n#section for " +tag + ":\n")
@@ -73,17 +74,17 @@ class ConstantFromkB:
 
     def start(self):
         "ask for 'constants' facts"
-
         logging.info("\tConstant form Kb service started")
 
-        #open file containing rules
-        rules_file = open("TEST_rules.fcfg", "a")
+        #open file containing rules and copy them in another file
+        rules_file = open("TEST_rules.fcfg")
+        rules_plus_constants_files = open("TEST_rules+constants.fcfg", "w+")
+        rules_plus_constants_files.write(rules_file.read())
 
         #extraxt info from KB
-        self.extract_teachers_from_KB(TAG_PROF,rules_file)
-        self.extract_rooms_courses_from_KB(TAG_ROOM, rules_file)
-        self.extract_rooms_courses_from_KB(TAG_COURSE, rules_file)
-
+        self.extract_teachers_from_KB(TAG_PROF,rules_plus_constants_files)
+        self.extract_rooms_courses_from_KB(TAG_ROOM, rules_plus_constants_files)
+        self.extract_rooms_courses_from_KB(TAG_COURSE, rules_plus_constants_files)
 
 if __name__ == "__main__":
 
