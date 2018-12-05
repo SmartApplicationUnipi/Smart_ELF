@@ -12,7 +12,7 @@ config_file_path = r'./config-api'
 
 class KnowledgeBaseClient():
 
-	def __init__(self, persistence=true):
+	def __init__(self, persistence=True):
 		self.persistence = persistence
 		self.port, self.host, self.token = self.config_websocket()
 		self.websocket = None
