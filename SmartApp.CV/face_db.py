@@ -382,5 +382,8 @@ class face_db():
         with open(self.PATH_DB, 'w') as file:
             json.dump(self.database, file)
 
+        if self.t and self.t.is_alive():
+            self.t.cancel()
+
     def __del__(self):
-        self.t.cancel()
+        self.close()
