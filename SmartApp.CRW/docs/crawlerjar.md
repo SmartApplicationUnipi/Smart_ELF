@@ -11,11 +11,22 @@ Running the jar file:
   
 All flags can be inserted in any order you desire. Some flags are mandatory and others are optional. For the optional ones, not providing them will load the default values.  
 <br>  
+
+**-continuous** 
+<br>
+*Optional*
+
+Sets the crawler to run continuously, with a default value of 720 minutes *(12 hours)* between each crawl cycle.
   
+**-continuous [sleep-time-minutes]**  
+*Optional*
+
+Sets the crawler to run continuously, with a given sleep time in minutes between each crawl cycle.
+ 
 **-d [depth]**  
 *Optional, DEFAULT = 1*  
   
-Sets the maximum depth that will be crawled. Basically, whenever an *HTML* document contains links to other websites, the Crawler will add them to the crawling queue. This is done up to a limit, which is called the **maximum crawling depth**. All the urls in the *URLSet* have a depth of 0. Any url found on any *HTML* document of these urls will have a depth of 1 and so on. A document is only crawled if it has a depth lower than $maxdepth - 1$. Depth must be an integer equal or greater than 1.  
+Sets the maximum depth that will be crawled. Basically, whenever an *HTML* document contains crawlerAddresses to other websites, the Crawler will add them to the crawling queue. This is done up to a limit, which is called the **maximum crawling depth**. All the urls in the *URLSet* have a depth of 0. Any url found on any *HTML* document of these urls will have a depth of 1 and so on. A document is only crawled if it has a depth lower than $maxdepth - 1$. Depth must be an integer equal or greater than 1.  
   
 *Example:*  
 ```  

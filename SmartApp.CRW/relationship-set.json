@@ -49,8 +49,7 @@
 			}
 		]
 	],
-
-	["http://gap.adm.unipi.it/GAP-A-Fibonacci/rawdata.cgi/01/11/2018-31/12/2018",
+	["http://gap.adm.unipi.it/GAP-A-Fibonacci/rawdata.cgi/{date.current.month.begin}-{date.current.month.end}",
 		[
 			{
 				"tag" : "crawler_room_event",
