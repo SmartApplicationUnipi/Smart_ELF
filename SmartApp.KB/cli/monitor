@@ -1,0 +1,10 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+while :
+do
+    clear
+    echo "Executing commang '$@'"
+    $DIR/"$@"
+    sleep 3
+done
