@@ -308,7 +308,6 @@ class face_db():
             key = key if not (_random_key(), None, None) in self else None
 
         if not (key, *value) in self:
-            print(str([key, *value]))
             self.database.append([key, *value])
             return key
         else:
@@ -335,8 +334,6 @@ class face_db():
             key = _validate_key(item_or_key)
         except TypeError:
             key, value = _take(item_or_key)
-            if key is None:
-                raise IndexError("key not exist")
         else:
             item_or_key = (key, None, None)
 

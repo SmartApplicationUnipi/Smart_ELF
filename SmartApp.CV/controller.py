@@ -154,9 +154,10 @@ class Controller():
     def _get_id_person(self, fact, tuple, img):
         if fact is not None and tuple is not None:
             res = self.db.soft_get(tuple)
+
             # res = [ [ tuple1, confidence1 ] ... [tuple_n, confidence_n] ]
             if len(res) > 0: #something matches
-                vals = [res[0][0], res[0][1], True]
+                vals = [res[0][0][0], res[0][1], True]
             elif self.has_api_problem: #offline module case
                 vals = [self.db.insert(tuple), 0, False]
 
@@ -165,11 +166,11 @@ class Controller():
                 res = self.db.soft_get((descriptor, None))
                 if len(res) > 0: #something matches
                     #return ID and update record with the token
-                    vals = [res[0][0], res[0][1], True]
-                    n, va = self.db.modify((None, None, fact['personID']), (None, descriptor, None))
+                    vals = [res[0][0][0], res[0][1], True]
+                    self.db.modify((None, descriptor  , None), (None, None, fact['personID']))
                 else:
                     #no match add it to db
-                    vals = [self.db.insert((descriptor, None)), 0, False]
+                    vals = [self.db.insert((descriptor, fact['personID'])), 0, False]
 
             atts = ['personID', 'confidence_identity', 'known']
             for att, val in zip(atts, vals):
@@ -187,7 +188,6 @@ class Controller():
         face_obj, frame_size, img = None, None, None
         while True:
             if self.flag.is_set():
-                print("sto chiudendo")
                 break
             try:
                 if self.is_host:
@@ -200,9 +200,9 @@ class Controller():
                     img = face_obj = cv2.resize(frame, frame_size)
                 fact, tuple = self.watch(face_obj, frame_size)
                 # tuple = (descriptor, token)
-                fact = self._get_id_person(fact, tuple, img)
-
-                self._add_fact_to_kb(fact)
+                if fact and tuple:
+                    fact = self._get_id_person(fact, tuple, img)
+                    self._add_fact_to_kb(fact)
             except Exception as e:
                 print("_worker function ->"+type(e).__name__, e)
                 self.has_api_problem = True
@@ -210,6 +210,7 @@ class Controller():
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         try:
+            print(fact)
             self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
         except Exception as e:
             print("Could not add fact", e)
