@@ -143,7 +143,6 @@ class Controller():
         if fact is not None and tuple is not None:
             res = self.db.soft_get(tuple)
             # res = [ [ tuple1, confidence1 ] ... [tuple_n, confidence_n] ]
-
             if len(res) > 0: #something matches
                 vals = [res[0][0], res[0][1], True]
 
@@ -152,7 +151,6 @@ class Controller():
 
             else: #online module case
                 descriptor = self.offline_module.get_descriptor(img)
-
                 res = self.db.soft_get((descriptor, None))
                 if len(res) > 0: #something matches
                     #return ID and update record with the token
@@ -191,8 +189,7 @@ class Controller():
                     img = face_obj = cv2.resize(frame, frame_size)
                 fact, tuple = self.watch(face_obj, frame_size)
                 # tuple = (descriptor, token)
-                print("\nid person")
-                #fact = self._get_id_person(fact, tuple, img)
+                fact = self._get_id_person(fact, tuple, img)
 
                 #self._add_fact_to_kb(fact)
             except Exception as e:
@@ -271,7 +268,7 @@ class Controller():
         if self.t:
             self.t.join()
         if self.timer:
-            self.timer.close()
+            self.timer.cancel()
 
     def __del__():
         self.close()
