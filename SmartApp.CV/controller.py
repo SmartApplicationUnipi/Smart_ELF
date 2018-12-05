@@ -190,6 +190,7 @@ class Controller():
         face_obj, frame_size, img = None, None, None
         while True:
             if self.flag.is_set():
+                print("sto chiudendo")
                 break
             try:
                 if self.is_host:
@@ -283,6 +284,9 @@ class Controller():
             self.t.join()
         if self.timer:
             self.timer.close()
+
+    def __del__():
+        self.close()
 
 if __name__ == '__main__':
     controller = Controller(host = "webcam")
