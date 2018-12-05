@@ -2,8 +2,8 @@
 # STARTING TOKEN
 ####################
 
-#% start CS
-% start TV
+#% start S
+% start S
 
 ###############
 # GRAMMAR RULES
@@ -59,38 +59,29 @@ RECU_UCNP[SEM=?s,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>
 #TODO: VERB_ADD is treated poorly syntactically, with no semantic meaning, decide if this is correct
 #TODO: decide if to force VERB_ADD to be HAN=1
 
-TV[SEM=?o,PRON=?n,HAN=?d,PRED=?p] -> VERB_ADD[PRON=?n] TV[SEM=?o,HAN=?d,PRED=?p]
-#...
 
-RECU_TV[SEM=?s,SEMD=<\P.(DRS([],[])+P(x))>,HAN=0,PRED=?p] -> BASE_TV[SEM=?s,PRED=?p]
-RECU_TV[SEM=?s,SEMD=<\P H.(DRS([x],[])+P(x)+H(x))>,HAN=1,PRED=?p] -> BASE_TV[SEM=?s,PRED=?p]
-RECU_TV[SEM=?s,SEMD=<\P Q H.(DRS([x],[])+P(x)+Q(x)+H(x))>,HAN=2,PRED=?p] -> BASE_TV[SEM=?s,PRED=?p]
-RECU_TV[SEM=?s,SEMD=<\P Q R H.(DRS([x],[])+P(x)+Q(x)+R(x)+H(x))>,HAN=3,PRED=?p] -> BASE_TV[SEM=?s,PRED=?p]
-RECU_TV[SEM=?s,SEMD=<\P Q R S H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+H(x))>,HAN=4,PRED=?p] -> BASE_TV[SEM=?s,PRED=?p]
-RECU_TV[SEM=?s,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,HAN=5,PRED=?p] -> BASE_TV[SEM=?s,PRED=?p]
-#...
 
 #####Complex Sentence#####
 #TODO: decide if to force COMPL to be HAN=1
 
-CS[SEM=<app(?o,?p)>,DEP=0] -> COMPL[SEM=?p] CS[SEM=?o,DEP=1]
-CS[SEM=<app(?o,?p)>,DEP=1] -> COMPL[SEM=?p] CS[SEM=?o,DEP=2]
-CS[SEM=<app(?o,?p)>,DEP=2] -> COMPL[SEM=?p] CS[SEM=?o,DEP=3]
-CS[SEM=<app(?o,?p)>,DEP=3] -> COMPL[SEM=?p] CS[SEM=?o,DEP=4]
+CS[SEM=<app(?o,?p)>,HAN=0,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=1,SEMS=?s]
+CS[SEM=<app(?o,?p)>,HAN=1,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=2,SEMS=?s]
+CS[SEM=<app(?o,?p)>,HAN=2,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=3,SEMS=?s]
+CS[SEM=<app(?o,?p)>,HAN=3,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=4,SEMS=?s]
 #...
 
-CS[SEM=<app(?o,?p)>,DEP=0] -> CS[SEM=?o,DEP=1] COMPL[SEM=?p]
-CS[SEM=<app(?o,?p)>,DEP=1] -> CS[SEM=?o,DEP=2] COMPL[SEM=?p]
-CS[SEM=<app(?o,?p)>,DEP=2] -> CS[SEM=?o,DEP=3] COMPL[SEM=?p]
-CS[SEM=<app(?o,?p)>,DEP=3] -> CS[SEM=?o,DEP=4] COMPL[SEM=?p]
+CS[SEM=<app(?o,?p)>,HAN=0,SEMS=?s] -> CS[SEM=?o,HAN=1,SEMS=?s] COMPL[SEM=?p]
+CS[SEM=<app(?o,?p)>,HAN=1,SEMS=?s] -> CS[SEM=?o,HAN=2,SEMS=?s] COMPL[SEM=?p]
+CS[SEM=<app(?o,?p)>,HAN=2,SEMS=?s] -> CS[SEM=?o,HAN=3,SEMS=?s] COMPL[SEM=?p]
+CS[SEM=<app(?o,?p)>,HAN=3,SEMS=?s] -> CS[SEM=?o,HAN=4,SEMS=?s] COMPL[SEM=?p]
 #...
 
-REC_ACC[SEM=?s,SEMD=<\P.(DRS([],[])+P(x))>,DEP=0] -> MS[PRED=?s]
-REC_ACC[SEM=?s,SEMD=<\P H.(DRS([x],[])+P(x)+H(x))>,DEP=1] -> MS[PRED=?s]
-REC_ACC[SEM=?s,SEMD=<\P Q H.(DRS([x],[])+P(x)+Q(x)+H(x))>,DEP=2] -> MS[PRED=?s]
-REC_ACC[SEM=?s,SEMD=<\P Q R H.(DRS([x],[])+P(x)+Q(x)+R(x)+H(x))>,DEP=3] -> MS[PRED=?s]
-REC_ACC[SEM=?s,SEMD=<\P Q R S H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+H(x))>,DEP=4] -> MS[PRED=?s]
-REC_ACC[SEM=?s,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,DEP=5] -> MS[PRED=?s]
+REC_ACC[SEM=?p,SEMD=<\P.(DRS([],[])+P(x))>,HAN=0,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P H.(DRS([x],[])+P(x)+H(x))>,HAN=1,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q H.(DRS([x],[])+P(x)+Q(x)+H(x))>,HAN=2,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q R H.(DRS([x],[])+P(x)+Q(x)+R(x)+H(x))>,HAN=3,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q R S H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+H(x))>,HAN=4,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,HAN=5,SEMS=?s] -> MS[PRED=?p,SEM=?s]
 #...
 
 #########################
@@ -99,15 +90,20 @@ REC_ACC[SEM=?s,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,D
 #TODO:add number (NUM) and gender (GEN) checks!!
 
 #####SENTENCES#####
+#TODO: merge SEM and SEMS
+S[SEM=<(?s+?f)>] -> CS[SEM=?s,HAN=0,SEMS=?f]
 
 #####Complex Sentence#####
 #defined recursively to add complements
-CS[SEM=<app(?t,?r)>,DEP=?d] -> REC_ACC[SEM=?r,SEMD=?t,DEP=?d]
+CS[SEM=<app(?t,?r)>,HAN=?d,SEMS=?s] -> REC_ACC[SEM=?r,SEMD=?t,HAN=?d,SEMS=?s]
 
-MS[SEM=<app(?n,?v)>,HAN=0,PRED=?p] -> VP[SEM=?v,PRON=?n,HAN=0,PRED=?p]
+MS[SEM=<app(?n,?v)>,PRED=?p] -> VP[SEM=?v,PRON=?n,PRED=?p]
 
+#########################
 #####NOUN PHRASES#####
+#########################
 #defined recursively to add determinants
+
 UCNP[SEM=<app(?t,?r)>,HAN=?d] -> RECU_UCNP[SEM=?r,SEMD=?t,HAN=?d]
 
 NP[SEM=?n,HAN=?d] -> PNP[SEM=?n,HAN=?d]
@@ -127,23 +123,25 @@ UPNP[SEM=<app(?r,?n)>,HAN=0] -> UAPPO[SEM=?n] NP[SEM=?r,HAN=1]
 UPNP[SEM=<app(?r,?n)>,HAN=1] -> UAPPO[SEM=?n] NP[SEM=?r,HAN=2]
 UPNP[SEM=<app(?r,?n)>,HAN=2] -> UAPPO[SEM=?n] NP[SEM=?r,HAN=3]
 
+#########################
 #####VERBAL PHRASES#####
+#########################
 
-VP[SEM=<app(?v,?o)>,PRON=?n,HAN=0,PRED=?p] -> TV[SEM=?v,PRON=?n,HAN=1,PRED=?p] OBJ[SEM=?o,HAN=1]
-VP[SEM=<app(?v,?o)>,PRON=?n,HAN=1,PRED=?p] -> TV[SEM=?v,PRON=?n,HAN=2,PRED=?p] OBJ[SEM=?o,HAN=1]
-VP[SEM=<app(?v,?o)>,PRON=?n,HAN=2,PRED=?p] -> TV[SEM=?v,PRON=?n,HAN=3,PRED=?p] OBJ[SEM=?o,HAN=1]
+VP[SEM=<app(?v,?o)>,PRON=?n,PRED=?p] -> TV[SEM=?v,PRON=?n,PRED=?p] OBJ[SEM=?o,HAN=1]
 
 #####Transitive Verbs#####
 #TODO: VERB_ADD bring no semantic meaning, they're just syntactic
 #defined recursively to add VERB_ADDs (auxiliary, servile, passive forms, ...)
-TV[SEM=?r,HAN=?d,PRED=?p] -> RECU_TV[SEM=?r,SEMD=?t,HAN=?d,PRED=?p]
-BASE_TV[SEM=?v,PRED=?p] -> IFTV[SEM=?v,PRED=?p]
+TV[SEM=?o,PRON=?n,PRED=?p] -> VERB_ADD[PRON=?n] TV[SEM=?o,PRED=?p]
+TV[SEM=?s,PRED=?p] -> IFTV[SEM=?s,PRED=?p]
 
 #####Verb Additions#####
 #TODO: add auxiliary verbs and passive forms and, maybe, add a semantic
 VERB_ADD[PRON=?p] -> SERV[PRON=?p]
 
+#########################
 #####APPOSITIONS#####
+#########################
 
 #####Articled Apposition#####
 #TODO: define apposizione (both ART+CNOUN or PNOUN)
@@ -153,14 +151,18 @@ VERB_ADD[PRON=?p] -> SERV[PRON=?p]
 #####Unrticled Apposition#####
 UAPPO[SEM=?n] -> CNOUN[SEM=?n]
 
+#########################
 #####DETERMINANTS#####
+#########################
 #TODO: define adjectives as determinants
 #TODO: discern between determinants complements (introduced by 'di','con',derivates,...) and non-determinants complements (others)
 #TODO: DET -> COMPL rules creates a cycle (DET -> COMPL -> UCNP -> DET) and this can be a problem
 
 DET[SEM=?c] -> COMPL[SEM=?c]
 
+#########################
 #####COMPLEMENTS#####
+#########################
 #TODO: define other complements
 #TODO: decide if other HAN levels are needed
 
@@ -197,7 +199,8 @@ CNOUN[SEM=<\x.(DRS([],[lecture(x)]))>] -> 'lezione'
 
 #####ADVERBS#####
 
-ADV[SEM=<\x.(DRS([],[unknown(x),target(x),location(x)]))>] -> 'dove'
+#TODO: specify complement type and adequate the relative predicate
+ADV[SEM=<\x.(DRS([y],[unknown(y),target(y),location(y),complement(x,y)]))>] -> 'dove'
 
 #####VERBS#####
 
@@ -205,4 +208,4 @@ ADV[SEM=<\x.(DRS([],[unknown(x),target(x),location(x)]))>] -> 'dove'
 SERV[PRON=<\P.(DRS([x],[subject(x),singular(x),1stperson(x)])+P(x))>] -> 'posso'
 
 #####Infinite-form transitive verbs#####
-IFTV[SEM=<\X x.(X(\y.\v.(DRS([],[locate(v),RDF(x,v,y)]))))>,PRED=<\x.(DRS([],[predicate(x),locate(x)]))>] -> 'trovare'
+IFTV[SEM=<\X x.(X(\y.((DRS([],[locate(x,y)])))))>,PRED=<\x.(DRS([],[predicate(x),locate(x)]))>] -> 'trovare'
