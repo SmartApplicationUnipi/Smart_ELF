@@ -123,6 +123,7 @@ export class SVGFace extends Face implements IAnimated {
                     c-21.204,0-38.461-17.257-38.461-38.461V69.086z"/>\
             </g>\
             </svg>\
+            <p class="test" style="border: solid 2px black; height: 30px;"></p>\
         </div>';
     }
 }

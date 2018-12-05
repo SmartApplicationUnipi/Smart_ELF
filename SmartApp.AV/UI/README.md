@@ -6,7 +6,15 @@ It can display several types of informations (see below) and provides mechanism 
 
 It is connected to the TTS module to receive the audio data to play and with the KB in order to display different kind of informations. If the connection goes down, the system will  try to reconnect after a certain amount of time (default: 10s).
 
-The interaction is event-based: the UI receives an event and react to it.
+The interaction is event-based: the UI receives an event and reacts to it.
+
+## KB Interaction
+
+The UI is subscribed to the KB for the following tuples:
+
+- { "TAG": "UI_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple can be used to trigger an emotion change of the face.
+- { "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "\$a", "yaw": "\$b" } }: This tuple can be used to let the face pointing the user
+- { "TAG": "ENLP_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple is used to get the internal emotion of ELF. It is similar to UI_ELF_EMOTION but is triggered only by the ENLP group.
 
 ## Event
 

@@ -9,7 +9,8 @@ export abstract class PropertyAdapter {
             { alpha: emotion.getAnger(), value: this.anger(emotion.getAnger()) },
             { alpha: emotion.getSurprise(), value: this.surprise(emotion.getSurprise()) },
             { alpha: emotion.getFear(), value: this.fear(emotion.getFear()) },
-            { alpha: emotion.getHappiness(), value: this.happiness(emotion.getHappiness()) }
+            { alpha: emotion.getHappiness(), value: this.happiness(emotion.getHappiness()) },
+            { alpha: emotion.getCalm(), value: this.calm(emotion.getCalm()) }
         ];
 
         let combiners = values.reduce((dict, val) => {
@@ -37,4 +38,5 @@ export abstract class PropertyAdapter {
     abstract surprise(surprise: number): object;
     abstract fear(fear: number): object;
     abstract happiness(happiness: number): object;
+    abstract calm(calm: number): object;
 }

@@ -9,6 +9,9 @@ export interface ISBEEmotion {
 	getSurprise(): number;
 	getFear(): number;
 	getHappiness(): number;
+	getCalm(): number;
+
+	toString(): string;
 }
 
 export class SBEEmotion implements ISBEEmotion {
@@ -18,7 +21,8 @@ export class SBEEmotion implements ISBEEmotion {
 		protected anger: number = 0,
 		protected surprise: number = 0,
 		protected fear: number = 0,
-		protected happiness: number = 0) { }
+		protected happiness: number = 0,
+		protected calm: number = 0) { }
 
 	public getSadness(): number {
 		return this.sadness;
@@ -43,6 +47,21 @@ export class SBEEmotion implements ISBEEmotion {
 	public getHappiness(): number {
 		return this.happiness;
 	}
+
+	public getCalm(): number {
+		return this.calm;
+	}
+
+	public toString(): string {
+		return "["
+		+ "sadness: " + this.sadness + ", "
+		+ "disgust: " + this.disgust + ", "
+		+ "anger: " + this.anger + ", "
+		+ "surprise: " + this.surprise + ", "
+		+ "fear: " + this.fear + ", "
+		+ "happiness: " + this.happiness
+		+"]"
+	}
 }
 
 // 6 Basic emotions points of valence and arousal
@@ -52,6 +71,7 @@ const EMOTION_ANGER = new Point(-0.65, 0.35);
 const EMOTION_SURPRISE = new Point(0.25, 0.57);
 const EMOTION_FEAR = new Point(-0.60, 0.75);
 const EMOTION_HAPPINESS = new Point(0.25, 0.75);
+const EMOTION_CALM = new Point(0.1, -0.9);
 
 /**
  * Function used: 1 - x^0.7
@@ -81,6 +101,7 @@ export class ValenceArousalEmotion extends SBEEmotion {
 		this.surprise = computeBelonging(EMOTION_SURPRISE.distanceTo(p));
 		this.fear = computeBelonging(EMOTION_FEAR.distanceTo(p));
 		this.happiness = computeBelonging(EMOTION_HAPPINESS.distanceTo(p));
+		this.calm = computeBelonging(EMOTION_CALM.distanceTo(p));
 	}
 
 	public getArousal(): number {
@@ -111,6 +132,13 @@ export class ValenceArousalEmotion extends SBEEmotion {
 	// 	else if (angle < 300.0) return EMOTION.DISGUST;
 	// 	else return EMOTION.SUPRISE;
 	// }
+
+	public toString(): string {
+		return "["
+		+ "valence: " + this.valence + ", "
+		+ "arousal: " + this.arousal
+		+"]"
+	}
 }
 
 export abstract class EmotionColorAdapter {

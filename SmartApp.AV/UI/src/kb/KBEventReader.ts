@@ -34,9 +34,12 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * List of queries for the KB.
 	 */
 	private eventToSubscribe: Array<object> = [
-		// { "TAG": "ENLP_EMOTIVE_ANSWER", "text": "$x", "valence": "$v", "arousal": "$a" },
+		// Other modules events
 		{ "TAG": "ENLP_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
-		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } }
+		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } },
+
+		// UI Events
+		{ "TAG": "UI_ELF_EMOTION", "valence": "$v", "arousal": "$a" }
 	];
 
 	private rulesToAdd = [
@@ -91,8 +94,8 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 				let ev1 = (new ElfUIEvent())
 					.putAny(KEY_CONTENT, data);
 
-				if (emotion1.valence && emotion1.arousal) {
-					ev1.putAny(KEY_EMOTION, emotion1);
+				if (emotion1.valence != void 0 && emotion1.arousal != void 0) {
+					ev1.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion1.valence, emotion1.arousal));
 				}
 				return ev1;
 			case 'ENLP_ELF_EMOTION':
@@ -103,7 +106,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 				let ev2 = (new ElfUIEvent())
 					.putAny(KEY_CONTENT, data);
 
-				if (emotion2.valence && emotion2.arousal) {
+				if (emotion2.valence != void 0 && emotion2.arousal != void 0) {
 					ev2.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion2.valence, emotion2.arousal));
 				}
 				return ev2;
@@ -113,10 +116,22 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 					y: data['look_at']['yaw']
 				}
 				let ev3 = new ElfUIEvent();
-				if(position.x && position.y) {
+				if(position.x != void 0 && position.y != void 0) {
 					ev3.putAny(KEY_POSITION, new Point(position.x, position.y));
 				}
 				return ev3;
+			case 'UI_ELF_EMOTION':
+				let emotion4 = {
+					valence: data['valence'],
+					arousal: data['arousal']
+				}
+				let ev4 = (new ElfUIEvent())
+					.putAny(KEY_CONTENT, data);
+
+				if (emotion4.valence != void 0 && emotion4.arousal != void 0) {
+					ev4.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion4.valence, emotion4.arousal));
+				}
+				return ev4;
 		}
 
 		Logger.getInstance().log(Logger.LEVEL.ERROR, "Response not recognized.", response);
