@@ -41,7 +41,11 @@ Now, just iterate the **DataEntry**'s and processed in any way you see fit.
 
 The crawler module uses a **Crawler Manager** to perform the crawling of all objects, it manages and assigns **Crawler** entities for the assigned URLs in the *URLSet*. The manager will use as many threads as available b0y the CPU, therefore exploiting all the parallelism it can.  
 
-<img src="docs/Arch.png" width=120>
+<br>
+<div style="text-align: center">
+<img src="docs/Arch.png" width=400>
+</div>
+<br>
 
 ## URL Set
 An URL set is the set of all crawlerAddresses that the manager will perform crawling on. If new crawlerAddresses are discovered, they will also be crawled until a certain depth. In order to not crawl any new url that wasn't initially provided, the user can pass a max crawling depth of 1. Notice that for each crawled document, the amount of newly found crawlerAddresses grows exponentially, on average, so a huge depth may cause the system to run out of memory or take an exponential amount of time. 
