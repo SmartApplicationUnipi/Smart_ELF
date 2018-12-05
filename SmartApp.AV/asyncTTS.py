@@ -10,7 +10,7 @@ import janus
 sys.path.insert(0, '../SmartApp.KB/bindings/python/')
 import kb
 from kb import KnowledgeBaseClient
-
+import logging
 
 def make_mary_text(text, valency, arousal):
     """
@@ -69,9 +69,7 @@ def make_audio(txt, lang="en-GB"):
             break
 
     if not good_response:
-        print("MaryTTS didn't provide audio")
-        raise Exception(content)
-        #TODO log
+        log.error("MaryTTS didn't provide audio: " + str(content))
 
     return content
 
@@ -135,18 +133,18 @@ async def kb_to_audio(queue):
                                             "language": "$l"}}, callbfun) #todo change with appropriate tag'''
 
 
-def face_communication(queue):
+def face_communication(queue, log):
     """
     This function handles the communication with the face-client
     :param queue: blocking asynchronous queue
     :return:  WebSocketServer object
     """
     async def echo(websocket, path): # on client connections
-        # TODO log
+        log.info("New connection " + str(websocket))
         while True:
             data = await queue.get()
             await websocket.send(json.dumps(data))
-            print("sent data:", data["id"])
+            log.info(str(websocket)+ " sent data:" + str(data["id"]))
 
     return websockets.serve(echo, HOST, PORT)
 
@@ -155,9 +153,12 @@ if __name__ == '__main__':
     HOST = '10.101.27.153'  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
+    log = logging.basicConfig(filename='TTS.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+    log.info("Start TTS process")
+
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    loop.run_until_complete(kb_to_audio(q.sync_q))
-    #loop.run_until_complete(face_communication(q.async_q))
+    loop.run_until_complete(kb_to_audio(q.sync_q,log))
+    #loop.run_until_complete(face_communication(q.async_q, log))
     loop.run_forever()

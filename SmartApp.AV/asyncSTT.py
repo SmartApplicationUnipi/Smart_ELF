@@ -15,11 +15,9 @@ from os import path
 import time
 import io
 import sentimental_analizer
-
-
+import logging
 
 #TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
-
 
 def recognize(model, audio, recognizer, language="it_IT"): #en_US"):
         """
@@ -50,22 +48,21 @@ def recognize(model, audio, recognizer, language="it_IT"): #en_US"):
 
             print(res["text"])
         except sr.UnknownValueError:
-            print(model + " could not understand audio")
+            #print(model + " could not understand audio")
             res["error"] = "UnknownValueError"
-            # TODO logs
         except sr.RequestError as e:
-            print(model + " error; {0}".format(e))
+            #print(model + " error; {0}".format(e))
             res["error"] = "RequestError"
-            #TODO logs
 
         return res
 
 
-async def speech_to_text(queue):
+async def speech_to_text(queue, log):
     """
     This function implements the translation from speech to text with online and offline services, and compute the
     emotion related to the speech
     :param queue: process shared queue
+    :param log: logging module
     """
 
     kb_client = kb.KnowledgeBaseClient(False)
@@ -78,11 +75,9 @@ async def speech_to_text(queue):
     try:
         google_client = speech.SpeechClient()
     except exceptions.DefaultCredentialsError as e:
-        print("Failed to authenticate with Google Cloud Speech recognition")
-        print(e)
+        log.error("Failed to authenticate with Google Cloud Speech recognition" + str(e))
     except :
-        print("Unexpected error. Failed to authenticate with Google Cloud Speech recognition:", sys.exc_info()[0])
-        # TODO log file
+        log.error("Unexpected error. Failed to authenticate with Google Cloud Speech recognition:"+ str(sys.exc_info()[0]))
 
     with ThreadPoolExecutor() as executor:
 
@@ -100,32 +95,33 @@ async def speech_to_text(queue):
             sphinx = executor.submit(recognize, "sphinx", audio, r)
 
             # Compute the emotion related to the audio
-            emotion = executor.submit(sentimental_analizer.emotion_from_speech, sampleRate, audio)
+            emotion = executor.submit(sentimental_analizer.emotion_from_speech, sampleRate, audio, log)
 
             res = google_cloud.result()
             if res["error"] is None:
                 # Add to KB Google cloud speech recognition result with timestamp and ID
-                print("Insert into KB --> Google cloud speech recognition result")
+                log.info("Insert into KB --> Google cloud speech recognition result: " + str(res["text"]))
 
             else:
+                log.warning("Google cloud speech recognition " + str(res["error"]))
                 res = google.result()
                 if res["error"] is None:
                     # Add to KB Google result with timestamp and ID
-                    print("Insert into KB --> Google result")
+                    log.info("Insert into KB --> Google result: " + str(res["text"]))
                 else:
+                    log.warning("Google " + str(res["error"]))
                     res = sphinx.result()
                     if res["error"] is None:
                         # Add to KB Sphinx result with timestamp and ID
-                        print("Insert into KB --> Sphinx result")
+                        log.info("Insert into KB --> Sphinx result: " + str(res["text"]))
+                    else:
+                        log.warning("Sphinx " + str(res["error"]))
 
             emotion = emotion.result()
 
             myID = 'stt'
             if res["error"] is None:
                 # Add to KB that the transcription of the audio
-                print("Insert into KB the transcription of the audio, retrieved from ", res["model"])
-                print(res["text"])
-
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
@@ -138,7 +134,7 @@ async def speech_to_text(queue):
 
             else:
                 # Add to KB that none of google and sphinx retrieved a result
-                print("Insert into KB that no Google or Sphinx result")
+                log.error("Insert into KB that no Google or Sphinx result")
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
@@ -149,11 +145,12 @@ async def speech_to_text(queue):
                                                                          })
 
 
-async def myHandler(queue):
+async def myHandler(queue, log):
     """
     This function implements the communication with the microphone, appending all the message
     received to a queue.
     :param queue: async queue in which append the audioMessage
+    :param log: logging module
     """
     def handleAudioMessages(audioMessage):
         print("Received audio:\n\tTimestamp:%d\n\tChannels:%d\n\tSampleRate:%d\n\tBitPerSample:%d\n\t%d bytes of data\n\n" %
@@ -168,9 +165,12 @@ if __name__ == '__main__':
     HALAddress = "10.101.60.139"  # default
     HALAudioPort = 2001  # default
 
+    log = logging.basicConfig(filename='STT.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
+    log.info("Start STT process")
+
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    loop.run_until_complete(myHandler(q.sync_q))
-    loop.run_until_complete(speech_to_text(q.async_q))
+    loop.run_until_complete(myHandler(q.sync_q, log))
+    loop.run_until_complete(speech_to_text(q.async_q, log))
     loop.run_forever()

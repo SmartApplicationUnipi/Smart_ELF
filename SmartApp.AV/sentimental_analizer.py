@@ -8,13 +8,14 @@ import numpy as np
 import pickle
 
 
-def emotion_from_speech(Fs, x, model_name="pyAudioAnalysis/pyAudioAnalysis/data/svmSpeechEmotion", model_type="svm"):
+def emotion_from_speech(Fs, x, model_name="pyAudioAnalysis/pyAudioAnalysis/data/svmSpeechEmotion", model_type="svm", log):
     """
 
     :param Fs: frame rate
     :param x: data
     :param model_name:
     :param model_type:
+    :param log:
     :return:
     """
     regression_models = glob.glob(model_name + "_*")
@@ -54,26 +55,23 @@ def emotion_from_speech(Fs, x, model_name="pyAudioAnalysis/pyAudioAnalysis/data/
         R.append(aT.regressionWrapper(model, model_type, curFV))
 
     if R[0] > 1:
+        log.warning("Valence > 1")
         emotion["valence"] = 1
-        print("valence > 1")
-        # TODO log
     elif R[0] < -1:
-        print("valence < -1")
-        # TODO log
+        log.warning("Valence < -1")
         emotion["valence"] = -1
     else:
         emotion["valence"] = R[0]
 
     if R[1] > 1:
+        log.warning("Arousal > 1")
         emotion["arousal"] = 1
-        print("arousal > 1")
-        # TODO log
     elif R[1] < -1:
-        print("arousal < -1")
-        # TODO log
+        log.warning("Arousal < -1")
         emotion["arousal"] = -1
     else:
         emotion["arousal"] = R[1]
+
     return emotion
 
 '''
