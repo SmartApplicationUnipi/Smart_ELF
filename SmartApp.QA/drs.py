@@ -10,6 +10,10 @@ parser = load_parser('ELF_rules.fcfg', trace=0, logic_parser=DrtParser())
 sentence = 'la lezione del professor Attardi'
 #sentence = 'Angus knows Irene'
 
-for tree in parser.parse(sentence.split()):
-    print(tree)
-    #print(tree.label()['SEM'].simplify())
+def f(s):
+    for tree in parser.parse(sentence.split()):
+        print(tree)
+        #print(tree.label()['SEM'].simplify())
+
+if __name__ == "__main__":
+    f(sentence)
