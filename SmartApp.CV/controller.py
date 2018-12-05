@@ -65,9 +65,10 @@ class Controller():
             se host è webcam uso la webcam
         """
         # Ops for KB
-        #self._kb = kb(persistence = True)
-        # mi registrerò
-        #self._kb.registerTags(DOCS)
+        self._kb = kb(True)
+        self._kb_ID = (self.kb.register())['details']
+        #mi registrerò
+        self._kb.registerTags(DOCS)
 
         # Ops for stream in input
         self.is_host = not (host == "webcam")
@@ -203,7 +204,7 @@ class Controller():
                 # tuple = (descriptor, token)
                 fact = self._get_id_person(fact, tuple, img)
 
-                #self._add_fact_to_kb(fact)
+                self._add_fact_to_kb(fact)
             except Exception as e:
                 print("_worker function ->"+type(e).__name__, e)
                 self.has_api_problem = True
@@ -211,7 +212,7 @@ class Controller():
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         try:
-            self._kb.addFact("face", tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
+            self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
         except Exception as e:
             print("Could not add fact", e)
 
