@@ -48,7 +48,7 @@ class QaService:
             if question_answered==True:
                 return
             else:
-                question_answered = f(answer_arr,"TEST_rules.fcfg")
+                question_answered = f(answer_arr,"TEST_rules+constants.fcfg")
                 return question_answered
 
 
