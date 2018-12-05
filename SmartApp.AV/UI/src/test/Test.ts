@@ -95,13 +95,13 @@ export class TestEventReader extends BaseEventReader {
 
 		this.events.push(pos1)
 
-		this.events.push(e1)
+		// this.events.push(e1)
 		// this.events.push(e2)
-		// this.events.push(e3)
+		this.events.push(e3)
 		
-		this.events.push(pos2)
+		// this.events.push(pos2)
 		
-		this.events.push(e4)
+		// this.events.push(e4)
 		this.events.push(e5)
 		// this.events.push(e6)
 		// this.events.push(e7)

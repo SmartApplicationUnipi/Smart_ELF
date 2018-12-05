@@ -46,19 +46,19 @@ export class EyebrowRotationPropertyAdapter extends PropertyAdapter {
 
     sadness(sadness: number): object {
         return {
-            firstControlPointX: 10,
+            firstControlPointX: 0,
             firstControlPointY: 10,
-            secondControlPointX: -10,
+            secondControlPointX: 0,
             secondControlPointY: 10
         };
     }
 
     disgust(disgust: number): object {
         return {
-            firstControlPointX: 10,
-            firstControlPointY: 10,
-            secondControlPointX: -10,
-            secondControlPointY: -10
+            // firstControlPointX: 10,
+            // firstControlPointY: 10,
+            // secondControlPointX: -10,
+            // secondControlPointY: -10
         };
     }
 
@@ -70,25 +70,28 @@ export class EyebrowRotationPropertyAdapter extends PropertyAdapter {
 
     surprise(surprise: number): object {
         return {
-            firstControlPointX: 10,
-            firstControlPointY: -60,
-            secondControlPointX: -10,
-            secondControlPointY: -60
+            // firstControlPointX: 10,
+            // firstControlPointY: -10,
+            // secondControlPointX: -10,
+            // secondControlPointY: -10
         };
     }
 
     fear(fear: number): object {
         return {
-            // TODO: needs of the start and end positions
+            // firstControlPointX: 0,
+            // firstControlPointY: 0,
+            // secondControlPointX: 0,
+            // secondControlPointY: 0
         };
     }
 
     happiness(happiness: number): object {
         return {
-            firstControlPointX: 10,
-            firstControlPointY: -10,
-            secondControlPointX: -10,
-            secondControlPointY: -10
+            // firstControlPointX: 10,
+            // firstControlPointY: -10,
+            // secondControlPointX: -10,
+            // secondControlPointY: -10
         };
     }
 }
@@ -97,9 +100,9 @@ export class MouthRotationPropertyAdapter extends PropertyAdapter {
 
     sadness(sadness: number): object {
         return {
-            firstControlPointX: 10,
+            firstControlPointX: 0,
             firstControlPointY: -50,
-            secondControlPointX: 10,
+            secondControlPointX: 0,
             secondControlPointY: -50
         };
     }
@@ -124,9 +127,9 @@ export class MouthRotationPropertyAdapter extends PropertyAdapter {
 
     surprise(surprise: number): object {
         return {
-            firstControlPointX: 10,
+            firstControlPointX: 0,
             firstControlPointY: 20,
-            secondControlPointX: 10,
+            secondControlPointX: 0,
             secondControlPointY: 20
         };
     }
@@ -142,10 +145,100 @@ export class MouthRotationPropertyAdapter extends PropertyAdapter {
 
     happiness(happiness: number): object {
         return {
-            firstControlPointX: 10,
+            firstControlPointX: 0,
             firstControlPointY: 50,
-            secondControlPointX: 10,
+            secondControlPointX: 0,
             secondControlPointY: 50
+        };
+    }
+}
+
+export class EyebrowPositionPropertyAdapter extends PropertyAdapter {
+
+    sadness(sadness: number): object {
+        return {
+            y1: 20,
+            y2: 20
+        };
+    }
+
+    disgust(disgust: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    anger(anger: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    surprise(surprise: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    fear(fear: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    happiness(happiness: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+}
+
+export class MouthPositionPropertyAdapter extends PropertyAdapter {
+
+    sadness(sadness: number): object {
+        return {
+            y1: 60,
+            y2: 60
+        };
+    }
+
+    disgust(disgust: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    anger(anger: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    surprise(surprise: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    fear(fear: number): object {
+        return {
+            y1: 0,
+            y2: 0
+        };
+    }
+
+    happiness(happiness: number): object {
+        return {
+            y1: 0,
+            y2: 0
         };
     }
 }

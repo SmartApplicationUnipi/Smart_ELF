@@ -1,7 +1,7 @@
 import { AbstractSVGFaceComponent } from "./AbstractSVGFaceComponent";
 import { IAnimated } from "../IAnimated";
 import { ISBEEmotion } from "../../../../../emotion/Emotion";
-import { EyeOpenessPropertyAdapter, EyebrowRotationPropertyAdapter, MouthRotationPropertyAdapter } from "../property/SVGFaceAdapters";
+import { EyeOpenessPropertyAdapter, EyebrowRotationPropertyAdapter, MouthRotationPropertyAdapter, EyebrowPositionPropertyAdapter, MouthPositionPropertyAdapter } from "../property/SVGFaceAdapters";
 import { Point } from "../../../../../utils/Point";
 import * as Logger from '../../../../../log/Logger';
 
@@ -17,7 +17,7 @@ export class Eye extends AbstractSVGFaceComponent implements IAnimated {
         super(id);
 
         this.properties = [
-            (e: ISBEEmotion) => (new EyeOpenessPropertyAdapter()).getPropertyValues(e) // Eyes opennes
+            (e: ISBEEmotion) => (new EyeOpenessPropertyAdapter()).getPropertyValues(e)
         ]
     }
 
@@ -68,13 +68,24 @@ export class Eye extends AbstractSVGFaceComponent implements IAnimated {
 
 export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
 
+    private _leftAnchorPoint: Point;
+    private _rightAnchorPoint: Point;
+    private _firstControlPoint: Point;
+    private _secondControlPoint: Point;
+
     constructor(id: string, private height: number = 30.625,
         public leftAnchorPoint: Point = new Point(0, 0), public rightAnchorPoint: Point = new Point(100.75, 0),
         public firstControlPoint: Point = new Point(0, 0), public secondControlPoint: Point = new Point(0, 0), public specular: boolean = false) {
         super(id);
 
+        this._leftAnchorPoint = leftAnchorPoint;
+        this._rightAnchorPoint = rightAnchorPoint;
+        this._firstControlPoint = firstControlPoint;
+        this._secondControlPoint = secondControlPoint;
+
         this.properties = [
-            (e: ISBEEmotion) => (new EyebrowRotationPropertyAdapter(this)).getPropertyValues(e) // Eyes opennes
+            (e: ISBEEmotion) => (new EyebrowRotationPropertyAdapter(this)).getPropertyValues(e),
+            (e: ISBEEmotion) => (new EyebrowPositionPropertyAdapter()).getPropertyValues(e)
         ];
     }
 
@@ -95,18 +106,18 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
 
         // TODO: we need to handle better the bezier courve points...
         let lp = {
-            x: this.leftAnchorPoint.getX(),
-            y: this.leftAnchorPoint.getY()
+            x: 0,
+            y: 0
         }, rp = {
-            x: this.rightAnchorPoint.getX(),
-            y: this.rightAnchorPoint.getY()
+            x: 0,
+            y: 0
         };
         let fpc = {
-            x: this.firstControlPoint.getX(),
-            y: this.firstControlPoint.getY()
+            x: 0,
+            y: 0
         }, spc = {
-            x: this.secondControlPoint.getX(),
-            y: this.secondControlPoint.getY()
+            x: 0,
+            y: 0
         };
 
         // Control points
@@ -137,10 +148,10 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
             rp.y = updates["y2"];
         }
 
-        this.firstControlPoint = new Point(fpc.x, fpc.y);
-        this.secondControlPoint = new Point(spc.x, spc.y);
-        this.leftAnchorPoint = new Point(lp.x, lp.y);
-        this.rightAnchorPoint = new Point(rp.x, rp.y);
+        this._leftAnchorPoint = this.leftAnchorPoint.add(new Point(lp.x, lp.y));
+        this._rightAnchorPoint = this.rightAnchorPoint.add(new Point(rp.x, rp.y));
+        this._firstControlPoint = this.firstControlPoint.add(new Point(fpc.x, fpc.y));
+        this._secondControlPoint = this.secondControlPoint.add(new Point(spc.x, spc.y));
 
         updates['d'] = this.buildSvgPath();
 
@@ -157,28 +168,42 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
     }
 
     private buildSvgPath(): string {
-        return 'M' + this.leftAnchorPoint.getX() + ' ' + this.leftAnchorPoint.getY() + ' C ' + (this.leftAnchorPoint.getX() + this.firstControlPoint.getX()) + ' ' + (this.leftAnchorPoint.getY() + this.firstControlPoint.getY()) + ', ' + (this.rightAnchorPoint.getX() + this.secondControlPoint.getX()) + ' ' + (this.rightAnchorPoint.getY() + this.secondControlPoint.getY()) + ', ' + this.rightAnchorPoint.getX() + ' ' + this.rightAnchorPoint.getY()
+        return 'M' + this._leftAnchorPoint.getX() + ' ' + this._leftAnchorPoint.getY() + 
+              ' C ' + (this._leftAnchorPoint.getX() + this._firstControlPoint.getX()) + 
+              ' ' + (this._leftAnchorPoint.getY() + this._firstControlPoint.getY()) + 
+              ', ' + (this._rightAnchorPoint.getX() + this._secondControlPoint.getX()) + 
+              ' ' + (this._rightAnchorPoint.getY() + this._secondControlPoint.getY()) + 
+              ', ' + this._rightAnchorPoint.getX() + ' ' + this._rightAnchorPoint.getY()
     }
 }
 
 export class Mouth extends AbstractSVGFaceComponent implements IAnimated {
 
-    constructor(id: string, private x: number = 0, private y: number = 0, private width: number = 184.0, private height: number = 30.62,
+    private _leftAnchorPoint: Point;
+    private _rightAnchorPoint: Point;
+    private _firstControlPoint: Point;
+    private _secondControlPoint: Point;
+
+    constructor(id: string, private height: number = 30.62,
+        public leftAnchorPoint: Point = new Point(0, 0), public rightAnchorPoint: Point = new Point(180.00, 0),
         public firstControlPoint: Point = new Point(0, 0), public secondControlPoint: Point = new Point(0, 0)) {
         super(id);
 
+        this._leftAnchorPoint = leftAnchorPoint;
+        this._rightAnchorPoint = rightAnchorPoint;
+        this._firstControlPoint = firstControlPoint;
+        this._secondControlPoint = secondControlPoint;
+
         this.properties = [
-            (e: ISBEEmotion) => (new MouthRotationPropertyAdapter()).getPropertyValues(e) // Eyes opennes
+            (e: ISBEEmotion) => (new MouthRotationPropertyAdapter()).getPropertyValues(e),
+            (e: ISBEEmotion) => (new MouthPositionPropertyAdapter()).getPropertyValues(e)
         ];
     }
 
-    public setX(x: number) {
-        this.x = x;
-    }
+    public setX(x: number) { }
 
-    public setY(y: number) {
-        this.y = y;
-    }
+    // Set the y diff from the location
+    public setY(y: number) { }
 
     public render(): string {
         return '<path id="' + this.getId() + '" d="' + this.buildSvgPath() + '" stroke="black" stroke-width="' + this.height + '" fill="transparent"/>';
@@ -190,14 +215,22 @@ export class Mouth extends AbstractSVGFaceComponent implements IAnimated {
         console.log(updates);
 
         // TODO: we need to handle better the bezier courve points...
+        let lp = {
+            x: 0,
+            y: 0
+        }, rp = {
+            x: 0,
+            y: 0
+        };
         let fpc = {
-            x: this.firstControlPoint.getX(),
-            y: this.firstControlPoint.getY()
+            x: 0,
+            y: 0
         }, spc = {
-            x: this.secondControlPoint.getX(),
-            y: this.secondControlPoint.getY()
+            x: 0,
+            y: 0
         };
 
+        // Control points
         if (updates["firstControlPointX"]) {
             fpc.x = updates["firstControlPointX"];
         }
@@ -211,8 +244,24 @@ export class Mouth extends AbstractSVGFaceComponent implements IAnimated {
             spc.y = updates["secondControlPointY"];
         }
 
-        this.firstControlPoint = new Point(fpc.x, fpc.y);
-        this.secondControlPoint = new Point(spc.x, spc.y);
+        // Anchor points
+        if (updates["x1"]) {
+            lp.x = updates["x1"];
+        }
+        if (updates["y1"]) {
+            lp.y = updates["y1"];
+        }
+        if (updates["x2"]) {
+            rp.x = updates["x2"];
+        }
+        if (updates["y2"]) {
+            rp.y = updates["y2"];
+        }
+
+        this._leftAnchorPoint = this.leftAnchorPoint.add(new Point(lp.x, lp.y));
+        this._rightAnchorPoint = this.rightAnchorPoint.add(new Point(rp.x, rp.y));
+        this._firstControlPoint = this.firstControlPoint.add(new Point(fpc.x, fpc.y));
+        this._secondControlPoint = this.secondControlPoint.add(new Point(spc.x, spc.y));
 
         updates['d'] = this.buildSvgPath();
 
@@ -229,6 +278,11 @@ export class Mouth extends AbstractSVGFaceComponent implements IAnimated {
     }
 
     private buildSvgPath(): string {
-        return 'M' + this.x + ' ' + this.y + ' C ' + (this.x + this.firstControlPoint.getX()) + ' ' + (this.y + this.firstControlPoint.getY()) + ', ' + (this.x + this.width - this.secondControlPoint.getX()) + ' ' + (this.y + this.secondControlPoint.getY()) + ', ' + (this.x + this.width) + ' ' + this.y
+        return 'M' + this._leftAnchorPoint.getX() + ' ' + this._leftAnchorPoint.getY() + 
+              ' C ' + (this._leftAnchorPoint.getX() + this._firstControlPoint.getX()) + 
+              ' ' + (this._leftAnchorPoint.getY() + this._firstControlPoint.getY()) + 
+              ', ' + (this._rightAnchorPoint.getX() + this._secondControlPoint.getX()) + 
+              ' ' + (this._rightAnchorPoint.getY() + this._secondControlPoint.getY()) + 
+              ', ' + this._rightAnchorPoint.getX() + ' ' + this._rightAnchorPoint.getY()
     }
 }
