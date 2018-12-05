@@ -7,6 +7,7 @@ from kb import KnowledgeBaseClient
 import random
 import emotion_conversion as em_conv
 import logging
+from Emo
 
 import math
 class IESService:
@@ -60,17 +61,54 @@ class IESService:
             self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
         self.timer = threading.Timer(self.idle_time_update, self.timed_update)
 
+    def _get_query_datas(self,response):
+        """Metodo per accedere velocemente al risultato di una query
+            ritorna il dizionario datas
+        """
+
+        obj = response["details"][0]
+        datas = obj["_data"]
+        return datas
 
     def get_mean_user_emotion(self):
         """
         Get user emotion a partire dai vari moduli e fai la media
         convertila in valore testuale e ritorna (valence, arousal), emotion
         """
-        a = random.uniform(-1, 1)
-        b = random.uniform(-1, 1)
+
+        # take emotions from face recognition
+        query_vis = {
+            "_data": {
+                "tag":"VISION_FACE_ANALYSIS",
+                "is_interlocutor":"True"
+            }
+        }
+        res_vis = self.kb_client.query(query_vis)
+        if res_vis["success"]:
+            data_vis = self._get_query_datas(res_vis)
+        else:
+            print("Error while retrieving facial emotion")
+        vis_point = em_conv.vector_to_circumplex(data_vis["emotion"])
+
+        query_enlp = {
+            "_data": {
+                "tag":"ENLP_ELF_EMOTION",
+            }
+        }
+
+        res_enlp = self.kb_client.query(query_enlp)
+        if res_enlp["success"]:
+            data_enlp = self._get_query_datas(res_enlp)
+        else:
+            print("Error while retrieving enlp internal emotion")
+
+
+        a = (vis_point[0] + res_enlp["valence"]) / 2
+        b = (vis_point[1] + res_enlp["arousal"]) / 2
         rand_point = (a, b)
         categorical_emo = em_conv.circumplex_to_emotion(rand_point[0], rand_point[1])
         return rand_point, categorical_emo
+
 
     def travel_in_emotion_space(self, start, end):
         """
