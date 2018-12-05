@@ -255,6 +255,8 @@ export function query(jreq: any) {
 
     if (jreq.hasOwnProperty('_meta')) { queryobj._meta = jreq._meta; delete jreq._meta; }
 
+    if (jreq.hasOwnProperty('_predicates')) { queryobj._predicates = jreq._predicates; delete jreq._predicates; }
+
     if (jreq.hasOwnProperty('_data')) {
         queryobj._data = jreq._data;
     } else {
