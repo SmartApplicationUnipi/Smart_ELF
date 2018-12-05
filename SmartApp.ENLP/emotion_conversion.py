@@ -2,14 +2,14 @@ from math import sqrt
 
 # emotion : (valence, arousal)
 EMOTIONS_COORD = {
-    'Excited' : (0.5,0.8),
-    'Angry' : (-0.8,0.5),
-    'Bored' : (-0.5,-0.8),
-    'Happy' : (0.8,0.5),
-    'Fear' : (-0.6,0.8),
-    'Sarcasm' : (0.,0.3),
-    'Sad' : (-0.9,-0.6),
-    'Neutral' : (0.,0.),
+    'excited' : (0.5,0.8),
+    'angry' : (-0.8,0.5),
+    'bored' : (-0.5,-0.8),
+    'happy' : (0.8,0.5),
+    'fear' : (-0.6,0.8),
+    'sarcasm' : (0.,0.3),
+    'sad' : (-0.9,-0.6),
+    'neutral' : (0.,0.),
     'surprise' : (0., 1.),
     'disgust' : (-0.9, 0.1)
 }
@@ -46,7 +46,7 @@ def emotion_to_circumplex(emotion):
     :require emotion: the string representing one of the allowed emotions
     :return (valence, arousal): tuple containing valence and arousal values. None if emotion is not recognized.
     '''
-
+    emotion = emotion.lower()
     if emotion not in EMOTIONS_COORD:
         return None
     else:
@@ -54,7 +54,7 @@ def emotion_to_circumplex(emotion):
 
 def vector_to_circumplex(vector):
     '''
-    Compute valence and arousal from softmaxed vector of emotion probabilities
+    Compute valence and arousal from softmaxed dictionaries of emotion probabilities
 
     :require vector: softmaxed vector of emotion probabilities in the form { 'emotion' : probability } or 'Neutral'
     :return (valence, arousal): tuple containing valence and arousal values. None if vector is not well made.

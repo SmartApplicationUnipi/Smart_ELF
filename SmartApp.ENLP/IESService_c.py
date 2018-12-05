@@ -66,11 +66,35 @@ class IESService:
         Get user emotion a partire dai vari moduli e fai la media
         convertila in valore testuale e ritorna (valence, arousal), emotion
         """
+
+        query_vis = {
+            "_data": {
+                "tag":"VISION_FACE_ANALYSIS",
+                "is_interlocutor":"True"
+            }
+        }
+        res_vis = self.kb_client.query(query_vis)
+        if res_vis["success"]:
+            data_vis = _get_query_datas(res_vis)
+        vis_point = em_conv.emotion_to_circumplex(data_vis["emotion"])
+        # TODO aggiungere la query delle emozioni scritte dal modulo enlp con tag ENLP_USER_EMOTION.
+
         a = random.uniform(-1, 1)
         b = random.uniform(-1, 1)
         rand_point = (a, b)
         categorical_emo = em_conv.circumplex_to_emotion(rand_point[0], rand_point[1])
         return rand_point, categorical_emo
+
+
+    def _get_query_datas(response):
+        """Metodo per accedere velocemente al risultato di una query
+            ritorna il dizionario datas
+        """
+
+        obj = response["details"][0]
+        datas = obj["_data"]
+        return datas
+
 
     def travel_in_emotion_space(self, start, end):
         """
