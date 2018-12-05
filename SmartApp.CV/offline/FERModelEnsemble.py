@@ -1,3 +1,7 @@
+from keras.models import load_model
+import os
+import numpy as np
+
 try:
     from .emopy import FERModel
 except:
@@ -5,7 +9,7 @@ except:
 
 class FERModelEnsemble:
     def __init__(self):
-        self.emotions = ['anger', 'fear', 'calm', 'sadness', 'happiness', 'surprise', 'disgust']
+        self.emotions = ['anger', 'disgust', 'fear', 'happiness', 'sadness', 'surprise', 'calm']
         self.models = [] # list of pretrained FER models
         self.supported_emotion_subsets = [
             set(['anger', 'fear', 'surprise', 'calm']),
@@ -17,27 +21,23 @@ class FERModelEnsemble:
             set(['calm', 'disgust', 'surprise']),
             set(['sadness', 'disgust', 'surprise']),
             set(['anger', 'happiness'])]
+        self.ensemble_model = load_model((os.path.join(os.path.dirname(__file__), 'models/ensemble_emotion.h5')))
+        self.ensemble_model._make_predict_function()
 
         for subset in self.supported_emotion_subsets:
             self.models.append(FERModel(subset, verbose=False))
 
     def predict_frame(self, image):
         # list of dictionaries, each containing the predictions of one FER model
-        results = [model.predict_frame(image) for model in self.models]
-
-        predictions = self.combine_predictions(results)
+        raw_results = np.array([self.predict_raw_results(image)])
+        raw_predictions = self.ensemble_model.predict(raw_results)[0]
+        predictions = {k: v for k, v in zip(self.emotions, raw_predictions)}
 
         return predictions
 
-    def combine_predictions(self, results):
-        # TODO: combine results in a smarter way [maybe taking into account the size of each subset]
-        # combine the results and normalize
-        predictions = {e: 0 for e in self.emotions}
-        for res_dict in results:
-            for key, value in res_dict.items():
-                predictions[key] += value
-
-        # normalize
-        sum_ = sum(predictions.values())
-        predictions = {k: v / sum_ for k, v in predictions.items()}
-        return predictions
+    def predict_raw_results(self, image):
+        # list of dictionaries, each containing the predictions of one FER model
+        results = []
+        for model in self.models:
+            results += model.predict_frame(image).values()
+        return results
