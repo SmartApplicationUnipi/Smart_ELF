@@ -1,0 +1,29 @@
+{
+  "name": "kb_node",
+  "version": "0.1.1",
+  "description": "proto implementation of the kb server",
+  "main": "dist/src/server.js",
+  "scripts": {
+    "build-ts": "tsc",
+    "start": "npm run build-ts && npm run serve",
+    "serve": "node dist/src/server.js",
+    "test": "mocha -r ts-node/register test/unificator.test.ts",
+    "install": "mkdir db",
+    "clear": "rm -rf node_modules/ && rm -rf db/"
+  },
+  "dependencies": {
+    "@types/chai": "latest",
+    "@types/deep-equal": "^1.0.1",
+    "@types/mocha": "latest",
+    "@types/ws": "^6.0.1",
+    "chai": "latest",
+    "deep-equal": "^1.0.1",
+    "mocha": "latest",
+    "mocha-typescript": "^1.1.17",
+    "ts-node": "latest",
+    "tslint": "latest",
+    "typescript": "latest",
+    "websocket": "^1.0.28",
+    "ws": "^6.1.2"
+  }
+}
