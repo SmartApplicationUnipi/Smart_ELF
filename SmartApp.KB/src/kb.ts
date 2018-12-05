@@ -1,8 +1,8 @@
-import { readFile, writeFile } from 'fs';
+import { readFileSync, writeFile } from 'fs';
+import { transformRule } from './compiler';
 import { security } from './config';
 import { Debugger } from './debugger';
 import { checkRules, queryRules } from './inferenceStub';
-import { transformRule } from './compiler';
 import { Logger } from './logger';
 import * as matcher from './matcher';
 
@@ -30,51 +30,51 @@ const USERTAGSPATH = './db/userTags';
 const UNIQUEFACTIDPATH = './db/uniqueFactId';
 const UNIQUERULEIDPATH = './db/uniqueRuleId';
 
-readFile(DATABASEFACTPATH, 'utf8', (err, b) => {
-        if (err) { log.info('KB', 'file load error', err); } else { databaseFact = new Map(JSON.parse(b)); }
-    });
-readFile(DATABASERULEPATH, 'utf8', (err, b) => {
-        if (err) { log.info('KB', 'file load error', err); } else { databaseRule = new Map(JSON.parse(b)); }
-    });
+// TODO: this has to be a nice init fuction
+let file = readFileSync(DATABASEFACTPATH, 'utf8');
+databaseFact = new Map(JSON.parse(file));
 
-readFile('./db/subscriptions', 'utf8', (err, b) => {
-        if (err) { log.info('KB', 'file load error', err); } else { subscriptions = new Map(JSON.parse(b)); }
-    });
+file = readFileSync(DATABASERULEPATH, 'utf8');
+databaseRule = new Map(JSON.parse(file));
 
-readFile(USERTAGSPATH, 'utf8', (err, b) => {
-        if (err) { log.info('KB', 'file load error', err); } else { userTags = new Map(JSON.parse(b)); }
-    });
+file = readFileSync('./db/subscriptions', 'utf8');
+subscriptions = new Map(JSON.parse(file));
 
-readFile(UNIQUEFACTIDPATH, 'utf8', (err, b) => {
-        if (err) { log.info('KB', 'file load error', err); } else { uniqueFactId = parseInt(b, 10); }
-    });
-readFile(UNIQUERULEIDPATH, 'utf8', (err, b) => {
-        if (err) { log.info('KB', 'file load error', err); } else { uniqueRuleId = parseInt(b, 10); }
-    });
+file = readFileSync(USERTAGSPATH, 'utf8');
+userTags = new Map(JSON.parse(file));
+
+file = readFileSync(UNIQUEFACTIDPATH, 'utf8');
+uniqueFactId = parseInt(file, 10);
+
+file = readFileSync(UNIQUERULEIDPATH, 'utf8');
+uniqueRuleId = parseInt(file, 10);
 
 // const repetitionTime = 86400000 / 2;
-const repetitionTime = 60 * 60 * 1000;
+const repetitionTime = 30 * 60 * 1000;
 const now = new Date();
-const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0, 0);
-let millsToDump = dumpDate.getTime() - now.getTime();
-if (millsToDump <= 0) {
-    millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
-}
+const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
+const millsToDump = dumpDate.getTime() - now.getTime();
+// if (millsToDump <= 0) {
+//     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
+// }
 
 function writeCallback(filename: string, err: any) {
     if (err) { log.error('KB', 'error saving ' + filename, err); } else { log.info('KB', filename + ' saved'); }
 }
 
 function dumpDatabase() {
-
-    writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) );
-    writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) );
     // tslint:disable-next-line:max-line-length
-    writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) );
-    writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) );
-    writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e));
-    writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e));
-    setTimeout(dumpDatabase, repetitionTime );
+    const f1 = () => { writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) ); };
+    // tslint:disable-next-line:max-line-length
+    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) ); };
+    // tslint:disable-next-line:max-line-length
+    const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) ); };
+    // tslint:disable-next-line:max-line-length
+    const f4 = () => { writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) ); };
+    const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
+    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e)); };
+    Promise.all([f1(), f2(), f3(), f4(), f5(), f6()])
+    .then(() => { setTimeout(dumpDatabase, repetitionTime ); });
 }
 
 setTimeout(dumpDatabase, millsToDump);
