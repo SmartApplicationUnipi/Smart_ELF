@@ -23,7 +23,7 @@ class KnowledgeBaseClient():
 		cParser = configparser.RawConfigParser()
 		cParser.read(os.path.join(base_dir, config_file_path))
 		port = cParser.get('host-config','port')
-		host = 'ws://127.0.0.1'#cParser.get('host-config','host-name')
+		host = cParser.get('host-config','host-name')
 		token = cParser.get('security', 'token')
 		return port, host, token
 
