@@ -7,7 +7,7 @@ from copy import deepcopy
 from numpy import ndarray
 from numpy.linalg import norm
 
-from threading import Timer, Event
+from threading import Timer
 from logging import getLogger
 log = getLogger("Face_Database.Saver")
 
@@ -308,6 +308,7 @@ class face_db():
             key = key if not (_random_key(), None, None) in self else None
 
         if not (key, *value) in self:
+            print(str([key, *value]))
             self.database.append([key, *value])
             return key
         else:
@@ -382,5 +383,8 @@ class face_db():
         with open(self.PATH_DB, 'w') as file:
             json.dump(self.database, file)
 
+        if self.t and self.t.is_alive():
+            self.t.cancel()
+
     def __del__(self):
-        self.t.cancel()
+        self.close()

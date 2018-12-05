@@ -11,6 +11,9 @@ pids
 *.seed
 *.pid.lock
 
+# Database data
+db/
+
 # Node
 dist/
 node_modules/

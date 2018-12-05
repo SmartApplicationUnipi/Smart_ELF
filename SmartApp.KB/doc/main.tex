@@ -1,0 +1,539 @@
+\documentclass{article}
+\usepackage{hyperref} 
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{soul}
+
+\lstdefinelanguage{json}{
+    basicstyle=\normalfont\ttfamily,
+    numbers=left,
+    numberstyle=\scriptsize,
+    stepnumber=1,
+    numbersep=8pt,
+    showstringspaces=false,
+    breaklines=true,
+    frame=lines,
+    backgroundcolor=\color{background},
+    literate=
+     *{0}{{{\color{numb}0}}}{1}
+      {1}{{{\color{numb}1}}}{1}
+      {2}{{{\color{numb}2}}}{1}
+      {3}{{{\color{numb}3}}}{1}
+      {4}{{{\color{numb}4}}}{1}
+      {5}{{{\color{numb}5}}}{1}
+      {6}{{{\color{numb}6}}}{1}
+      {7}{{{\color{numb}7}}}{1}
+      {8}{{{\color{numb}8}}}{1}
+      {9}{{{\color{numb}9}}}{1}
+      {:}{{{\color{punct}{:}}}}{1}
+      {,}{{{\color{punct}{,}}}}{1}
+      {\{}{{{\color{delim}{\{}}}}{1}
+      {\}}{{{\color{delim}{\}}}}}{1}
+      {[}{{{\color{delim}{[}}}}{1}
+      {]}{{{\color{delim}{]}}}}{1},
+}
+
+\title{Knowledge Base documentation}
+\author{FromGold}
+\date{November 2018}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+
+\begin{document}
+
+\maketitle
+
+\section{Quick Overview}
+This KB implementation is in typescript and offers a typescript library and a websocket server interface on node.js
+What follows is the list of components of our module:
+\begin{description}
+    \item[src/kb.ts] is exporting the typescript module of the knowledge base implementation.
+    \item[src/matcher.ts] contains the implementation of the module dealing with the matching of JSON objects.
+    \item[src/server.ts] is the websocket server that can run on node.js
+    \item[src/inferenceStub.ts] is a rough implementation of an inference engine with simple plain rules
+    \item[test/] contains some function call to test the *kb.ts* and *matcher.ts* code
+    \item[bindings/] contains websocket bindings, currently supported only for Python 3.6
+    \item[cli/] contains command line scripts to interact with *kb.py*
+    \item[package.json] is the npm configuration file
+    \item[tsconfig.json] is the typescript compiler configuration file
+    \item[tslint.json] is a configuration file for a typescript linter
+    \item[requirements.txt] required packages to run the python binding
+\end{description}
+
+\section{Webserver requests}
+All the requests sent to the webserver have to be made through a message consisting of a JSON file with the following properties:
+\begin{description}
+    \item[method] : string. A string containing the name of the method you want the KB to execute. Currently available methods are:
+    \begin{itemize}
+        \item \textbf{addFact}
+        \item \textbf{addRule}
+        \item \textbf{getAllTags}
+        \item \textbf{getTagDetails}
+        \item \textbf{query}
+        \item \textbf{register}
+        \item \textbf{registerTags}
+        \item \textbf{removeFact}
+        \item \textbf{removeRule}
+        \item \textbf{subscribe}
+        \item \textbf{updateFactById}
+    \end{itemize}
+    \ul{The first method the you want to call is \textbf{register}, which will return the \textit{idSource} you will need to register tags and adding facts to the KB.}
+    \item[params] : a JSON object whose keys are the name of the parameters required by the method, and whose values are the corresponding values.
+    \item[token] : a string used for security purposes. Its value has to be set to 'smartapp1819'
+\end{description}
+
+An example of a request could be:
+\begin{lstlisting}
+{
+    "method" : "addFact", 
+    "params": 
+    {
+        "idSource" : myIdSource,
+        "tag" : myTag,
+        "TTL" : myTTL,
+        "reliability" : 100,
+        "jsonFact" : myJsonFact
+    }, 
+    "token": "smartapp1819"
+}
+\end{lstlisting}
+Each of the methods will return a Response object defined as follows:
+\begin{lstlisting}
+{
+    "success" : boolean
+    "details" : any
+}
+\end{lstlisting}
+Success is a boolean specifying whether the operation was successful, while details is a property whose type depends from the method being invocated. Its type will be specified for each method in the next section.
+\\
+
+Moreover, we wish you to be aware of the format we use for storing the facts in the KB, so that you can use it to query the data you need such as metadata. The format is the following:
+
+\begin{lstlisting}
+{
+	_id : integer,
+	_meta : 
+	{
+		idSource: string;
+		tag: string;
+		TTL: integer;
+		reliability: integer;
+		creationTime: Date;
+	},
+	_data : json object
+}
+\end{lstlisting}
+
+
+The creationTime is a JavaScript Date object. It contains properties such as \textit{year} and \textit{month} that you can query if you're interested in retrieving a fact through its creationTime. A complete documentation of the Date object can be found here:
+
+\url{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date}
+
+\section{KB methods}
+In this section we will list the currently available KB methods, parameters and semantics.
+\begin{enumerate}
+    \item \textbf{ADDFACT}
+        \begin{description}
+        \item[NAME] \hfill \\ addFact - add a fact to the KB
+    	\item[SYNOPSIS] \hfill \\ addFact(string idSource, string tag, int TTL, int reliability, JSON jsonFact)
+    	\item[DESCRIPTION] \hfill \\
+    	The \textit{addFact} function adds a new fact to the Knowledge Base, provided that the client has already registered itself through \textit{register} and the corresponding tag through a call to \textit{registerTags}. If so, the client has to provide, for the submitted jsonFact, also the desired TTL in hours and its reliability expressed as an integer from 1 to 100, which is how much the information has to be trusted. idSource is the string identifier returned by the \textit{register} function. The jsonFact can have any fields, but it's good practice to use always the same structure for objects having the same tag, and to specify this structure during the registration.
+        \item[RETURN VALUE] \hfill \\
+        The \textit{getTagDetails} function returns a JSON object containing the following fields:
+		\begin{description}
+		    \item[success]: boolean value.
+		    Success will evaluate to false if either idSouce is not a correct id, or the tag had not been registered yet. Otherwise, it will evaluate to true and the fact will be correctly added.
+		    \item[details]: integer if success == true. Otherwise string or JSON object.
+		
+			In case success is true, details will contain the idFact for the newly added fact. 
+			If the tag was not registered, it will be a string containing the non-registered tag. Otherwise, if idSource was not correct, it will be an empty JSON object. 
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+        addFact('myid', 'rdf', 7, 100, 
+        {
+            relation: 'follows', 
+            subject: 'Michael FromGold', 
+            object: 'SmartApplication'
+        })
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+{'success' : true, 'details' : 3}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{ADDRULE}
+        \begin{description}
+        \item[NAME] \hfill \\
+        adds a rule to the KB
+    	\item[SYNOPSIS] \hfill \\
+    	addRule(string idSource, string ruleTag, string jsonRule)
+    	\item[DESCRIPTION] \hfill \\
+    	The \textit{addRule} function adds a rule to the KB. It takes as parameters the idSource, a string rule tag and a string jsonRule made in the following way: \\
+    	\begin{lstlisting}
+{head} <- {clause1} ; {clause2} ; {clauseN}; [pred1] [predN]"
+    	\end{lstlisting}
+    	Where \textbf{head} and \textbf{clause(s)} are json-like strings containing, respectively, the consequence of the rule and the N pre-conditions (clauses).
+    	
+    	On the other hand, each \textbf{predk} is an array in the following form:
+    	\begin{lstlisting}
+[pred] = [predicate, [predicateParams1], [predicateParams2]]
+    	\end{lstlisting}
+    	where \textbf{predicate} is one of the available predicates fully documented in Section \ref{predicates}.
+    	Semantically, a new fact matching with the \textbf{head} will be added on the KB if each of the clauses are satisfied. In addition to the explicit clauses, one can use predefined predicates to impose other clauses over the matches found for the explicit ones. The new added fact will have tag ruleTag. For example, the following rule will add a fact \textit{professorOver50} : \textit{\$x} for each \textit{\$x} matching the two specified clauses and the predicate \textit{isGreater}: 
+    	foo es. greaterThan params 1 2 perché posso chiamare isGreater più volte con parametri diversi. Occhio che il placeholder deve matchare esattamente \$age con \$age
+    	\begin{lstlisting}
+'{"professorOver50": "$x"} <-
+ {"subject" : "$x", "relation" : "is a", "object": "professor"}
+ {"subject" : "$x", "relation" : "age", "object": "$age"}
+ ["isGreater", ["$age", "50"]] '
+    	\end{lstlisting}
+    	\textit{isGreater} takes two parameters, that are the numbers to be compared.
+        \item[RETURN VALUE] \hfill \\
+        The \textit{addRule} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value. Always true.
+		    \item[details]: JSON object.
+		    Details will contain the id of the new inserted rule.
+        \end{description}
+    \end{description}
+    \item \textbf{GETALLTAGS}
+        \begin{description}
+        \item[NAME] \hfill \\
+        getAllTags - get information about all registered tags of the KB
+    	\item[SYNOPSIS] \hfill \\
+    	getAllTags()
+    	\item[DESCRIPTION] \hfill \\
+    	The \textit{getAllTags} function retrieves every tag that has been registered by any user and returns them grouped by user that registered it.
+        \item[RETURN VALUE] \hfill \\
+        The \textit{getTagDetails} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value. Always true.
+		    \item[details]: JSON object.
+		    Details will be an object whose keys are the idSource of the clients, and whose values are values are the registrated tags:
+		    \begin{lstlisting}
+{idSource0 : tags0, idSource1 : tags1}
+            \end{lstlisting}
+            where tags are in the form:
+            \begin{lstlisting} 
+{tag0 : {desc: "description0", doc: "documentation0"},
+ tag1 : {desc: "description1", doc: "documentation1"}}
+    	    \end{lstlisting}
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+getAllTags()
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+{'id0' : 
+    {tag1 : {desc: 'desc1', doc: 'doc1'}, 
+     tag2 : {desc: 'desc2', doc: 'doc2'}}
+ 'id1' : 
+    {tag3 : {desc: 'desc3', doc: 'doc3'}}
+}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{GETTAGDETAILS}
+        \begin{description}
+        \item[NAME] \hfill \\
+        getTagDetails - get the details for the given tags
+    	\item[SYNOPSIS] \hfill \\
+    	getTagDetails(string idSource, JSON jreq)
+    	The jreq parameter has to be in the following form:
+    	\begin{lstlisting}
+jreq = {['tag1', 'tag2', 'tag3', ...]}
+    	\end{lstlisting}
+    	\item[DESCRIPTION] \hfill \\
+    	The \textit{getTagDetails} function retrieves the tag details previously provided by the user identified by idSource through a call to \textit{registerTags}.Tags has to be provided as a string array containing the tags whose documentation has to be retrieved.	In case some of them are not registered, they will be ignored. The operation will fail only when none of the input tags had been registered.
+        \item[RETURN VALUE] \hfill \\
+        The \textit{getTagDetails} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value.
+		    Success will be true if any of the provided tags exists. Otherwise its value will be false.
+		    \item[details]: JSON object.
+		    In case success is true, details will be a JSON object containing couples {tag: details}, where details is a json {desc: 'desc', doc: 'doc'}.
+			Otherwise, details will be an empty objects.
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+getTagDetails(['emo', 'crawl'])
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+{'success' : true, 'details': 
+    {
+        'emo': {'desc': 'emotion', doc : 'emotion_doc'}, 
+        'crawl': {'crawler': 'crawler_doc'}
+    }
+}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{QUERY}
+        \begin{description}
+        \item[NAME] \hfill \\
+        query - query the KB and retrieve the matching facts and the corresponding bindings
+    	\item[SYNOPSIS] \hfill \\
+    	    query(JSON jreq)
+    	\item[DESCRIPTION] \hfill \\
+    		The \textit{queryFact} function will query the KB and find fact matching the provided jreq.
+        	If you need to match the metadata, you can do so by addressing the '\_meta' field of the jreq. The following is an example of a jreq used to query the KB for all the facts with tag 'NLP':
+            \begin{lstlisting}
+{_meta : {'tag' : 'NLP'}}
+            \end{lstlisting}
+            Alternatively, one can query the KB for a specific fact by knowing its id, previously returned by a call to \textit{addFact}, by filling the '\_id' field of the jreq, as follows:
+            \begin{lstlisting}
+{_id : 'my_fact_id'}
+            \end{lstlisting}
+        \item[RETURN VALUE] \hfill \\
+        The \textit{query} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value.
+		    Success will be true if any facts matching the query have been retrieved.
+		    \item[details]: array of JSON objects or JSON object.
+		    If success is true, details will be an array of JSON objects with the following fields:
+		    \begin{description}
+    		    \item[object]: a JSON object matching the query. It will contain, as usual, the properties \_data, \_metadata and \_id.
+    		    \item[binds]: an array of the bindings found. If any of the values of the query have been defined with a wildcard value (e.g. a value starting with \$), this array will contain all of them.
+		    \end{description}
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+query({"subj":"$sub"})
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+{"success": True, "details": 
+[{"object": {	
+	"_data": {"relation": "is", "subj": "Pollo", "obj": "student"}, 
+	"_id": 2, 
+	"_meta": {"idSource": "id0", "tag": "nlp", 
+	"creationTime": "whatever", "TTL": "100", "reliability": "1"}
+    }, 
+"binds": [{"$sub": "Pollo"}]
+}, 
+{"object": {
+	"_data": {"relation": "is", "subj": "Fromme", "obj": "student"}, 
+	"_id": 3, 
+	"_meta": {"idSource": "id0", "tag": "nlp", 
+	"creationTime": "time", "TTL": "100", "reliability": "1"}
+    }, 
+"binds": [{"$sub": "Fromme"}]
+}]}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{\large{REGISTER}}
+        \begin{description}
+        \item[NAME] \hfill \\ 
+        register - register to the knowledge base
+    	\item[SYNOPSIS] \hfill \\
+    	register()
+    	\item[DESCRIPTION] \hfill \\
+    	The \textit{register} function registers the client to the KB and returns a string id. Registering is mandatory for any call to \textit{registerTags} and \textit{addFact}, and so it should be called as first thing when interacting with the KB.
+    
+        \item[RETURN VALUE] \hfill \\
+        The \textit{register} function returns a JSON object containing the following fields:
+    	\begin{description} 
+    	    \item [success] : boolean value. Success evaluates to true.
+    		\item [details] : JSON object. Details will contain your personal idSource.
+        \end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+    	register()
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+    	{'success' : true, 'details': 'id5'}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{REGISTERTAGS}
+        \begin{description}
+        \item[NAME] \hfill \\
+        registerTags - register tags and corresponding documentation in the knowledge base
+    	\item[SYNOPSIS] \hfill \\
+    	registerTags(string idSource, JSON jreq)
+    	
+    	The jreq parameter must have the following form:
+    	\begin{lstlisting}
+{'tag1' : {desc : 'desc1', doc : 'doc1'}, 
+ 'tag2' : {desc : 'desc2', doc : 'doc2'}, ...}
+    	\end{lstlisting}
+    	\item[DESCRIPTION] \hfill \\
+    	The \textit{registerTags} function registers the provided tags in the knowledge base, but only if the user has previously registered through a call to \textit{register}.	Tags has to be given as a JSON object whose keys are the tags to be registered, and whose values are JSON objects containing a short tag description and a complete tag documentation. In case some of the given tags have already been submitted by the same user, they will be overwritten.
+        \item[RETURN VALUE] \hfill \\
+        The \textit{registerTags} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value.
+		    Success evaluates to false only if idSource is not a correct id returned by a call to \textit{register}.
+		    \item[details]: string array or JSON object.
+		    If success is true, details will be an array containing the registered tags. Otherwise, details will be an empty object.
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+registerTags('myid', 
+{'emo': {'desc': 'emotion', 'doc': 'emotion_doc'}, 
+'crawl': {'desc': 'crawler', 'doc': 'crawler_doc'}})
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+{'success' : true, 'details': ['tag1', 'tag2', 'tag3']}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{REMOVEFACT}
+        \begin{description}
+        \item[NAME] \hfill \\
+        removeFact - remove a fact from the KB
+    	\item[SYNOPSIS] \hfill \\
+    	removeFact(string idSource, JSON jreq)
+    	\item[DESCRIPTION] \hfill \\
+    	The \textit{removeFact} method will find and remove facts matching the jreq object. 
+    	The latter, to match the data present on the KB, must have at least one of the following fields:
+    	\begin{description}
+    	    \item[\_id] : used to identify a fact given an idFact returned by a call to \textit{addFact}. For an exact removal of a fact, use only this field.
+    	    \item[\_metadata] : metadata of the fact. It can contain the properties 'idSource', 'tag', 'TTL', 'creationTime' and 'reliability'. Any of them can be left out if not needed for the match. For example, the following call will remove all the facts with tag 'tag1':
+    	    \begin{lstlisting}
+removeFact('myid', { '_meta' : {'tag': 'tag1'}})
+    	    \end{lstlisting}
+			\item[\_data] : actual data submitted through a call to \textit{addFact}
+    	\end{description}
+        \item[RETURN VALUE] \hfill \\
+        The \textit{removeFact} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value.
+		    Success will evaluate to true if any facts have been deleted. In case no facts match the jreq object, it will be false.
+		    \item[details]: integer array.
+		    If any fact has been matched and removed, details will contain their ids listed in an array. Otherwise, an error string will be returned. 
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+removeFact('_meta': {'idSource': myIdSource, 'tag': 'nlp'})
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+{'success' : true, 'details' : [43, 12, 542]}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{REMOVERULE}
+        \begin{description}
+        \item[NAME] \hfill \\
+    	\item[SYNOPSIS] \hfill \\
+    	\item[DESCRIPTION] \hfill \\
+        \item[RETURN VALUE] \hfill \\
+        The \textit{removeRule} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value.
+		    \item[details]:
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{SUBSCRIBE}
+        \begin{description}
+        \item[NAME] \hfill \\
+    	\item[SYNOPSIS] \hfill \\
+    	\item[DESCRIPTION] \hfill \\
+        \item[RETURN VALUE] \hfill \\
+        The \textit{subscribe} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value.
+		    \item[details]:
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+        \end{lstlisting}
+        \end{description}
+    \item \textbf{UPDATEFACTBYID}
+        \begin{description}
+        \item[NAME] \hfill \\
+        updateFactByID - update an already added fact by its id.
+    	\item[SYNOPSIS] \hfill \\
+	    updateFact(string idSource, int id, string tag, int TTL, int reliability, JSON jsonFact)
+    	\item[DESCRIPTION] \hfill \\
+    		The \textit{updateFact} function updates a fact given an id previously returned by a call to \textit{addFact}. Both data and metadata will be updated with the freshly provided ones.
+        \item[RETURN VALUE] \hfill \\
+        The \textit{updateFactById} function returns a JSON object containing the following fields:
+        \begin{description}
+		    \item[success]: boolean value.
+		    success will evaluate to true if idSource is a correct id returned by \textit{register}, and if the KB contains a fact identified by id.
+		    \item[details]: integer or JSON object.
+		    In case success is true, then details will be the id of the correctly updated fact. Otherwise, if no facts are identified by id, details will be the missing tag; finally, if idSource is not a valid user id, details will be an empty JSON object.
+		\end{description}
+        \item[EXAMPLE] \hfill \\
+    	Example of usage:
+    	\begin{lstlisting}
+updateFact(myid, 412, 'rdf', 7, 100, 
+{'relation': 'follows', 
+'subject': 'Ferrante Francesco', 'object': 'SmartApplications' }
+    	\end{lstlisting}
+    	Example of return value:
+        \begin{lstlisting}
+{'success' : true, 'details' : 412}
+        \end{lstlisting}
+        \end{description}
+\end{enumerate}
+
+\subsection{Predicates} \label{predicates}
+
+What follows is a list of the currently available predicates, divided in semantic groups:
+\begin{enumerate}
+    \item NUMERIC PREDICATES
+        \begin{description}
+            \item[isEqual] (integer op1, integer op2)
+            \item[isGreater] (integer op1, integer op2)
+            \item[isGreaterEqual] (integer op1, integer op2)
+            \item[isLess] (integer op1, integer op2)
+            \item[isLessEqual] (integer op1, integer op2)
+        \end{description}
+    \item DATE PREDICATES
+        \begin{description}
+            \item[isEqualDate] (string op1, string op2)
+            \item[isAfterDate] (string op1, string op2)
+            \item[isBeforeDate] (string op1, string op2)
+        \end{description}
+    \item STRING PREDICATES
+        \begin{description}
+            \item[isEqualString] (string op1, string op2)
+            \item[isGreaterString] (string op1, string op2)
+            \item[isLessString] (string op1, string op2)
+        \end{description}
+\end{enumerate}
+
+The semantic is very intuitive. As an example, \textit{isGreater}("0", "5") returns false.
+
+Note that even though the parameter type may semantically not be string (as in \textit{isGreater}), the clients calling addRule are nonetheless supposed to write every parameter as string.
+\section{Python Bindings}
+In case you're using Python, we provide some bindings that let you create a connection to the webserver and interact with the KB straight away. \\
+First of all run the command \textbf{pip install -r requirements.txt} in the \textit{SmartApp.KB/} folder to install the python required packages.
+
+The bindings file is located under the path \textit{SmartApp.KB/bindings/python/kb.py}. It is sufficient to import the class \textbf{KnowledgeBaseClient}, contained inside kb.py, in your python code, create an object and call its methods.
+
+Note: \textbf{KnowledgeBaseClient}'s constructor takes in input a boolean that lets you specify whether the connection should be persistent or not. By default the connection is persistent.
+
+\section{How to run}
+In case you want to run the KB on your local machine, open a terminal in the \textit{SmartApp.KB/} directory and issue the following commands:
+\begin{itemize}
+    \item npm install
+    \item npm start
+\end{itemize}
+    
+\textbf{npm install} will install the packages needed to execute; \textbf{npm start} will start the server on port 5666. In case you lack the node packet manager, you can install it with sudo apt install npm node-typescript
+
+\end{document}

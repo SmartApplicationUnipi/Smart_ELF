@@ -40,4 +40,11 @@ export class Point {
 		let diff = this.add(new Point(-p.x, -p.y));
 		return Math.sqrt(Math.pow(diff.x, 2) + Math.pow(diff.y, 2));
 	}
+
+	/**
+	 * Clone this object
+	 */
+	public clone(): Point {
+		return new Point(this.x, this.y);
+	}
 }

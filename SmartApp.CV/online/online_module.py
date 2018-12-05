@@ -65,7 +65,7 @@ class online_module():
         """
         res = True
         try:
-            urllib.request.urlopen(self.HOST, timeout=1)
+            urllib.request.urlopen(self.HOST, timeout=5)
         except urllib.request.URLError:
             res = False
         return res

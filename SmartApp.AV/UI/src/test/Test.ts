@@ -1,10 +1,9 @@
 import { ElfUI, ElfUIFactory } from '../ui/ElfUI';
 import { BaseEventReader } from '../reader/EventReader'
-import { IEmotion, Emotion } from '../emotion/Emotion';
+import { ISBEEmotion, ValenceArousalEmotion, EmotionColorAdapter } from '../emotion/Emotion';
 import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION, KEY_POSITION } from '../ui/event/ElfUIEvent';
 import { UIWidget, UIWidgetFactory } from '../ui/widget/UIWidget'
 import { Point } from '../utils/Point';
-import { ElfColorfulUI } from '../ui/colorful/ElfColorfulUI';
 
 export class TestUI extends ElfUI {
 
@@ -16,10 +15,11 @@ export class TestUI extends ElfUI {
 		this.getRootElement().innerHTML = this.getTemplate();
 	}
 
-	public onEmotionChanged(e: IEmotion): void {
+	public onEmotionChanged(e: ISBEEmotion): void {
 		console.log("onEmotionChanged", e);
 
-		this.getRootElement().style.backgroundColor = e.getColor();
+		// this.getRootElement().style.backgroundColor = e.getColor();
+		this.getRootElement().style.backgroundColor = EmotionColorAdapter.getAdapter(e).getColor(e);
 	}
 
 	public onPositionChanged(p: Point): void {
@@ -63,43 +63,48 @@ export class TestEventReader extends BaseEventReader {
 			.putAny(KEY_POSITION, new Point(-0.8, 0.3));
 
 		let pos3 = new ElfUIEvent()
-		.putAny(KEY_POSITION, new Point(0, 0));
+			.putAny(KEY_POSITION, new Point(0, 0));
 
 		let e1 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.3, 0.7)) // Anger
-			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Anger...", emotion: new Emotion(0, 0) } })
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(-0.3, 0.7)) // Anger
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Anger...", emotion: new ValenceArousalEmotion(0, 0) } })
 
 		let e2 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.7, 0.1)) // Disgust
-			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Disgust...", emotion: new Emotion(0, 0) } })
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(-0.7, 0.1)) // Disgust
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Disgust...", emotion: new ValenceArousalEmotion(0, 0) } })
 
 		let e3 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.5, 0.7)) // Fear
-			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Fear...", emotion: new Emotion(0, 0) } })
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(-0.5, 0.7)) // Fear
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Fear...", emotion: new ValenceArousalEmotion(0, 0) } })
 
 		let e4 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(0.7, 0.3)) // Joy
-			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Joy...", emotion: new Emotion(0, 0) } })
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(0.7, 0.3)) // Joy
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Joy...", emotion: new ValenceArousalEmotion(0, 0) } })
 
 		let e5 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(-0.9, -0.5)) // Sadness
-			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Sadness...", emotion: new Emotion(0, 0) } })
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(-0.9, -0.5)) // Sadness
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Sadness...", emotion: new ValenceArousalEmotion(0, 0) } })
 
 		let e6 = new ElfUIEvent()
-			.putAny(KEY_EMOTION, new Emotion(0.6, 0.9)) // Surprise
-			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Surprise...", emotion: new Emotion(0, 0) } })
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(0.6, 0.9)) // Surprise
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Surprise...", emotion: new ValenceArousalEmotion(0, 0) } })
+
+		let e7 = new ElfUIEvent()
+			.putAny(KEY_EMOTION, new ValenceArousalEmotion(0.0, 0.0)) // Surprise
+			.putAny(KEY_CONTENT, { "speech": { "text": "We should be Normal...", emotion: new ValenceArousalEmotion(0, 0) } })
 
 		this.events.push(pos1)
 
-		this.events.push(e1)
+		// this.events.push(e1)
 		// this.events.push(e2)
-		// this.events.push(e3)
+		this.events.push(e3)
 		
-		this.events.push(pos2)
+		// this.events.push(pos2)
 		
 		// this.events.push(e4)
 		this.events.push(e5)
 		// this.events.push(e6)
+		// this.events.push(e7)
 
 		this.events.push(pos3)
 	}
