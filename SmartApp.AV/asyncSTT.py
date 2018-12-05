@@ -18,6 +18,8 @@ import sentimental_analizer
 import logging
 
 #TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
+logging.basicConfig(filename='STT.log', filemode='w', format='%(asctime)s - [%(levelname)s] - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
+log = logging.getLogger()
 
 def recognize(model, audio, recognizer, language="it_IT"): #en_US"):
         """
@@ -103,19 +105,19 @@ async def speech_to_text(queue, log):
                 log.info("Insert into KB --> Google cloud speech recognition result: " + str(res["text"]))
 
             else:
-                log.warning("Google cloud speech recognition " + str(res["error"]))
+                log.error("Google cloud speech recognition retrieved an error: " + str(res["error"]))
                 res = google.result()
                 if res["error"] is None:
                     # Add to KB Google result with timestamp and ID
                     log.info("Insert into KB --> Google result: " + str(res["text"]))
                 else:
-                    log.warning("Google " + str(res["error"]))
+                    log.error("Google retrieved an error: " + str(res["error"]))
                     res = sphinx.result()
                     if res["error"] is None:
                         # Add to KB Sphinx result with timestamp and ID
                         log.info("Insert into KB --> Sphinx result: " + str(res["text"]))
                     else:
-                        log.warning("Sphinx " + str(res["error"]))
+                        log.error("Sphinx retrieved an error: " + str(res["error"]))
 
             emotion = emotion.result()
 
@@ -134,7 +136,7 @@ async def speech_to_text(queue, log):
 
             else:
                 # Add to KB that none of google and sphinx retrieved a result
-                log.error("Insert into KB that no Google or Sphinx result")
+                log.critical("Insert into KB that no Google or Sphinx result")
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
@@ -145,12 +147,11 @@ async def speech_to_text(queue, log):
                                                                          })
 
 
-async def myHandler(queue, log):
+async def myHandler(queue):
     """
     This function implements the communication with the microphone, appending all the message
     received to a queue.
     :param queue: async queue in which append the audioMessage
-    :param log: logging module
     """
     def handleAudioMessages(audioMessage):
         print("Received audio:\n\tTimestamp:%d\n\tChannels:%d\n\tSampleRate:%d\n\tBitPerSample:%d\n\t%d bytes of data\n\n" %
@@ -165,7 +166,6 @@ if __name__ == '__main__':
     HALAddress = "10.101.60.139"  # default
     HALAudioPort = 2001  # default
 
-    log = logging.basicConfig(filename='STT.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
     log.info("Start STT process")
 
     loop = asyncio.get_event_loop()

@@ -12,6 +12,9 @@ import kb
 from kb import KnowledgeBaseClient
 import logging
 
+logging.basicConfig(filename='TTS.log', filemode='w', format='%(asctime)s - [%(levelname)s] - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
+log = logging.getLogger()
+
 def make_mary_text(text, valency, arousal):
     """
     This function creates the MaryXML representation of the speech related to the emotion
@@ -133,7 +136,7 @@ async def kb_to_audio(queue):
                                             "language": "$l"}}, callbfun) #todo change with appropriate tag'''
 
 
-def face_communication(queue, log):
+def face_communication(queue):
     """
     This function handles the communication with the face-client
     :param queue: blocking asynchronous queue
@@ -153,12 +156,11 @@ if __name__ == '__main__':
     HOST = '10.101.27.153'  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
-    log = logging.basicConfig(filename='TTS.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
     log.info("Start TTS process")
 
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    loop.run_until_complete(kb_to_audio(q.sync_q,log))
-    #loop.run_until_complete(face_communication(q.async_q, log))
+    loop.run_until_complete(kb_to_audio(q.sync_q))
+    #loop.run_until_complete(face_communication(q.async_q))
     loop.run_forever()
