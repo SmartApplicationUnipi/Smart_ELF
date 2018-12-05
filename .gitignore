@@ -3,3 +3,4 @@
 ################################################################################
 .idea/
 /SmartApp.HAL/SmartApp.HAL/NuiDatabase
+SmartApp.QA/__pycache__/*
