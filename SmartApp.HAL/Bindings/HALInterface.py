@@ -20,10 +20,10 @@ class HALInterface(object):
     ###############################################################
     # Audio
     ###############################################################
-    def registerAsAudioReceiver(self, callback, *args, **kwargs, errback):
+    def registerAsAudioReceiver(self, callback, errback, *args, **kwargs):
         Log.debug("registerAsAudioReceiver")
         id = self.__getClientID()
-        clientThread = HALAudio.HALAudioThread(self.HALAddress, self.HALAudioPort, id, callback, *args, **kwargs, errback)
+        clientThread = HALAudio.HALAudioThread(self.HALAddress, self.HALAudioPort, id, callback, errback, *args, **kwargs)
         if clientThread._connect():
             self.registeredClients[id] = clientThread
             clientThread.start()
