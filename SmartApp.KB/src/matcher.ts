@@ -26,7 +26,7 @@ import { executeSpecialPredicate } from './dispatcher';
  \( `   <.,../`     `-.._   _,-`
  */
 
-const D: Debugger = new Debugger();
+const D: Debugger = new Debugger(4);
 
 export type Matches = Map<object, object[]>;
 
@@ -122,7 +122,7 @@ class Matcher {
         this.outerSorted = this.sort(q);
         const result = [];
         for (const key of ruleSet.keys()) {
-            const rule = ruleSet.get(key)['_head'];
+            const rule = ruleSet.get(key)._data._head;
             const sortedRule = this.sort(rule);
             if (this.compareRule(q, this.outerSorted, rule, sortedRule)) {
                 result.push(ruleSet.get(key));
