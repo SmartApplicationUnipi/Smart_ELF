@@ -10,3 +10,7 @@ __pycache__/
 /t.py
 ./idea/
 face_db
+
+# virtual env
+.venv
+venv

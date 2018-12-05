@@ -2,8 +2,9 @@
 import os
 import dlib
 import numpy as np
-from scipy.spatial.distance import cosine
 from offline.FERModelEnsemble import FERModelEnsemble
+
+from numpy.linalg import norm
 
 try:
      from .emopy import FERModel
@@ -105,7 +106,7 @@ class OffVision:
         confidence = None
         # find closest descriptor
         for i, entry in enumerate(db):
-            distance = cosine(entry[desc_position], descriptor) # cosine distance
+            distance = norm(descriptor - entry[desc_position])
             if distance < min_distance:
                 min_distance = distance
                 match_id = entry[id_position]

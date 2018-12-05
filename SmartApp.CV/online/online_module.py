@@ -79,7 +79,7 @@ class online_module():
             Params:
                 frame: matrix-like, filepath, file descriptor of the image.
 
-            Return:
+            Return: json-like fact, tuple in the format (None, token)
         """
         # take respose from server of face present in the frame
         result = self.client.detect(frame)
@@ -112,22 +112,18 @@ class online_module():
                     #face doesn't match add it
                     print("non ti conosco.. mi ricordero")
                     self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-
             except Exception as e:
                 #TODO manage different possible error (this solution resolve EMPRTY_SET VALUE ERROR)
                 print(type(e).__name__, e)
                 self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
-
-            return self._jsonFace2Fact(face)
+            token = face["face_token"]
+            return self._jsonFace2Fact(face), (None, token)
         else:
-            return None
+            return None, None
 
     def set_detect_attibutes(self, *args, **kwargs):
         self.client.setParamsDetect(*args, **kwargs)
         return self.client.detect_params
-
-    def cmp_descriptor(first_descriptor, second_descriptor):
-        return first_descriptor == second_descriptor, 1
 
     def get_match(self, db, descriptor, desc_position, id_position, return_index=False, return_all=False):
         """

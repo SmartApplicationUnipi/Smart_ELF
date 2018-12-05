@@ -9,7 +9,7 @@ APIs integration with:
 - *Face++*
 - *Azure Face*
 - *Skybiometrics*  
-for last tow see https://github.com/michelecafagna26/ELFVisionModule.git
+for last two see https://github.com/michelecafagna26/ELFVisionModule.git
 
 that provides the following features:
 - Face detection and recognition
@@ -22,7 +22,12 @@ and an Offline neural-network-based model to perform:
 - scene understanding (not implemented yet)
 - object tracking (not implemented yet)
 
-### Download/Installation (generic)
+### Preparation
+To avoid problem with dependencies, is highly recommended to create a virtual enviroment and activate it.
+- On Windows using Anaconda: https://conda.io/docs/user-guide/tasks/manage-environments.html
+- on Ubuntu : https://virtualenv.pypa.io/en/latest/userguide/
+
+### Installation
 **Windows users should refer to the next section**
 
 Using pip:
@@ -30,9 +35,7 @@ Using pip:
 pip install -r requirements.txt
 ```
 
-### Download/Installation (Windows + Ananconda)
-To avoid problem with dependencies, create a virtual enviroment and activate it
-(guide : https://conda.io/docs/user-guide/tasks/manage-environments.html)
+### Installation (Windows + Ananconda)
 In the Ananconda environment, first install the prebuilt version of `dlib` with
 ```
 conda install -c conda-forge dlib
@@ -45,7 +48,6 @@ This is necessary in order to avoid buildling `dlib` from scratch, and beacuse
 the prebuilt version in Conda-forge has an unnecessary dependence on an incompatible version of `numpy`.
 
 *Alternatively, this guide could be followed: https://github.com/charlielito/install-dlib-python-windows .*
-
 
 ## Usage
 run:

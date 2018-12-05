@@ -17,7 +17,7 @@ Facepp_Client
 """
 class Facepp_Client():
 
-    def __init__(self, api_key=None, api_secret=None):
+    def __init__(self, api_key=None, api_secret=None, timeout_request = 1):
 
         api_key = os.getenv('FACEpp_KEY', None) if api_key==None else api_key
         api_secret = os.getenv('FACEpp_SECRET', None) if api_secret==None else api_secret
@@ -31,8 +31,10 @@ class Facepp_Client():
         self.url_params = { 'api_key': api_key, 'api_secret': api_secret}
         self.detect_params = {}
 
+        self.timeout = timeout_request
+
     def _sendRequest(self, *args, **kwargs):
-        kwargs.update({'timeout':1})
+        kwargs.update({"timeout": self.timeout})
         jr = json.loads(requests.post(*args, **kwargs).text)
         err = jr.get("error_message")
         if err: raise ValueError(err)
