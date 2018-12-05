@@ -8,7 +8,9 @@ namespace KBWrapper {
     //---------------------------------------------------------------
     // Wrapper Class
     //---------------------------------------------------------------
-    public class Wrapper : IKbWrapper{
+    public class Wrapper {
+
+        private static readonly string USER_ENGAGED = "USER_ENGAGED";
 
         private string SOURCE_ID;
 
@@ -33,12 +35,30 @@ namespace KBWrapper {
         }
 
         //---------------------------------------------------------------
-        // Exposing WebSocket method
+        // Public API
         //---------------------------------------------------------------
         public void Connect() {
             socket.Connect();
             this.Register();
             this.waitingRegisterResponse = true;
+        }
+
+        public void Close() {
+            socket.Close();
+            //socket.dispose() ??
+        }
+
+        public void WriteUserEngaged() {
+            this.removePreviousUserEngaged();
+            Message.UserEngaged engaged = new Message.UserEngaged(true);
+            this.AddFact(USER_ENGAGED, 1, 100, engaged);
+        }
+
+
+        public void RemoveUserEngaged() {
+            this.removePreviousUserEngaged();
+            Message.UserEngaged engaged = new Message.UserEngaged(false);
+            this.AddFact(USER_ENGAGED, 1, 100, engaged);
         }
 
         public event EventHandler OnOpen;
@@ -50,11 +70,6 @@ namespace KBWrapper {
         public event EventHandler<ErrorEventArgs> OnError;
 
         public event EventHandler OnClose;
-
-        public void Close() {
-            socket.Close();
-            //socket.dispose() ??
-        }
 
         //---------------------------------------------------------------
         // KB API
@@ -69,46 +84,6 @@ namespace KBWrapper {
             Message registerTag = Message.RegisterTags(SOURCE_ID, tagsList, this.token);
             Send(registerTag.Serialize());
         }
-
-        public void WriteUserEngaged() {
-            this.removePreviousUserEngaged();
-            Message.UserEngaged engaged = new Message.UserEngaged(true);
-            this.AddFact("USER_ENGAGED", 1, 100, engaged);
-        }
-
-
-        public void RemoveUserEngaged() {
-            this.removePreviousUserEngaged();
-            Message.UserEngaged engaged = new Message.UserEngaged(false);
-            this.AddFact("USER_ENGAGED", 1, 100, engaged);
-        }
-
-        private void removePreviousUserEngaged() {
-            JObject o = new JObject();
-            JObject meta = new JObject();
-            meta["tag"] = "USER_ENGAGED";
-            o["_meta"] = meta;
-
-            JObject w = new JObject();
-            w["idSource"] = SOURCE_ID;
-            w["jsonReq"] = o;
-
-            this.RemoveFact(w);
-        }
-
-        private void subscribeForUserEngagedEvents() {
-            JObject o = new JObject();
-            JObject meta = new JObject();
-            meta["tag"] = "USER_ENGAGED";
-            o["_meta"] = meta;
-
-            JObject w = new JObject();
-            w["idSource"] = SOURCE_ID;
-            w["jsonReq"] = o;
-
-            this.Subscribe(w);
-        }
-
 
         private void AddFact(string tag, int ttl, int reliability, Object fact) {
             Message.Fact f = new Message.Fact(SOURCE_ID, tag, ttl, reliability, JObject.FromObject(fact));
@@ -150,6 +125,36 @@ namespace KBWrapper {
             }
         }
 
+        private void removePreviousUserEngaged() {
+            JObject o = new JObject();
+            JObject meta = new JObject();
+            meta["tag"] = "USER_ENGAGED";
+            o["_meta"] = meta;
+
+            JObject w = new JObject();
+            w["idSource"] = SOURCE_ID;
+            w["jsonReq"] = o;
+
+            this.RemoveFact(w);
+        }
+
+        private void subscribeForUserEngagedEvents() {
+            JObject o = new JObject();
+            JObject meta = new JObject();
+            meta["tag"] = "USER_ENGAGED";
+            o["_meta"] = meta;
+
+            JObject w = new JObject();
+            w["idSource"] = SOURCE_ID;
+            w["jsonReq"] = o;
+
+            this.Subscribe(w);
+        }
+
+
+        //----------------------------------------------------------------------
+        // CallBacks
+        //----------------------------------------------------------------------
         private void _OnOpen(Object sender, System.EventArgs empty) {
             Console.WriteLine("Connection with KB opened.");
             OnOpen?.Invoke(this, EventArgs.Empty);
@@ -163,7 +168,16 @@ namespace KBWrapper {
         private void _OnMessage(Object sender, WebSocketSharp.MessageEventArgs e) {
             Console.WriteLine("Message received from KB." + e.Data);
             if (!wrapperHandled(e.Data)) {
-                OnMessage?.Invoke(this, new MessageEventArgs(e));
+                // TODO: if reqId is not remFact or AddFact -> KB update not merged
+                JObject o = JObject.Parse(e.Data);
+                JArray a = null;
+                try {
+                    a = JArray.FromObject(o["details"]);
+                    foreach (var obj in a) {
+                        Message.UserEngaged u = JObject.FromObject(obj["object"]["_data"]).ToObject<Message.UserEngaged>();
+                        OnMessage?.Invoke(this, new MessageEventArgs(u));
+                    }
+                } catch (Exception) { }
             }
         }
 
@@ -172,19 +186,21 @@ namespace KBWrapper {
             OnError?.Invoke(this, new ErrorEventArgs(e));
         }
 
+        //Private handling of onMessage
         private bool wrapperHandled(string json) {
 
             if (this.waitingRegisterResponse) {
                 RegisterResponse r = JObject.Parse(json).ToObject<RegisterResponse>();
                 this.SOURCE_ID = r.SourceID;
 
-                Message.Tag tag = new Message.Tag("USER_ENGAGED", "A human is about to interact with ELF", "(A human is about to interact with ELF).verbose()");
+                Message.Tag tag = new Message.Tag(USER_ENGAGED, "A human is about to interact with ELF", "(A human is about to interact with ELF).verbose()");
                 this.RegisterTags(new Message.Tag[] { tag });
 
                 this.waitingRegisterResponse = false;
                 this.waitingRegisterTagResponse = true;
                 return true;
             }
+
             if (this.waitingRegisterTagResponse) {
                 //should I check the answer? -> false, someone already (me, before crashing) register this tag -> I can add fact with that tag anyway
                 this.waitingRegisterTagResponse = false;
@@ -192,6 +208,7 @@ namespace KBWrapper {
                 this.subscribeForUserEngagedEvents();
                 return true;
             }
+
             if (this.waitingSubscribeResponse) {
                 this.waitingSubscribeResponse = false;
                 OnConnected?.Invoke(this, true);
@@ -204,12 +221,12 @@ namespace KBWrapper {
         // EventArgs to hide WebSocketSharpLib
         //---------------------------------------------------------------
         public class MessageEventArgs : EventArgs {
-            public string asString { get; }
-            public byte[] raw { get; }
+            public bool Value { get; }
+            public string InteractionName { get; }
 
-            public MessageEventArgs(WebSocketSharp.MessageEventArgs e) {
-                asString = e.Data;
-                raw = e.RawData;
+            public MessageEventArgs(Message.UserEngaged userEngaged) {
+                this.Value = userEngaged.Value;
+                this.InteractionName = userEngaged.InteractionName;
             }
         }
 

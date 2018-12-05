@@ -152,10 +152,10 @@ namespace KBWrapper {
             private static string datePattern = @"yyyy-MM-dd_[HH-mm-ss]";
 
             [JsonProperty("value")]
-            private bool Value;
+            internal bool Value;
 
             [JsonProperty("interactionName")]
-            private string InteractionName;
+            internal string InteractionName;
 
             public UserEngaged(bool value) {
                 this.Value = value;

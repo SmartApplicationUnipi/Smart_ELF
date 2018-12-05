@@ -19,7 +19,7 @@ class HALThread(Threading.Thread):
     Override the `handleSoc`
     """
 
-    def __init__(self, HALAddress, HALReadingPort, clientID, callback, *args, **kwargs, errback):
+    def __init__(self, HALAddress, HALReadingPort, clientID, callback, errback, *args, **kwargs):
         Threading.Thread.__init__(self)
         # Config
         self.HALAddress = HALAddress
