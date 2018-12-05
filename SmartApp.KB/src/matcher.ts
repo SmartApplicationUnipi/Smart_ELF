@@ -87,7 +87,10 @@ class Matcher {
                 D.clogNoID(Colors.GREEN, 'RESULT', '', 'Match success!', 4);
                 if (q.hasOwnProperty('_predicates')) {
                     D.clogNoID(Colors.BLUE, 'INFO', '', 'Some predicates to check!', 5);
-                    this.evaluatePredicates(q['_predicates']);
+                    if (!this.evaluatePredicates(q['_predicates'])) {
+                        D.clogNoID(Colors.RED, 'RESULT', '', 'Predicate check failed! Match failed!', 4);
+                        continue;
+                    }
                 }
                 matches.set(data, [...this.currBinds]);
             } else {
@@ -434,6 +437,7 @@ class Matcher {
     }
 
     private evaluatePredicates(predicates: any[][]): boolean {
+        // TODO: if we have only constant predicates it might go terribly wrong.
         for (const predicate of predicates) {
             D.clogNoID(Colors.BLUE, 'PRED', '', 'Evaluating predicate `' + predicate[0] + '\'.', 4);
             const predName = predicate[0];
