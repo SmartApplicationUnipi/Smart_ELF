@@ -18,7 +18,7 @@ const rule2 = `
                          { "subject": "$prof", "relation": "teaches", "object": "$course" }
                          { "subject": "$course", "relation": "is in room", "object": "$room" }`;
 
-kb.AddRule(myid, 'test', rule2);
+kb.addRule(myid, 'test', rule2);
 
 kb.addFact(myid, 'rdf', 7, 100,
     { subject: 'SmartApplication', relation: 'is in room', object: 'Aula X1' },

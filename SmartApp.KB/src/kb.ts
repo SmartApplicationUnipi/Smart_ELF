@@ -1,8 +1,8 @@
-import { readFile, writeFile } from 'fs';
+import { readFileSync, writeFile } from 'fs';
 import { transformRule } from './compiler';
 import { security } from './config';
 import { Debugger } from './debugger';
-import { checkRules } from './inferenceStub';
+import { checkRules, queryRules } from './inferenceStub';
 import { Logger } from './logger';
 import * as matcher from './matcher';
 
@@ -24,51 +24,58 @@ let baseIdSource = 0;
 let uniqueFactId = 0;
 let uniqueRuleId = 0;
 
-readFile('./db/databaseFact', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { databaseFact = new Map(JSON.parse(b)); }
-    });
-readFile('./db/databaseRule', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { databaseRule = new Map(JSON.parse(b)); }
-    });
+const DATABASEFACTPATH = './db/databaseFact';
+const DATABASERULEPATH = './db/databaseRule';
+const SUBSCRIPTIONSPATH = './db/subscriptions';
+const USERTAGSPATH = './db/userTags';
+const UNIQUEFACTIDPATH = './db/uniqueFactId';
+const UNIQUERULEIDPATH = './db/uniqueRuleId';
 
-readFile('./db/subscriptions', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { subscriptions = new Map(JSON.parse(b)); }
-    });
+// TODO: this has to be a nice init fuction
+let file = readFileSync(DATABASEFACTPATH, 'utf8');
+databaseFact = new Map(JSON.parse(file));
 
-readFile('./db/userTags', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { userTags = new Map(JSON.parse(b)); }
-    });
+file = readFileSync(DATABASERULEPATH, 'utf8');
+databaseRule = new Map(JSON.parse(file));
 
-readFile('./db/uniqueFactId', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { uniqueFactId = parseInt(b, 10); }
-    });
-readFile('./db/uniqueRuleId', 'utf8', (err, b) => {
-        if (err) { console.log('init:', err); } else { uniqueRuleId = parseInt(b, 10); }
-    });
+file = readFileSync('./db/subscriptions', 'utf8');
+subscriptions = new Map(JSON.parse(file));
+
+file = readFileSync(USERTAGSPATH, 'utf8');
+userTags = new Map(JSON.parse(file));
+
+file = readFileSync(UNIQUEFACTIDPATH, 'utf8');
+uniqueFactId = parseInt(file, 10);
+
+file = readFileSync(UNIQUERULEIDPATH, 'utf8');
+uniqueRuleId = parseInt(file, 10);
 
 // const repetitionTime = 86400000 / 2;
-const repetitionTime = 60 * 60 * 1000;
+const repetitionTime = 30 * 60 * 1000;
 const now = new Date();
-const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 0, 0, 0);
-let millsToDump = dumpDate.getTime() - now.getTime();
-if (millsToDump <= 0) {
-     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
-}
+const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
+const millsToDump = dumpDate.getTime() - now.getTime();
+// if (millsToDump <= 0) {
+//     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
+// }
 
 function writeCallback(filename: string, err: any) {
     if (err) { log.error('KB', 'error saving ' + filename, err); } else { log.info('KB', filename + ' saved'); }
 }
 
 function dumpDatabase() {
-
-    writeFile('./db/databaseFact', JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) );
-    writeFile('./db/databaseRule', JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) );
     // tslint:disable-next-line:max-line-length
-    writeFile('./db/subscriptions', JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) );
-    writeFile('./db/userTags', JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) );
-    writeFile('./db/uniqueFactId', uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e));
-    writeFile('./db/uniqueRuleId', uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e));
-    setTimeout(dumpDatabase, repetitionTime );
+    const f1 = () => { writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e) ); };
+    // tslint:disable-next-line:max-line-length
+    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e) ); };
+    // tslint:disable-next-line:max-line-length
+    const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e) ); };
+    // tslint:disable-next-line:max-line-length
+    const f4 = () => { writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e) ); };
+    const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
+    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8' , (e) => writeCallback('uniqueRuleId', e)); };
+    Promise.all([f1(), f2(), f3(), f4(), f5(), f6()])
+    .then(() => { setTimeout(dumpDatabase, repetitionTime ); });
 }
 
 setTimeout(dumpDatabase, millsToDump);
@@ -85,7 +92,7 @@ export class Response {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class Metadata {
+export class Metadata {
     public idSource: string;
     public tag: string;
     public TTL: number;
@@ -136,12 +143,12 @@ export class TagInfo {
     }
 }
 
-export function getAllTags() {
+export function getAllTags(includeShortDesc: boolean) {
     const allTags: any = {};
     for (const [user, tags] of userTags.entries()) {
         const tagsArray: any = {};
         for (const [tag, tagInfo] of tags.entries()) {
-            tagsArray[tag] = tagInfo;
+            tagsArray[tag] = includeShortDesc ? tagInfo.desc : null;
         }
         allTags[user] = tagsArray;
     }
@@ -200,24 +207,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
     checkRules(dataobject);
     return new Response(true, currentFactId);
 }
-// TODO: remove this asap
-export function addInferenceFact(idSource: string, tag: string, TTL: number, reliability: number, jsonInfer: object) {
-    // aggiungi controllo documentazione presente tag
-    // if (!(tagDetails .has(tag))) { return new Response(false, tag); }
-    // TODO: NON CI SONO I CONTROLLI SUL TAG!!
 
-    const metadata = new Metadata(idSource, tag, new Date(Date.now()), TTL, reliability);
-    const currentFactId = -uniqueFactId_gen();
-    const dataobject = {
-        _data: jsonInfer,
-        _id: currentFactId,
-        _meta: metadata,
-    };
-    databaseInference.set(dataobject._id, dataobject);
-    checkSubscriptions(dataobject);
-    // checkRules(dataobject);
-    return new Response(true, currentFactId);
-}
 // tslint:disable-next-line:max-line-length
 export function updateFactByID(id: number, idSource: string, tag: string, TTL: number, reliability: number, jsonFact: object) {
     if (!(userTags.has(idSource))) { return new Response(false, {}); }
@@ -247,8 +237,8 @@ export function query(jreq: any) {
     }
 
     let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
-    // TODO: remove this asap
-    m = new Map([...m, ...matcher.findMatches(queryobj, Array.from(databaseInference.values()))]);
+    const m2 = queryRules(jreq);
+    m = new Map([...m, ...m2]);
 
     if (m.size === 0) {
         return new Response(false, {});
@@ -276,30 +266,8 @@ export function removeFact(idSource: string, jreq: object) {
     } else { return new Response(false, 'no matching facts'); }
 }
 
-// export function addRule(idSource: string, ruleTag: string, jsonRule: DataRule) {
-//     // controllo se la regola è valida
-//     // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
-//     //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
-//     // }
-//     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
-//     const dataobject = {
-//         _data: normalizeRule(jsonRule),
-//         // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
-//         _id: uniqueRuleId_gen(),
-//         _meta: metadata,
-//     };
-//
-//     databaseRule.set(dataobject._id, dataobject);
-//     return new Response(true, dataobject._id);
-// }
-
-// export function newAddRule(idSource: string, ruleTag: string, jsonRule: string) {
 export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
-    // controllo se la regola è valida
-    // if (!jsonRule.hasOwnProperty('body') || !jsonRule.hasOwnProperty('head')) {
-    //     return new Response(false, 'Rules must have a \'head\' and a \'body\'');
-    // }
-
+    if (!(userTags.has(idSource))) { return new Response(false, {}); }
     const jsonObj = transformRule(jsonRule);
 
     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
@@ -324,7 +292,6 @@ function normalizeRule(rule: any): DataRule {
     } else {
         if (Object.keys(rule._head).length > 0) { norm._head._data = rule._head; }
     }
-
     for (const pred of rule._body) {
         const normb: any = {};
         if (pred.hasOwnProperty('_meta')) { normb._meta = pred._meta; delete pred._meta; }
@@ -336,9 +303,7 @@ function normalizeRule(rule: any): DataRule {
         }
         norm._body.push(normb);
     }
-
     return norm;
-
 }
 
 function normalizeObj(sub: any) {
@@ -363,7 +328,7 @@ export function removeRule(idSource: string, idRule: number) {
     return new Response(true, idRule);
 }
 
-function checkSubscriptions(obj: object) { // object is the created fact
+export function checkSubscriptions(obj: object) { // object is the created fact
     // this function will check if the new data inserted matches some "notification rule"
     subscriptions.forEach((callbArray, k, m) => {
         const r = matcher.findMatches(k, [obj]);

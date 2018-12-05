@@ -31,7 +31,7 @@ wss.on('connection', (ws: WebSocket) => {
 
             switch (j.method) {
                 case 'getAllTags':
-                    reply = kb.getAllTags();
+                    reply = kb.getAllTags(j.params.includeShortDesc);
                     break;
                 case 'register':
                     reply = kb.register();
