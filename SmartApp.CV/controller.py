@@ -5,7 +5,7 @@ from offline.offvision import OffVision as offline
 
 from face_db import face_db as db
 
-from threading import Thread
+from threading import Thread, Timer, Event
 from queue import Queue
 import cv2
 
@@ -22,7 +22,6 @@ import cv2
 #
 #  Vedere il file StreamWebCam per un esempio di implementazione
 #  (fatto da Michele in script/StreamWebCam)
-#
 
 DOCS = {
 'VISION_FACE_ANALYSIS': {
@@ -72,6 +71,7 @@ class Controller():
         self._hal = None
         self._videoID = None
         self.video_capture = None
+        self.flag = Event()
 
         if self.is_host:
             self._hal = hal.HALInterface(HALAddress= host)
@@ -85,6 +85,15 @@ class Controller():
         # DB initialization
         self.db = db()
         self.t = None
+
+        #module initialization
+        self.online_module = None
+        self.offline_module = None
+        self.active_module = None
+
+        #switcher Initialization
+        self.plan_checking = False
+        self.timer = None
 
         # Initialization of Online Module
         try:
@@ -104,24 +113,18 @@ class Controller():
             print(type(e).__name__, e)
             print("\n It seems that there is a problem in the initialization!")
 
+        #initializzation acitve module
+        if self.online_module:
+            self.active_module = self.online_module
+        elif self.offline_module:
+            self.active_module = self.offline_module
+        else:
+            raise Exception("No module avaulable...")
+
         # Ops for worker that compute all the analyzes
         self.t = Thread(target=Controller._worker, args=[self, Controller.q])
         self.t.daemon = True
         self.t.start()
-
-        # Initialization of exponential backoff machanism
-        self.attempt = 0
-        self.exponent = 1
-        self.max_exponent = 8
-        # decide what to do with online module initialization failure
-        if self.has_api_problem:
-            if self.retry_init_online_module:
-                # retry init over longest interval
-                self.exponent = self.max_exponent
-                self.attempt = 2 ** self.exponent
-            else:
-                # always go offline
-                self.attempt = float('inf')
 
     def _take_frame(frame_obj):
         """
@@ -159,13 +162,9 @@ class Controller():
                     #no match add it to db
                     vals = [self.db.insert((descriptor, None)), 0, False]
 
-            print("\tHo scitto:")
             atts = ['personID', 'confidence_identity', 'known']
             for att, val in zip(atts, vals):
                 fact.update({att:val})
-                print("\t\t"+str(att)+":"+str(val))
-
-            print("\tOra il db è:"+ str(self.db))
 
         return fact
 
@@ -176,11 +175,11 @@ class Controller():
             Params:
                 queue (Queue): queue associated at thrad of frame
         """
-        print("inizio Worker")
         face_obj, frame_size, img = None, None, None
         while True:
+            if self.flag.is_set():
+                break
             try:
-                print("Prendo Frame")
                 if self.is_host:
                     face_obj, frame_size  = queue.get()
                     img = face_obj.img
@@ -189,18 +188,16 @@ class Controller():
                     ret, frame = self.video_capture.read()
                     frame_size = (320, 240)
                     img = face_obj = cv2.resize(frame, frame_size)
-
-                print("Inizio Watch")
                 fact, tuple = self.watch(face_obj, frame_size)
                 # tuple = (descriptor, token)
-                print("Ho visto chi sta: "+str((fact, tuple))+"\n data"+str(self.db))
-                print("Inizio _get_id_person")
-                fact = self._get_id_person(fact, tuple, img)
-                print("Ora so:"+str(fact))
+                print("\nid person")
+                #fact = self._get_id_person(fact, tuple, img)
 
                 #self._add_fact_to_kb(fact)
             except Exception as e:
                 print("_worker function ->"+type(e).__name__, e)
+                self.has_api_problem = True
+
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         try:
@@ -208,42 +205,42 @@ class Controller():
         except Exception as e:
             print("Could not add fact", e)
 
-    def _bake_off(self, img):
-        try:
-            print("\t\tVerifico quale modulo utilizzare")
-            if self.attempt < 1: # attempt an online analysis
-                if self.has_api_problem and self.retry_init_online_module:
-                    print("\t\tReinizializzo Online")
-                    self.online_module = online()
-                    self.has_api_problem = False
-                print("\t\tUtilizzo Online")
-                fact, tuple = self.online_module.analyze_face(img)
-                self.exponent = 1 # all fine, reset backoff
-            else: # we're in the backoff interval, work offline
-                print("\t\tUtilizzo Offline")
-                fact, tuple = self.offline_module.analyze_face(img)
-                self.attempt -= 1 # one more attempt done
-                # print('*** BACKOFF attempt', self.attempt, 'of exponent', self.exponent, '***')
-        except Exception as e:
-            print("\t\t\tErrore Durante l'utilizzo del Modulo")
-            print("_bake_off Function ->" + type(e).__name__, e)
-            # something went wrong, double the attempt interval (until maximum length)
-            if self.exponent < self.max_exponent:
-                self.exponent += 1
-            # begin the new backoff interval
-            self.attempt = 2 ** self.exponent
-            # remeber, we've still to analyze this face:
-            print("\t\t\tUtilizzo Offline per rimediare")
-            fact, tuple = self.offline_module.analyze_face(img)
+    def _switch_module_event(self):
 
-        return fact, tuple
+        print("\nVerifico la connessione")
+        if self.online_module is None:
+            print("\nonline non inizializzato")
+            #try initialization
+            try:
+                self.online_module = online()
+            except Exception as e:
+                print("\nerrore nell'inizializzazione")
+                print(type(e).__name__, e)
+                self.active_module = self.offline_module
+
+        if self.online_module.is_available():
+            print("\nUso il modulo online")
+            self.active_module = self.online_module
+            self.plan_checking = False
+            self.has_api_problem = False
+        else:
+            print("\nUso il modulo offline")
+            self.active_module = self.offline_module
+
+        self.plan_checking = False
 
     def watch(self, face, frame_size = (0,0)):
-        print("\tInizio bakeOff")
-        fact, tuple = self._bake_off(face.img if hasattr(face, "img") else face)
-        print("\tFine bakeOff")
 
-        print("\tInizio integrazione fact")
+        if self.has_api_problem and self.plan_checking == False:
+            self.timer = Timer(5.0, self._switch_module_event)
+            self.timer.start()
+            self.plan_checking = True
+
+        if self.has_api_problem == False and self.timer is not None and self.timer.is_alive():
+                self.timer.cancel()
+
+        fact, tuple = self.active_module.analyze_face(face)
+
         if fact:
             look_at = {'pinch': 0, 'yaw':0}
             if set(frame_size)==0:
@@ -259,23 +256,21 @@ class Controller():
         else:
             print("Non vedo nessuno")
 
-        print("\tFine integrazione fact")
         return fact, tuple
 
     def close(self):
         print("Chiusura controller")
 
+        self.flag.set()
         if self._hal is not None:
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.q.join()
         self.db.close()
-        # if self.t is not None:
-        #     self.t.join()
-
-    def __del__(self):
-        self.close()
-
+        if self.t:
+            self.t.join()
+        if self.timer:
+            self.timer.close()
 
 if __name__ == '__main__':
     controller = Controller(host = "webcam")

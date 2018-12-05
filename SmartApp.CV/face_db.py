@@ -7,7 +7,7 @@ from copy import deepcopy
 from numpy import ndarray
 from numpy.linalg import norm
 
-from threading import Timer, Event
+from threading import Timer
 from logging import getLogger
 log = getLogger("Face_Database.Saver")
 
