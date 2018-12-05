@@ -12,6 +12,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
+using System.Linq;
 using SmartApp.HAL.Model;
 using Google.Protobuf;
 
@@ -19,21 +20,42 @@ namespace SmartApp.HAL.Implementation
 {
     internal class VideoManager : IVideoManager
     {
-        private readonly IVideoSource _source;
+        private readonly IVideoSource _videoSource;
+        private readonly IAudioSource _audioSource;
         private readonly INetwork _network;
         private readonly ILogger<VideoManager> _logger;
 
-        public VideoManager(IVideoSource source, INetwork network, ILogger<VideoManager> logger)
+        public VideoManager(IVideoSource source, IAudioSource audioSource, INetwork network, ILogger<VideoManager> logger)
         {
-            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _videoSource = source ?? throw new ArgumentNullException(nameof(source));
+            _audioSource = audioSource ?? throw new ArgumentNullException(nameof(audioSource));
             _network = network ?? throw new ArgumentNullException(nameof(network));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void Start()
         {
-            _source.FrameReady += (_, frame) =>
+            _videoSource.FrameReady += (_, frame) =>
             {
+                // Check if the user engagement changed
+                var newEngaged = frame.Faces.Any(f => f.IsEngaged);
+                if (newEngaged != IsEngaged)
+                {
+                    // Start recording audio when the user is engaged
+                    if (newEngaged)
+                    {
+                        _audioSource.Start();
+                    }
+                    else
+                    {
+                        _audioSource.Stop();
+                    }
+
+                    IsEngaged = newEngaged;
+                    _logger.LogInformation($"User {(IsEngaged ? string.Empty : "not ")}engaged.");
+                    IsEngagedChanged?.Invoke(this, IsEngaged);
+                }
+
                 // Exit immediately if we did not find any face
                 if (frame.Faces.Count == 0)
                 {
@@ -42,7 +64,9 @@ namespace SmartApp.HAL.Implementation
 
                 // Prepare the packet to send over the net
                 var packet = new VideoDataPacket() {
-                    Timestamp = new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds()
+                    Timestamp = new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds(),
+                    FrameWidth = frame.FrameWidth,
+                    FrameHeight = frame.FrameHeight
                 };
                 foreach (var face in frame.Faces)
                 {
@@ -59,7 +83,9 @@ namespace SmartApp.HAL.Implementation
                     }
 
                     packet.Faces.Add(new VideoDataPacket.Types.Face() {
-                        Id = -1,
+                        Id = face.ID,
+                        Z = face.Z,
+                        Speaking = face.IsSpeaking,
                         Data = ByteString.CopyFrom(buf),
                         Rect = new VideoDataPacket.Types.Rectangle() {
                             Top = face.Bounds.Top,
@@ -74,5 +100,9 @@ namespace SmartApp.HAL.Implementation
 
             };
         }
+
+        public bool IsEngaged { get; private set; }
+
+        public event EventHandler<bool> IsEngagedChanged;
     }
 }

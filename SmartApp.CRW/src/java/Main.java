@@ -2,11 +2,12 @@ import com.google.gson.Gson;
 import elf_crawler.CrawlingManager;
 import elf_crawler.URLSet;
 import elf_crawler.crawler.DataEntry;
+import elf_crawler.crawler.KBTagManager;
+import elf_crawler.crawler.Tag;
 import elf_crawler.relationship.RdfRelation;
 import elf_crawler.relationship.RelationshipSet;
-import elf_crawler.util.Logger;
 import elf_kb_protocol.Fact;
-import elf_kb_protocol.JReq;
+import elf_kb_protocol.TagList;
 import elf_kb_protocol.KBConnection;
 import elf_kb_protocol.KBTTL;
 
@@ -25,6 +26,7 @@ public class Main {
         URLSet urlSet = new URLSet("url-set.json");
         RelationshipSet rs = new RelationshipSet("relationship-set.json");
         CrawlingManager cs = new CrawlingManager(urlSet, rs);
+        KBTagManager tagManager = new KBTagManager("taglist.json");
 
         List<DataEntry> dataEntries = cs.executeAllCrawlers();
         cs.shutdown();
@@ -35,14 +37,23 @@ public class Main {
         }
 
         KBConnection con = new KBConnection("ws://localhost", 5666);
-
-        JReq jreq = new JReq();
-        jreq.addTag("t1", "d1", "doc1");
-        con.registerTags(jreq);
+        TagList tagList = new TagList();
+        for (Tag t : tagManager.getAllTags()) {
+            tagList.addTag(t.getTagName(), t.getDesc(), t.getDoc());
+            System.err.println("Registering tag " + t);
+        }
+        con.registerTags(tagList);
 
         for (DataEntry d : dataEntries) {
             if (d == null) continue;
-            con.addFact(new Fact("t1", KBTTL.DAY, 100, true, d));
+
+            if (!tagManager.hasTag(d.tag)) {
+                System.err.println("Unregistered tag '" + d.tag + "' found in " + d);
+                continue;
+            }
+
+            System.err.println("Added entry: " + d);
+            con.addFact(new Fact(d.tag, KBTTL.DAY, 100, d));
         }
 
         con.closeConnection();

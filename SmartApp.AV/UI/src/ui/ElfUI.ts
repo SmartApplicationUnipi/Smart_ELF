@@ -1,5 +1,5 @@
-import { IEmotion } from '../emotion/Emotion';
-import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION } from './event/ElfUIEvent';
+import { ISBEEmotion } from '../emotion/Emotion';
+import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION, KEY_POSITION } from './event/ElfUIEvent';
 import { BaseEventReader, IElfUIEventListener } from '../reader/EventReader';
 import * as Content from '../content/Content';
 import { Point } from '../utils/Point';
@@ -31,14 +31,20 @@ export abstract class ElfUI implements IElfUIEventListener {
 	 * Method called when a new event is received from one of the registered event listeners.
 	 * @param e 
 	 */
-	public onEvent(e: ElfUIEvent) {
-		let emotion = e.getAny(KEY_EMOTION) as IEmotion;
+	public onEvent(e: ElfUIEvent): void {
+		let emotion = e.getAny(KEY_EMOTION) as ISBEEmotion;
 		if (emotion) {
-			this.onEmotionChanged(e.getAny(KEY_EMOTION) as IEmotion);
+				this.onEmotionChanged(e.getAny(KEY_EMOTION) as ISBEEmotion);
 		}
+		
+		let position = e.getAny(KEY_POSITION) as Point;
+		if (position) {
+				this.onPositionChanged(position);
+		}
+
 		let contents = this.getContentFactory().create(e);
 		if (contents) {
-			this.onContentChanged(contents);
+				this.onContentChanged(contents);
 		}
 	}
 
@@ -59,7 +65,7 @@ export abstract class ElfUI implements IElfUIEventListener {
 	 * Method called when a new emotion is received
 	 * @param e The emotion received
 	 */
-	abstract onEmotionChanged(e: IEmotion): void;
+	abstract onEmotionChanged(e: ISBEEmotion): void;
 
 	/**
 	 * Method called when there is a new position of the user

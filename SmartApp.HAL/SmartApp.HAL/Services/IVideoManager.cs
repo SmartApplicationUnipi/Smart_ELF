@@ -9,5 +9,9 @@ namespace SmartApp.HAL.Services
     public interface IVideoManager
     {
         void Start();
+
+        bool IsEngaged { get; }
+
+        event EventHandler<bool> IsEngagedChanged;
     }
 }

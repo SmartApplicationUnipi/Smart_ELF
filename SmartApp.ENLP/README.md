@@ -18,10 +18,12 @@ tuple = {
   "time_stamp": int,
   "valence": float,
   "arousal": float,
+  "language" : string,
   "tag": "ENLP_USER_EMOTION"
+
 }
 ```
-The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect.
+The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect. `language` indicates the language of the original user sentence.
 
 ## ELF Internal Emotional State (IES)
 In order to provide a realistic answer to the user the module has to compute what is the emotional state of ELF itself.
@@ -62,8 +64,10 @@ where `valence` and `arousal` coordinates identify the emotion with which the an
 
 1. We use `"NLP_ANSWER"` as the tag to identify the tuple containing the text of the reply to be given to the user. The text is directly contained in the value of the tag field.
 
-## TODO
- - Switch to multiprocess library due to python GIL.
-
 ## INSTALL
 `pip install -r requirements.txt`
+
+## RUN
+In order to run all the components of this module simply execute, after installing prerequisites, the command
+
+`python enlp_app.py`

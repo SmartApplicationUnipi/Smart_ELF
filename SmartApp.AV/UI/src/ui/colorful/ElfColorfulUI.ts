@@ -2,13 +2,15 @@ import * as Logger from '../../log/Logger';
 import * as AudioPlayer from '../../audio/AudioPlayer';
 
 import { ElfUI, ElfUIFactory } from '../../ui/ElfUI';
-import { IEmotion } from '../../emotion/Emotion';
+import { ISBEEmotion, EmotionColorAdapter } from '../../emotion/Emotion';
 import { IContent, ContentFactory, AudioContent, TextContent, SpeechContent } from '../../content/Content';
 import { DefaultContentFactory } from '../../content/DefaultContentFactory';
 import { Snackbar } from '../../utils/Snackbar';
 import { Point } from '../../utils/Point';
 import { EmotionalUIWidget } from '../widget/UIWidget';
 import { Smiley } from './widget/Smiley';
+import { Face } from './widget/face/Face';
+import { SVGFace } from './widget/svgface/SVGFace';
 
 let _ = require('lodash');
 
@@ -16,7 +18,6 @@ let _ = require('lodash');
  * Colorful ElfUI.
  */
 export class ElfColorfulUI extends ElfUI {
-	private logger: Logger.ILogger = Logger.getInstance();
 
 	private audioPlayer: AudioPlayer.AudioPlayer;
 	private snackbar: Snackbar;
@@ -25,7 +26,8 @@ export class ElfColorfulUI extends ElfUI {
 
 	private content: HTMLElement;
 
-	private smiley: Smiley;
+	// private smiley: Smiley;
+	private svgFace: Face;
 
 	constructor(rootElement: HTMLElement, window: Window) {
 		super(rootElement);
@@ -39,25 +41,29 @@ export class ElfColorfulUI extends ElfUI {
 
 		this.content = _.first(root.getElementsByClassName("ui-content"));
 		
-		this.smiley = new Smiley(root.ownerDocument);
-		this.content.appendChild(this.smiley.getElement());
+		// this.smiley = new Smiley(root.ownerDocument);
+		// this.content.appendChild(this.smiley.getElement());
+		this.svgFace = new SVGFace(root.ownerDocument);
+		this.content.appendChild(this.svgFace.getElement());
 	}
 
-	public onEmotionChanged(e: IEmotion): void {
-		this.logger.log(Logger.LEVEL.INFO, "onEmotionChanged", e);
+	public onEmotionChanged(e: ISBEEmotion): void {
+		Logger.getInstance().log(Logger.LEVEL.INFO, "onEmotionChanged", e);
 
 		// Change the background color. The CSS rules will handle the animation.
-		this.content.style.backgroundColor = e.getColor();
+		this.content.style.backgroundColor = EmotionColorAdapter.getAdapter(e).getColor(e);
 
-		this.smiley.onEmotionChanged(e);
+		// this.smiley.onEmotionChanged(e);
+		this.svgFace.onEmotionChanged(e);
 	}
 	
 	public onPositionChanged(p: Point): void {
-		// Do nothing (by now)
+		// this.smiley.lookAt(p);
+		this.svgFace.lookAt(p);
 	}
 
 	public onContentChanged(contents: Array<IContent>): void {
-		this.logger.log(Logger.LEVEL.INFO, "onContentChanged", contents);
+		Logger.getInstance().log(Logger.LEVEL.INFO, "onContentChanged", contents);
 
 		// TODO: We can do better than this
 		let audioContents = contents.filter(content => content instanceof AudioContent);
@@ -70,7 +76,7 @@ export class ElfColorfulUI extends ElfUI {
 			} if (content instanceof SpeechContent) {
 				this.snackbar.showText(content.getText());
 			} else {
-				this.logger.log(Logger.LEVEL.WARNING, "Cannot show this type of content", content);
+				Logger.getInstance().log(Logger.LEVEL.WARNING, "Cannot show this type of content", content);
 			}
 		});
 
