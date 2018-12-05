@@ -37,17 +37,17 @@ class ConstantFromkB:
 
         #write them in rules file
         for r in ris:
-            if (r==""):
-                continue
-            if (tag==TAG_ROOM):
-                loc = "+LOC"
-            else:
-                loc = "-LOC"
-            #create string to write
+            #create strings to write
             str_tmp = str(r)+ ("(x)")
             str_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + str_tmp + "]))>] -> '" + str(r) + "'\n"
-
             file.write(str_to_write)
+
+            #if the tuple concerns a course, add  to rules the first word of full name as well
+            if (tag==TAG_COURSE):
+                name = str(r).split(" ")
+                if len(name) > 1:
+                    str_to_write2 = "PNOUN[SEM=<\\x.(DRS([],[" + name[0] + ("(x)") + "]))>] -> '" + str(r) + "'\n"
+                    file.write(str_to_write2)
 
     def extract_teachers_from_KB(self,tag, file):
         """This method is the one devoted to extract "constants" information from the KB
@@ -57,19 +57,29 @@ class ConstantFromkB:
         #answer query
         answ = self.kb_client.query({"_meta": {"tag": tag}})
         if answ['success'] == False:
-            print("fail")
             return
         else:
             file.write("\n#section for " +tag + ":\n")
 
         #write them in rules file
         for r in answ["details"][0]["object"]["_data"]["data"]:
-            #create string to write
-            if (r==""):
-                continue
-            str_tmp = str(r)+ ("(x)")
-            str_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + str_tmp + "]))>] -> '" + str(r) + "'\n"
-            file.write(str_to_write)
+            #create strings (one forn full name, one for surname) to write
+            name = str(r).split(" ")
+            n = len(name)
+            if name[n-2] == "DE" or name[n-2] == "DEL" or name[n-2] == "DI" or name[n-2] == "DELLA":
+                tmp = name[n-2:]
+                surname = " ".join(tmp)
+            else:
+                surname = name[-1]
+
+            name_x = str(r)+ ("(x)")
+
+            surname_x = surname + ("(x)")
+            str1_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + name_x + "]))>] -> '" + str(r) + "'\n"
+            file.write(str1_to_write)
+
+            str2_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + surname_x + "]))>] -> '" + str(r) + "'\n"
+            file.write(str2_to_write)
 
 
     def start(self):
