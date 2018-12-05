@@ -3,6 +3,8 @@ package jar;
 import elf_crawler.CrawlingManager;
 import elf_crawler.URLSet;
 import elf_crawler.crawler.DataEntry;
+import elf_crawler.crawler.KBTagManager;
+import elf_crawler.crawler.Tag;
 import elf_crawler.relationship.RelationshipSet;
 import elf_crawler.util.LogLevel;
 import elf_crawler.util.Logger;
@@ -21,6 +23,7 @@ public class JarMain {
                     "-host <address> <port>: the host address and port of the Knowledge Base server\n" +
                     "-l,-log,-loglevel <1, 2, 3, error, warn, fine>: sets the logger value. Each number has the same meaning as its respective string. Example: a log level of '1' is the same as 'error'.\n" +
                     "-r,-relations <filename>: relationship set location (required)\n" +
+                    "-tag,-taglist <filename>: tag list location (required)\n" +
                     "-t,-threads <numthreads>: how many threads to use in the Crawler. Default is the amount of threads in the CPU\n" +
                     "-u,-urls <filename>: url set location (required)\n";
     private static final String USAGE_STRING = "Usage: <crawler> <flags>\n\nFlags:\n" + FLAGS_STRING;
@@ -30,6 +33,7 @@ public class JarMain {
     private static int threads = Runtime.getRuntime().availableProcessors();
     private static String rsFilename = null;
     private static String urlsetFilename = null;
+    private static String taglistFilename = null;
     private static String KBHost = null;
     private static int KBPort = -1;
 
@@ -41,6 +45,7 @@ public class JarMain {
 
         RelationshipSet rs = new RelationshipSet(rsFilename);
         URLSet urlSet = new URLSet(urlsetFilename);
+        KBTagManager KBTagManager = new KBTagManager(taglistFilename);
         CrawlingManager cm = new CrawlingManager(urlSet, rs, maxCrawlingDepth, threads);
         List<DataEntry> dataEntries = cm.executeAllCrawlers();
         cm.shutdown();
@@ -53,16 +58,24 @@ public class JarMain {
             KBConnection con = new KBConnection(KBHost, KBPort);
             Logger.info("Registering Crawler!");
 
-            JReq jreq = new JReq();
-            jreq.addTag("t1", "d1", "doc1");
+            TagList jreq = new TagList();
+            for (Tag t : KBTagManager.getAllTags()) {
+                jreq.addTag(t.getTagName(), t.getDesc(), t.getDoc());
+                Logger.info("Registering tag " + t);
+            }
             con.registerTags(jreq);
 
             Logger.info("Crawler entity registered!");
             for (DataEntry d : dataEntries) {
                 if (d == null) continue;
-                Logger.info("Added entry: " + d);
 
-                con.addFact(new Fact("t1", KBTTL.DAY, 100, true, d));
+                if (!KBTagManager.hasTag(d.tag)) {
+                    Logger.error("Unregistered tag '" + d.tag + "' found in " + d);
+                    continue;
+                }
+
+                Logger.info("Added entry: " + d);
+                con.addFact(new Fact(d.tag, KBTTL.DAY, 100, d));
             }
 
             con.closeConnection();
@@ -91,6 +104,7 @@ public class JarMain {
                         Logger.critical("Max crawling depth must be positive");
 
                     break;
+
                 case "h":
                 case "help":
                     System.out.println(USAGE_STRING);
@@ -107,6 +121,7 @@ public class JarMain {
                     }
 
                     break;
+
                 case "l":
                 case "log":
                 case "loglevel":
@@ -116,6 +131,7 @@ public class JarMain {
 
                     Logger.setLogLevel(LogLevel.fromString(a.values.get(0)));
                     break;
+
                 case "r":
                 case "relations":
                     if (a.values.size() != 1)
@@ -123,6 +139,15 @@ public class JarMain {
                     rsFilename = a.values.get(0);
 
                     break;
+
+                case "tag":
+                case "taglist":
+                    if (a.values.size() != 1)
+                        Logger.critical("Usage:\n -tag,-taglist <filename>");
+                    taglistFilename = a.values.get(0);
+
+                    break;
+
                 case "t":
                 case "threads":
                     if (a.values.size() != 1)
@@ -134,6 +159,7 @@ public class JarMain {
                         Logger.critical("Number of threads must be positive");
 
                     break;
+
                 case "u":
                 case "urls":
                     if (a.values.size() != 1)
@@ -141,6 +167,7 @@ public class JarMain {
                     urlsetFilename = a.values.get(0);
 
                     break;
+
                 default:
                     Logger.critical(String.format("Unrecognized flag '%s'. ", a.flag) + USAGE_STRING);
             }
@@ -150,7 +177,10 @@ public class JarMain {
             Logger.critical("Missing relationshipSet.json location. Please provide the location using the flag -r <filename>");
 
         if (urlsetFilename == null)
-            Logger.critical("Missing urlset.json location. Please provide the location using the flag -u <url>");
+            Logger.critical("Missing urlset.json location. Please provide the location using the flag -u <filename>");
+
+        if (taglistFilename == null)
+            Logger.critical("Missing taglist.json location. Please provide the location using the flag -tag,-taglist <filename>");
 
         if (KBHost == null) {
             Logger.info("No KB host provided! Assuming locahost.");

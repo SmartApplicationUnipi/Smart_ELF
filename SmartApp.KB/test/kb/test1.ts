@@ -6,7 +6,7 @@ import 'mocha';
 const idSource = kb.register().details;
 
 describe('registerTags', () => {
-    it('should return succes', () => {
+    it('should return success', () => {
         const tag1det = new kb.TagInfo('desc1', 'doc1');
         const tag2det = new kb.TagInfo('desc2', 'doc2');
         const tag3det = new kb.TagInfo('desc3', 'doc3');
@@ -36,6 +36,16 @@ describe('registerTags', () => {
         const response = kb.registerTags('pippo', tags);
         const expected = new kb.Response(false, {});
         expect(response).to.deep.equal(expected);
+    });
+});
+
+describe('getAllTags', () => {
+    it('should return all registered tags and corresponding user', () => {
+        const response = kb.getAllTags(true);
+        const expected = { 'id0' : {tag1 : 'desc1', tag2: 'desc2',
+        tag3: 'desc3', tag4 : 'desc4', tag6: 'desc6' }};
+        const expectedResponse = new kb.Response(true, expected);
+        expect(response).to.deep.equal(expectedResponse);
     });
 });
 
@@ -75,11 +85,12 @@ describe('query', () => {
     it('should correctly retrieve a fact querying the _id', () => {
         const query = {_id: 1 };
         const response = kb.query(query);
+        console.log(response)
 
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
         const meta = {idSource: idSource,  reliability : 100, tag: 'tag1',
-                      creationTime : new Date(Date.now()).toLocaleDateString('en-GB'), TTL : 3};
+                      creationTime : new Date(Date.now()), TTL : 3};
 
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, []);
@@ -101,8 +112,8 @@ describe('query', () => {
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
         const meta = {idSource: idSource, tag: 'tag1', TTL : 3,
-                       reliability : 100, creationTime : new Date(Date.now()).toLocaleDateString('en-GB')};
-
+                       reliability : 100, creationTime : new Date(Date.now())};
+        
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, []);
         const expectedResponse = new kb.Response(true, expected);
@@ -116,7 +127,7 @@ describe('query', () => {
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
         const meta = {idSource: idSource, tag: 'tag1', TTL : 3, reliability : 100,
-                      creationTime : new Date(Date.now()).toLocaleDateString('en-GB')};
+                      creationTime : new Date(Date.now())};
 
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, [ { $s: 'SmartApplication' } ]);
@@ -203,12 +214,13 @@ describe ('updateFactByID', () => {
 
 describe ('addRule and removeRule', () => {
     it('should correctly add a new rule', () => {
-        const rule = new kb.DataRule({ subject: '$prof', relation: 'is in', object: '$room' },
-        [{ subject: '$prof', relation: 'teaches', object: '$course' },
-        { subject: '$course', relation: 'is in room', object: '$room' }]);
+        const rule1 = `
+        { "subject": "$prof", "relation": "is in", "object": "$room" } <-
+                    { "subject": "$prof", "relation": "teaches", "object": "$course" }
+                    { "subject": "$course", "relation": "is in room", "object": "$room" }`;
 
         const id = 1;
-        const response = kb.addRule(idSource, 'myRuleTag', rule);
+        const response = kb.addRule(idSource, 'myRuleTag', rule1);
         const expected = new kb.Response(true, id);
         expect(response).to.deep.equal(expected);
     });
@@ -219,17 +231,6 @@ describe ('addRule and removeRule', () => {
         const expected = new kb.Response(true, id);
         expect(response).to.deep.equal(expected);
     });
-
-    // it('should fail adding an invalid rule', () => {
-    //     const rule = new kb.DataRule(
-    //         body: [{ subject: '$prof', relation: 'teaches', object: '$course' },
-    //         { subject: '$course', relation: 'is in room', object: '$room' }]
-    //     };
-
-    //     const response = kb.addRule(idSource, 'myRuleTag', rule);
-    //     const expected = new kb.Response(false, 'Rules must have a \'head\' and a \'body\'');
-    //     expect(response).to.deep.equal(expected);
-    // });
 
     it('should fail removing a non-existing rule', () => {
         const id = 123123;

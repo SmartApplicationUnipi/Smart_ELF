@@ -3,10 +3,8 @@ package elf_kb_protocol;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.junit.jupiter.api.condition.JRE;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -28,14 +26,16 @@ public class KBConnection {
     protected static final int TIMEOUT = 3000;
     private static final int DEFAULT_PORT = 5666;
     private static final String DEFAULT_HOST = "ws://localhost";
+    protected static final String ID_SOURCE_PARAM = "idSource";
     private static final String ADD_FACT_METHOD = "addFact";
+    private static final String REGISTER_METHOD = "register";
     private static final String REGISTER_TAGS_METHOD = "registerTags";
     private static final String REGISTER_TAGS_PARAM = "tagsList";
     private static final String DEFAULT_TOKEN = "smartapp1819";
 
     private static final GsonBuilder gsonBuilder = (new GsonBuilder())
-            .registerTypeAdapter(JReq.class, new JReqAdapter())
-            .registerTypeAdapter(KBParams.class, new KBParamsAdapter());
+            .registerTypeAdapter(TagList.class, new JReqAdapter())
+            .registerTypeAdapter(KBMethod.class, new KBMethodAdapter());
     private static final Gson gson = gsonBuilder.create();
 
 
@@ -44,7 +44,7 @@ public class KBConnection {
     private WebSocketClient client;
     private KBSocket socket;
     private String idSource;
-    private JReq jreq;
+    private TagList jreq;
 
     /**
      * Creates a new KBConnection using the default localhost
@@ -97,6 +97,20 @@ public class KBConnection {
         ClientUpgradeRequest request = new ClientUpgradeRequest();
         this.client.connect(this.socket, makeUri(this.host, this.port), request);
         this.socket.awaitConnectionOpen();
+        register();
+    }
+
+    private void register() throws Exception {
+
+        KBMethod m = new KBMethod(this.idSource, REGISTER_METHOD, DEFAULT_TOKEN);
+
+        String methodJson = gson.toJson(new KBMethod(this.idSource, REGISTER_METHOD, DEFAULT_TOKEN));
+        KBReply r = toReply(this.socket.sendString(methodJson));
+
+        if (!r.isSuccess())
+            this.closeConnection();
+
+        this.idSource = (String)r.getDetails();
     }
 
     /**
@@ -138,20 +152,18 @@ public class KBConnection {
      * to the KB.
      * @throws Exception
      */
-    public void registerTags(JReq tag) throws Exception {
+    public void registerTags(TagList tag) throws Exception {
         if (!this.isConnected())
-            return;
+            throw new Exception("Client is not connected to a KB.");
 
-        JsonObject o = new JsonObject();
-        o.add(REGISTER_TAGS_PARAM, gson.toJsonTree(tag, JReq.class));
-        String registerJson = gson.toJson(new KBMethod(REGISTER_TAGS_METHOD, o, DEFAULT_TOKEN));
+        KBMethod m = new KBMethod(this.idSource, REGISTER_TAGS_METHOD, DEFAULT_TOKEN);
+        m.addParameter(REGISTER_TAGS_PARAM, gson.toJsonTree(tag, TagList.class));
 
-        KBReply r = toReply(this.socket.sendString(registerJson));
-
+        KBReply r = toReply(this.socket.sendString(gson.toJson(m)));
         if (!r.isSuccess())
         {
             closeConnection();
-            throw new Exception(String.format("Could not register the entity to KB: %s", r.getDetails()));
+            throw new Exception(String.format("Could not register tags to KB: %s", r.getDetails()));
         }
 
         this.jreq = tag;
@@ -164,24 +176,31 @@ public class KBConnection {
      * @throws Exception
      */
     public KBReply addFact(Fact f) throws Exception {
+        if (!this.isConnected())
+            throw new Exception("Client is not connected to a KB.");
+
         if (f.getReliability() < 0 || f.getReliability() > 100)
             throw new Exception("Fact reliability must be a value between 0 and 100.");
 
         if (!this.jreq.containsTag(f.getTag()))
-            throw new Exception(String.format("Fact '%s' has not been registered on the connection.", f.getTag()));
+            throw new Exception(String.format("Tag '%s' has not been registered on the connection.", f.getTag()));
 
-        f.setIdSource(this.idSource);
+        KBMethod m = new KBMethod(this.idSource, ADD_FACT_METHOD, DEFAULT_TOKEN);
+        m.addParameter("tag", f.getTag());
+        m.addParameter("reliability", f.getReliability());
+        m.addParameter("TTL", f.getTTL().ordinal());
 
-        JsonElement e = gson.toJsonTree(f, Fact.class);
-        String factJson = gson.toJson(new KBMethod(ADD_FACT_METHOD, e, DEFAULT_TOKEN));
+        JsonElement fact = gson.toJsonTree(f.getJsonFact());
+        m.addParameter("jsonFact", fact);
 
-        String response = this.socket.sendString(factJson);
-
+        String response = this.socket.sendString(gson.toJson(m));
         if (response == null)
             return null;
 
         return gson.fromJson(response, KBReply.class);
     }
+
+
 
     public void subscribe(String idSource, String jsonReq, Function callback) {
 
@@ -190,6 +209,7 @@ public class KBConnection {
     public void getAndSubscribe(String jsonReq, Function callback) {
 
     }
+
 
     private static URI makeUri(String host, int port) throws URISyntaxException {
         URI uri = new URI(host);

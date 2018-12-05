@@ -2,7 +2,7 @@ import { ContentFactory, IContent, AudioContent, SpeechContent, TextContent, Gen
 import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 
 import * as Logger from '../log/Logger';
-import { Emotion } from '../emotion/Emotion';
+import { ValenceArousalEmotion } from '../emotion/Emotion';
 
 /**
  * Default implementation of ContentFactory
@@ -23,7 +23,7 @@ export class DefaultContentFactory implements ContentFactory {
                         },
                             audioB64 = data[key]['audio'];
 
-                        let emotion = new Emotion(emotionData.valence, emotionData.arousal);
+                        let emotion = new ValenceArousalEmotion(emotionData.valence, emotionData.arousal);
 
                         contents.push(new AudioContent(emotion, audioB64));
                     } catch (ex) {
@@ -35,7 +35,7 @@ export class DefaultContentFactory implements ContentFactory {
                         let text = data[key]['text'];
                         let emotionData: {valence: number, arousal: number} = data[key]['emotion'];
 
-                        let emotion = new Emotion(emotionData.valence, emotionData.arousal);
+                        let emotion = new ValenceArousalEmotion(emotionData.valence, emotionData.arousal);
 
                         if (text && emotion) {
                             contents.push(new SpeechContent(text, emotion));

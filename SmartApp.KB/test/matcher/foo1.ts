@@ -19,6 +19,7 @@ const dataset = [
 ];
 
 const matches = matcher.findMatches({ '_predicates': [['isGreater', ['$i', '$j']]], 'i': '$i', 'j': '$j' }, dataset);
+
 const answer: Map<object, object[]> = new Map<object, object[]>();
 answer.set({
     i: '100', j: '23'
