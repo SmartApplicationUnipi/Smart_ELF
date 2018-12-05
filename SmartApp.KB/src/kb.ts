@@ -75,7 +75,7 @@ if (!databaseFact.has(42)) {
 }
 
 // const repetitionTime = 86400000 / 2;
-const repetitionTime = 30 * 60 * 1000;
+const repetitionTime = 60 * 1000;
 const now = new Date();
 const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
 const millsToDump = dumpDate.getTime() - now.getTime();
