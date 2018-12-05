@@ -35,14 +35,17 @@ export function isEqual(answer: Matches, expected: Matches): boolean {
         return false;
     }
     for (const [key, val] of expected) {
+        let found = false;
         for (const k of answer.keys()) {
             if (deepEqual(key, k)) {
+                found = true;
                 if (!deepEqual(val, answer.get(k))) {
                     return false;
                 }
                 break;
             }
         }
+        if (!found) { return false; }
     }
     return true;
 }
