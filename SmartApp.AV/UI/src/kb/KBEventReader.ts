@@ -2,12 +2,14 @@ import * as Logger from '../log/Logger';
 
 import { BaseEventReader } from '../reader/EventReader';
 import { Message, MessageBuilder } from './Message';
-import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
+import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION, KEY_POSITION } from '../ui/event/ElfUIEvent';
 import { KBResponse } from './KBResponse';
 import { AutoSocket, AutoSocketListener } from '../utils/AutoSocket';
+import { Point } from '../utils/Point';
+import { ValenceArousalEmotion } from '../emotion/Emotion';
 
 class KBRule {
-	constructor(private head: object, private body: Array<object>) {}
+	constructor(private head: object, private body: Array<object>) { }
 
 	public toString() {
 		JSON.stringify(this.head) + " <- " + this.body.map(val => JSON.stringify(val)).join(" ; ");
@@ -32,13 +34,13 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * List of queries for the KB.
 	 */
 	private eventToSubscribe: Array<object> = [
-		{ "TAG": "ENLP_EMOTIVE_ANSWER", "text": "$x", "valence": "$v", "arousal": "$a" },
+		// { "TAG": "ENLP_EMOTIVE_ANSWER", "text": "$x", "valence": "$v", "arousal": "$a" },
 		{ "TAG": "ENLP_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
 		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } }
 	];
 
 	private rulesToAdd = [
-		new KBRule({'apology': '$x'}, [ {'z_index': '$x'} ])
+		new KBRule({ 'apology': '$x' }, [{ 'z_index': '$x' }])
 	]
 
 	public start(): void {
@@ -74,7 +76,51 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 */
 	private buildEvent(response: KBResponse): ElfUIEvent {
 		// TODO: This process should be based on registered queries and their responses from the KB
-		return (new ElfUIEvent()).putAny(KEY_CONTENT, response.getData());
+		let data = response.getData();
+		let tag = data['TAG'];
+		if(!tag) {
+			tag = data['tag']; // try another key
+		}
+		switch (tag) {
+			// TODO: those code should be with the definition of the query
+			case 'ENLP_EMOTIVE_ANSWER':
+				let emotion1 = {
+					valence: data['valence'],
+					arousal: data['arousal']
+				}
+				let ev1 = (new ElfUIEvent())
+					.putAny(KEY_CONTENT, data);
+
+				if (emotion1.valence && emotion1.arousal) {
+					ev1.putAny(KEY_EMOTION, emotion1);
+				}
+				return ev1;
+			case 'ENLP_ELF_EMOTION':
+				let emotion2 = {
+					valence: data['valence'],
+					arousal: data['arousal']
+				}
+				let ev2 = (new ElfUIEvent())
+					.putAny(KEY_CONTENT, data);
+
+				if (emotion2.valence && emotion2.arousal) {
+					ev2.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion2.valence, emotion2.arousal));
+				}
+				return ev2;
+			case 'VISION_FACE_ANALYSIS':
+				let position = {
+					x: data['look_at']['pinch'],
+					y: data['look_at']['yaw']
+				}
+				let ev3 = new ElfUIEvent();
+				if(position.x && position.y) {
+					ev3.putAny(KEY_POSITION, new Point(position.x, position.y));
+				}
+				return ev3;
+		}
+
+		Logger.getInstance().log(Logger.LEVEL.ERROR, "Response not recognized.", response);
+		return null;
 	}
 
 	/**
