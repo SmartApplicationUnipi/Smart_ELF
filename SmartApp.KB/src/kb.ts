@@ -32,23 +32,44 @@ const UNIQUEFACTIDPATH = './db/uniqueFactId';
 const UNIQUERULEIDPATH = './db/uniqueRuleId';
 
 // TODO: this has to be a nice init fuction
-let file = readFileSync(DATABASEFACTPATH, 'utf8');
+let file;
+try {
+file = readFileSync(DATABASEFACTPATH, 'utf8');
 databaseFact = new Map(JSON.parse(file));
-
+} catch (e) {
+    log.warn('KB', 'error loading ' + DATABASEFACTPATH, e);
+}
+try {
 file = readFileSync(DATABASERULEPATH, 'utf8');
 databaseRule = new Map(JSON.parse(file));
-
+} catch (e) {
+    log.warn('KB', 'error loading ' + DATABASERULEPATH, e);
+}
+try {
 file = readFileSync('./db/subscriptions', 'utf8');
 subscriptions = new Map(JSON.parse(file));
 
+} catch (e) {
+    log.warn('KB', 'error loading ' + SUBSCRIPTIONSPATH, e);
+}
+try {
 file = readFileSync(USERTAGSPATH, 'utf8');
 userTags = new Map(JSON.parse(file));
-
+} catch (e) {
+    log.warn('KB', 'error loading ' + USERTAGSPATH, e);
+}
+try {
 file = readFileSync(UNIQUEFACTIDPATH, 'utf8');
 uniqueFactId = parseInt(file, 10);
-
+} catch (e) {
+    log.warn('KB', 'error loading ' + UNIQUEFACTIDPATH, e);
+}
+try {
 file = readFileSync(UNIQUERULEIDPATH, 'utf8');
 uniqueRuleId = parseInt(file, 10);
+} catch (e) {
+    log.warn('KB', 'error loading ' + UNIQUERULEIDPATH, e);
+}
 
 // const repetitionTime = 86400000 / 2;
 const repetitionTime = 30 * 60 * 1000;
