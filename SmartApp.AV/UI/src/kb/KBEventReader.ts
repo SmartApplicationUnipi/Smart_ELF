@@ -6,6 +6,14 @@ import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
 import { KBResponse } from './KBResponse';
 import { AutoSocket, AutoSocketListener } from '../utils/AutoSocket';
 
+class KBRule {
+	constructor(private head: object, private body: Array<object>) {}
+
+	public toString() {
+		JSON.stringify(this.head) + " <- " + this.body.map(val => JSON.stringify(val)).join(" ; ");
+	}
+}
+
 /**
  * This class implements an BaseEventReader that receives messages from the KB.
  */
@@ -28,6 +36,10 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 		{ "TAG": "ENLP_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
 		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } }
 	];
+
+	private rulesToAdd = [
+		new KBRule({'apology': '$x'}, [ {'z_index': '$x'} ])
+	]
 
 	public start(): void {
 		try {
@@ -73,7 +85,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 		let message = new MessageBuilder(KB_SECRET_TOKEN)
 			.setMethod(KB_OP.SUBSCRIBE)
 			.addParam(PARAMS.JSON_REQ, request)
-			.build()
+			.build();
 		this.send(message);
 	}
 

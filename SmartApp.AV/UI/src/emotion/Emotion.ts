@@ -1,41 +1,136 @@
-/**
- * This interface represent the concept of emotional state of ELF.
- * It is based on the Circumplex Model of Affect, providing Arousal and Valence values.
- */
-export interface IEmotion {
-	/**
-	 * Returns the emotion color code
-	 */
-	getColor(): string
+import * as Logger from '../log/Logger';
+import { LinearCombiner } from '../utils/Combiners';
+import { Point } from '../utils/Point';
 
-	/**
-	 * Returns Arousal value
-	 */
-	getArousal(): number;
-
-	/**
-	 * Returns Valence value
-	 */
-	getValence(): number;
-
-	/**
-	 * Returns the label of the emotion (i.e. sad, happy, ...)
-	 */
-	getLabel(): string;
+export interface ISBEEmotion {
+	getSadness(): number;
+	getDisgust(): number;
+	getAnger(): number;
+	getSurprise(): number;
+	getFear(): number;
+	getHappiness(): number;
 }
 
-export enum EMOTION {
-	ANGER = "angry", DISGUST = "disgust", FEAR = "fear", HAPPINESS = "happy", SADNESS = "sad", SUPRISE = "surprise"
+export class SBEEmotion implements ISBEEmotion {
+
+	constructor(protected sadness: number = 0,
+		protected disgust: number = 0,
+		protected anger: number = 0,
+		protected surprise: number = 0,
+		protected fear: number = 0,
+		protected happiness: number = 0) { }
+
+	public getSadness(): number {
+		return this.sadness;
+	}
+
+	public getDisgust(): number {
+		return this.disgust;
+	}
+
+	public getAnger(): number {
+		return this.anger;
+	}
+
+	public getSurprise(): number {
+		return this.surprise;
+	}
+
+	public getFear(): number {
+		return this.fear;
+	}
+
+	public getHappiness(): number {
+		return this.happiness;
+	}
+}
+
+// 6 Basic emotions points of valence and arousal
+const EMOTION_SADNESS = new Point(-0.75, -0.75);
+const EMOTION_DISGUST = new Point(-0.90, 0.70);
+const EMOTION_ANGER = new Point(-0.65, 0.35);
+const EMOTION_SURPRISE = new Point(0.25, 0.57);
+const EMOTION_FEAR = new Point(-0.60, 0.75);
+const EMOTION_HAPPINESS = new Point(0.25, 0.75);
+
+/**
+ * Function used: 1 - x^0.7
+ * @param x 
+ */
+function computeBelonging(x: number): number {
+	if(x > 1) {
+		return 0;
+	}
+	return 1 - Math.pow(x, 0.7);
 }
 
 /**
  * This is an implementation of IEmotion based on trigonometry.
  */
-export class Emotion implements IEmotion {
-	private color: string;
+export class ValenceArousalEmotion extends SBEEmotion {
 
 	constructor(private valence: number, private arousal: number) {
-		this.color = this.getColorFromCoord(valence, arousal);
+		super();
+
+		let p = new Point(valence, arousal);
+
+		// TODO: check correctness of the computed values
+		this.sadness = computeBelonging(EMOTION_SADNESS.distanceTo(p));
+		this.disgust = computeBelonging(EMOTION_DISGUST.distanceTo(p));
+		this.anger = computeBelonging(EMOTION_ANGER.distanceTo(p));
+		this.surprise = computeBelonging(EMOTION_SURPRISE.distanceTo(p));
+		this.fear = computeBelonging(EMOTION_FEAR.distanceTo(p));
+		this.happiness = computeBelonging(EMOTION_HAPPINESS.distanceTo(p));
+	}
+
+	public getArousal(): number {
+		return this.arousal;
+	}
+
+	public getValence(): number {
+		return this.valence;
+	}
+
+	// public getLabel(): string {
+	// 	let intensity = this.getIntensity();
+	// 	if (intensity < 0.2) {
+	// 		return "normal";
+	// 	}
+
+	// 	let angle = this.getAngle();
+
+	// 	if (angle < 0) {
+	// 		angle = 360 + angle;
+	// 	}
+
+	// 	// Emotions mapped into 6 basic ones
+	// 	if (angle < 60.0) return EMOTION.HAPPINESS;
+	// 	else if (angle < 120.0) return EMOTION.ANGER;
+	// 	else if (angle < 180.0) return EMOTION.DISGUST;
+	// 	else if (angle < 240.0) return EMOTION.SADNESS;
+	// 	else if (angle < 300.0) return EMOTION.DISGUST;
+	// 	else return EMOTION.SUPRISE;
+	// }
+}
+
+export abstract class EmotionColorAdapter {
+	abstract getColor(emotion: ISBEEmotion): string;
+
+	static getAdapter(emotion: ISBEEmotion): EmotionColorAdapter {
+		if (emotion instanceof ValenceArousalEmotion) {
+			return new ValenceArousalEmotionColorAdapter();
+		} else if (emotion instanceof SBEEmotionColorAdapter) {
+			return new SBEEmotionColorAdapter();
+		}
+
+		Logger.getInstance().log(Logger.LEVEL.ERROR, "Emotion not recognized: ", emotion);
+		return null;
+	}
+}
+
+class ValenceArousalEmotionColorAdapter extends EmotionColorAdapter {
+	public getColor(emotion: ValenceArousalEmotion): string {
+		return this.getColorFromCoord(emotion.getValence(), emotion.getArousal());
 	}
 
 	/**
@@ -52,49 +147,16 @@ export class Emotion implements IEmotion {
 	 */
 	private getColorFromCoord(valence: number, arousal: number): string {
 		var hue = Math.atan2(-arousal, valence) * 180.0 / Math.PI;
-		var dist = Math.sqrt(Math.pow(valence, 2) + Math.pow(arousal, 2));
+		var dist = this.getIntensity(valence, arousal);
 		return this.hslToHex(hue + 60, 100, 100 - dist * 50);
 	}
 
-	public getArousal(): number {
-		return this.arousal;
+	private getAngle(emotion: ValenceArousalEmotion): number {
+		return Math.atan2(emotion.getArousal(), emotion.getValence()) * 180.0 / Math.PI
 	}
 
-	public getValence(): number {
-		return this.valence;
-	}
-
-	public getColor(): string {
-		return this.color;
-	}
-
-	public getLabel(): string {
-		let intensity = this.getIntensity();
-		if (intensity < 0.2) {
-			return "normal";
-		}
-
-		let angle = this.getAngle();
-
-		if (angle < 0) {
-			angle = 360 + angle;
-		}
-
-		// Emotions mapped into 6 basic ones
-		if (angle < 60.0) return EMOTION.HAPPINESS;
-		else if (angle < 120.0) return EMOTION.ANGER;
-		else if (angle < 180.0) return EMOTION.DISGUST;
-		else if (angle < 240.0) return EMOTION.SADNESS;
-		else if (angle < 300.0) return EMOTION.DISGUST;
-		else return EMOTION.SUPRISE;
-	}
-
-	private getAngle(): number {
-		return Math.atan2(this.getArousal(), this.getValence()) * 180.0 / Math.PI
-	}
-
-	private getIntensity(): number {
-		return Math.sqrt(Math.pow(this.getValence(), 2) + Math.pow(this.getArousal(), 2));
+	private getIntensity(valence: number, arousal: number): number {
+		return Math.sqrt(Math.pow(valence, 2) + Math.pow(arousal, 2));
 	}
 
 	private hslToHex(h: number, s: number, l: number): string {
@@ -127,9 +189,17 @@ export class Emotion implements IEmotion {
 	}
 }
 
+class SBEEmotionColorAdapter extends EmotionColorAdapter {
+
+	public getColor(emotion: SBEEmotion): string {
+		return "#FFF"; // TODO: linear combination of all emotions!
+	}
+
+}
+
 /**
  * Returns a neutral emotion.
  */
-export function getNeutral(): IEmotion {
-	return new Emotion(0, 0);
+export function getNeutral(): ISBEEmotion {
+	return new ValenceArousalEmotion(0, 0);
 }

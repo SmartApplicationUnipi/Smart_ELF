@@ -1,5 +1,5 @@
 import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
-import { IEmotion } from '../emotion/Emotion';
+import { ISBEEmotion } from '../emotion/Emotion';
 
 let base64js = require('base64-js');
 
@@ -37,7 +37,7 @@ export class TextContent implements IContent {
  * Represent a content that should be spoken by the UI.
  */
 export class SpeechContent implements IContent {
-    constructor(private text: string, private emotion: IEmotion) { }
+    constructor(private text: string, private emotion: ISBEEmotion) { }
 
     /**
      * Returns the text to be spoken.
@@ -49,7 +49,7 @@ export class SpeechContent implements IContent {
     /**
      * Returns the emotion with wich reproduce the text.
      */
-    public getEmotion(): IEmotion {
+    public getEmotion(): ISBEEmotion {
         return this.emotion;
     }
 }
@@ -60,7 +60,7 @@ export class SpeechContent implements IContent {
 export class AudioContent implements IContent {
     private buffer: ArrayBuffer = null;
 
-    constructor(private emotion: IEmotion, private data: string|ArrayBuffer) {
+    constructor(private emotion: ISBEEmotion, private data: string|ArrayBuffer) {
         if(data instanceof ArrayBuffer) {
             this.buffer = data;
         }
@@ -69,7 +69,7 @@ export class AudioContent implements IContent {
     /**
      * Returns the emotion of the audio
      */
-    public getEmotion(): IEmotion {
+    public getEmotion(): ISBEEmotion {
         return this.emotion;
     }
 
