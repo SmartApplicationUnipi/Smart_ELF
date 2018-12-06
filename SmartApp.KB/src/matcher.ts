@@ -26,7 +26,7 @@ import { executeSpecialPredicate } from './dispatcher';
  \( `   <.,../`     `-.._   _,-`
  */
 
-const D: Debugger = new Debugger(4);
+const D: Debugger = new Debugger();
 
 export type Matches = Map<object, object[]>;
 

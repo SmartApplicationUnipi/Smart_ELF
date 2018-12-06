@@ -1,10 +1,10 @@
 import { isObject } from 'util';
 import { Colors, Debugger } from './debugger';
 import { checkSubscriptions, databaseFact, databaseRule, DataObject, DataRule, Metadata } from './kb';
-import { findMatches, findMatches2, isPlaceholder, findCompatibleRules } from './matcher';
+import { findCompatibleRules, findMatches, findMatches2, isPlaceholder } from './matcher';
 
 const INFERENCE_TAG = 'INFERENCE'; // TODO: change this. the user will specify the tag in the rule head!
-const debug = new Debugger(11);
+const debug = new Debugger();
 
 export function checkRules(fact: object) {
     for (const rule of databaseRule.values()) {
@@ -146,7 +146,7 @@ export function queryRules(jReq: object) {
                     return hh;
                 };
 
-                const instHead = magia(entry['_head']);
+                const instHead = magia(entry._head);
 
                 let tag = '_INFERENCE';
                 let idSource = '_INFERENCE';
