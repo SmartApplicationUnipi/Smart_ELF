@@ -95,7 +95,7 @@ function writeCallback(filename: string, err: any) {
 function dumpDatabase() {
     const f1 = () => { writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8',
      (e) => writeCallback('databaseFact', e)); };
-    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', 
+    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8',
      (e) => writeCallback('databaseRule', e)); };
     // const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8',
     // (e) => writeCallback('subscriptions', e)); };
@@ -175,9 +175,9 @@ export class TagInfo {
 
 export function getAllTags(includeShortDesc: boolean) {
     const allTags: any = {};
-    for (const [user, tags] of userTags.entries()) {
+    for (const [user, tags] of userTags) {
         const tagsArray: any = {};
-        for (const [tag, tagInfo] of tags.entries()) {
+        for (const [tag, tagInfo] of tags) {
             tagsArray[tag] = includeShortDesc ? tagInfo.desc : null;
         }
         allTags[user] = tagsArray;
