@@ -81,7 +81,7 @@ class Controller():
             self._videoID = self._hal.registerAsVideoReceiver(callback = self._get_frame, errback = self._crash_of_HAL)
             if self._videoID == -1:
                 print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
-                exit(-1)
+                exit(-1) # TODO raise Exception
         else:
             self._video_capture = cv2.VideoCapture(0)
 
