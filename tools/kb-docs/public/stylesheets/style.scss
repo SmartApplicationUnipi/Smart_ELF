@@ -1,0 +1,18 @@
+body {
+    padding-top: 61px;
+    font-family: 'Open Sans', 'Lucida Grande', Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    color: #333333;
+}
+
+a {
+    color: #0066CC;
+}
+
+h1 {
+    margin: .5em 0;
+}
+
+main > .container > .alert:first-child {
+    margin-top: 50px;
+}

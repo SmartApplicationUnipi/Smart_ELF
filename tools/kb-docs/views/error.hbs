@@ -1,0 +1,10 @@
+<div class="alert alert-danger">
+    <h1>Ouch, something went wrong!</h1>
+    <p class="lead">
+        {{#if error.status}}
+            <strong>HTTP {{error.status}}:</strong>
+        {{/if}}
+        <strong>{{message}}</strong>
+    </p>
+    <pre>{{error.stack}}</pre>
+</div>

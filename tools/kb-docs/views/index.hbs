@@ -1,0 +1,30 @@
+<h1>Knowledge Base documentation</h1>
+<p>Welcome to the KB documentation!</p>
+<p>Here there's a list of all the currently registered modules and their respective tags.</p>
+
+<table class="table table-striped table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Source</th>
+            <th scope="col">Tag</th>
+            <th scope="col">Short description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each data as |tags source|}}
+            {{#each tags as |desc tag|}}
+                <tr style="cursor: pointer" data-url="/{{source}}/{{tag}}">
+                    <td>{{source}}</td>
+                    <td>{{tag}}</td>
+                    <td>{{desc}}</td>
+                </tr>
+            {{/each}}
+        {{/each}}
+    </tbody>
+</table>
+
+<script type="text/javascript">
+$(document).on('click', 'tr[data-url]', function () {
+    window.location.href = this.dataset.url;
+});
+</script>
