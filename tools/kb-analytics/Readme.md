@@ -1,6 +1,6 @@
-# KB Documentation
+# KB Analytics
 
-Express.js-based application to quickly access documentation of the tuples stored in the Knowledge Base.
+Express.js-based application to quickly access logs and documentation of the data stored in the Knowledge Base.
 
 ## Dependencies
 
@@ -23,5 +23,5 @@ npm start
 By default, logging is disabled. To enable logging, use the environment variable `DEBUG`:
 
 ```bash
-DEBUG=kb-docs:* npm start
+DEBUG=kb-analytics:* npm start
 ```

@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const debug = require('debug')('kb-docs:kbclient');
+const debug = require('debug')('kb-analytics:kbclient');
 const config = require('../config.json');
 
 class Deferred {

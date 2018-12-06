@@ -9,23 +9,28 @@ renderer.code = (code, language) =>
     `<pre><code class="hljs ${language}">${hljs.highlightAuto(code, language ? [language] : null).value}</code></pre>`;
 
 
-// GET home page
-router.get('/', async (req, res, next) => {
+// GET /
+router.get('/', (req, res) => {
+    res.render('index');
+});
+
+// GET /docs
+router.get('/docs', async (req, res, next) => {
     try {
         const data = await req.kb.getAllTags({ includeShortDesc: true });
-        res.render('index', { data });
+        res.render('docs', { title: 'Documentation', data });
     } catch (e) {
         next(e);
     }
 });
 
-// Get tag details
-router.get('/:source/:tag', async (req, res, next) => {
+// GET /docs/:source/:tag
+router.get('/docs/:source/:tag', async (req, res, next) => {
     try {
         const { source, tag } = req.params;
 
         const data = await req.kb.getTagDetails({ idSource: source, tagsList: [ tag ] });
-        res.render('details', {
+        res.render('docs-details', {
             title: source + '/' + tag,
             idSource: source,
             tagName: tag,
