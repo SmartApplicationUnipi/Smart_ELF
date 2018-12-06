@@ -59,12 +59,11 @@ def recognize(model, audio, recognizer, language="it_IT"): #en_US"):
         return res
 
 
-async def speech_to_text(queue, log):
+async def speech_to_text(queue):
     """
     This function implements the translation from speech to text with online and offline services, and compute the
     emotion related to the speech
     :param queue: process shared queue
-    :param log: logging module
     """
 
     kb_client = kb.KnowledgeBaseClient(False)
@@ -158,8 +157,15 @@ async def myHandler(queue):
               (audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, len(audioMessage.data)))
         queue.put([audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, audioMessage.data])
 
+    def handleError():
+        backoff += 5
+        log.warning("Disconnected from HAL. Waiting " + str(backoff) + "sec")
+        time.sleep(backoff)
+        hal.registerAsAudioReceiver(handleAudioMessages, handleError)
+
+    backoff = 0
     hal = HALInterface(HALAddress=HALAddress, HALAudioPort=HALAudioPort)
-    hal.registerAsAudioReceiver(handleAudioMessages)
+    hal.registerAsAudioReceiver(handleAudioMessages, handleError)
 
 
 if __name__ == '__main__':

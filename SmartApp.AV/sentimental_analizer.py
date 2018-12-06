@@ -8,7 +8,7 @@ import numpy as np
 import pickle
 
 
-def emotion_from_speech(Fs, x, model_name="pyAudioAnalysis/pyAudioAnalysis/data/svmSpeechEmotion", model_type="svm", log):
+def emotion_from_speech(Fs, x, log, model_name="pyAudioAnalysis/pyAudioAnalysis/data/svmSpeechEmotion", model_type="svm"):
     """
 
     :param Fs: frame rate
