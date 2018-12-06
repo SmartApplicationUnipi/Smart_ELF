@@ -7,13 +7,19 @@ client = KnowledgeBaseClient(False)
 kb_id = (client.register())['details']
 
 rules = [
-    '{"teach": "$prof", "room": "$room", "course" : "$course" } <- {"name" : "$course", "teacher_name": "$prof"};{"aula" : "$room", "descrizione" : "$course2"};["containsString", ["$course2", "$course"]]'
+    #'{"teach": "$prof", "room": "$room", "course" : "$course" } <- {"name" : "$course", "teacher_name": "$prof"};{"aula" : "$room", "descrizione" : "$course2"};["containsString", ["$course2", "$course"]]'
+    '{"teach": "$prof", "room": "$room", "course" : "$course" } <- {"name" : "$course", "teacher_name": "$prof"};{"aula" : "$room", "descrizione" : "$course"}'
 ]
 for rule in rules:
     x = client.addRule(kb_id, "ENLP_EMOTIVE_ANSWER", rule)
     print(x)
 
-res = client.query({"teach" : "Giuseppe Attardi", "room" : "$x"})
+
+print(client.query({"_data" : {"name" : "nlpcourse", "teacher_name": "Giuseppe Attardi"}}))
+print(client.query({"_data" : {"aula" : "$X1", "descrizione": "nlpcourse"}}))
+
+
+res = client.query({"_data": {"teach" : "Giuseppe Attardi", "room" : "$x"}})
 print(res)
 
 # DO NOT THIS ANYMORE
