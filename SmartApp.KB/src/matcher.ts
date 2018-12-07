@@ -26,7 +26,7 @@ import { executeSpecialPredicate } from './dispatcher';
  \( `   <.,../`     `-.._   _,-`
  */
 
-const D: Debugger = new Debugger(4);
+const D: Debugger = new Debugger();
 
 export type Matches = Map<object, object[]>;
 
@@ -40,6 +40,15 @@ export type Matches = Map<object, object[]>;
 export function findMatches(query: object, dataset: object[], initBinds: object[] = []): Matches {
     const matcher = new Matcher();
     return matcher.start(query, dataset, initBinds);
+}
+
+export function findOnlyBinds(query: object, dataset: object[], initBind: object[] = []): object[] {
+    const m = findMatches(query, dataset, initBind);
+    let result: object[] = [];
+    for (const v of m.values()) {
+        result = result.concat(v);
+    }
+    return result;
 }
 
 // per ogni oggetto ho dei bind iniziali diversi
