@@ -58,11 +58,13 @@ module.exports = class KBClient {
         const ws = new WebSocket(url, options);
         return new Promise((resolve, reject) => {
             const onopen = () => {
+                debug('Connected to %s', url);
                 ws.removeListener('error', onerror);
                 resolve(new KBClient(ws, token));
             };
 
             const onerror = e => {
+                debug('Error connecting to %s: %o', url, e);
                 ws.removeListener('open', onopen);
                 reject(e);
             };

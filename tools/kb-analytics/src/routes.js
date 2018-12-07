@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 router.get('/docs', async (req, res, next) => {
     try {
         const data = await req.kb.getAllTags({ includeShortDesc: true });
-        res.render('docs', { title: 'Documentation', data });
+        res.render('docs/index', { title: 'Documentation', data });
     } catch (e) {
         next(e);
     }
@@ -30,7 +30,7 @@ router.get('/docs/:source/:tag', async (req, res, next) => {
         const { source, tag } = req.params;
 
         const data = await req.kb.getTagDetails({ idSource: source, tagsList: [ tag ] });
-        res.render('docs-details', {
+        res.render('docs/details', {
             title: source + '/' + tag,
             idSource: source,
             tagName: tag,
@@ -44,6 +44,11 @@ router.get('/docs/:source/:tag', async (req, res, next) => {
     } catch (e) {
         next(e);
     }
+});
+
+// GET /logs
+router.get('/logs', (req, res) => {
+    res.render('logs/index', { title: 'Logs' });
 });
 
 module.exports = router;
