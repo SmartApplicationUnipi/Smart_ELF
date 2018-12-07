@@ -240,7 +240,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
         _meta: metadata,
     };
     databaseFact.set(dataobject._id, dataobject);
-    //checkSubscriptions(dataobject);
+    checkSubscriptions(dataobject);
     checkRules(dataobject);
     return new Response(true, currentFactId);
 }
