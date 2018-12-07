@@ -74,7 +74,8 @@ try {
 }
 
 if (!databaseFact.has(42)) {
-    databaseFact.set(42, { _data: { text: 'That\'s the answer.' }, _id: 42,
+    databaseFact.set(42, {
+        _data: { text: 'That\'s the answer.' }, _id: 42,
         _meta: { idSource: 'God', tag: 'Everything', TTL: 42, reliability: 100, creationTime: new Date() },
     });
 }
@@ -93,14 +94,20 @@ function writeCallback(filename: string, err: any) {
 }
 
 function dumpDatabase() {
-    const f1 = () => { writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8',
-     (e) => writeCallback('databaseFact', e)); };
-    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8',
-     (e) => writeCallback('databaseRule', e)); };
+    const f1 = () => {
+        writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8',
+            (e) => writeCallback('databaseFact', e));
+    };
+    const f2 = () => {
+        writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8',
+            (e) => writeCallback('databaseRule', e));
+    };
     // const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8',
     // (e) => writeCallback('subscriptions', e)); };
-    const f4 = () => { writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8',
-     (e) => writeCallback('userTags', e)); };
+    const f4 = () => {
+        writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8',
+            (e) => writeCallback('userTags', e));
+    };
     const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
     const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
     log.info('KB', 'starting backup');
@@ -233,7 +240,7 @@ export function addFact(idSource: string, tag: string, TTL: number, reliability:
         _meta: metadata,
     };
     databaseFact.set(dataobject._id, dataobject);
-    checkSubscriptions(dataobject);
+    //checkSubscriptions(dataobject);
     checkRules(dataobject);
     return new Response(true, currentFactId);
 }
@@ -269,7 +276,9 @@ export function query(jreq: any) {
     }
 
     let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
+    console.log(m);
     const m2 = queryRules(queryobj);
+    console.log(m2);
     m = new Map([...m, ...m2]);
 
     if (m.size === 0) {

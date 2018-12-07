@@ -42,6 +42,15 @@ export function findMatches(query: object, dataset: object[], initBinds: object[
     return matcher.start(query, dataset, initBinds);
 }
 
+export function findOnlyBinds(query: object, dataset: object[], initBind: object[] = []): object[] {
+    const m = findMatches(query, dataset, initBind);
+    let result: object[] = [];
+    for (const v of m.values()) {
+        result = result.concat(v);
+    }
+    return result;
+}
+
 // per ogni oggetto ho dei bind iniziali diversi
 export function findMatches2(query: object, dataset: object[], initBinds: object[][]): Matches {
     const matches = new Map<object, object[]>();
