@@ -16,12 +16,13 @@ const rule1 = new kb.DataRule({ subject: '$prof', relation: 'is in', object: '$r
 const rule2 = `
              { "subject": "$prof", "relation": "is in", "object": "$room" } <-
                          { "subject": "$prof", "relation": "teaches", "object": "$course" }
-                         { "subject": "$course", "relation": "is in room", "object": "$room" }`
+                         { "subject": "$course", "relation": "is in room", "object": "$room" }`;
 
-kb.newAddRule(myid, 'test', rule2);
+kb.addRule(myid, 'test', rule2);
 
+console.log('KAPPA')
 kb.addFact(myid, 'rdf', 7, 100,
-    { subject: 'SmartApplication', relation: 'is in room', object: 'Aula X1' },
+    { subject: 'SmartApplication', relation: 'is in room', object: {dentro : {ho : {cose: 'brutte'}}}},
 );
 
 kb.addFact(myid, 'rdf', 7, 100,

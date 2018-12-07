@@ -1,3 +1,5 @@
+// PROBLEMA: se arriva ai predicati senza bind il matcher ritorna sempre falso
+
 import * as matcher from '../../src/matcher';
 import * as testUtil from '../testUtil';
 

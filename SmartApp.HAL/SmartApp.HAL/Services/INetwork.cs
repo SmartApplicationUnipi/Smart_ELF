@@ -12,5 +12,6 @@ namespace SmartApp.HAL.Services
     {
         void SendPacket(AudioDataPacket p);
         void SendPacket(VideoDataPacket p);
+        void RegisterVideoManager(IVideoManager manager);
     }
 }

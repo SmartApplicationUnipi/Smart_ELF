@@ -1,7 +1,7 @@
 import { isObject } from 'util';
 import { Colors, Debugger } from './debugger';
-import { addInferenceFact, databaseFact, databaseRule, DataRule } from './kb';
-import { findMatches, isPlaceholder } from './matcher';
+import { checkSubscriptions, databaseFact, databaseRule, DataObject, DataRule, Metadata } from './kb';
+import { findCompatibleRules, findMatches, findOnlyBinds, isPlaceholder } from './matcher';
 
 const INFERENCE_TAG = 'INFERENCE'; // TODO: change this. the user will specify the tag in the rule head!
 const debug = new Debugger();
@@ -69,8 +69,8 @@ function checkRule(head: object, body: object[], fact: object) {
         }
         // ho matchato tutti i body
         debug.clog(Colors.GREEN, 'OK', 7, '', 'HO MATCHATO TUTTI BODY', 5);
-//        console.log(binds);
-//        console.log();
+        //        console.log(binds);
+        //        console.log();
         for (const bind of binds) {
             for (const b of bind) {
 
@@ -106,13 +106,91 @@ function checkRule(head: object, body: object[], fact: object) {
                     if (inFact.hasOwnProperty('reliability')) { reli = inFact._meta.reliability; }
 
                 }
-
-                const addres = addInferenceFact(idSource, tag, ttl, reli, inFact._data);
-//                console.log('AGGIUNGO FATTO INFERITO ', addres);
-//                console.log(inFact);
-//                console.log();
-                debug.clog(Colors.BLUE, 'DEBUG', 1, '', 'INFERENCE ADDFACT' + addres, 1);
+                const metadata = new Metadata(idSource, tag, undefined, ttl, reli);
+                const headFact = new DataObject(-1, metadata, inFact._data);
+                const addres = checkSubscriptions(headFact);
+                //                console.log('AGGIUNGO FATTO INFERITO ', addres);
+                //                console.log(inFact);
+                //                console.log();
+                debug.clog(Colors.BLUE, 'DEBUG', 1, '', 'INFERENCE CHECK SUBS' + headFact, 1);
             }
         }
     }
+}
+
+export function queryRules(jReq: object) {
+    const matches = new Array();
+
+    const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, databaseRule);
+    for (const entry of goodRules) {
+        const m: { [index: string]: any }[] = findBodySolutions(entry._body);
+        for (const bindSet of m) {
+            const magia = (h: any) => {
+                const hh = Object.assign({}, h);
+                const ks = Object.keys(h);
+                for (const key of ks) {
+                    if (isPlaceholder(h[key])) {
+                        hh[key] = bindSet[h[key]]; // becouse of this we needed bany
+                    }
+                    if (isObject(h[key])) {
+                        hh[key] = magia(h[key]);
+                    }
+                }
+                return hh;
+            };
+
+            const instHead = magia(entry._head);
+
+            let tag = '_INFERENCE';
+            let idSource = '_INFERENCE';
+            let ttl = 1;
+            let reli = 0;
+            let cTime = new Date();
+
+            if (instHead.hasOwnProperty('_meta')) {
+                if (instHead.hasOwnProperty('tag')) { tag = instHead._meta.tag; }
+                if (instHead.hasOwnProperty('idSource')) { idSource = instHead._meta.idSource; }
+                if (instHead.hasOwnProperty('ttl')) { ttl = instHead._meta.ttl; }
+                if (instHead.hasOwnProperty('reliability')) { reli = instHead._meta.reliability; }
+                if (instHead.hasOwnProperty('creationTime')) { cTime = instHead._meta.creationTime; }
+            }
+
+            const metadata = new Metadata(idSource, tag, cTime, ttl, reli);
+            const headFact = new DataObject(-1, metadata, instHead._data);
+
+            debug.clogNoID(Colors.BLUE, 'DEBUG', '', 'INFERENCE ADDFACT' + headFact, 1);
+            //console.log(headFact);
+
+            matches.push(headFact);
+        }
+    }
+
+    return findMatches(jReq, matches);
+
+}
+
+function findBodySolutions(body: object[]): object[] {
+    // se il fatto è uno dei predicati nel body della regola
+    debug.clogNoID(Colors.BLUE, 'INFO', '', 'findBodySolutions entered', 10);
+
+    let i = 0;
+    debug.clog(Colors.BLUE, 'INFO', 1, '', 'guardo il predicato ' + i, 10);
+    let matches = findOnlyBinds(body[i], Array.from(databaseFact.values()));
+
+    // cerco nel dataset se esiste soluzione per ciascun pred
+    while (i < body.length && matches.length > 0) {
+        debug.clogNoID(Colors.GREEN, 'OK', '', 'trovata soluzione: ', 5);
+        console.log('matches', matches);
+        debug.clogNoID(Colors.BLUE, 'INFO', '', 'guardo il predicato ' + i, 10);
+        console.log(body[i]);
+
+        matches = findOnlyBinds(body[i], Array.from(databaseFact.values()), matches);
+        i++;
+    }
+    if (matches.length > 0) {
+        debug.clogNoID(Colors.GREEN, 'OK', '', 'trovata soluzione per tutti i predicati! ', 5);
+    } else {
+        debug.clogNoID(Colors.RED, 'FAIL', '', 'la regola non matcha', 10);
+    }
+    return Array.from(matches.values());
 }

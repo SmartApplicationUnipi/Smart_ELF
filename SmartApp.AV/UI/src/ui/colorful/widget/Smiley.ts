@@ -1,5 +1,5 @@
 import { EmotionalUIWidget } from '../../../ui/widget/UIWidget';
-import { IEmotion } from '../../../emotion/Emotion';
+import { ISBEEmotion } from '../../../emotion/Emotion';
 import * as Logger from '../../../log/Logger';
 import { Point } from '../../../utils/Point';
 import { CSSClassHelper } from '../../../utils/CSSClassHelper';
@@ -72,11 +72,11 @@ export class Smiley extends EmotionalUIWidget {
         Logger.getInstance().log(Logger.LEVEL.INFO, "Eye position", p, minorEye.style.left, majorEye.style.right);
     }
 
-    public onEmotionChanged(e: IEmotion): void {
+    public onEmotionChanged(e: ISBEEmotion): void {
         Logger.getInstance().log(Logger.LEVEL.INFO, "Smiley: onEmotionChanged", e);
 
         this.cssClassHelper.remove(["normal", "happy", "angry", "disgust", "sad"]);
-        this.cssClassHelper.add(e.getLabel());
+        this.cssClassHelper.add("happy"); // TODO: get the right label from e
     }
 
     public render(): string {
