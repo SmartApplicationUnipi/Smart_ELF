@@ -56,7 +56,7 @@ try {
 // }
 try {
     file = readFileSync(USERTAGSPATH, 'utf8');
-    userTags = new Map(JSON.parse(file));
+    userTags = objectToMapNested(JSON.parse(file), 1);
 } catch (e) {
     log.warn('KB', 'error loading ' + USERTAGSPATH, e);
 }
@@ -89,6 +89,22 @@ const millsToDump = 60 * 1000; // dumpDate.getTime() - now.getTime();
 //     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
 // }
 
+function mapToObjectNested<T>(map: Map<string, T>) : Object {
+    const obj = Object.create(null);
+    for (let [k, v] of map) {
+        obj[k] = v instanceof Map ? mapToObjectNested(v) : v;
+    }
+    return obj;
+}
+
+function objectToMapNested<T>(obj: {[index:string]: any}, maxDepth = Infinity) : Map<string, T> {
+    const map = new Map<string, T>();
+    for (let k of Object.keys(obj)) {
+        map.set(k, (typeof obj[k] === 'object' && maxDepth > 0) ? objectToMapNested(obj[k], maxDepth - 1) : obj[k]);
+    }
+    return map;
+}
+
 function writeCallback(filename: string, err: any) {
     if (err) { log.error('KB', 'error saving ' + filename, err); } else { log.info('KB', filename + ' saved'); }
 }
@@ -105,7 +121,7 @@ function dumpDatabase() {
     // const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8',
     // (e) => writeCallback('subscriptions', e)); };
     const f4 = () => {
-        writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8',
+        writeFile(USERTAGSPATH, JSON.stringify(mapToObjectNested(userTags)), 'utf8',
             (e) => writeCallback('userTags', e));
     };
     const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
