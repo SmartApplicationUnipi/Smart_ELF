@@ -12,7 +12,7 @@ def f(s,p,debug="no"):
     try:
         for tree in parser.parse(s.split()):
             if(debug == "yes"):
-                res.append(str(tree))
+                res.append(tree)
             elif(debug == "no"):
                 res.append(str(tree.label()['SEM'].simplify()))
     #if we have a failure in the parser tree, return false
@@ -22,6 +22,9 @@ def f(s,p,debug="no"):
     #otherwise return our result
     DRS= res[0]
 
-    #TODO write DRS tuple to KB
+    #TODO: write DRS tuple to KB, if not debug mode
 
-    return True
+    if(debug == "yes"):
+        return res
+    elif(debug == "no"):
+        return True #used to do further testing when developing new grammar rules
