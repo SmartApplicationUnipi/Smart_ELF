@@ -85,7 +85,6 @@ describe('query', () => {
     it('should correctly retrieve a fact querying the _id', () => {
         const query = {_id: 1 };
         const response = kb.query(query);
-        console.log(response)
 
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
@@ -95,6 +94,8 @@ describe('query', () => {
         const expected = new Map<object, object[]>();
         expected.set({_id : id, _meta : meta, _data: data}, []);
         const expectedResponse = new kb.Response(true, expected);
+        console.log("expected:\n",expectedResponse)
+        console.log("actual:\n", response)
         expect(response).to.deep.equal(expectedResponse);
     });
 

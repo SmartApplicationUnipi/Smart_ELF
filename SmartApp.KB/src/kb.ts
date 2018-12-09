@@ -291,15 +291,13 @@ export function query(jreq: any) {
         if (Object.keys(jreq).length > 0) { queryobj._data = jreq; }
     }
 
-    let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
-    console.log(m);
+    const m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
     const m2 = queryRules(queryobj);
-    console.log(m2);
-    m = new Map([...m, ...m2]);
+    const m3 = new Map([...Array.from(m.entries()), ...Array.from(m2.entries())]);
 
-    if (m.size === 0) {
+    if (m3.size === 0) {
         return new Response(false, {});
-    } else { return new Response(true, m); }
+    } else { return new Response(true, m3); }
 }
 
 export function subscribe(idSource: string, subreq: object, callback: SubCallback) {
