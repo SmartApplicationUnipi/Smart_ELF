@@ -39,4 +39,5 @@ export abstract class PropertyAdapter {
     abstract fear(fear: number): object;
     abstract happiness(happiness: number): object;
     abstract calm(calm: number): object;
+    abstract defensive(defensive: number): object;
 }

@@ -20,6 +20,8 @@ export class SVGFace extends Face implements IAnimated {
 
     private lastLooked: Point;
 
+    private faceScale: number = 1;
+
     constructor(document: Document) {
         super(null);
 
@@ -57,14 +59,13 @@ export class SVGFace extends Face implements IAnimated {
 
         setTimeout(() => {
             let updates = {
-                targets: '#svgface',
                 translateY: 10,
                 direction: 'alternate',
                 easing: 'easeOutSine',
                 loop: true
             };
 
-            anime(updates);
+            this.update(updates);
         }, 0);
     }
 
@@ -95,16 +96,28 @@ export class SVGFace extends Face implements IAnimated {
     public onEmotionChanged(e: ISBEEmotion): void {
         Logger.getInstance().log(Logger.LEVEL.INFO, "SVGFace: onEmotionChanged", e);
 
+        if(e.getDefensive() != null) {
+            this.faceScale = 1 - e.getDefensive() % 2.5;
+
+            setTimeout(() => {
+                this.update({});
+            }, 0);
+        }
+
         this.components.forEach(c => c.onEmotionChanged(e));
     }
 
     public update(updates: object): void {
         Logger.getInstance().log(Logger.LEVEL.INFO, this);
 
-        updates['targets'] = '.svgface';
-        updates['easing'] = 'easeInOutQuart';
+        // @ts-ignore
+        let u = Object.assign({
+            targets: '.svgface',
+            easing: 'easeInOutQuart',
+            scale: this.faceScale
+        })
 
-        anime(updates);
+        anime(u);
     }
 
     public render(): string {

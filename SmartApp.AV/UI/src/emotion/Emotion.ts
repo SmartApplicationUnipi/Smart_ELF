@@ -10,6 +10,7 @@ export interface ISBEEmotion {
 	getFear(): number;
 	getHappiness(): number;
 	getCalm(): number;
+	getDefensive(): number;
 
 	toString(): string;
 }
@@ -22,7 +23,8 @@ export class SBEEmotion implements ISBEEmotion {
 		protected surprise: number = 0,
 		protected fear: number = 0,
 		protected happiness: number = 0,
-		protected calm: number = 0) { }
+		protected calm: number = 0,
+		protected defensive: number = null) { }
 
 	public getSadness(): number {
 		return this.sadness;
@@ -48,19 +50,23 @@ export class SBEEmotion implements ISBEEmotion {
 		return this.happiness;
 	}
 
-	public getCalm(): number {
+	public getCalm(): number {
 		return this.calm;
+	}
+
+	public getDefensive(): number {
+		return this.defensive;
 	}
 
 	public toString(): string {
 		return "["
-		+ "sadness: " + this.sadness + ", "
-		+ "disgust: " + this.disgust + ", "
-		+ "anger: " + this.anger + ", "
-		+ "surprise: " + this.surprise + ", "
-		+ "fear: " + this.fear + ", "
-		+ "happiness: " + this.happiness
-		+"]"
+			+ "sadness: " + this.sadness + ", "
+			+ "disgust: " + this.disgust + ", "
+			+ "anger: " + this.anger + ", "
+			+ "surprise: " + this.surprise + ", "
+			+ "fear: " + this.fear + ", "
+			+ "happiness: " + this.happiness
+			+ "]"
 	}
 }
 
@@ -78,7 +84,7 @@ const EMOTION_CALM = new Point(0.1, -0.9);
  * @param x 
  */
 function computeBelonging(x: number): number {
-	if(x > 1) {
+	if (x > 1) {
 		return 0;
 	}
 	return 1 - Math.pow(x, 0.7);
@@ -135,9 +141,9 @@ export class ValenceArousalEmotion extends SBEEmotion {
 
 	public toString(): string {
 		return "["
-		+ "valence: " + this.valence + ", "
-		+ "arousal: " + this.arousal
-		+"]"
+			+ "valence: " + this.valence + ", "
+			+ "arousal: " + this.arousal
+			+ "]"
 	}
 }
 
@@ -147,7 +153,7 @@ export abstract class EmotionColorAdapter {
 	static getAdapter(emotion: ISBEEmotion): EmotionColorAdapter {
 		if (emotion instanceof ValenceArousalEmotion) {
 			return new ValenceArousalEmotionColorAdapter();
-		} else if (emotion instanceof SBEEmotionColorAdapter) {
+		} else if (emotion instanceof SBEEmotion) {
 			return new SBEEmotionColorAdapter();
 		}
 
@@ -224,11 +230,12 @@ class ValenceArousalEmotionColorAdapter extends EmotionColorAdapter {
 }
 
 class SBEEmotionColorAdapter extends EmotionColorAdapter {
-
 	public getColor(emotion: SBEEmotion): string {
-		return "#FFF"; // TODO: linear combination of all emotions!
+		let r = (Math.random() * 100) % 255,
+			g = (Math.random() * 100) % 255,
+			b = (Math.random() * 100) % 255; // TODO: combine values to get the color!
+		return `rgb(${r}, ${g}, ${b})`;
 	}
-
 }
 
 /**
