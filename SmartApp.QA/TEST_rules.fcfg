@@ -98,6 +98,9 @@ S[SEM=<(?s+?f)>] -> CS[SEM=?s,HAN=0,SEMS=?f]
 CS[SEM=<app(?t,?r)>,HAN=?d,SEMS=?s] -> REC_ACC[SEM=?r,SEMD=?t,HAN=?d,SEMS=?s]
 
 MS[SEM=<app(?n,?v)>,PRED=?p] -> VP[SEM=?v,PRON=?n,PRED=?p]
+MS[SEM=<app(?c,?v)>,PRED=?p] -> VP[SEM=?v,PRON=?n,PRED=?p] SUBJ[SEM=?c,HAN=1]
+
+SUBJ[SEM=?c,HAN=?d] -> NP[SEM=?c,HAN=?d]
 
 #########################
 #####NOUN PHRASES#####
@@ -128,12 +131,15 @@ UPNP[SEM=<app(?r,?n)>,HAN=2] -> UAPPO[SEM=?n] NP[SEM=?r,HAN=3]
 #########################
 
 VP[SEM=<app(?v,?o)>,PRON=?n,PRED=?p] -> TV[SEM=?v,PRON=?n,PRED=?p] OBJ[SEM=?o,HAN=1]
+VP[SEM=?v,PRON=?n,PRED=?p] -> IV[SEM=?v,PRON=?n,PRED=?p]
 
 #####Transitive Verbs#####
 #TODO: VERB_ADD bring no semantic meaning, they're just syntactic
 #defined recursively to add VERB_ADDs (auxiliary, servile, passive forms, ...)
 TV[SEM=?o,PRON=?n,PRED=?p] -> VERB_ADD[PRON=?n] TV[SEM=?o,PRED=?p]
 TV[SEM=?s,PRED=?p] -> IFTV[SEM=?s,PRED=?p]
+IV[SEM=?s,PRED=?p,PRON=?n] -> SFIV[SEM=?s,PRED=?p,PRON=?n]
+
 
 #####Verb Additions#####
 #TODO: add auxiliary verbs and passive forms and, maybe, add a semantic
@@ -200,12 +206,15 @@ CNOUN[SEM=<\x.(DRS([],[lecture(x)]))>] -> 'lezione'
 #####ADVERBS#####
 
 #TODO: specify complement type and adequate the relative predicate
-ADV[SEM=<\x.(DRS([y],[unknown(y),target(y),location(y),complement(x,y)]))>] -> 'dove'
+ADV[SEM=<\x.(DRS([y],[unknown(y),target(y),location(y),complement(x,y)]))>] -> 'dove' | 'dov'
 
 #####VERBS#####
 
 #####Servile Verbs#####
 SERV[PRON=<\P.(DRS([x],[subject(x),singular(x),1stperson(x)])+P(x))>] -> 'posso'
 
-#####Infinite-form transitive verbs#####
+#####Simple-form Intransitive Verbs#####
+SFIV[SEM=<\x.(DRS([],[be(x)]))>,PRED=<\x.(DRS([],[predicate(x),be(x)]))>,PRON=<\P.(DRS([x],[subject(x),singular(x),3rdperson(x)])+P(x))>] -> 'è'
+
+#####Infinite-form Transitive Verbs#####
 IFTV[SEM=<\X x.(X(\y.((DRS([],[locate(x,y)])))))>,PRED=<\x.(DRS([],[predicate(x),locate(x)]))>] -> 'trovare'
