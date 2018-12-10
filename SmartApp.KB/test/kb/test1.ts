@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import 'mocha';
 
 const idSource = kb.register().details;
+kb.stopdump();
 
 describe('registerTags', () => {
     it('should return success', () => {
@@ -21,7 +22,7 @@ describe('registerTags', () => {
         const tag4det = new kb.TagInfo('desc4', 'doc4');
         const tag3det = new kb.TagInfo('desc3', 'doc3');
         const tag6det = new kb.TagInfo('desc6', 'doc6');
-        const tags =  {tag1: new kb.TagInfo('desc1', 'doc1'), tag4: tag4det,  tag6: tag6det, tag3: tag3det};
+        const tags =  {tag1: tag1det, tag4: tag4det,  tag6: tag6det, tag3: tag3det};
         const response = kb.registerTags(idSource, tags);
         const expected = new kb.Response(true, ['tag1', 'tag4', 'tag6', 'tag3']);
         expect(response).to.deep.equal(expected);
@@ -42,8 +43,9 @@ describe('registerTags', () => {
 describe('getAllTags', () => {
     it('should return all registered tags and corresponding user', () => {
         const response = kb.getAllTags(true);
-        const expected = { 'id0' : {tag1 : 'desc1', tag2: 'desc2',
-        tag3: 'desc3', tag4 : 'desc4', tag6: 'desc6' }};
+        const expected: any = {};
+        expected[idSource] = {tag1 : 'desc1', tag2: 'desc2',
+        tag3: 'desc3', tag4 : 'desc4', tag6: 'desc6' };
         const expectedResponse = new kb.Response(true, expected);
         expect(response).to.deep.equal(expectedResponse);
     });
@@ -88,15 +90,14 @@ describe('query', () => {
 
         const id = 1;
         const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
-        const meta = {idSource: idSource,  reliability : 100, tag: 'tag1',
-                      creationTime : new Date(Date.now()), TTL : 3};
+        const meta = {idSource,  reliability : 100, tag: 'tag1', TTL : 3};
+        const rcvkeys = Array.from(response.details.keys()) as any[];
+        expect(response.success).to.deep.equal(true);
+        expect(rcvkeys[0]._id).to.deep.equal(id);
+        expect(rcvkeys[0]._data).to.deep.equal(data);
+        delete rcvkeys[0]._meta.creationTime;
+        expect(rcvkeys[0]._meta).to.deep.equal(meta);
 
-        const expected = new Map<object, object[]>();
-        expected.set({_id : id, _meta : meta, _data: data}, []);
-        const expectedResponse = new kb.Response(true, expected);
-        console.log("expected:\n",expectedResponse)
-        console.log("actual:\n", response)
-        expect(response).to.deep.equal(expectedResponse);
     });
 
     it('should correctly fail for queryin a missing _id', () => {
@@ -111,14 +112,15 @@ describe('query', () => {
         const response = kb.query(query);
 
         const id = 1;
-        const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
-        const meta = {idSource: idSource, tag: 'tag1', TTL : 3,
-                       reliability : 100, creationTime : new Date(Date.now())};
-        
-        const expected = new Map<object, object[]>();
-        expected.set({_id : id, _meta : meta, _data: data}, []);
-        const expectedResponse = new kb.Response(true, expected);
-        expect(response).to.deep.equal(expectedResponse);
+        const data = { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication' };
+        const meta = { idSource, tag: 'tag1', TTL: 3, reliability: 100 };
+
+        const rcvkeys = Array.from(response.details.keys()) as any[];
+        expect(response.success).to.deep.equal(true);
+        expect(rcvkeys[0]._id).to.deep.equal(id);
+        expect(rcvkeys[0]._data).to.deep.equal(data);
+        delete rcvkeys[0]._meta.creationTime;
+        expect(rcvkeys[0]._meta).to.deep.equal(meta);
     });
 
     it('should correctly retrieve a fact querying the _data', () => {
@@ -126,14 +128,18 @@ describe('query', () => {
         const response = kb.query(query);
 
         const id = 1;
-        const data = {relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
-        const meta = {idSource: idSource, tag: 'tag1', TTL : 3, reliability : 100,
-                      creationTime : new Date(Date.now())};
+        const data = { relation: 'teaches', subject: 'Gervasi', object: 'SmartApplication'};
+        const meta = { idSource, tag: 'tag1', TTL : 3, reliability : 100 };
 
-        const expected = new Map<object, object[]>();
-        expected.set({_id : id, _meta : meta, _data: data}, [ { $s: 'SmartApplication' } ]);
-        const expectedResponse = new kb.Response(true, expected);
-        expect(response).to.deep.equal(expectedResponse);
+        const expectedBinds = [ { $s: 'SmartApplication' } ] ;
+
+        const rcvkeys = Array.from(response.details.keys()) as any[];
+        expect(response.success).to.deep.equal(true);
+        expect(rcvkeys[0]._id).to.deep.equal(id);
+        expect(rcvkeys[0]._data).to.deep.equal(data);
+        delete rcvkeys[0]._meta.creationTime;
+        expect(rcvkeys[0]._meta).to.deep.equal(meta);
+        expect(response.details.get(rcvkeys[0])).to.deep.equal(expectedBinds);
     });
 
     it('should correctly fail querying missing _data', () => {
@@ -219,18 +225,17 @@ describe ('addRule and removeRule', () => {
         { "subject": "$prof", "relation": "is in", "object": "$room" } <-
                     { "subject": "$prof", "relation": "teaches", "object": "$course" }
                     { "subject": "$course", "relation": "is in room", "object": "$room" }`;
-
         const id = 1;
         const response = kb.addRule(idSource, 'myRuleTag', rule1);
         const expected = new kb.Response(true, id);
-        expect(response).to.deep.equal(expected);
+        expect(response.success).to.deep.equal(expected.success);
     });
 
     it('should correctly delete a rule', () => {
         const id = 1;
         const response = kb.removeRule(idSource, id);
         const expected = new kb.Response(true, id);
-        expect(response).to.deep.equal(expected);
+        expect(response.success).to.deep.equal(expected.success);
     });
 
     it('should fail removing a non-existing rule', () => {

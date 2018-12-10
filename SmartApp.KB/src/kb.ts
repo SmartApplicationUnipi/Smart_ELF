@@ -109,7 +109,8 @@ function writeCallback(filename: string, err: any) {
     if (err) { log.error('KB', 'error saving ' + filename, err); } else { log.info('KB', filename + ' saved'); }
 }
 
-function dumpDatabase() {
+let currTimeout: NodeJS.Timeout;
+function dumpDatabaseRoutine() {
     const f1 = () => {
         writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8',
             (e) => writeCallback('databaseFact', e));
@@ -128,10 +129,14 @@ function dumpDatabase() {
     const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
     log.info('KB', 'starting backup');
     Promise.all([f1(), f2(), f4(), f5(), f6()])
-        .then(() => { setTimeout(dumpDatabase, repetitionTime); });
+        .then(() => { currTimeout = setTimeout(dumpDatabaseRoutine, repetitionTime); });
 }
 
-setTimeout(dumpDatabase, millsToDump);
+currTimeout = setTimeout(dumpDatabaseRoutine, millsToDump);
+
+export function stopdump() {
+    clearTimeout(currTimeout);
+}
 
 export class Response {
     public success: boolean;
@@ -198,13 +203,13 @@ export class TagInfo {
 
 export function getAllTags(includeShortDesc: boolean) {
     const allTags: any = {};
-    for (const [user, tags] of userTags) {
+    userTags.forEach((tags, user, map) => {
         const tagsArray: any = {};
         for (const [tag, tagInfo] of tags) {
             tagsArray[tag] = includeShortDesc ? tagInfo.desc : null;
         }
         allTags[user] = tagsArray;
-    }
+    });
     return new Response(true, allTags);
 }
 
