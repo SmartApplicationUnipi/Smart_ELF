@@ -89,7 +89,7 @@ const millsToDump = 60 * 1000; // dumpDate.getTime() - now.getTime();
 //     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
 // }
 
-function mapToObjectNested<T>(map: Map<string, T>) : Object {
+function mapToObjectNested<T>(map: Map<string, T>): Object {
     const obj = Object.create(null);
     for (let [k, v] of map) {
         obj[k] = v instanceof Map ? mapToObjectNested(v) : v;
@@ -97,7 +97,7 @@ function mapToObjectNested<T>(map: Map<string, T>) : Object {
     return obj;
 }
 
-function objectToMapNested<T>(obj: {[index:string]: any}, maxDepth = Infinity) : Map<string, T> {
+function objectToMapNested<T>(obj: { [index: string]: any }, maxDepth = Infinity): Map<string, T> {
     const map = new Map<string, T>();
     for (let k of Object.keys(obj)) {
         map.set(k, (typeof obj[k] === 'object' && maxDepth > 0) ? objectToMapNested(obj[k], maxDepth - 1) : obj[k]);
@@ -325,6 +325,8 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
         _id: uniqueRuleId_gen(),
         _meta: metadata,
     };
+    console.log("DATAOBJECT");
+    console.log(dataobject);
 
     databaseRule.set(dataobject._id, dataobject);
     return new Response(true, dataobject._id);
@@ -340,17 +342,23 @@ function normalizeRule(rule: any): DataRule {
     } else {
         if (Object.keys(rule._head).length > 0) { norm._head._data = rule._head; }
     }
-    for (const pred of rule._body) {
+    for (let i = 0; i < rule._body.length; ++i) {
+        //        for (const pred of rule._body) {
         const normb: any = {};
-        if (pred.hasOwnProperty('_meta')) { normb._meta = pred._meta; delete pred._meta; }
+        if (rule._body[i].hasOwnProperty('_meta')) { normb._meta = rule._body[i]._meta; delete rule._body[i]._meta; }
 
-        if (pred.hasOwnProperty('_data')) {
-            normb._data = pred._data;
+        if (rule._body[i].hasOwnProperty('_data')) {
+            normb._data = rule._body[i]._data;
         } else {
-            if (Object.keys(pred).length > 0) { normb._data = pred; }
+            if (Object.keys(rule._body[i]).length > 0) { normb._data = rule._body[i]; }
+        }
+
+        if (i === rule._body.length - 1) {
+            normb._data._predicates = rule._predicates;
         }
         norm._body.push(normb);
     }
+
     return norm;
 }
 
