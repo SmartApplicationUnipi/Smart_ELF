@@ -120,8 +120,8 @@ function checkRule(head: object, body: object[], fact: object) {
 
 export function queryRules(jReq: object) {
     const matches = new Array();
-
-    const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, databaseRule);
+    const rules = Array.from(databaseRule.values()).map( (e) => e._data );
+    const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, rules);
     for (const entry of goodRules) {
         const m: { [index: string]: any }[] = findBodySolutions(entry._body);
         for (const bindSet of m) {
@@ -180,9 +180,9 @@ function findBodySolutions(body: object[]): object[] {
     // cerco nel dataset se esiste soluzione per ciascun pred
     while (i < body.length && matches.length > 0) {
         debug.clogNoID(Colors.GREEN, 'OK', '', 'trovata soluzione: ', 5);
-        console.log('matches', matches);
+        // console.log('matches', matches);
         debug.clogNoID(Colors.BLUE, 'INFO', '', 'guardo il predicato ' + i, 10);
-        console.log(body[i]);
+        // console.log(body[i]);
 
         matches = findOnlyBinds(body[i], Array.from(databaseFact.values()), matches);
         i++;
@@ -192,5 +192,5 @@ function findBodySolutions(body: object[]): object[] {
     } else {
         debug.clogNoID(Colors.RED, 'FAIL', '', 'la regola non matcha', 10);
     }
-    return Array.from(matches.values());
+    return matches;
 }
