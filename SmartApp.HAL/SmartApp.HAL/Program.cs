@@ -95,7 +95,7 @@ namespace SmartApp.HAL
             using (serviceProvider.GetRequiredService<IAudioSource>())
             {
                 //init KB wrapper
-                KBWrapperInit(serviceProvider.GetRequiredService<KBWrapper.IKbWrapper>());
+                KBWrapperInit(serviceProvider.GetRequiredService<KBWrapper.IKbWrapper>(), serviceProvider.GetService<ILogger<Program>>());
                 // Start the audio and video managers
                 serviceProvider.GetRequiredService<IVideoManager>().Start();
                 serviceProvider.GetRequiredService<IAudioManager>().Start();
@@ -112,17 +112,20 @@ namespace SmartApp.HAL
             NLog.LogManager.Shutdown();
         }
 
-        private static void KBWrapperInit(KBWrapper.IKbWrapper kb)
+        private static void KBWrapperInit(KBWrapper.IKbWrapper kb, ILogger logger)
         {
+            bool isConnected = false;
             kb.OnOpen += (sender, e) => {
+                isConnected = true;
                 Console.WriteLine("Wrapper: onOpen");
             };
 
             kb.OnClose += (sender, e) => {
-                Console.WriteLine("Wrapper: onClose");
+                isConnected = false;
             };
 
             kb.OnConnected += (sender, e) => {
+                
                 Console.WriteLine("Wrapper: OnConnected");
             };
 
@@ -133,9 +136,14 @@ namespace SmartApp.HAL
             kb.OnError += (sender, e) => {
                 Console.WriteLine("Wrapper: onError " + e.message);
             };
-
+            int i = 0;
             kb.Connect();
-
+            while (!isConnected)
+            {
+                logger.LogTrace("Kb connection closed, try to reconect {0}", ++i);
+                Thread.Sleep(5000);
+                kb.Connect();
+            }
 
         }
     }

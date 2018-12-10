@@ -37,6 +37,11 @@ namespace KBWrapper {
         //---------------------------------------------------------------
         public void Connect() {
             socket.Connect();
+            if (socket.ReadyState==WebSocketState.Closed)
+            {
+                Log.Error("Socket closed");
+                return;
+            }
             this.Register();
         }
 
