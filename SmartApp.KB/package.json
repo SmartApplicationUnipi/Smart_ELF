@@ -7,7 +7,7 @@
     "build-ts": "tsc",
     "start": "npm run build-ts && npm run serve",
     "serve": "node dist/src/server.js",
-    "test": "mkdir db.old && mv db/* db.old/ && ((tsc && mocha -r ts-node/register test/kb/* && mv db.old/* db/ && rm -r db.old)) || (mv db.old/* db && rm -r db.old)",
+    "test": "mkdir db.old && mv db/* db.old/ && ((tsc && mocha -r ts-node/register test/kb/* test/unificator.test.ts && mv db.old/* db/ && rm -r db.old)) || (mv db.old/* db && rm -r db.old)",
     "install": "mkdir db && echo \"dummyfile\" >> ./db/dummydb",
     "clear": "rm -rf node_modules/ && rm -rf db/"
   },

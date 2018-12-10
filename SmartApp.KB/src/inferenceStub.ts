@@ -120,7 +120,8 @@ function checkRule(head: object, body: object[], fact: object) {
 
 export function queryRules(jReq: object) {
     const matches = new Array();
-    const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, databaseRule);
+    const rules = Array.from(databaseRule.values()).map( (e) => e._data );
+    const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, rules);
     for (const entry of goodRules) {
         const m: { [index: string]: any }[] = findBodySolutions(entry._body);
         for (const bindSet of m) {

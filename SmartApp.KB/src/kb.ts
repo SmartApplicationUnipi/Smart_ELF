@@ -321,12 +321,9 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
     const dataobject = {
         _data: normalizeRule(jsonObj),
-        // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
         _id: uniqueRuleId_gen(),
         _meta: metadata,
     };
-    console.log("DATAOBJECT");
-    console.log(dataobject);
 
     databaseRule.set(dataobject._id, dataobject);
     return new Response(true, dataobject._id);
