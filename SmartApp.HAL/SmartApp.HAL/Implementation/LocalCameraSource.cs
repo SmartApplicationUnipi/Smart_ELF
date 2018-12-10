@@ -76,7 +76,7 @@ namespace SmartApp.HAL.Implementation
                 // Publish a completed frame
                 FrameReady?.Invoke(this, new VideoFrame(
                     DateTime.Now,
-                    faceBounds.Select(bounds => new VideoFrame.Face(bounds, -1, -1, -1, IsUserEngaged(frame, bounds))).ToList(),
+                    faceBounds.Select(bounds => new VideoFrame.Face(bounds, -1, -1, -1)).ToList(),
                     frame.ToImage<Bgr, byte>(),
                     _frameWidth,
                     _frameHeigth
@@ -101,26 +101,6 @@ namespace SmartApp.HAL.Implementation
         {
             _timer.Stop();
             _logger.LogInformation("Capture stopped.");
-        }
-
-        public float Framerate
-        {
-            get
-            {
-                lock (this)
-                {
-                    return _framerate;
-                }
-            }
-            set
-            {
-                lock (this)
-                {
-                    _framerate = value;
-                    _timer.Interval = 1000.0 / value;
-                    _logger.LogInformation("New framerate: {0} fps.", value);
-                }
-            }
         }
 
         public bool IsAvailable{ get; set; }

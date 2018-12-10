@@ -9,7 +9,6 @@ from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from kb import KnowledgeBaseClient
-from interface_tags import TAG_ANSWER
 
 def __main__():
     kb_client = KnowledgeBaseClient(False)

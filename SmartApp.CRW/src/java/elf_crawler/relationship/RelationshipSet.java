@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import elf_crawler.CrawlerAddress;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -32,9 +33,9 @@ public class RelationshipSet {
         this.relationships = relationships;
     }
 
-    public List<RelationQuery> getWebsiteRelations(String url)
+    public List<RelationQuery> getWebsiteRelations(CrawlerAddress l)
     {
-        List<RelationQuery> rel = this.relationships.get(url);
+        List<RelationQuery> rel = this.relationships.get(l.getUnprocessedUrl());
         
         if (rel == null)
             rel = this.relationships.get(GENERIC_RELATIONSHIP_SET);
