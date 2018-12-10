@@ -198,7 +198,7 @@ class Controller():
                 break
             try:
                 if self.is_host:
-                    face_obj, frame_size  = queue.get()
+                    face_obj, frame_size  = queue.get() # TODO specify parameter 'block'
                     img = face_obj.img
                     queue.task_done()
                 else: # TODO: delete this option only for test
