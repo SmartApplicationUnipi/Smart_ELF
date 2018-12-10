@@ -7,7 +7,11 @@ namespace KBWrapper {
 
     public class Message {
 
-        public static readonly string REGISTER_ID = "registerId";
+        public const string REGISTER_ID = "registerId";
+        public const string REGISTER_TAG_ID = "registerTagId";
+        public const string SUBCRIBE_ID = "subscribeId";
+        public const string ADD_FACT_ID = "addFactId";
+        public const string REMOVE_FACT_ID = "removeFactId";
 
         private struct Methods {
             internal static readonly string Register = "register";
@@ -32,19 +36,19 @@ namespace KBWrapper {
             JObject oo = new JObject();
             oo["tagsList"] = o;
             oo["idSource"] = sourceID;
-            return new Message(Methods.RegisterTags, oo, token);
+            return new Message(Methods.RegisterTags, oo, token, REGISTER_TAG_ID);
         }
 
         public static Message AddFact(Fact fact, string token) {
-            return new Message(Methods.AddFact, JObject.FromObject(fact), token);
+            return new Message(Methods.AddFact, JObject.FromObject(fact), token, ADD_FACT_ID);
         }
 
         public static Message RemoveFact(JObject request, string token) {
-            return new Message(Methods.RemoveFact, request, token);
+            return new Message(Methods.RemoveFact, request, token, REMOVE_FACT_ID);
         }
 
         public static Message Subscribe(JObject request, string token) {
-            return new Message(Methods.Subscribe, request, token);
+            return new Message(Methods.Subscribe, request, token, SUBCRIBE_ID);
         }
 
         //------------------------------------------------------------------------
