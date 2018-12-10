@@ -126,7 +126,7 @@ function dumpDatabaseRoutine() {
             (e) => writeCallback('userTags', e));
     };
     const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
-    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
+    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueRuleId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
     log.info('KB', 'starting backup');
     Promise.all([f1(), f2(), f4(), f5(), f6()])
         .then(() => { currTimeout = setTimeout(dumpDatabaseRoutine, repetitionTime); });
@@ -282,19 +282,7 @@ export function updateFactByID(id: number, idSource: string, tag: string, TTL: n
 }
 
 export function query(jreq: any) {
-    const queryobj: any = {};
-
-    if (jreq.hasOwnProperty('_id')) { queryobj._id = jreq._id; delete jreq._id; }
-
-    if (jreq.hasOwnProperty('_meta')) { queryobj._meta = jreq._meta; delete jreq._meta; }
-
-    if (jreq.hasOwnProperty('_predicates')) { queryobj._predicates = jreq._predicates; delete jreq._predicates; }
-
-    if (jreq.hasOwnProperty('_data')) {
-        queryobj._data = jreq._data;
-    } else {
-        if (Object.keys(jreq).length > 0) { queryobj._data = jreq; }
-    }
+    const queryobj = normalizeQuery(jreq);
 
     const m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
     const m2 = queryRules(queryobj);
@@ -373,6 +361,8 @@ function normalizeQuery(jquery: any) {
 
     if (jquery.hasOwnProperty('_meta')) { norm._meta = jquery._meta; delete jquery._meta; }
 
+    if (jquery.hasOwnProperty('_predicates')) { norm._predicates = jquery._predicates; delete jquery._predicates; }
+
     if (jquery.hasOwnProperty('_data')) {
         norm._data = jquery._data;
     } else {
@@ -380,7 +370,6 @@ function normalizeQuery(jquery: any) {
     }
 
     return norm;
-
 }
 
 export function removeRule(idSource: string, idRule: number) {
