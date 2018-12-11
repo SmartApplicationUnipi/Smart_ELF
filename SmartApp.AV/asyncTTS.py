@@ -77,36 +77,13 @@ def make_audio(txt, lang="en-GB"):
     return content
 
 
-# TODO with arousal and valency
-def generate_emotional_text(text, emotion="happy"):
-    root = etree.Element('emotionml')
-    root.attrib["version"] = "1.0"
-    root.attrib["xmlns"] = "http://www.w3.org/2009/10/emotionml"
-    root.attrib["category-set"] = "http://www.w3.org/TR/emotion-voc/xml#everyday-categories"
-    child = etree.Element('emotion')
-    category = etree.Element('category')
-    category.attrib["name"] = emotion
-    child.text = text
-    root.append(child)
-    child.append(category)
-    return etree.tostring(root, pretty_print=True).decode("utf-8")
-
-
 async def kb_to_audio(queue):
     """
     This function handles the subscription to KB and the production of the audio
     :param queue: blocking asynchronous queue
     """
-    text = "Hello how are you?"
-    valence = 1
-    arousal = 1
-    language = "en-GB"
-
-    ttm = make_mary_text(text, valence, arousal)
-    audio = make_audio(ttm, language)
-    '''def callbfun(res):
-        #TODO log
-        print("callback: ", res)
+    def callbfun(res):
+        log.info("Receive data from KB " + str(res))
 
         timestamp = res[0][0]["$ts"]
         text = res[0][0]['$input']
@@ -124,7 +101,7 @@ async def kb_to_audio(queue):
                    "text": text,
                    "language": language})
 
-        print("\n waiting...")
+
 
     kb_client = KnowledgeBaseClient(False)
     #kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', "text": "$input"}}, callbfun) #todo change with appropriate tag
@@ -133,7 +110,7 @@ async def kb_to_audio(queue):
                                             "text": "$input",
                                             "valence": "$v",
                                             "arousal": "$a",
-                                            "language": "$l"}}, callbfun) #todo change with appropriate tag'''
+                                            "language": "$l"}}, callbfun) #TODO change with appropriate KB updates
 
 
 def face_communication(queue):
@@ -162,5 +139,5 @@ if __name__ == '__main__':
     q = janus.Queue(loop=loop)
 
     loop.run_until_complete(kb_to_audio(q.sync_q))
-    #loop.run_until_complete(face_communication(q.async_q))
+    loop.run_until_complete(face_communication(q.async_q))
     loop.run_forever()

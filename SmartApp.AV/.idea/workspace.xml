@@ -11,25 +11,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="asyncSTT.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/asyncSTT.py">
+      <file leaf-file-name="sentimental_analizer.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/sentimental_analizer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1558">
-              <caret line="158" column="7" selection-start-line="158" selection-start-column="7" selection-end-line="158" selection-end-column="7" />
+            <state relative-caret-position="527">
+              <caret line="49" column="33" lean-forward="true" selection-start-line="49" selection-start-column="33" selection-end-line="49" selection-end-column="33" />
               <folding>
-                <element signature="e#0#31#0" expanded="true" />
+                <element signature="e#0#10#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="sentimental_analizer.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/sentimental_analizer.py">
+      <file leaf-file-name="asyncSTT-2.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/asyncSTT-2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="224">
-              <caret line="18" column="28" lean-forward="true" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="28" />
+            <state relative-caret-position="278">
+              <caret line="87" lean-forward="true" selection-start-line="43" selection-end-line="87" />
               <folding>
-                <element signature="e#0#10#0" expanded="true" />
+                <element signature="e#0#31#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -38,7 +38,7 @@
       <file leaf-file-name="my_client_google.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../../../my_client_google.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="34">
+            <state relative-caret-position="255">
               <caret line="20" column="31" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="31" />
               <folding>
                 <element signature="e#99#108#0" expanded="true" />
@@ -56,9 +56,11 @@
       <find>#</find>
       <find>await</find>
       <find>results</find>
+      <find>numpy</find>
     </findStrings>
     <replaceStrings>
       <replace>res</replace>
+      <replace>np</replace>
     </replaceStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -66,14 +68,15 @@
       <list>
         <option value="$PROJECT_DIR$/../../../my_client_google.py" />
         <option value="$PROJECT_DIR$/asyncSTT.py" />
+        <option value="$PROJECT_DIR$/sentimental_analizer.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="104" />
-    <option name="y" value="147" />
-    <option name="width" value="892" />
-    <option name="height" value="489" />
+    <option name="x" value="112" />
+    <option name="y" value="26" />
+    <option name="width" value="956" />
+    <option name="height" value="742" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -100,7 +103,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Documenti/magistrale/AI/midterm" />
     <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
   </component>
   <component name="RunDashboard">
@@ -178,9 +181,8 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="26" width="1374" height="746" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.12267658" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.1732342" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
@@ -205,10 +207,44 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/asyncSTT.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="663">
-          <caret line="39" column="70" selection-start-line="39" selection-start-column="70" selection-end-line="39" selection-end-column="70" />
+        <state relative-caret-position="2720">
+          <caret line="160" selection-start-line="160" selection-end-line="160" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sentimental_analizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" column="28" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="28" />
           <folding>
-            <element signature="e#0#31#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../my_client_google.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="20" column="31" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="31" />
+          <folding>
+            <element signature="e#99#108#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/asyncSTT.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2686">
+          <caret line="158" lean-forward="true" selection-start-line="158" selection-end-line="158" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/sentimental_analizer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" column="28" lean-forward="true" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="28" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -226,10 +262,24 @@
     <entry file="file://$PROJECT_DIR$/asyncSTT.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="663">
-          <caret line="39" column="70" lean-forward="true" selection-start-line="39" selection-start-column="70" selection-end-line="39" selection-end-column="70" />
+          <caret line="39" column="70" selection-start-line="39" selection-start-column="70" selection-end-line="39" selection-end-column="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../my_client_google.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="20" column="31" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="31" />
           <folding>
-            <element signature="e#0#31#0" expanded="true" />
+            <element signature="e#99#108#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/asyncSTT.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="663">
+          <caret line="39" column="70" lean-forward="true" selection-start-line="39" selection-start-column="70" selection-end-line="39" selection-end-column="70" />
         </state>
       </provider>
     </entry>
@@ -247,9 +297,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1241">
           <caret line="73" column="71" selection-start-line="73" selection-start-column="66" selection-end-line="73" selection-end-column="71" />
-          <folding>
-            <element signature="e#0#31#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -269,7 +316,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../../my_client_google.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
+        <state relative-caret-position="255">
           <caret line="20" column="31" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="31" />
           <folding>
             <element signature="e#99#108#0" expanded="true" />
@@ -277,22 +324,29 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/sentimental_analizer.py">
+    <entry file="file://$PROJECT_DIR$/asyncSTT.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="224">
-          <caret line="18" column="28" lean-forward="true" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="28" />
+        <state relative-caret-position="17">
+          <caret line="160" selection-start-line="160" selection-end-line="160" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/asyncSTT-2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="87" lean-forward="true" selection-start-line="43" selection-end-line="87" />
           <folding>
-            <element signature="e#0#10#0" expanded="true" />
+            <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/asyncSTT.py">
+    <entry file="file://$PROJECT_DIR$/sentimental_analizer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1558">
-          <caret line="158" column="7" selection-start-line="158" selection-start-column="7" selection-end-line="158" selection-end-column="7" />
+        <state relative-caret-position="527">
+          <caret line="49" column="33" lean-forward="true" selection-start-line="49" selection-start-column="33" selection-end-line="49" selection-end-column="33" />
           <folding>
-            <element signature="e#0#31#0" expanded="true" />
+            <element signature="e#0#10#0" expanded="true" />
           </folding>
         </state>
       </provider>
