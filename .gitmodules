@@ -4,3 +4,6 @@
 [submodule "SmartApp.AV/SmartApp.AV/marytts"]
 	path = SmartApp.AV/SmartApp.AV/marytts
 	url = https://github.com/marytts/marytts
+[submodule "SmartApp.AV/marytts"]
+	path = SmartApp.AV/marytts
+	url = https://github.com/marytts/marytts
