@@ -10,7 +10,10 @@ import janus
 sys.path.insert(0, '../SmartApp.KB/bindings/python/')
 import kb
 from kb import KnowledgeBaseClient
+import logging
 
+logging.basicConfig(filename='TTS.log', filemode='w', format='%(asctime)s - [%(levelname)s] - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
+log = logging.getLogger()
 
 def make_mary_text(text, valency, arousal):
     """
@@ -69,26 +72,9 @@ def make_audio(txt, lang="en-GB"):
             break
 
     if not good_response:
-        print("MaryTTS didn't provide audio")
-        raise Exception(content)
-        #TODO log
+        log.error("MaryTTS didn't provide audio: " + str(content))
 
     return content
-
-
-# TODO with arousal and valency
-def generate_emotional_text(text, emotion="happy"):
-    root = etree.Element('emotionml')
-    root.attrib["version"] = "1.0"
-    root.attrib["xmlns"] = "http://www.w3.org/2009/10/emotionml"
-    root.attrib["category-set"] = "http://www.w3.org/TR/emotion-voc/xml#everyday-categories"
-    child = etree.Element('emotion')
-    category = etree.Element('category')
-    category.attrib["name"] = emotion
-    child.text = text
-    root.append(child)
-    child.append(category)
-    return etree.tostring(root, pretty_print=True).decode("utf-8")
 
 
 async def kb_to_audio(queue):
@@ -96,16 +82,8 @@ async def kb_to_audio(queue):
     This function handles the subscription to KB and the production of the audio
     :param queue: blocking asynchronous queue
     """
-    text = "Hello how are you?"
-    valence = 1
-    arousal = 1
-    language = "en-GB"
-
-    ttm = make_mary_text(text, valence, arousal)
-    audio = make_audio(ttm, language)
-    '''def callbfun(res):
-        #TODO log
-        print("callback: ", res)
+    def callbfun(res):
+        log.info("Receive data from KB " + str(res))
 
         timestamp = res[0][0]["$ts"]
         text = res[0][0]['$input']
@@ -123,7 +101,7 @@ async def kb_to_audio(queue):
                    "text": text,
                    "language": language})
 
-        print("\n waiting...")
+
 
     kb_client = KnowledgeBaseClient(False)
     #kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', "text": "$input"}}, callbfun) #todo change with appropriate tag
@@ -132,7 +110,7 @@ async def kb_to_audio(queue):
                                             "text": "$input",
                                             "valence": "$v",
                                             "arousal": "$a",
-                                            "language": "$l"}}, callbfun) #todo change with appropriate tag'''
+                                            "language": "$l"}}, callbfun) #TODO change with appropriate KB updates
 
 
 def face_communication(queue):
@@ -142,11 +120,11 @@ def face_communication(queue):
     :return:  WebSocketServer object
     """
     async def echo(websocket, path): # on client connections
-        # TODO log
+        log.info("New connection " + str(websocket))
         while True:
             data = await queue.get()
             await websocket.send(json.dumps(data))
-            print("sent data:", data["id"])
+            log.info(str(websocket)+ " sent data:" + str(data["id"]))
 
     return websockets.serve(echo, HOST, PORT)
 
@@ -155,9 +133,11 @@ if __name__ == '__main__':
     HOST = '10.101.27.153'  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
+    log.info("Start TTS process")
+
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
     loop.run_until_complete(kb_to_audio(q.sync_q))
-    #loop.run_until_complete(face_communication(q.async_q))
+    loop.run_until_complete(face_communication(q.async_q))
     loop.run_forever()

@@ -14,15 +14,14 @@ from Bindings import HALInterface
 from os import path
 import time
 import io
-from kb import KnowledgeBaseClient
-#import sentimental_analizer
-
-
+import sentimental_analizer
+import logging
 
 #TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
+logging.basicConfig(filename='STT.log', filemode='w', format='%(asctime)s - [%(levelname)s] - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
+log = logging.getLogger()
 
-
-def recognize(model, audio, recognizer, language="en-US"):
+def recognize(model, audio, recognizer, language="it_IT"): #en_US"):
         """
         This function implements the trancription from speech to text
         :param model: name of the API to use (google / sphinx)
@@ -51,13 +50,11 @@ def recognize(model, audio, recognizer, language="en-US"):
 
             print(res["text"])
         except sr.UnknownValueError:
-            print(model + " could not understand audio")
+            #print(model + " could not understand audio")
             res["error"] = "UnknownValueError"
-            # TODO logs
         except sr.RequestError as e:
-            print(model + " error; {0}".format(e))
+            #print(model + " error; {0}".format(e))
             res["error"] = "RequestError"
-            #TODO logs
 
         return res
 
@@ -69,8 +66,9 @@ async def speech_to_text(queue):
     :param queue: process shared queue
     """
 
-    kb_client = KnowledgeBaseClient(False)
-    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',                                                     'doc': 'text from audio '}})
+    kb_client = kb.KnowledgeBaseClient(False)
+    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',
+                                                     'doc': 'text from audio '}})
 
     # Create new recogniers for all the services used
     r = sr.Recognizer()
@@ -78,11 +76,9 @@ async def speech_to_text(queue):
     try:
         google_client = speech.SpeechClient()
     except exceptions.DefaultCredentialsError as e:
-        print("Failed to authenticate with Google Cloud Speech recognition")
-        print(e)
+        log.error("Failed to authenticate with Google Cloud Speech recognition" + str(e))
     except :
-        print("Unexpected error. Failed to authenticate with Google Cloud Speech recognition:", sys.exc_info()[0])
-        # TODO log file
+        log.error("Unexpected error. Failed to authenticate with Google Cloud Speech recognition:"+ str(sys.exc_info()[0]))
 
     with ThreadPoolExecutor() as executor:
 
@@ -90,15 +86,9 @@ async def speech_to_text(queue):
 
             # Data stored in the queue contain all the information needed to create AudioData object
             timestamp, channels, sampleRate, bitPerSample, data = await queue.get()
+
             audio = sr.AudioData(data, sampleRate, bitPerSample/8)
-
-            #with open(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav"), 'rb') as audio_file:
-            #    content = audio_file.read()
             audio_gc = types.RecognitionAudio(content=data)
-
-            #with sr.AudioFile(path.join(path.dirname(path.realpath(__file__)), "data_audio/easy.wav")) as source:
-            #   audio = r.record(source)
-            #   timestamp = time.time()
 
             # Compute the transcription of the audio
             google_cloud = executor.submit(recognize, "google-cloud", audio_gc, google_client)
@@ -106,56 +96,53 @@ async def speech_to_text(queue):
             sphinx = executor.submit(recognize, "sphinx", audio, r)
 
             # Compute the emotion related to the audio
-            #emotion = executor.submit(sentimental_analizer.my_regressionFileWrapper, audio)
+            emotion = executor.submit(sentimental_analizer.emotion_from_speech, sampleRate, audio, log)
 
             res = google_cloud.result()
             if res["error"] is None:
                 # Add to KB Google cloud speech recognition result with timestamp and ID
-                print("Insert into KB --> Google cloud speech recognition result")
+                log.info("Insert into KB --> Google cloud speech recognition result: " + str(res["text"]))
 
             else:
+                log.error("Google cloud speech recognition retrieved an error: " + str(res["error"]))
                 res = google.result()
                 if res["error"] is None:
                     # Add to KB Google result with timestamp and ID
-                    print("Insert into KB --> Google result")
+                    log.info("Insert into KB --> Google result: " + str(res["text"]))
                 else:
+                    log.error("Google retrieved an error: " + str(res["error"]))
                     res = sphinx.result()
                     if res["error"] is None:
                         # Add to KB Sphinx result with timestamp and ID
-                        print("Insert into KB --> Sphinx result")
+                        log.info("Insert into KB --> Sphinx result: " + str(res["text"]))
+                    else:
+                        log.error("Sphinx retrieved an error: " + str(res["error"]))
 
-            emotion = None #emotion.result()
+            emotion = emotion.result()
 
             myID = 'stt'
             if res["error"] is None:
                 # Add to KB that the transcription of the audio
-                print("Insert into KB the transcription of the audio, retrieved from ", res["model"])
-                print(res["text"])
-
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
                                                                          "text": res["text"],
                                                                          "language": res["lang"],
-                                                                         "emotion": emotion
+                                                                         "valence": emotion["valence"],
+                                                                         "arousal": emotion["arousal"]
                                                                          })
-
-                #print(kb.addFact(myID, "text_f_audio", 2, 50, 'false', {"TAG": "text_f_audio",
-                #                                                        "ID": timestamp,
-                #                                                        "timestamp": timestamp,
-                #                                                        "text": res["text"],
-                #                                                        "language": res["lang"],
-                #                                                        "emotion": emotion}))  # TODO adjust "text_f_audio", 2, 50, 'false'
+                # TODO adjust "text_f_audio", 2, 50, 'false'
 
             else:
                 # Add to KB that none of google and sphinx retrieved a result
-                print("Insert into KB that no Google or Sphinx result")
+                log.critical("Insert into KB that no Google or Sphinx result")
                 kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
                                                                          "text": "",
                                                                          "language": res["lang"],
-                                                                         "emotion": emotion
+                                                                         "valence": emotion["valence"],
+                                                                         "arousal": emotion["arousal"]
                                                                          })
 
 
@@ -170,17 +157,26 @@ async def myHandler(queue):
               (audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, len(audioMessage.data)))
         queue.put([audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, audioMessage.data])
 
+    def handleError():
+        backoff += 5
+        log.warning("Disconnected from HAL. Waiting " + str(backoff) + "sec")
+        time.sleep(backoff)
+        hal.registerAsAudioReceiver(handleAudioMessages, handleError)
+
+    backoff = 0
     hal = HALInterface(HALAddress=HALAddress, HALAudioPort=HALAudioPort)
-    hal.registerAsAudioReceiver(handleAudioMessages)
+    hal.registerAsAudioReceiver(handleAudioMessages, handleError)
 
 
 if __name__ == '__main__':
-    HALAddress = "10.101.53.14"  # default
+    HALAddress = "10.101.60.139"  # default
     HALAudioPort = 2001  # default
+
+    log.info("Start STT process")
 
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    loop.run_until_complete(myHandler(q.sync_q))
-    loop.run_until_complete(speech_to_text(q.async_q))
+    loop.run_until_complete(myHandler(q.sync_q, log))
+    loop.run_until_complete(speech_to_text(q.async_q, log))
     loop.run_forever()

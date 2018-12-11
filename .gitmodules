@@ -1,6 +1,12 @@
 [submodule "SmartApp.AV/pyAudioAnalysis"]
 	path = SmartApp.AV/pyAudioAnalysis
 	url = https://github.com/tyiannak/pyAudioAnalysis.git
+[submodule "SmartApp.AV/SmartApp.AV/marytts"]
+	path = SmartApp.AV/SmartApp.AV/marytts
+	url = https://github.com/marytts/marytts
+[submodule "SmartApp.AV/marytts"]
+	path = SmartApp.AV/marytts
+	url = https://github.com/marytts/marytts
 [submodule "SmartApp.DP/script-server"]
 	path = SmartApp.DP/script-server
 	url = https://github.com/burlamix/script-server.git
