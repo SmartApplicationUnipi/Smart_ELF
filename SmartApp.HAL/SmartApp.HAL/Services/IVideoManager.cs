@@ -9,5 +9,10 @@ namespace SmartApp.HAL.Services
     public interface IVideoManager
     {
         void Start();
+
+        bool IsEngaged { get; }
+
+        float Framerate { get; set; }
+        
     }
 }

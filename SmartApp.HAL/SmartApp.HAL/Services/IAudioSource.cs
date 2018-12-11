@@ -7,7 +7,7 @@ namespace SmartApp.HAL.Services
     {
         void Start();
         void Stop();
-
+        bool IsRecording();
         event EventHandler<AudioSample> SampleReady;
     }
 }

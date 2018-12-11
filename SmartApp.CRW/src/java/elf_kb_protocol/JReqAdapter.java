@@ -6,10 +6,10 @@ import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
 
-public class JReqAdapter implements JsonSerializer<JReq> {
+public class JReqAdapter implements JsonSerializer<TagList> {
 
     @Override
-    public JsonElement serialize(JReq t, Type typeOfSrc,
+    public JsonElement serialize(TagList t, Type typeOfSrc,
                                  JsonSerializationContext context) {
 
         return t.getTags();

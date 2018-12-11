@@ -22,13 +22,13 @@ export abstract class EmotionalUIWidget implements UIWidget {
 	 * @param emotion The current emotion. If nothing is passed, the neutral emotion is used.
 	 */
 
-	constructor(private emotion: Emotion.IEmotion = Emotion.getNeutral()) {}
+	constructor(private emotion: Emotion.ISBEEmotion = Emotion.getNeutral()) {}
 
 	/**
 	 * Set the new emotion to be displayed.
 	 * @param emotion The new emotion
 	 */
-	public setEmotion(emotion: Emotion.IEmotion): void {
+	public setEmotion(emotion: Emotion.ISBEEmotion): void {
 		this.emotion = emotion;
 		this.onEmotionChanged(this.emotion);
 	}
@@ -36,7 +36,7 @@ export abstract class EmotionalUIWidget implements UIWidget {
 	/**
 	 * Get the current emotion.
 	 */
-	public getEmotion(): Emotion.IEmotion {
+	public getEmotion(): Emotion.ISBEEmotion {
 		return this.emotion;
 	}
 
@@ -44,7 +44,7 @@ export abstract class EmotionalUIWidget implements UIWidget {
 	 * This method is called when the a new emotion is received from the ElfUI.
 	 * @param emotion The new emotion received
 	 */
-	abstract onEmotionChanged(emotion: Emotion.IEmotion): void;
+	abstract onEmotionChanged(emotion: Emotion.ISBEEmotion): void;
 
 	/**
 	 * Returns the HTML code of this widget.

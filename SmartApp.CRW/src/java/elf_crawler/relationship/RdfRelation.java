@@ -1,5 +1,7 @@
 package elf_crawler.relationship;
 
+import elf_crawler.crawler.Tag;
+
 public class RdfRelation extends RelationQuery {
 
     private String predicate;
@@ -7,12 +9,10 @@ public class RdfRelation extends RelationQuery {
     private String object;
     private RelationGroupBy groupby;
 
-    public RdfRelation(String predicate, String subject, String object) {
-        this(predicate, subject, object, null);
-    }
 
-    public RdfRelation(String predicate, String subject, String object, String groupby) {
+    public RdfRelation(String tag, String predicate, String subject, String object, String groupby) {
         super.type = RelationQueryType.RDF_TRIPLE;
+        super.tag = tag;
         this.predicate = predicate;
         this.subject = subject;
         this.object = object;

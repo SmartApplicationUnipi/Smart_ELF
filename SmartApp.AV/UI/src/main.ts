@@ -4,6 +4,7 @@ import { KBEventReader } from './kb/KBEventReader';
 import { TTSEventReader } from './tts/TTSEventReader';
 
 import { TestEventReader } from './test/Test'
+import * as Logger from './log/Logger';
 
 // Load config files
 const config = require('./elfconfig.json');
@@ -11,6 +12,8 @@ let kbUrl = config['KB_URL'], tts_url = config['TTS_URL'];
 
 if (kbUrl && tts_url) {
 	let elem = document.getElementById("content");
+
+	Logger.getInstance().enable(false);
 
 	let factory = new ElfColorfulUIFactory(elem, window);
 
