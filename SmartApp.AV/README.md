@@ -40,6 +40,7 @@ One the tuple is revived the service will make a request to the MarryTTS service
 
 ## INSTALL
 install merryTTS following the guideline here: marytts/README.md
+
 `pip install -r requirements.txt`
 
 ## RUN
