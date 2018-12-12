@@ -66,7 +66,7 @@ async def speech_to_text(queue):
     :param queue: process shared queue
     """
 
-    kb_client = KnowledgeBaseClient(False)
+    kb_client = kb.KnowledgeBaseClient(False)
     kb_ID = (kb_client.register())['details']
     kb_client.registerTags(kb_ID, { 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : 'text from audio '} })
 
