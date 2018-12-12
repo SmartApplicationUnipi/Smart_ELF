@@ -158,13 +158,13 @@ async def myHandler(queue):
               (audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, len(audioMessage.data)))
         queue.put([audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, audioMessage.data])
 
+    backoff = 0
     def handleError():
         backoff += 5
         log.warning("Disconnected from HAL. Waiting " + str(backoff) + "sec")
         time.sleep(backoff)
         hal.registerAsAudioReceiver(handleAudioMessages, handleError)
 
-    backoff = 0
     hal = HALInterface(HALAddress=HALAddress, HALAudioPort=HALAudioPort)
     hal.registerAsAudioReceiver(handleAudioMessages, handleError)
 
