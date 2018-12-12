@@ -12,17 +12,17 @@ The interaction is event-based: the UI receives an event and reacts to it.
 
 The UI is subscribed to the KB for the following tuples:
 
-- { "TAG": "UI_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple can be used to trigger an emotion change of the face.
-- { "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "\$a", "yaw": "\$b" } }: This tuple can be used to let the face pointing the user
-- { "TAG": "ENLP_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple is used to get the internal emotion of ELF. It is similar to UI_ELF_EMOTION but is triggered only by the ENLP group.
+- { "tag": "UI_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple can be used to trigger an emotion change of the face.
+- { "tag": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "\$a", "yaw": "\$b" } }: This tuple can be used to let the face pointing the user
+- { "tag": "ENLP_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple is used to get the internal emotion of ELF. It is similar to UI_ELF_EMOTION but is triggered only by the ENLP group.
 
-Other modules can request a specific emotion, represented by the pair <valence, arousal> with adding a tuple in the KB of the form {"TAG": "UI_ELF_EMOTION", "valence", "\$v", "arousal": "\$a"}.
+Other modules can request a specific emotion, represented by the pair <valence, arousal> with adding a tuple in the KB of the form {"tag": "UI_ELF_EMOTION", "valence", "\$v", "arousal": "\$a"}.
 
 ## Behaviors
 
 There are defined some custom behaviors that allow ELF to modify not ontly the expression of the UI but also other properties:
 
-- Defensive: This property indicates how much the UI should show a defensive behavior to the user. It's value is in the range [0-1]. Currently is defined by the KB rule { "TAG": "UI_ELF_BEHAVIOR", 'defensive': '\$x' } <- { 'z_index': '\$x' } that simply use the distance of the user form ELF.
+- Defensive: This property indicates how much the UI should show a defensive behavior to the user. It's value is in the range [0-1]. Currently is defined by the KB rule { "tag": "UI_ELF_BEHAVIOR", 'defensive': '\$x' } <- { 'z_index': '\$x' } that simply use the distance of the user form ELF.
 
 ## Event
 

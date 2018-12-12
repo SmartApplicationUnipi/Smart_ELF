@@ -13,7 +13,7 @@ let kbUrl = config['KB_URL'], tts_url = config['TTS_URL'];
 if (kbUrl && tts_url) {
 	let elem = document.getElementById("content");
 
-	Logger.getInstance().enable(false);
+	Logger.getInstance().enable(true);
 
 	let factory = new ElfColorfulUIFactory(elem, window);
 
@@ -21,7 +21,7 @@ if (kbUrl && tts_url) {
 	let readers = [
 		// new TestEventReader(2000),
 		kbEventReader,
-		new TTSEventReader(tts_url)
+		//new TTSEventReader(tts_url)
 	];
 
 	let ui = new Builder(factory)
