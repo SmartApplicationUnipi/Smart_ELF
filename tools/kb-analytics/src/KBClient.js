@@ -44,7 +44,7 @@ module.exports = class KBClient {
         ws.on('message', this._onMessage.bind(this));
 
         // Helpers for known methods that do not require idSource
-        for (let k of ['getAllTags', 'getTagDetails', 'query', 'register']) {
+        for (let k of ['getAllTags', 'getTagDetails', 'query', 'register', 'registerTags', 'addFact']) {
             this[k] = params => this.invoke(k, params);
         }
     }

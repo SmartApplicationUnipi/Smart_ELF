@@ -8,7 +8,7 @@
 
 <div class="text-center" style="margin-bottom: 2em">
     <video controls width="640" height="480">
-        <source src="/logs/videos/{{interaction.interactionName}}" type="video/mp4">
+        <source src="/logs/videos/{{interaction.interactionName}}.mp4" type="video/mp4">
     </video>
 </div>
 
@@ -16,6 +16,7 @@
     <thead class="thead-dark">
         <tr>
             <th scope="col">Tag</th>
+            <th scope="col">Timestamp</th>
             <th scope="col">Fact</th>
         </tr>
     </thead>
@@ -23,7 +24,8 @@
         {{#each details}}
             <tr>
                 <td>{{this.object._meta.tag}}</td>
-                <td>{{this.object._data}}</td>
+                <td>{{this.object._meta.creationTime}}</td>
+                <td>{{{this.object._data}}}</td>
             </tr>
         {{/each}}
     </tbody>
