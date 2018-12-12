@@ -64,7 +64,7 @@ module.exports = {
 
         // Subscribe to get notified of the new facts
         const idSource = await kb.register();
-        await kb.subscribe(idSource, { jsonReq: { _meta: { tag: 'USER_ENGAGED' } } }, (err, data) => {
+        await kb.subscribe(idSource, { _meta: { tag: 'USER_ENGAGED' } }, (err, data) => {
             if (err) {
                 debug('Error handling sunscription: %o', err);
                 return;
