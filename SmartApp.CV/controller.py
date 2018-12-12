@@ -58,6 +58,7 @@ DOCS = {
 class Controller():
 
     FRAME_RATE = 5
+    CHECK_TIME = 5.0
     #FIFO queue
     task_queue = Queue(maxsize= FRAME_RATE)
 
@@ -278,7 +279,7 @@ class Controller():
         """
 
         if self.has_api_problem and self.plan_checking == False:
-            self.connection_planner = Timer(5.0, self._switch_module_event)
+            self.connection_planner = Timer(CHECK_TIME, self._switch_module_event)
             self.connection_planner.start()
             self.plan_checking = True
 
