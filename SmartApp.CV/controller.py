@@ -330,9 +330,11 @@ class Controller():
         """
         print("turning off the controller...")
 
+        if self._video_capture:
+            self._video_capture.release()
         if hasattr(self, "terminate"):
             self.terminate.set()
-        if self._hal is not None:
+        if self._hal:
             self._hal.unregister(self._videoID)
             self._hal.quit()
         Controller.task_queue.join()
