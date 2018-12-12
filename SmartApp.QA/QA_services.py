@@ -3,7 +3,7 @@ from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER
 sys.path.insert(0, PATH_TO_KB_MODULE)
 from kb import KnowledgeBaseClient
 from tree_templates.tree_matcher import match_tree
-from drs import f
+from drs import drs_matcher
 import logging
 import json as json
 import templates as tp
@@ -44,14 +44,18 @@ class QaService:
 
         question_answered = self.qa_exact_temp_matching(query)
         if question_answered==True:
-            return
+            pass
         else:
-            question_answered = match_tree(answer_arr)
-            if question_answered==True:
-                return
-            else:
-                question_answered = f(answer_arr,"TEST_rules+constants.fcfg",self.kb_client,self.kb_ID)
-                return question_answered
+            question_answered = drs_matcher(answer_arr,"TEST_rules+constants.fcfg",self.kb_client,self.kb_ID)
+
+        response = {
+            "tag": TAG_ANSWER,
+            "text": "Non ho capito. Puoi ripetere?",
+            "time_stamp" : 1
+        }
+        self.write_to_KB(response,TAG_ANSWER)
+
+
 
     def _get_query_from_kb(self, response):
         """Exctract the user query from the kb response object"""
@@ -87,12 +91,28 @@ class QaService:
             res = tp.check_exact_match(input_q, self.query_corso, self.q_corso_answ, ["corso", "corso di"])
             if (res[0] == True):
                 # perform query to kb
+                query = res_1[1]
+                query = query.replace("<prof-placeholder>", res_1[3])
+                print("Sto per fare la query sulla kB")
+                print(query)
+                #query = '{"_data": {"tag" : "crawler_course"}}'
+                query = json.loads(query)
+                resp = self.kb_client.query(query)
+                print(resp)
                 #produce answer
                 return True
             else:
                 res = tp.check_exact_match(input_q, self.query_corso, self.q_corso_answ, ["aula"])
                 if (res[0] == True):
                     # perform query to kb
+                    query = res_1[1]
+                    query = query.replace("<prof-placeholder>", res_1[3])
+                    print("Sto per fare la query sulla kB")
+                    print(query)
+                    #query = '{"_data": {"tag" : "crawler_course"}}'
+                    query = json.loads(query)
+                    resp = self.kb_client.query(query)
+                    print(resp)
                     #produce answer
                     return True
                 else:

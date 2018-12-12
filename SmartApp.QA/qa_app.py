@@ -3,7 +3,7 @@ Entry point of QA application
 """
 
 import sys
-from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS
+from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS, DESC_ANSWER, TAG_ANSWER
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from DRS_Service import DRSService
@@ -68,7 +68,8 @@ def __main__():
     logging.basicConfig(stream=sys.stderr, level=logging_lvl)
 
     tags = {
-        TAG_DRS : {'desc' : 'DRS structure', 'doc' : DESC_DRS}
+        TAG_DRS : {'desc' : 'DRS structure', 'doc' : DESC_DRS},
+        TAG_ANSWER : {'desc' : 'stupid answer', 'doc' : DESC_ANSWER}
     }
 
     logging.info("\tQA module registered")

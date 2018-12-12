@@ -38,8 +38,9 @@ query_prof = [
     (28, "Dove si trova la Lezione del Professor"),
     ]
 
-#jsonq_room = '{"_predicates":[["containsString",["$teach","<prof-placeholder>"]]],{"_data":{"teach" : "$teach", "room" : "$x"}}}'
+jsonq_room = '{"_predicates":[["containsString",["$teach","<prof-placeholder>"]]],{"_data":{"teach" : "$teach", "room" : "$x"}}}'
 jsonq_room = '{"data":{"aula" : "$room", "descrizione" : "$course"}}'
+
 
 
 query_prof_t = [
@@ -74,7 +75,7 @@ query_prof_t = [
     (28, {"_data":{"subject":"<professor>", "relation":"teach","object":"time"}}, "La lezione del professor <professor> è in <room>")
 ]
 
-""" Queries with corso as last word """
+"""Queries with corso as last word"""
 query_corso = [
 (29, 'Quando sarà la prossima lezione del corso'),
 (30, 'A che ora è la prossima lezione del corso'),

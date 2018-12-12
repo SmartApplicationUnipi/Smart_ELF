@@ -1,8 +1,9 @@
 from nltk.parse import load_parser
 from nltk.sem.drt import DrtParser
 from nltk import *
+from interface_tags import TAG_DRS
 
-def f(s,p,kb_client,kb_ID,debug="no"):
+def drs_matcher(s,p,kb_client,kb_ID,debug="no"):
     res = []
 
     #remove punctuation ad go lowercase
@@ -27,5 +28,5 @@ def f(s,p,kb_client,kb_ID,debug="no"):
     if(debug == "yes"):
         return res
     elif(debug == "no"):
-        kb_client.addFact(kb_ID, tag, 1, 100, DRS)
+        kb_client.addFact(kb_ID, TAG_DRS, 1, 100, DRS)
         return True #used to do further testing when developing new grammar rules
