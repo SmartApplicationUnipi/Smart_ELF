@@ -3,3 +3,6 @@
 ################################################################################
 .idea/
 /SmartApp.HAL/SmartApp.HAL/NuiDatabase
+.vscode
+.cache
+.idea
