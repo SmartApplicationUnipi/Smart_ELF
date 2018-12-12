@@ -23,3 +23,5 @@ dlib>=19.4.0
 pytest==3.8.0
 requests==2.20.0
 simplejson==3.16.0
+websocket-client
+protobuf
