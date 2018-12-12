@@ -99,6 +99,7 @@ namespace KBWrapper {
         }
 
         private void Send(string request) {
+            if (socket.ReadyState == WebSocketState.Closed) return;
             Log.Debug(String.Format("Sending: {0}", request));
             socket.SendAsync(request, null);
         }

@@ -115,6 +115,7 @@ namespace SmartApp.HAL
         private static void KBWrapperInit(KBWrapper.IKbWrapper kb, ILogger logger)
         {
             bool isConnected = false;
+            int backoff = 2;
             kb.OnOpen += (sender, e) => {
                 isConnected = true;
                 logger.LogInformation("Wrapper: onOpen");
@@ -122,6 +123,13 @@ namespace SmartApp.HAL
 
             kb.OnClose += (sender, e) => {
                 isConnected = false;
+                while (!isConnected)
+                {
+                    logger.LogError("Kb connection closed, try to reconnect.");
+                    backoff *= backoff;
+                    Thread.Sleep(backoff*1000);
+                    kb.Connect();
+                }
             };
 
             kb.OnConnected += (sender, e) => {
@@ -138,12 +146,6 @@ namespace SmartApp.HAL
             };
             int i = 0;
             kb.Connect();
-            while (!isConnected)
-            {
-                logger.LogTrace("Kb connection closed, try to reconnect {0}", ++i);
-                Thread.Sleep(5000);
-                kb.Connect();
-            }
 
         }
     }
