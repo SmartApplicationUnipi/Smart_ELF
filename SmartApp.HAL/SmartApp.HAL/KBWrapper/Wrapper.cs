@@ -9,7 +9,7 @@ namespace KBWrapper {
     //---------------------------------------------------------------
     // Wrapper Class
     //---------------------------------------------------------------
-    public class Wrapper {
+    public class Wrapper : IKbWrapper{
 
         private static readonly string USER_ENGAGED = "USER_ENGAGED";
         private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
@@ -37,6 +37,7 @@ namespace KBWrapper {
         //---------------------------------------------------------------
         public void Connect() {
             socket.Connect();
+            if (socket.ReadyState == WebSocketState.Closed) return;
             this.Register();
         }
 
@@ -116,7 +117,7 @@ namespace KBWrapper {
                 }
                 socketAddress = String.Format("ws://{0}:{1}", address, port);
             } catch (ConfigurationErrorsException) {
-                Console.WriteLine("Error reading app settings");
+                Log.Error("Error reading app settings");
                 throw;
             }
         }

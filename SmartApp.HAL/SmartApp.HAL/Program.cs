@@ -117,7 +117,7 @@ namespace SmartApp.HAL
             bool isConnected = false;
             kb.OnOpen += (sender, e) => {
                 isConnected = true;
-                Console.WriteLine("Wrapper: onOpen");
+                logger.LogInformation("Wrapper: onOpen");
             };
 
             kb.OnClose += (sender, e) => {
