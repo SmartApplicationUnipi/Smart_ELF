@@ -1,7 +1,6 @@
 from os.path import isfile
 import json
-from random import choice as pick
-from string import ascii_lowercase as letters
+from uuid import uuid4
 from copy import deepcopy
 
 from numpy import ndarray
@@ -26,7 +25,7 @@ def _is_valid_value(value):
     return len(value) == 2 and any(isinstance(x, str) or x is None for x in value)
 
 def _random_key():
-    return ''.join(pick(letters) for _ in range(10))
+    return str(uuid4()).replace('-', '')
 
 def _take(item_or_value):
     key = None
