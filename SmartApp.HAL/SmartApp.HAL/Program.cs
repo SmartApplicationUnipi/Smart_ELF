@@ -125,22 +125,22 @@ namespace SmartApp.HAL
             };
 
             kb.OnConnected += (sender, e) => {
-                
-                Console.WriteLine("Wrapper: OnConnected");
+
+                logger.LogTrace("Wrapper: OnConnected");
             };
 
             kb.OnMessage += (sender, e) => {
-                Console.WriteLine("Wrapper: onMessage: " + e.Value);
+                logger.LogTrace("Wrapper: onMessage: " + e.Value);
             };
 
             kb.OnError += (sender, e) => {
-                Console.WriteLine("Wrapper: onError " + e.message);
+                logger.LogTrace("Wrapper: onError " + e.message);
             };
             int i = 0;
             kb.Connect();
             while (!isConnected)
             {
-                logger.LogTrace("Kb connection closed, try to reconect {0}", ++i);
+                logger.LogTrace("Kb connection closed, try to reconnect {0}", ++i);
                 Thread.Sleep(5000);
                 kb.Connect();
             }
