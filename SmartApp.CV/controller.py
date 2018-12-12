@@ -202,7 +202,7 @@ class Controller():
                 break
             try:
                 if self.is_host:
-                    face_obj, frame_size  = queue.get()
+                    face_obj, frame_size  = queue.get() # TODO specify parameter 'block'
                     img = face_obj.img
                     queue.task_done()
                 else: # This option is for test purpose, it uses webcam
