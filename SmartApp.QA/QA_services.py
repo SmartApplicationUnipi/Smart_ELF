@@ -5,6 +5,7 @@ from kb import KnowledgeBaseClient
 from tree_templates.tree_matcher import match_tree
 from drs import f
 import logging
+import json as json
 import templates as tp
 #  libreria spacy matcher per
 
@@ -39,8 +40,9 @@ class QaService:
            - DRS extraction from the provided
         """
         logging.info("\tcallback QA called")
-        answer_arr = param[0]["details"] # [0]["$input"]
-        question_answered = self.qa_exact_temp_matching(answer_arr)
+        query = self._get_query_from_kb(param)
+
+        question_answered = self.qa_exact_temp_matching(query)
         if question_answered==True:
             return
         else:
@@ -51,28 +53,44 @@ class QaService:
                 question_answered = f(answer_arr,"TEST_rules+constants.fcfg")
                 return question_answered
 
+    def _get_query_from_kb(self, response):
+        """Exctract the user query from the kb response object"""
+        answer_arr = response[0] # first field of the tuple. It contains the resp
+        #print(answer_arr)
+        query = answer_arr["details"][0]["object"]["_data"]["user_query"]
+        return query
 
-    def qa_exact_temp_matching(input_q):
+
+
+    def qa_exact_temp_matching(self, input_q):
         """This function tries to match exactly the query of a user to a
         template. Templates are in templates.py file in this module
         If a match is found this function returns True
         """
 
-        input_q = param[0][0][0]["$input"]
+        print("input query: " + input_q)
         # try to match
-        res_1 = tp.check_exact_match(input_q, query_prof, q_prof_ans, ["professor", "professore", "prof"])
-        if (res[0] is True):
-            # perform query to kb
+        res_1 = tp.check_exact_match(input_q, self.query_prof, self.q_prof_answ, ["professor", "professore", "prof"])
+        if (res_1[0] is True):
+            query = res_1[1]
+            query = query.replace("<prof-placeholder>", res_1[3])
+            print("Sto per fare la query sulla kB")
+            print(query)
+            #query = '{"_data": {"tag" : "crawler_course"}}'
+            query = json.loads(query)
+            resp = self.kb_client.query(query)
+            print(resp)
+
             # produce answer
             return True
         else:
-            res = tp.check_exact_match(input_q, query_corso, q_corso_answ, ["corso", "corso di"])
+            res = tp.check_exact_match(input_q, self.query_corso, self.q_corso_answ, ["corso", "corso di"])
             if (res[0] == True):
                 # perform query to kb
                 #produce answer
                 return True
             else:
-                res = tp.check_exact_match(input_q, query_corso, q_corso_answ, ["aula"])
+                res = tp.check_exact_match(input_q, self.query_corso, self.q_corso_answ, ["aula"])
                 if (res[0] == True):
                     # perform query to kb
                     #produce answer

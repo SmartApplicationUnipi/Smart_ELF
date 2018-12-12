@@ -81,9 +81,9 @@ def __main__():
     t2 = Qa_Thread(qa_service)
     t2.start()
 
-    K_service = ConstantFromkB(kb_ID,logging_lvl)
+    """K_service = ConstantFromkB(kb_ID,logging_lvl)
     t3 = K_Thread(K_service)
-    t3.start()
+    t3.start()"""
 
 
 

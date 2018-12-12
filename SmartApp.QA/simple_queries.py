@@ -38,20 +38,17 @@ query_prof = [
     (28, "Dove si trova la Lezione del Professor"),
     ]
 
-jsonq_room = {}
-jsonq_room["_data"] = {}
-jsonq_room["_data"]["subject"] = "<professor>"
-jsonq_room["_data"]["relation"] = "<relation>"
-jsonq_room["_data"]["object"] = "$Y"
+#jsonq_room = '{"_predicates":[["containsString",["$teach","<prof-placeholder>"]]],{"_data":{"teach" : "$teach", "room" : "$x"}}}'
+jsonq_room = '{"data":{"aula" : "$room", "descrizione" : "$course"}}'
 
 
 query_prof_t = [
     (1, jsonq_room, "La lezione del professor <professor> è in <room>"),
     (2, jsonq_room, "La lezione del professor <professor> è in <room>"),
-    (3, {"_data":{"subject":"<professor>", "relation":"teach","object":"$Y"}}, "La lezione del professor <professor> è in <room>"),
-    (4, {"_data":{"subject":"<professor>", "relation":"teach","object":"$Y"}}, "Il <professor> fa lezione in <room>"),
-    (5, {"_data":{"subject":"<professor>", "relation":"teach","object":"$Y"}}, "Il <professor> fa lezione in <room>"),
-    (6, {"_data":{"subject":"<professor>", "relation":"teach","object":"$Y"}}, "Il <professor> fa lezione in <room>"),
+    (3, jsonq_room, "La lezione del professor <professor> è in <room>"),
+    (4, jsonq_room, "Il <professor> fa lezione in <room>"),
+    (5, jsonq_room, "Il <professor> fa lezione in <room>"),
+    (6, jsonq_room, "Il <professor> fa lezione in <room>"),
     (7, {"_data":{"subject":"<professor>", "relation":"teach","object":"time"}}, "La lezione del professor <professor> inizia alle <time>"),
     (8, {"_data":{"subject":"<professor>", "relation":"teach","object":"time"}}, "La lezione del professor <professor> inizia alle <time>"),
     (9, {"_data":{"subject":"<professor>", "relation":"teach","object":"time"}}, "La lezione del professor <professor> è alle <time>"),
@@ -113,7 +110,7 @@ query_corso_t = [
     (50, {}, "Non ho tempo per elencarti tutto l'orario della settimana, sono molto richiesto!"),
     (51, {}, "La prossima lezione del corso <corso> si svolgerà il <data> alle <time>."),
     (52, {}, "La prossima lezione del corso <corso> è alle ore <time>."),
-    
+
 ]
 
 query_aule = [

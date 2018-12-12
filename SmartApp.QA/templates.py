@@ -11,7 +11,7 @@ def __main__():
     if n_args == 2:
         input_q = sys.argv[1]
     else:
-        input_q = "Dove si trova la Lezione del Professor Gervasi?"
+        input_q = "Dove si trova la Lezione del Professor Attardi?"
     dict_q, dict_answ, dict_q_corso, dict_answ_corso, dict_q_aule, \
     dict_answ_aule = init_templates_dict()
     check_exact_match(input_q, dict_q, dict_answ, ["professor", "professore"])
@@ -71,6 +71,7 @@ def check_exact_match(input_q, dict_q, dict_answ, kwrd_list):
     keywords = kwrd_list
     input_q = preprocess_sentence(input_q)
     for kwrd in keywords:
+        print("keyword: " + kwrd)
         found_idx = input_q.find(kwrd)
         if (found_idx != -1):
             index = len(kwrd) + found_idx + 1
@@ -87,11 +88,12 @@ def check_exact_match(input_q, dict_q, dict_answ, kwrd_list):
             kb_q = dict_answ[sentence_id][0]
             templ_answ = dict_answ[sentence_id][1]
             print("answer:\t" + dict_answ[sentence_id][1])
-            return (True, kb_q, templ_answ)
+            return (True, kb_q, templ_answ, prof)
 
 
 def preprocess_sentence(sentence):
     preprocessed = sentence.lower()
+    preprocessed = preprocessed.replace("?", "")
     # tokens not usable in dict
     #preprocessed = tokenizer.tokenize(preprocessed)
 
@@ -100,4 +102,4 @@ def preprocess_sentence(sentence):
     return preprocessed
 
 
-#__main__()
+__main__()

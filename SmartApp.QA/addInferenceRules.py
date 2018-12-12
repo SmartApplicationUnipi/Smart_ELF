@@ -8,7 +8,7 @@ kb_id = (client.register())['details']
 
 rules = [
     #'{"teach": "$prof", "room": "$room", "course" : "$course" } <- {"name" : "$course", "teacher_name": "$prof"};{"aula" : "$room", "descrizione" : "$course2"};["containsString", ["$course2", "$course"]]'
-    '{"teach": "$prof", "room": "$room", "course" : "$course" } <- {"name" : "$course", "teacher_name": "$prof"};{"aula" : "$room", "descrizione" : "$course"}'
+    '{"teach": "$prof", "room": "$room", "course" : "$course" } <- {"data":{"name" : "$course", "teacher_name": "$prof"}};{"data":{"aula" : "$room", "descrizione" : "$course"}}'
 ]
 for rule in rules:
     x = client.addRule(kb_id, "ENLP_EMOTIVE_ANSWER", rule)
