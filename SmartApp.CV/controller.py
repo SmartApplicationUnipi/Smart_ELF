@@ -131,7 +131,11 @@ class Controller():
         self._worker.daemon = True
         self._worker.start()
 
+
     def _crash_of_HAL(self):
+        """
+            callback function called in case of Hardware module crash
+        """
         loop = True
         while loop:
             sleep(5)
@@ -201,7 +205,7 @@ class Controller():
                     face_obj, frame_size  = queue.get()
                     img = face_obj.img
                     queue.task_done()
-                else: # TODO: delete this option only for test
+                else: # This option is for test purpose, it uses webcam
                     ret, frame = self._video_capture.read()
                     frame_size = (320, 240)
                     img = face_obj = cv2.resize(frame, frame_size)
@@ -209,16 +213,21 @@ class Controller():
                 # tuple = (descriptor, token)
                 if fact and tuple:
                     fact = self._get_person_id(fact, tuple, img)
-                    self._add_fact_to_kb(fact)
+                    print("++++++++++++++++++++\n")
+                    print(fact)
+                    print("++++++++++++++++++++\n")
+                    res = self._add_fact_to_kb(fact)
+                    print("KB retuned: \n")
+                    print(res.details)
             except Exception as e:
                 print("_worker function ->"+type(e).__name__, e)
                 self.has_api_problem = True
+                self.active_module = self._offline_module
 
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         """
             add a fact to kb
-            
             params:
                 fact: fact in json-like format
                 tag: tag for the current module default is 'VISION_FACE_ANALYSIS'
