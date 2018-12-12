@@ -148,6 +148,25 @@ namespace InteractionsLogger
                 throw new System.Exception();
             }
 
+
+            if (File.Exists(recordFileBasePath))
+            {
+                // This path is a file: wrong values!
+                Console.WriteLine("Inserted path is a file! Exiting");
+                throw new System.Exception();
+            }
+            else if (Directory.Exists(recordFileBasePath))
+            {
+                // This path is a directory: do nothing
+                Console.WriteLine("Inserted path is a directory: good choice!");
+            }
+            else
+            {
+                // This path doesn't exists: creating a directory
+                Console.WriteLine("Inserted path doesn't exist: creating this path..");
+                Directory.CreateDirectory(recordFileBasePath);
+            }
+
             setupKb();
 
 
@@ -183,13 +202,6 @@ namespace InteractionsLogger
 
         private static void stopRecording()
         {
-            /*if (currentCapture == null)
-            {
-                Console.WriteLine("ERROR: no capture running!");
-                return;
-            }*/
-
-
             currentCapture.Stop();
             currentCapture.Dispose();
 
@@ -205,9 +217,11 @@ namespace InteractionsLogger
             setup(args);
 
             Console.WriteLine("\nType   'quit'   to exit");
+
             while (Console.ReadLine() != "quit") {}
 
-            wrapper.Close();
+            if (wrapper != null)
+                wrapper.Close();
         }
     }
 }
