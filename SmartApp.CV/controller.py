@@ -57,7 +57,7 @@ DOCS = {
 
 class Controller():
 
-    def __init__(self, host = "10.101.41.242"):
+    def __init__(self, host = "localhost"):
         """
             se host è webcam uso la webcam
         """
@@ -65,7 +65,7 @@ class Controller():
         self.CHECK_TIME = 5.0
 
         #FIFO queue
-        task_queue = Queue(maxsize= self.FRAME_RATE)
+        self.task_queue = Queue(maxsize= self.FRAME_RATE)
 
         # KB initialization
         self._kb = kb(True)
@@ -132,7 +132,7 @@ class Controller():
             raise Exception("No module available...")
 
         # worker initialization
-        self._worker = Thread(target=Controller._job, args=[self, Controller.task_queue])
+        self._worker = Thread(target=Controller._job, args=[self, self.task_queue])
         self._worker.daemon = True
         self._worker.start()
 
@@ -207,8 +207,7 @@ class Controller():
                 break
             try:
                 if self.is_host:
-                    face_obj, frame_size  = queue.get() # TODO specify parameter 'block'
-                    img = face_obj.img
+                    img, frame_size  = queue.get()
                     queue.task_done()
                 else: # This option is for test purpose, it uses webcam
                     ret, frame = self._video_capture.read()
@@ -328,6 +327,7 @@ class Controller():
             self.connection_planner.cancel()
 
 if __name__ == '__main__':
+    #if on local test use host = "webcam"
     controller = Controller()
     input('Enter anything to close:')
     controller.close()
