@@ -127,6 +127,7 @@ namespace SmartApp.HAL
                 {
                     logger.LogError("Kb connection closed, try to reconnect.");
                     backoff *= backoff;
+                    if (backoff > 30) backoff = 30;
                     Thread.Sleep(backoff*1000);
                     kb.Connect();
                 }
