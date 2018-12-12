@@ -7,12 +7,16 @@ const sassMiddleware = require('node-sass-middleware');
 
 const config = require('./config.json');
 const KBClient = require('./src/KBClient');
+const logCollector = require('./src/logCollector');
 const routes = require('./src/routes');
 
 module.exports = async () => {
 
     // Connect the KB client
     const kb = await KBClient.connect(config.kb.url, config.kb.token);
+
+    // Start the log collector
+    await logCollector.start(kb);
 
     const app = express();
 

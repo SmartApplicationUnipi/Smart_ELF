@@ -1,4 +1,4 @@
-<h1>Knowledge Base documentation</h1>
+<h1>Modules documentation</h1>
 <p>Welcome to the KB documentation!</p>
 <p>Here there's a list of all the currently registered modules and their respective tags.</p>
 
@@ -13,7 +13,7 @@
     <tbody>
         {{#each data as |tags source|}}
             {{#each tags as |desc tag|}}
-                <tr style="cursor: pointer" data-url="/{{source}}/{{tag}}">
+                <tr style="cursor: pointer" data-url="/docs/{{source}}/{{tag}}">
                     <td>{{source}}</td>
                     <td>{{tag}}</td>
                     <td>{{desc}}</td>

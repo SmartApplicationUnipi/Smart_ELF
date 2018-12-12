@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const debug = require('debug')('kb-docs:kbclient');
+const debug = require('debug')('kb-analytics:kbclient');
 const config = require('../config.json');
 
 class Deferred {
@@ -37,12 +37,14 @@ module.exports = class KBClient {
         this._token = token;
         this._lastRequestId = 0;
         this._pendingRequests = {};
+        this._activeSubscriptions = {};
 
-        ws.on('error close', this._onError.bind(this));
+        ws.on('error', this._onError.bind(this));
+        ws.on('close', this._onError.bind(this));
         ws.on('message', this._onMessage.bind(this));
 
-        // Helpers for known methods
-        for (let k of ['getAllTags', 'getTagDetails']) {
+        // Helpers for known methods that do not require idSource
+        for (let k of ['getAllTags', 'getTagDetails', 'query', 'register']) {
             this[k] = params => this.invoke(k, params);
         }
     }
@@ -58,11 +60,13 @@ module.exports = class KBClient {
         const ws = new WebSocket(url, options);
         return new Promise((resolve, reject) => {
             const onopen = () => {
+                debug('Connected to %s', url);
                 ws.removeListener('error', onerror);
                 resolve(new KBClient(ws, token));
             };
 
             const onerror = e => {
+                debug('Error connecting to %s: %o', url, e);
                 ws.removeListener('open', onopen);
                 reject(e);
             };
@@ -78,8 +82,30 @@ module.exports = class KBClient {
      * @param {string} method Remote method name.
      * @param {*} [params] Method parameters.
      */
-    invoke(method, params) {
-        
+    invoke(method, params = null) {
+        return this._invoke(method, params).promise;
+    }
+
+    /**
+     * Registers a callback to be invoked when a new tuple matching the given filter is added to the KB.
+     * 
+     * @param {string} idSource ID received after a call to `register`.
+     * @param {*} filter Filter object.
+     * @param {Function} cb Callback to invoke when a new tuple matches the filter.
+     * @returns {Function} Returns a function that can be called to stop the subscription.
+     */
+    subscribe(idSource, filter, cb) {
+        const d = this._invoke('subscribe', { idSource, jsonReq: filter });
+        return d.promise.then(() => {
+            this._activeSubscriptions[d.id] = cb;
+            return () => {
+                delete this._activeSubscriptions[d.id];
+            };
+        });
+    }
+
+    _invoke(method, params) {
+
         const d = new Deferred(this._lastRequestId++);
         this._pendingRequests[d.id] = d;
 
@@ -98,7 +124,8 @@ module.exports = class KBClient {
             }
         });
 
-        return d.promise;
+        return d;
+
     }
 
     _onMessage(message) {
@@ -113,25 +140,39 @@ module.exports = class KBClient {
         }
 
         const d = this._pendingRequests[m.reqId];
-        if (!d) {
-            debug('Got spurious response from server. Ignored.');
-            return;
-        }
+        const cb = this._activeSubscriptions[m.reqId];
 
-        debug('Response from server: %o', m);
-        
-        if (m.success) {
-            d.resolve(m.details);
+        if (d) {
+            
+            // This message is the response to a request
+            debug('Response from server to request #%d: %o', m.reqId, m);
+            if (m.success) {
+                d.resolve(m.details);
+            } else {
+                d.reject(new Error('KB error: ' + m.details));
+            }
+            delete this._pendingRequests[d.id];
+
+        } else if (cb) {
+
+            // This is the notification for a subscription
+            debug('Subscription #%d notification: %o', m.reqId, m);
+            if (m.success) {
+                cb(null, m.details);
+            } else {
+                cb(m.details);
+            }
+
         } else {
-            d.reject(new Error('KB error: ' + m.details));
+            debug('Got spurious response from server. Ignored: %o', m);
         }
-        delete this._pendingRequests[d.id];
         
     }
 
     _onError(e) {
         debug('Connection terminated: %o', e);
 
+        // Reject all the pending promises for the responses
         e = e || new Error('Underlying connection terminated.');
         for (var k in this._pendingRequests) {
             if (Object.prototype.hasOwnProperty.call(this._pendingRequests, k)) {
@@ -139,6 +180,14 @@ module.exports = class KBClient {
             }
         }
         this._pendingRequests = {};
+
+        // Signal an error to all the subscription handlers
+        for (var k in this._activeSubscriptions) {
+            if (Object.prototype.hasOwnProperty.call(this._activeSubscriptions, k)) {
+                this._activeSubscriptions[k](e);
+            }
+        }
+        this._activeSubscriptions = {};
     }
 
 };
