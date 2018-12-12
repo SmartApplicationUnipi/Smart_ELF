@@ -10,6 +10,23 @@ export abstract class IBehavior<Input> {
     abstract getId(): string;
 }
 
+export class ThinkingBehavior extends IBehavior<boolean> {
+    public getFunctionByLabel(label: string): (x: boolean) => number {
+        return (x) => x ? 1 : 0;
+    }
+
+    public getId(): string {
+        return "thinking";
+    }
+
+    public getEmotion(input: boolean) {
+        // return new SBEEmotion(0, 0, 0, 0, 0, 0, 0, 0, input ? 1 : 0);
+        let e = new ValenceArousalEmotion(0, 0)
+        e['thinking'] = input['thinking'] ? 1 : 0;
+        return e;
+    }
+}
+
 function linear(x:number): number {
     return 1 - x;
 }
@@ -59,7 +76,8 @@ export class DefensiveBehavior extends IBehavior<number> {
 
 export class BehaviorRepository {
     private behaviors: Array<IBehavior<any>> = [
-        new DefensiveBehavior()
+        new DefensiveBehavior(),
+        new ThinkingBehavior()
     ];
 
     public get(id: string) {

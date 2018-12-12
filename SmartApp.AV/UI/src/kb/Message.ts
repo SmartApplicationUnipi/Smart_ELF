@@ -18,6 +18,11 @@ export class MessageBuilder {
 		return this;
 	}
 
+	public setTag(tag: string): MessageBuilder {
+		this.params['_meta'] = { 'tag': tag };
+		return this;
+	}
+
 	/**
 	 * Adds a new parameter
 	 * @param key The parameter identified
@@ -40,7 +45,8 @@ export class MessageBuilder {
  * This class represents a message that can be used to communicate with the KB.
  */
 export class Message {
-	constructor(private method: string, private params: object, private token: string) {}
+	constructor(private method: string, private params: object = {}, private token: string) {
+	}
 
 	/**
 	 * Clone the current message to a new one.

@@ -36,22 +36,24 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	/**
 	 * List of queries for the KB.
 	 */
-	private eventToSubscribe: Array<object> = [
+	private eventToSubscribe: Array<{ _meta: object, _data: object }> = [
 		// Other modules events
-		{ "TAG": "ENLP_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
-		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } },
+		{ _meta: { "tag": "ENLP_ELF_EMOTION" }, _data: { "valence": "$v", "arousal": "$a" } },
+		{ _meta: { "tag": "VISION_FACE_ANALYSIS" }, _data: { "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } } },
 
 		// UI Events
-		{ "TAG": "UI_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
-		{ "TAG": "UI_ELF_BEHAVIOR", 'defensive': '$x' }
+		{ _meta: { "tag": "UI_ELF_EMOTION" }, _data: { "valence": "$v", "arousal": "$a" } },
+		{ _meta: { "tag": "UI_ELF_BEHAVIOR" }, _data: { 'defensive': '$x' } },
+		{ _meta: { "tag": "UI_ELF_BEHAVIOR" }, _data: { 'thinking': '$x' } }
 	];
 
 	private rulesToAdd = [
-		new KBRule({ "TAG": "UI_ELF_BEHAVIOR", 'defensive': '$x' }, [{ 'z_index': '$x' }])
+		new KBRule({ "tag": "UI_ELF_BEHAVIOR", 'defensive': '$x' }, [{ 'z_index': '$x' }])
 	]
 
 	public start(): void {
 		try {
+			console.log("connecting KB at ", this.url);
 			this.socket = new AutoSocket(this.url);
 			this.socket.setListener(this);
 			this.socket.start();
@@ -66,7 +68,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * Adds a new query for the KB.
 	 * @param obj Query to add
 	 */
-	public addEventToSubscribe(obj: object) {
+	public addEventToSubscribe(obj: { _data: object, _meta: object }) {
 		if (obj) {
 			this.eventToSubscribe.push(obj);
 
@@ -81,13 +83,11 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * Build a new event out of a KBResponse with data.
 	 * @param response A KBResponse containing event data
 	 */
-	private buildEvent(response: KBResponse): ElfUIEvent {
+	private buildEvent(d): ElfUIEvent {
 		// TODO: This process should be based on registered queries and their responses from the KB
-		let data = response.getData();
-		let tag = data['TAG'];
-		if (!tag) {
-			tag = data['tag']; // try another key
-		}
+
+		let tag = d['object']['_meta']['tag'];
+		let data = d['object']['_data'];
 		switch (tag) {
 			// TODO: those code should be with the definition of the query
 			case 'ENLP_EMOTIVE_ANSWER':
@@ -139,16 +139,16 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 			case 'UI_ELF_BEHAVIOR':
 				let behavior = this.behaviorRepo.getFromObject(data);
 
-				if(behavior) {
+				if (behavior) {
 					let emotion = behavior.getEmotion(data);
-					if(emotion) {
+					if (emotion) {
 						return new ElfUIEvent().putAny(KEY_EMOTION, emotion);
 					}
 				}
 				break;
 		}
 
-		Logger.getInstance().log(Logger.LEVEL.ERROR, "Response not recognized.", response);
+		Logger.getInstance().log(Logger.LEVEL.ERROR, "Response not recognized.", data);
 		return null;
 	}
 
@@ -156,7 +156,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * Registers a new query to the KB.
 	 * @param request The query to be sent
 	 */
-	private subscribeKB(request: object): void {
+	private subscribeKB(request: { _data: object, _meta: object }): void {
 		let message = new MessageBuilder(KB_SECRET_TOKEN)
 			.setMethod(KB_OP.SUBSCRIBE)
 			.addParam(PARAMS.JSON_REQ, request)
@@ -204,10 +204,14 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 				// Check if is data or success response
 				if (response.getData() instanceof Object) {
 					// This is valid data to parse
-					let event = this.buildEvent(response);
-					if (event) {
-						this.listener.onEvent(event);
-					}
+					let d: Array<object> = response.getData();
+					d.map((o) => {
+						return this.buildEvent(o);
+					}).forEach((e) => {
+						if (e) {
+							this.listener.onEvent(e);
+						}
+					});					
 				}
 			} else {
 				Logger.getInstance().log(Logger.LEVEL.INFO, "FAIL!");
