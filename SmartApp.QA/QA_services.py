@@ -50,7 +50,7 @@ class QaService:
             if question_answered==True:
                 return
             else:
-                question_answered = f(answer_arr,"TEST_rules+constants.fcfg")
+                question_answered = f(answer_arr,"TEST_rules+constants.fcfg",self.kb_client,self.kb_ID)
                 return question_answered
 
     def _get_query_from_kb(self, response):
