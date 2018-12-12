@@ -52,7 +52,6 @@ class GNLP_Service:
 		pp.pprint(luis_analysis)
 		pp.pprint(spacy_analysis)
 		print(question)
-		print (answer)
 
 		self.answer(question)
 
