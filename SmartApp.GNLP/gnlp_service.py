@@ -5,7 +5,7 @@ import sys
 PATH_TO_KB_MODULE = '../SmartApp.KB/bindings/python/'
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
-from kb import *
+from kb import KnowledgeBaseClient
 from nlp import *
 from dep_tree import get_dependency_tree
 
@@ -14,8 +14,10 @@ class GNLP_Service:
 	def __init__(self):
 		listTag = {'NLP_ANSWER': {'desc': 'general_nlp_answer', 'doc': 'nlp_answer_doc'}, 'NLP_ANALYSIS': {'desc': 'parse_trees_and_entity_rec', 'doc': 'nlp_analysis_doc'}}
 		self.KBC = KnowledgeBaseClient(True)
-		self.KBC.registerTags(listTag)
-		self.ID = 'GNLP'
+		self.ID = (self.KBC.register())['details']
+		nlp_answer_info = {'desc': 'Query answer from General NLP', 'doc': 'doc about nlp_answer'}
+		nlp_analysis_info = {'desc': 'Query analysis from General NLP', 'doc': 'doc about nlp_analysis'}
+		self.KBC.registerTags(self.ID, {'NLP_ANSWER': nlp_answer_info, 'NLP_ANALYSIS': nlp_analysis_info})
 		print("Registered to the KB")
 
 	def analyse(self, res):
