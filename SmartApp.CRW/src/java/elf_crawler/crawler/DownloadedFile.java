@@ -1,22 +1,22 @@
 package elf_crawler.crawler;
 
-import elf_crawler.Link;
+import elf_crawler.CrawlerAddress;
 import elf_crawler.util.MimeType;
 
 public class DownloadedFile {
 
-    private Link link;
+    private CrawlerAddress crawlerAddress;
     private String content;
     private MimeType contentType;
 
-    public DownloadedFile(Link link, String content, String contentType) {
-        this.link = link;
+    public DownloadedFile(CrawlerAddress crawlerAddress, String content, String contentType) {
+        this.crawlerAddress = crawlerAddress;
         this.content = content;
         this.contentType = MimeType.getEnum(contentType);
     }
 
-    public Link getLink() {
-        return link;
+    public CrawlerAddress getCrawlerAddress() {
+        return crawlerAddress;
     }
 
     public String getContent() {

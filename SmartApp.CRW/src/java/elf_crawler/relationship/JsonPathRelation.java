@@ -4,8 +4,9 @@ public class JsonPathRelation extends RelationQuery {
 
     private String jsonPath;
 
-    public JsonPathRelation(String jsonPath) {
+    public JsonPathRelation(String tag, String jsonPath) {
         super.type = RelationQueryType.JSON_PATH;
+        super.tag = tag;
         this.jsonPath = jsonPath;
     }
 

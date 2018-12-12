@@ -13,13 +13,14 @@ def analyze_sentence(sentence):
 
     return result['emotion']['probabilities']
 
-def extract_emotion(sentence):
+def extract_emotion(sentence, lang):
     vector = analyze_sentence(sentence)
     point = vector_to_circumplex(vector)
     fact = {
         "time_stamp": 2, #fix this!!!!!
         "valence": point[0],
         "arousal": point[1],
+        "language": lang,
         "tag": TAG_USER_EMOTION
     }
     return fact

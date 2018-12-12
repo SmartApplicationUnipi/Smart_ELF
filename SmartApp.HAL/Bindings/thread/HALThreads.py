@@ -19,7 +19,7 @@ class HALThread(Threading.Thread):
     Override the `handleSoc`
     """
 
-    def __init__(self, HALAddress, HALReadingPort, clientID, callback):
+    def __init__(self, HALAddress, HALReadingPort, clientID, callback, errback, *args, **kwargs):
         Threading.Thread.__init__(self)
         # Config
         self.HALAddress = HALAddress
@@ -27,6 +27,8 @@ class HALThread(Threading.Thread):
         # Client managment
         self.clientID = clientID
         self.callback = callback
+        self.callback_params = {'args': args, 'kwargs': kwargs}
+        self.errback = errback
         # HALCommunication
         self.mustTerminate = False
         self.isConnected = False
@@ -63,6 +65,7 @@ class HALThread(Threading.Thread):
                     data, size, position = self._readFromStream()
                     if data == None and size == None and position == None:
                         Log.error("Socket closed by HALModule.")
+                        self.errback()
                         break
 
                     # subclasses MUST specify how to handle the message
@@ -71,13 +74,14 @@ class HALThread(Threading.Thread):
                         continue
 
                     if not(self.mustTerminate):
-                        self.callback(message)
+                        self.callback(message, *self.callback_params['args'], **self.callback_params['kwargs'])
 
                 except Socket.timeout as e:
                     Log.debug("HALThread for client %s. Socket timeouts %s" % (self.clientID, e))
                     continue  # check if must terminate
                 except Socket.error as e:
                     Log.error("HALThread for client %s. Socket error occurs %s" % (self.clientID, e))
+                    self.errback()
                     break
         finally:
             self._cleanUp()
@@ -132,3 +136,5 @@ class HALThread(Threading.Thread):
                 pass
             self.socket = None
         self.callback = None
+        self.callback_params = None
+        self.errback = None

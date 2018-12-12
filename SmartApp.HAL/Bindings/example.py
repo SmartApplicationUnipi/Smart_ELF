@@ -9,21 +9,20 @@ def handleAudioMessages(audioMessage):
 
 
 def handleVideoMessages(videoMessage):
-    print("Received video:\n\tTimestamp:%d\n\tFaces:" % videoMessage.timestamp)
+    print("Received video:\n\tTimestamp:%d\n\tOriginalFrame:%s\n\tFaces:" % (videoMessage.timestamp, videoMessage.frame_original_size))
 
-    for face in videoMessage.numpyFaces:
-        print("\t\tid: %d, %d bytes\n" % (face.id, len(face.data)))
-
-    cv2.imshow('i', videoMessage.numpyFaces[0])
-    cv2.waitKey(0)
-    cv2.destroyWindow('i')
+    for face in videoMessage.faces:
+        print("\t\tid: %d, %d bytes, facePosition:%s, Z: %f, isSpeaking: %d\n" % (face.id, len(face.img),
+                                                                                  face.face_position,
+                                                                                  face.z_index,
+                                                                                  face.is_interlocutor))
 
     # hal.setFrameRate(videoID, 60fps)
 
 
 if __name__ == '__main__':
     # create interface object
-    HALAddress = "127.0.0.1"    # default
+    HALAddress = "10.101.50.10"    # default
     HALAudioPort = 2001         # default
     HALVideoPort = 2002         # default
     hal = HALInterface(HALAddress=HALAddress, HALAudioPort=HALAudioPort, HALVideoPort=HALVideoPort)
@@ -40,6 +39,8 @@ if __name__ == '__main__':
         print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
         exit(-1)
     # From now handleVideoMessages() will be called (on a different thread) for each new video message
+
+    hal.setFrameRate(videoID, 1)
 
     Time.sleep(30)
     # unregister

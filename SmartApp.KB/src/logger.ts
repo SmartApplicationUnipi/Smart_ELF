@@ -46,6 +46,11 @@ export class Logger {
     }
 
     private emitMessageLog(type: MsgKind, mod: string, msg: string, data: any[]) {
-        console.log('[' + (new Date(Date.now())).toISOString() + '] - {' + mod + '} - ' + type + ': ' + msg, data);
+        let str = '[' + (new Date(Date.now())).toISOString() + '] - {' + mod + '} - ' + type + ': ' + msg;
+        if (data.length == 0)
+            console.log(str)
+        else
+            console.log(str + " ", JSON.stringify(data));
+
     }
 }

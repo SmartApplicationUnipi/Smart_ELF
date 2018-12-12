@@ -12,7 +12,7 @@ config_file_path = r'./config-api'
 
 class KnowledgeBaseClient():
 
-	def __init__(self, persistence):
+	def __init__(self, persistence=True):
 		self.persistence = persistence
 		self.port, self.host, self.token = self.config_websocket()
 		self.websocket = None
@@ -51,17 +51,22 @@ class KnowledgeBaseClient():
 		self.close_websocket()
 		return reply
 
+	def register(self):
+		return self.remote_call("register", {})
 	# used as a login
-	def registerTags(self, tagsList: map):
-		return self.remote_call("registerTags", {"tagsList": tagsList})
+	def registerTags(self, idSource: str, tagsList: map):
+		return self.remote_call("registerTags", {"idSource": idSource, "tagsList": tagsList})
 
 	def getTagDetails(self, tagsList: list):
 		return self.remote_call("getTagDetails", {"tagsList": tagsList})
 
+	def getAllTags(self, includeShortDesc):
+		return self.remote_call("getAllTags", {"includeShortDesc": includeShortDesc})
+
 	def addFact(self, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map):
 		return self.remote_call("addFact", {"idSource": idSource, "tag":tag, "TTL": TTL, "reliability": reliability, "jsonFact": jsonFact} )
 
-	def addRule(self, idSource: str, tag: str, jsonRule: map):
+	def addRule(self, idSource: str, tag: str, jsonRule: str):
 		return self.remote_call("addRule", {"idSource": idSource, "tag": tag, "jsonRule": jsonRule})
 
 	def updateFactByID(self, idFact:str, idSource: str, tag: str, TTL: int, reliability: int, jsonFact: map ):
