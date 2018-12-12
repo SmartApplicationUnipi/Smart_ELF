@@ -170,7 +170,7 @@ async def myHandler(queue):
 
 
 if __name__ == '__main__':
-    HALAddress = "10.101.60.139"  # default
+    HALAddress = "localhost"  # default
     HALAudioPort = 2001  # default
 
     log.info("Start STT process")
