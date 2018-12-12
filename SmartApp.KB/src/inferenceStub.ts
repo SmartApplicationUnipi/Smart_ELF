@@ -125,7 +125,6 @@ export function queryRules(jReq: object) {
     const goodRules: { [index: string]: any }[] = findCompatibleRules(jReq, rules);
 
     for (const entry of goodRules) {
-        console.log('RULE', entry, 'REQ', jReq);
         const uniRes = unify(jReq, entry._head, {});
         if (!uniRes.s) {continue; }
         const uniBinds = uniRes.binds;

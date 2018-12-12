@@ -102,9 +102,9 @@ class Matcher {
         const matches: Matches = new Map<object, object[]>();
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
-        this.initBinds = [...iBinds];
+        this.initBinds = JSON.parse(JSON.stringify(iBinds));
         for (const data of dataset) {
-            this.currBinds = this.initBinds.map((x) => Object.assign({}, x));
+            this.currBinds = JSON.parse(JSON.stringify(this.initBinds));
             // this.currBinds = [...this.initBinds];
             D.newLine(1);
             if (this.matchBind(this.outerQuery, this.outerSorted, data)) {
