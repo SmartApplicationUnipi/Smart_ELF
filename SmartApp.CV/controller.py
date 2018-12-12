@@ -217,8 +217,7 @@ class Controller():
                     print(fact)
                     print("++++++++++++++++++++\n")
                     res = self._add_fact_to_kb(fact)
-                    print("KB retuned: \n")
-                    print(res.details)
+
             except Exception as e:
                 print("_worker function ->"+type(e).__name__, e)
                 self.has_api_problem = True
@@ -331,7 +330,7 @@ class Controller():
         """
         print("turning off the controller...")
 
-        if hasattr(self, "flag"):
+        if hasattr(self, "terminate"):
             self.terminate.set()
         if self._hal is not None:
             self._hal.unregister(self._videoID)
