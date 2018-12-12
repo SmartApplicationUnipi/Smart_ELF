@@ -1,15 +1,15 @@
 import deepEqual from 'deep-equal';
-import { Response } from '../src/matcher';
+import { Matches } from '../src/matcher';
 
 export function parseOptions(opts: string[]): any {
     let verbose: boolean = false;
     let debug: number = 0;
     for (let i = 0; i < opts.length; ++i) {
-        if (opts[i] === "verbose") {
+        if (opts[i] === 'verbose') {
             i++;
-            verbose = (opts[i] === "1");
+            verbose = (opts[i] === '1');
         }
-        if (opts[i] === "debug") {
+        if (opts[i] === 'debug') {
             i++;
             debug = +(opts[i]);
         }
@@ -17,7 +17,7 @@ export function parseOptions(opts: string[]): any {
     return { verbose, debug };
 }
 
-export function test(answer: Response, expected: Response, verbose: boolean) {
+export function test(answer: Matches, expected: Matches, verbose: boolean) {
     const res: boolean = isEqual(answer, expected);
     if (res) {
         process.exit(0);
@@ -30,20 +30,22 @@ export function test(answer: Response, expected: Response, verbose: boolean) {
     }
 }
 
-export function isEqual(answer: Response, expected: Response): boolean {
+export function isEqual(answer: Matches, expected: Matches): boolean {
     if (answer.size !== expected.size) {
         return false;
     }
     for (const [key, val] of expected) {
+        let found = false;
         for (const k of answer.keys()) {
             if (deepEqual(key, k)) {
+                found = true;
                 if (!deepEqual(val, answer.get(k))) {
                     return false;
                 }
                 break;
             }
         }
+        if (!found) { return false; }
     }
     return true;
 }
-

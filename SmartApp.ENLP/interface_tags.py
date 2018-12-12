@@ -10,5 +10,5 @@ TAG_ELF_EMOTION = "ENLP_ELF_EMOTION" # our guess for elf internal status
 PATH_TO_KB_MODULE = '../SmartApp.KB/bindings/python/'
 
 DESC_ELF_EMOTION = 'emotion = {"time_stamp" : int, "valence" : float,  "arousal" : float, "query" : user_query,  "answer" : nlp_answer, "tag": "' + TAG_ELF_EMOTION + '"}'
-DESC_USER_EMOTION = '{ "time_stamp": int, "valence": float, "arousal": float, "tag": "'+ TAG_USER_EMOTION + '"}'
+DESC_USER_EMOTION = '{ "time_stamp": int, "valence": float, "arousal": float, "language":string, "tag": "'+ TAG_USER_EMOTION + '"}'
 DESC_COLORED_ANSWER = '{ "time_stamp": int, "text" : colored_answer, "valence" : float, "arousal" : float, "tag": "'+ TAG_COLORED_ANSWER + '"}'

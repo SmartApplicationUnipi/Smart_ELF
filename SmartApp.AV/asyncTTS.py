@@ -8,9 +8,11 @@ import json
 import sys
 import janus
 sys.path.insert(0, '../SmartApp.KB/bindings/python/')
-import kb
 from kb import KnowledgeBaseClient
+import logging
 
+logging.basicConfig(filename='TTS.log', filemode='w', format='%(asctime)s - [%(levelname)s] - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
+log = logging.getLogger()
 
 def make_mary_text(text, valency, arousal):
     """
@@ -29,23 +31,26 @@ def make_mary_text(text, valency, arousal):
     return result
 
 
-def make_audio(txt):
+def make_audio(txt, lang="en-GB"):
     """
     This function produces the audio from text using MaryTTS
     :param txt: text (or MaryXML representation of speech) to be synthetize
+    :param lang: language of the text
     :return: wav audio
     """
     # Mary server informations
     mary_host = "localhost"
     mary_port = "59125"
 
-    language_in = "dfki-prudence" #TODO Improve with other models
-    language_text = "en-GB" #TODO Improve with other languages
+    language_in="dfki-prudence"#TODO Improve with other models
+    if lang == "it":
+        language_in="istc-lucia-hsmm"
+        lang = "it"
 
     # Build the query
     query_hash = {"INPUT_TEXT": txt,
                   "INPUT_TYPE": "EMOTIONML", # Input text
-                  "LOCALE": language_text,
+                  "LOCALE": lang,
                   "VOICE": language_in, # Voice informations  (need to be compatible)
                   "OUTPUT_TYPE": "AUDIO",
                   "AUDIO": "WAVE", # Audio informations (need both)
@@ -66,26 +71,9 @@ def make_audio(txt):
             break
 
     if not good_response:
-        print("MaryTTS didn't provide audio")
-        raise Exception(content)
-        #TODO log
+        log.error("MaryTTS didn't provide audio: " + str(content))
 
     return content
-
-
-# TODO with arousal and valency
-def generate_emotional_text(text, emotion="happy"):
-    root = etree.Element('emotionml')
-    root.attrib["version"] = "1.0"
-    root.attrib["xmlns"] = "http://www.w3.org/2009/10/emotionml"
-    root.attrib["category-set"] = "http://www.w3.org/TR/emotion-voc/xml#everyday-categories"
-    child = etree.Element('emotion')
-    category = etree.Element('category')
-    category.attrib["name"] = emotion
-    child.text = text
-    root.append(child)
-    child.append(category)
-    return etree.tostring(root, pretty_print=True).decode("utf-8")
 
 
 async def kb_to_audio(queue):
@@ -94,24 +82,35 @@ async def kb_to_audio(queue):
     :param queue: blocking asynchronous queue
     """
     def callbfun(res):
-        print("callback:")
+        log.info("Receive data from KB " + str(res))
 
-        text = res[0]['$x']
-        valence = res[0]['$v']
-        arousal = res[0]['$a']
+        timestamp = res[0][0]["$ts"]
+        text = res[0][0]['$input']
+        valence = res[0][0]['$v']
+        arousal = res[0][0]['$a']
+        language = res[0][0]["$l"]
+
         ttm = make_mary_text(text, valence, arousal)
+        audio = make_audio(ttm, language)
 
-        audio = make_audio(ttm)
-        queue.put({"audio": base64.b64encode(audio).decode('ascii'),
-                   "id": 1234, #TODO the ID??
+        queue.put({"id": timestamp,
+                   "audio": base64.b64encode(audio).decode('ascii'),
                    "valence": valence,
                    "arousal": arousal,
-                   "text": text})
+                   "text": text,
+                   "language": language})
 
-        print("\n waiting...")
 
-    #subscribe(myID, {"TAG":"ENLP_EMOTIVE_ANSWER","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
-    kb.subscribe(myID, {"TAG": "AV_IN_TRANSC_EMOTION", "text": "$x", "valence": "$v", "arousal": "$a"}, callbfun) #TODO the ID??
+
+    kb_client = kb.KnowledgeBaseClient(False)
+    kb_ID = (kb_client.register())['details']
+    #kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', "text": "$input"}}, callbfun) #todo change with appropriate tag
+    kb_client.subscribe(kb_ID, {"_data": {"tag": "ENLP_EMOTIVE_ANSWER",
+                                            "time_stamp": "$ts",
+                                            "text": "$input",
+                                            "valence": "$v",
+                                            "arousal": "$a",
+                                            "language": "$l"}}, callbfun) #TODO change with appropriate KB updates
 
 
 def face_communication(queue):
@@ -121,12 +120,11 @@ def face_communication(queue):
     :return:  WebSocketServer object
     """
     async def echo(websocket, path): # on client connections
-        print("-!--")
+        log.info("New connection " + str(websocket))
         while True:
-            data = queue.get()
-            print(data["id"])
+            data = await queue.get()
             await websocket.send(json.dumps(data))
-            print("send ", str(id))
+            log.info(str(websocket)+ " sent data:" + str(data["id"]))
 
     return websockets.serve(echo, HOST, PORT)
 
@@ -135,30 +133,11 @@ if __name__ == '__main__':
     HOST = 'localhost'  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
+    log.info("Start TTS process")
+
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    #loop.run_until_complete(read_kb(q.sync_q))
-    #loop.run_until_complete(face_communication(q.async_q))
-    #loop.run_forever()
-
-
-
-
-    kb_client = KnowledgeBaseClient(False)
-    kb_client.registerTags({ 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : 'text from audio '} })
-
-
-    print("Insert into KB that no Google or Sphinx result")
-    obj_from_stt = {
-    "tag": 'AV_IN_TRANSC_EMOTION',
-    "timestamp": 0,
-    "ID": 0,
-    "text": "where is the aula A?",
-    "language": "en"
-    }
-    myID='stt'
-    kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, obj_from_stt)
-
-
-#subscribe(myID, {"TAG":"AV_IN_TRANSC_EMOTION","text": "$x","valence": "$v","arousal": "$a"}, callbfun)
+    loop.run_until_complete(kb_to_audio(q.sync_q))
+    loop.run_until_complete(face_communication(q.async_q))
+    loop.run_forever()

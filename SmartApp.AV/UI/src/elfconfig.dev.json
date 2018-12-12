@@ -1,0 +1,4 @@
+{
+    "KB_URL": "ws://localhost:5666",
+    "TTS_URL": "ws://localhost:65432"
+}
