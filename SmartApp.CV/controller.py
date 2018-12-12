@@ -57,8 +57,10 @@ DOCS = {
 
 class Controller():
 
+    FRAME_RATE = 5
+    CHECK_TIME = 5.0
     #FIFO queue
-    task_queue = Queue(maxsize= 5)
+    task_queue = Queue(maxsize= FRAME_RATE)
 
     def __init__(self, host = "10.101.41.242"):
         """
@@ -79,6 +81,8 @@ class Controller():
         if self.is_host:
             self._hal = hal.HALInterface(HALAddress= host)
             self._videoID = self._hal.registerAsVideoReceiver(callback = self._get_frame, errback = self._crash_of_HAL)
+            self._hal.setFrameRate(self._videoID, FRAME_RATE)
+
             if self._videoID == -1:
                 print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
                 exit(-1) # TODO raise Exception
@@ -101,7 +105,6 @@ class Controller():
 
         # Online Module Initialization
         try:
-            #self._online_module = online()
             self._online_module = online()
             self.has_api_problem = False
         except Exception as e:
@@ -235,26 +238,6 @@ class Controller():
         except Exception as e:
             print("Could not add fact", e)
 
-    # def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
-    #     try:
-    #         result = self._kb.query({"_meta":{"tag":"VISION_FACE_ANALYSIS"}, "_data":{"is_interlocutor":"True"}})
-    #         if result["success"]:
-    #             if len(result["details"]) > 0:
-    #                 self._kb._update_fact_to_kb(fact)
-    #             else:
-    #                 self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
-    #     except Exception as e:
-    #         print("Could not add fact", e)
-    #
-    # def _update_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
-    #     try:
-    #         #res = self._kb.query({"_meta":{"tag":"VISION_FACE_ANALYSIS"}, "_data":{"is_interlocutor":"True"}})
-    #         #primo campo inutile per se è adata a buon fine
-    #         #ilsecondo list di risultato
-    #         self._kb.updateFactByID(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
-    #     except Exception as e:
-    #         print("Could not add fact", e)
-
     def _switch_module_event(self):
         """
             Switch to online/offline according to the network status
@@ -296,7 +279,7 @@ class Controller():
         """
 
         if self.has_api_problem and self.plan_checking == False:
-            self.connection_planner = Timer(5.0, self._switch_module_event)
+            self.connection_planner = Timer(CHECK_TIME, self._switch_module_event)
             self.connection_planner.start()
             self.plan_checking = True
 
