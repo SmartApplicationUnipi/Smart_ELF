@@ -40,6 +40,7 @@ namespace InteractionsLogger
         private static bool kbConnected = false;
 
         private static Filters filters;
+        private static string currentCaptureFileName;
         private static Capture currentCapture;
         private static bool isRecording;
 
@@ -148,6 +149,25 @@ namespace InteractionsLogger
                 throw new System.Exception();
             }
 
+
+            if (File.Exists(recordFileBasePath))
+            {
+                // This path is a file: wrong values!
+                Console.WriteLine("Inserted path is a file! Exiting");
+                throw new System.Exception();
+            }
+            else if (Directory.Exists(recordFileBasePath))
+            {
+                // This path is a directory: do nothing
+                Console.WriteLine("Inserted path is a directory: good choice!");
+            }
+            else
+            {
+                // This path doesn't exists: creating a directory
+                Console.WriteLine("Inserted path doesn't exist: creating this path..");
+                Directory.CreateDirectory(recordFileBasePath);
+            }
+
             setupKb();
 
 
@@ -164,7 +184,7 @@ namespace InteractionsLogger
         {
             Capture newCap;
 
-            if (currentCapture != null)
+            if (currentCapture != null && filename != currentCaptureFileName)
             {
                 // Another one record is running: stopping current record and starting a new one
                 stopRecording();
@@ -172,6 +192,7 @@ namespace InteractionsLogger
 
             newCap = new Capture(filters.VideoInputDevices[webcamIndex], filters.AudioInputDevices[microphoneIndex]);
             newCap.Filename = recordFileBasePath + "/" + filename + ".mp4";
+            currentCaptureFileName = filename;
             newCap.Cue();
             newCap.Start();
 
@@ -183,13 +204,6 @@ namespace InteractionsLogger
 
         private static void stopRecording()
         {
-            /*if (currentCapture == null)
-            {
-                Console.WriteLine("ERROR: no capture running!");
-                return;
-            }*/
-
-
             currentCapture.Stop();
             currentCapture.Dispose();
 
@@ -205,9 +219,11 @@ namespace InteractionsLogger
             setup(args);
 
             Console.WriteLine("\nType   'quit'   to exit");
+
             while (Console.ReadLine() != "quit") {}
 
-            wrapper.Close();
+            if (wrapper != null)
+                wrapper.Close();
         }
     }
 }

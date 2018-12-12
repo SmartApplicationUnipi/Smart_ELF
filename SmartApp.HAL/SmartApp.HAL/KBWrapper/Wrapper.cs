@@ -9,7 +9,7 @@ namespace KBWrapper {
     //---------------------------------------------------------------
     // Wrapper Class
     //---------------------------------------------------------------
-    public class Wrapper: IKbWrapper {
+    public class Wrapper : IKbWrapper{
 
         private static readonly string USER_ENGAGED = "USER_ENGAGED";
         private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
@@ -37,11 +37,7 @@ namespace KBWrapper {
         //---------------------------------------------------------------
         public void Connect() {
             socket.Connect();
-            if (socket.ReadyState==WebSocketState.Closed)
-            {
-                Log.Error("Socket closed");
-                return;
-            }
+            if (socket.ReadyState == WebSocketState.Closed) return;
             this.Register();
         }
 
@@ -50,14 +46,14 @@ namespace KBWrapper {
         }
 
         public void WriteUserEngaged() {
-            this.removePreviousUserEngaged();
+            //this.removePreviousUserEngaged();
             Message.UserEngaged engaged = new Message.UserEngaged(true);
             this.AddFact(USER_ENGAGED, 1, 100, engaged);
         }
 
 
         public void RemoveUserEngaged() {
-            this.removePreviousUserEngaged();
+            //this.removePreviousUserEngaged();
             Message.UserEngaged engaged = new Message.UserEngaged(false);
             this.AddFact(USER_ENGAGED, 1, 100, engaged);
         }
@@ -103,6 +99,7 @@ namespace KBWrapper {
         }
 
         private void Send(string request) {
+            if (socket.ReadyState == WebSocketState.Closed) return;
             Log.Debug(String.Format("Sending: {0}", request));
             socket.SendAsync(request, null);
         }
@@ -121,7 +118,7 @@ namespace KBWrapper {
                 }
                 socketAddress = String.Format("ws://{0}:{1}", address, port);
             } catch (ConfigurationErrorsException) {
-                Console.WriteLine("Error reading app settings");
+                Log.Error("Error reading app settings");
                 throw;
             }
         }
@@ -173,6 +170,7 @@ namespace KBWrapper {
                 JArray a = null;
                 try {
                     a = JArray.FromObject(msg["details"]);
+                    //Log.Info(String.Format("Subscribe receive {0}", a.Count));
                     foreach (var obj in a) {
                         Message.UserEngaged u = JObject.FromObject(obj["object"]["_data"]).ToObject<Message.UserEngaged>();
                         OnMessage?.Invoke(this, new MessageEventArgs(u));
@@ -198,7 +196,7 @@ namespace KBWrapper {
                     RegisterResponse r = json.ToObject<RegisterResponse>();
                     this.SOURCE_ID = r.SourceID;
 
-                    Message.Tag tag = new Message.Tag(USER_ENGAGED, "A human is about to interact with ELF", "(A human is about to interact with ELF).verbose()");
+                    Message.Tag tag = new Message.Tag(USER_ENGAGED, "A human is about to interact with ELF", System.IO.File.ReadAllText(@"./doc.md"));
                     Log.Debug("Got register response, assigned id: " + this.SOURCE_ID + ". Register user engagedTag.");
                     this.RegisterTags(new Message.Tag[] { tag });
                     break;
