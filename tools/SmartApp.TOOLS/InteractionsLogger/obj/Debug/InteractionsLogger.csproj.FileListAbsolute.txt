@@ -1,3 +1,4 @@
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\InteractionsLogger\bin\Debug\doc.md
 C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\InteractionsLogger\bin\Debug\InteractionsLogger.exe.config
 C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\InteractionsLogger\bin\Debug\InteractionsLogger.exe
 C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\InteractionsLogger\bin\Debug\InteractionsLogger.pdb
