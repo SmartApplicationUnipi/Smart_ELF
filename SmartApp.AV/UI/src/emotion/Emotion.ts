@@ -11,6 +11,7 @@ export interface ISBEEmotion {
 	getHappiness(): number;
 	getCalm(): number;
 	getDefensive(): number;
+	getThinking(): number;
 
 	toString(): string;
 }
@@ -24,7 +25,8 @@ export class SBEEmotion implements ISBEEmotion {
 		protected fear: number = 0,
 		protected happiness: number = 0,
 		protected calm: number = 0,
-		protected defensive: number = null) { }
+		protected defensive: number = null,
+		protected thinking: number = null) { }
 
 	public getSadness(): number {
 		return this.sadness;
@@ -58,6 +60,10 @@ export class SBEEmotion implements ISBEEmotion {
 		return this.defensive;
 	}
 
+	public getThinking(): number {
+		return this.thinking;
+	}
+
 	public toString(): string {
 		return "["
 			+ "sadness: " + this.sadness + ", "
@@ -65,6 +71,7 @@ export class SBEEmotion implements ISBEEmotion {
 			+ "anger: " + this.anger + ", "
 			+ "surprise: " + this.surprise + ", "
 			+ "fear: " + this.fear + ", "
+			+ "fear: " + this.thinking + ", "
 			+ "happiness: " + this.happiness
 			+ "]"
 	}
