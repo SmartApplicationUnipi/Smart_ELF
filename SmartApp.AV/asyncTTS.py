@@ -130,7 +130,7 @@ def face_communication(queue):
 
 
 if __name__ == '__main__':
-    HOST = '10.101.27.153'  # Standard loopback interface address (localhost)
+    HOST = 'localhost'  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
 
     log.info("Start TTS process")

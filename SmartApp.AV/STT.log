@@ -1,0 +1,6 @@
+12-Dec-18 14:48:49 - [INFO] - Start STT process
+12-Dec-18 14:48:49 - [DEBUG] - Using selector: EpollSelector
+12-Dec-18 14:48:49 - [DEBUG] - registerAsAudioReceiver
+12-Dec-18 14:48:52 - [DEBUG] - Making request: GET http://169.254.169.254
+12-Dec-18 14:48:55 - [INFO] - Compute Engine Metadata server unavailable.
+12-Dec-18 14:48:55 - [ERROR] - Failed to authenticate with Google Cloud Speech recognitionCould not automatically determine credentials. Please set GOOGLE_APPLICATION_CREDENTIALS or explicitly create credentials and re-run the application. For more information, please see https://cloud.google.com/docs/authentication/getting-started
