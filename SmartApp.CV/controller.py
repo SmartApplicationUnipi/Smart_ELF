@@ -49,7 +49,7 @@ DOCS = {
             'yaw': position to look in y axis -- float [-1 - +1]
         }
         'is_interlocutor': whether the person is the interlocutor -- ['True', 'False']
-        'z_index': distance of person from kinekt -- {-1} if unknown
+        'z_index': distance of person from kinect -- {-1} if unknown
     }""",
     'desc': """Json that contain all needed information of single face, the TTL of
         this information is about 2 seconds (time of elaboration of single file)"""
@@ -154,12 +154,12 @@ class Controller():
 
     def _get_person_id(self, fact, tuple, img):
         """
-            Function ?????????????????????????????????
+            Function return the id that matches with internal face_db
 
             Params:
-                fact: ?
-                tuple: ?
-                img: ?
+                fact: fact generated in json-like format
+                tuple: tuple to check
+                img: img used to generate descriptor
         """
         if fact is not None and tuple is not None:
             res = self.db.soft_get(tuple)
@@ -217,7 +217,11 @@ class Controller():
 
     def _add_fact_to_kb(self, fact, tag='VISION_FACE_ANALYSIS'):
         """
-            add a fact to kb: THIS FUNCTION WILL BE CHANGED SOON!!
+            add a fact to kb
+            
+            params:
+                fact: fact in json-like format
+                tag: tag for the current module default is 'VISION_FACE_ANALYSIS'
         """
         try:
             self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
