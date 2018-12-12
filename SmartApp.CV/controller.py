@@ -101,6 +101,7 @@ class Controller():
 
         # Online Module Initialization
         try:
+            #self._online_module = online()
             self._online_module = online()
             self.has_api_problem = False
         except Exception as e:
@@ -213,10 +214,7 @@ class Controller():
                 # tuple = (descriptor, token)
                 if fact and tuple:
                     fact = self._get_person_id(fact, tuple, img)
-                    print("++++++++++++++++++++\n")
-                    print(fact)
-                    print("++++++++++++++++++++\n")
-                    res = self._add_fact_to_kb(fact)
+                    self._add_fact_to_kb(fact)
 
             except Exception as e:
                 print("_worker function ->"+type(e).__name__, e)
@@ -232,7 +230,8 @@ class Controller():
                 tag: tag for the current module default is 'VISION_FACE_ANALYSIS'
         """
         try:
-            self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
+            res = self._kb.addFact(self._kb_ID, tag, 1, jsonFact=fact, reliability=fact['confidence_identity'])
+            return res
         except Exception as e:
             print("Could not add fact", e)
 
