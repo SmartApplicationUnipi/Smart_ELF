@@ -119,7 +119,7 @@ async def speech_to_text(queue):
                     else:
                         log.error("Sphinx retrieved an error: " + str(res["error"]))
 
-            emotion = None #emotion.result()
+            emotion = {"valence": 1, "arousal":1} #emotion.result()
 
             myID = 'stt'
             if res["error"] is None:
