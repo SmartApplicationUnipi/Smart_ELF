@@ -57,15 +57,16 @@ DOCS = {
 
 class Controller():
 
-    FRAME_RATE = 5
-    CHECK_TIME = 5.0
-    #FIFO queue
-    task_queue = Queue(maxsize= FRAME_RATE)
-
     def __init__(self, host = "10.101.41.242"):
         """
             se host è webcam uso la webcam
         """
+        self.FRAME_RATE = 5
+        self.CHECK_TIME = 5.0
+
+        #FIFO queue
+        task_queue = Queue(maxsize= self.FRAME_RATE)
+
         # KB initialization
         self._kb = kb(True)
         self._kb_ID = (self._kb.register())['details']
@@ -81,7 +82,7 @@ class Controller():
         if self.is_host:
             self._hal = hal.HALInterface(HALAddress= host)
             self._videoID = self._hal.registerAsVideoReceiver(callback = self._get_frame, errback = self._crash_of_HAL)
-            self._hal.setFrameRate(self._videoID, FRAME_RATE)
+            self._hal.setFrameRate(self._videoID, self.FRAME_RATE)
 
             if self._videoID == -1:
                 print("Ops!, something wrong happens during the interaction with the HALModule. (Video)")
@@ -279,7 +280,7 @@ class Controller():
         """
 
         if self.has_api_problem and self.plan_checking == False:
-            self.connection_planner = Timer(CHECK_TIME, self._switch_module_event)
+            self.connection_planner = Timer(self.CHECK_TIME, self._switch_module_event)
             self.connection_planner.start()
             self.plan_checking = True
 
@@ -327,6 +328,6 @@ class Controller():
             self.connection_planner.cancel()
 
 if __name__ == '__main__':
-    controller = Controller(host = "webcam")
+    controller = Controller()
     input('Enter anything to close:')
     controller.close()
