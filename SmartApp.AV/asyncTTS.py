@@ -8,7 +8,7 @@ import json
 import sys
 import janus
 sys.path.insert(0, '../SmartApp.KB/bindings/python/')
-from kb import KnowledgeBaseClient
+import kb
 import logging
 
 logging.basicConfig(filename='TTS.log', filemode='w', format='%(asctime)s - [%(levelname)s] - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
