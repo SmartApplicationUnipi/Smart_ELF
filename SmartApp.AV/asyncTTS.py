@@ -102,7 +102,7 @@ async def kb_to_audio(queue):
 
 
 
-    kb_client = kb.KnowledgeBaseClient(True)
+    kb_client = kb.KnowledgeBaseClient(False)
     kb_ID = (kb_client.register())['details']
     #kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', "text": "$input"}}, callbfun) #todo change with appropriate tag
     kb_client.subscribe(kb_ID, {"_data": {"tag": "ENLP_EMOTIVE_ANSWER",
