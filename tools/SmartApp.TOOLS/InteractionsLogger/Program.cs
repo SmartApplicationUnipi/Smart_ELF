@@ -40,6 +40,7 @@ namespace InteractionsLogger
         private static bool kbConnected = false;
 
         private static Filters filters;
+        private static string currentCaptureFileName;
         private static Capture currentCapture;
         private static bool isRecording;
 
@@ -183,7 +184,7 @@ namespace InteractionsLogger
         {
             Capture newCap;
 
-            if (currentCapture != null)
+            if (currentCapture != null && filename != currentCaptureFileName)
             {
                 // Another one record is running: stopping current record and starting a new one
                 stopRecording();
@@ -191,6 +192,7 @@ namespace InteractionsLogger
 
             newCap = new Capture(filters.VideoInputDevices[webcamIndex], filters.AudioInputDevices[microphoneIndex]);
             newCap.Filename = recordFileBasePath + "/" + filename + ".mp4";
+            currentCaptureFileName = filename;
             newCap.Cue();
             newCap.Start();
 
