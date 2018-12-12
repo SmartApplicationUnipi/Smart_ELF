@@ -14,7 +14,7 @@ from Bindings import HALInterface
 from os import path
 import time
 import io
-import sentimental_analizer
+#import sentimental_analizer
 import logging
 
 #TODO: Run from terminal: export GOOGLE_APPLICATION_CREDENTIALS=creds.json
@@ -66,9 +66,10 @@ async def speech_to_text(queue):
     :param queue: process shared queue
     """
 
-    kb_client = kb.KnowledgeBaseClient(False)
-    kb_client.registerTags({'AV_IN_TRANSC_EMOTION': {'desc': 'text from audio',
-                                                     'doc': 'text from audio '}})
+    kb_client = KnowledgeBaseClient(False)
+    kb_ID = (kb_client.register())['details']
+    kb_client.registerTags(kb_ID, { 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : 'text from audio '} })
+
 
     # Create new recogniers for all the services used
     r = sr.Recognizer()
@@ -96,7 +97,7 @@ async def speech_to_text(queue):
             sphinx = executor.submit(recognize, "sphinx", audio, r)
 
             # Compute the emotion related to the audio
-            emotion = executor.submit(sentimental_analizer.emotion_from_speech, sampleRate, audio, log)
+            #emotion = executor.submit(sentimental_analizer.emotion_from_speech, sampleRate, audio, log)
 
             res = google_cloud.result()
             if res["error"] is None:
@@ -118,12 +119,12 @@ async def speech_to_text(queue):
                     else:
                         log.error("Sphinx retrieved an error: " + str(res["error"]))
 
-            emotion = emotion.result()
+            emotion = None #emotion.result()
 
             myID = 'stt'
             if res["error"] is None:
                 # Add to KB that the transcription of the audio
-                kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
+                kb_client.addFact(kb_ID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
                                                                          "text": res["text"],
@@ -136,7 +137,7 @@ async def speech_to_text(queue):
             else:
                 # Add to KB that none of google and sphinx retrieved a result
                 log.critical("Insert into KB that no Google or Sphinx result")
-                kb_client.addFact(myID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
+                kb_client.addFact(kb_ID, 'AV_IN_TRANSC_EMOTION', 1, 100, {"tag": 'AV_IN_TRANSC_EMOTION',
                                                                          "timestamp": timestamp,
                                                                          "ID": timestamp,
                                                                          "text": "",
