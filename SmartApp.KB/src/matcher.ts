@@ -62,7 +62,7 @@ export function findMatches2(query: object, dataset: object[], initBinds: object
     return matches;
 }
 
-export function findCompatibleRules(query: object, ruleSet: object[] ): { [index: string]: any }[] {
+export function findCompatibleRules(query: object, ruleSet: object[]): { [index: string]: any }[] {
     const matcher = new Matcher();
     return matcher.compareRules(query, ruleSet);
 }
@@ -126,7 +126,7 @@ class Matcher {
         return matches;
     }
 
-    public compareRules(q: { [index: string]: any }, ruleSet: { [index: string]: any }[] ): { [index: string]: any }[] {
+    public compareRules(q: { [index: string]: any }, ruleSet: { [index: string]: any }[]): { [index: string]: any }[] {
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
         const result = [];
@@ -179,7 +179,7 @@ class Matcher {
                     break;
                 }
                 case this.ID_PP: {
-                    break;;
+                    break;
                 }
             }
         }
@@ -603,7 +603,7 @@ class Matcher {
         return true;
     }
 
-    private compareAtomObject(_query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
+    private compareAtomObject(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Enter case compare Atom : Object', 5);
         for (const queryKey of sortedQuery.get(this.ID_AO)) {
             D.clog(Colors.BLUE, 'KEY', this.ID_AO, '', 'key => ' + queryKey, 4);
@@ -611,10 +611,14 @@ class Matcher {
             if (rule.hasOwnProperty(queryKey)) {
                 if (isObject(rule[queryKey])) {
                     D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', '(TOO MUCH RELAXED) Rule has an object associated to the key', 3);
-                    continue; // TODO: too much relaxed
+                    if (this.compareRule(query[queryKey], this.sort(query[queryKey]), rule[queryKey], this.sort(rule[queryKey]))) {
+                        continue;
+                    } else {
+                        return false;
+                    }
                 } else if (isPlaceholder(rule[queryKey])) {
                     D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', 'Rule has a placeholder associated to the key', 3);
-                    continue; // TODO: too much relaxed
+                    continue;
                 } else {
                     D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'In the rule the key `' + queryKey + '\' is associated to an atom', 3);
                     D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
