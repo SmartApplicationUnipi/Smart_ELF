@@ -68,7 +68,16 @@ async def speech_to_text(queue):
 
     kb_client = kb.KnowledgeBaseClient(False)
     kb_ID = (kb_client.register())['details']
-    kb_client.registerTags(kb_ID, { 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : 'text from audio '} })
+    kb_client.registerTags(kb_ID, { 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : """```json
+                                                                                                     tuple = {
+                                                                                                       "tag": 'AV_IN_TRANSC_EMOTION',
+                                                                                                       "timestamp": int,
+                                                                                                       "ID": int,
+                                                                                                       "text": string,
+                                                                                                       "language": string,
+                                                                                                       "valence": float,
+                                                                                                       "arousal": float
+                                                                                                     }```"""} })
 
 
     # Create new recogniers for all the services used
@@ -158,9 +167,8 @@ async def myHandler(queue):
               (audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, len(audioMessage.data)))
         queue.put([audioMessage.timestamp, audioMessage.channels, audioMessage.sampleRate, audioMessage.bitsPerSample, audioMessage.data])
 
-    backoff = 0
     def handleError():
-        backoff += 5
+        backoff = 5
         log.warning("Disconnected from HAL. Waiting " + str(backoff) + "sec")
         time.sleep(backoff)
         hal.registerAsAudioReceiver(handleAudioMessages, handleError)

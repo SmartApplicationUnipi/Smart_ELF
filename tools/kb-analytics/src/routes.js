@@ -1,9 +1,12 @@
+const path = require('path');
+const debug = require('debug')('kb-analytics:server');
 const express = require('express');
 const marked = require('marked');
 const hljs = require('highlight.js');
 const createError = require('http-errors');
 const router = express.Router();
 
+const config = require('../config.json');
 const logCollector = require('./logCollector');
 
 // Monkey patch the default markdown renderer to allow code highlighting
@@ -73,11 +76,22 @@ router.get('/logs/:id', async (req, res, next) => {
         res.render('logs/details', {
             title: 'Interaction #' + req.params.id,
             interaction,
-            details: await interaction.getDetails()
+            details: (await interaction.getDetails()).map(x => {
+                x.object._data = marked('```json\n' + JSON.stringify(x.object._data) + '\n```', {
+                    gfm: true,
+                    tables: true,
+                    renderer
+                });
+                return x;
+            })
         });
     } catch (e) {
         next(e);
     }
 });
+
+// Static log recordings
+debug('Serving static recordings from: %s', path.join(__dirname, '..', config.videoRecordingsPath));
+router.use('/logs/videos', express.static(path.join(__dirname, '..', config.videoRecordingsPath)));
 
 module.exports = router;
