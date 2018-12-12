@@ -8,7 +8,6 @@ import json
 import sys
 import janus
 sys.path.insert(0, '../SmartApp.KB/bindings/python/')
-import kb
 from kb import KnowledgeBaseClient
 import logging
 
@@ -103,9 +102,10 @@ async def kb_to_audio(queue):
 
 
 
-    kb_client = KnowledgeBaseClient(False)
+    kb_client = kb.KnowledgeBaseClient(True)
+    kb_ID = (kb_client.register())['details']
     #kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', "text": "$input"}}, callbfun) #todo change with appropriate tag
-    kb_client.subscribe("AV_ID", {"_data": {"tag": "ENLP_EMOTIVE_ANSWER",
+    kb_client.subscribe(kb_ID, {"_data": {"tag": "ENLP_EMOTIVE_ANSWER",
                                             "time_stamp": "$ts",
                                             "text": "$input",
                                             "valence": "$v",
