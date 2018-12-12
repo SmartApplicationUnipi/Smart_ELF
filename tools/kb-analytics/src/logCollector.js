@@ -17,13 +17,13 @@ class Interaction {
         const facts = await this._kb.query({ jsonReq: {
             _meta: { creationTime: '$date' },
             _predicates: [
-                ['isAfterDate', '$date', this.beginTimestamp.getTime()],
-                ['isBeforeDate', '$date', this.endTimestamp.getTime()]
+                ['isAfterEqualDate', [ this.beginTimestamp.toISOString(), '$date' ] ],
+                ['isBeforeEqualDate', [ this.endTimestamp.toISOString(), '$date' ] ]
             ]
         } }).catch(() => []);
 
         // Sort the facts by ascending timestamp
-        facts.sort((a, b) => new Date(a.object._meta.creationTime) - new Date(b.object._meta.creationTime));
+        facts.sort((a, b) => new Date(b.object._meta.creationTime) - new Date(a.object._meta.creationTime));
         return facts;
     }
 };
@@ -60,6 +60,7 @@ module.exports = {
         // Request all the USER_ENGAGED facts
         const res = await kb.query({ jsonReq: { _meta: { tag: 'USER_ENGAGED' } } })
                           .catch(() => []);
+        res.sort((a, b) => new Date(b.object._meta.creationTime) - new Date(a.object._meta.creationTime));
         res.forEach(x => processUserEngagedFact(kb, x));
 
         // Subscribe to get notified of the new facts
@@ -69,6 +70,7 @@ module.exports = {
                 debug('Error handling sunscription: %o', err);
                 return;
             }
+            data.sort((a, b) => new Date(b.object._meta.creationTime) - new Date(a.object._meta.creationTime));
             data.forEach(x => processUserEngagedFact(kb, x));
         });
 

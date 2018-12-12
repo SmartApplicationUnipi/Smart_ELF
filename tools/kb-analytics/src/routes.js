@@ -76,7 +76,14 @@ router.get('/logs/:id', async (req, res, next) => {
         res.render('logs/details', {
             title: 'Interaction #' + req.params.id,
             interaction,
-            details: await interaction.getDetails()
+            details: (await interaction.getDetails()).map(x => {
+                x.object._data = marked('```json\n' + JSON.stringify(x.object._data) + '\n```', {
+                    gfm: true,
+                    tables: true,
+                    renderer
+                });
+                return x;
+            })
         });
     } catch (e) {
         next(e);
