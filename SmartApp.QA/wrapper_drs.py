@@ -10,12 +10,12 @@ from drs import f
 #parstring = 'grammar_rules.fcfg'; sentence = 'Attardi'
 #parstring = 'grammar_rules.fcfg'; sentence = 'professor Attardi'
 #parstring = 'binary.fcfg'; sentence = 'one two'
-parstring = 'TEST_rules.fcfg'; sentence = 'dove posso trovare la lezione del professor Attardi'
-#parstring = 'TEST_rules.fcfg'; sentence = 'dov è la lezione del professor Attardi'
+#parstring = 'TEST_rules.fcfg'; sentence = 'dove posso trovare la lezione del professor Attardi'
+parstring = 'TEST_rules.fcfg'; sentence = 'dov è la lezione del professor Attardi'
 #parstring = 'TEST_rules.fcfg'; sentence = 'dove'
 
-tree = True
-#tree = False
+#tree = True
+tree = False
 
 if __name__ == "__main__":
     res = f(sentence,parstring,debug="yes")
