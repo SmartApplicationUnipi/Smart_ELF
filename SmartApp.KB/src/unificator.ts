@@ -6,16 +6,12 @@ export function unify(query: any, data: any, ibinds: any): any {
     for (const key of Object.keys(query)) {
 
         if (isAtom(key)) {
-            console.log(key, 'key is atom');
             if (data.hasOwnProperty(key)) { // key in data esiste ed è atom
-                console.log('data has that key');
 
                 if ((isAtom(query[key]) && isAtom(data[key]))) {
-                    console.log('qvalue is atom dvalue is atom:', query[key], data[key]  );
                     if (query[key] === data[key]) {
                         res = true;
-                        console.log('qvalues and dvalues are equal');
-                    } else { console.log('qvalues and dvalues are NOT equal: FAIL'); return {s: false};  }
+                    } else { return {s: false};  }
                 } else {
                     if (isAtom(query[key]) && isPlaceholder(data[key])) {
                         if (!checkAndBind(data[key], query[key], binds)) {

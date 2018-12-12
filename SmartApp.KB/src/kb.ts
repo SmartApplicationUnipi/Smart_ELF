@@ -323,13 +323,13 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
         _meta: metadata,
     };
 
+
     databaseRule.set(dataobject._id, dataobject);
     return new Response(true, dataobject._id);
 }
 
 function normalizeRule(rule: any): DataRule {
     const norm: DataRule = new DataRule({}, []);
-
     if (rule._head.hasOwnProperty('_meta')) { norm._head._meta = rule._head._meta; delete rule._head._meta; }
 
     if (rule._head.hasOwnProperty('_data')) {
@@ -341,15 +341,17 @@ function normalizeRule(rule: any): DataRule {
         //        for (const pred of rule._body) {
         const normb: any = {};
         if (rule._body[i].hasOwnProperty('_meta')) { normb._meta = rule._body[i]._meta; delete rule._body[i]._meta; }
-
+        if (rule._body[i].hasOwnProperty('_predicates')) {normb._predicates = rule._body[i]._predicates;
+                                                          delete rule._body[i]._predicates; }
         if (rule._body[i].hasOwnProperty('_data')) {
             normb._data = rule._body[i]._data;
         } else {
             if (Object.keys(rule._body[i]).length > 0) { normb._data = rule._body[i]; }
         }
 
+
         if (i === rule._body.length - 1) {
-            normb._data._predicates = rule._predicates;
+            normb._predicates = rule._predicates;
         }
         norm._body.push(normb);
     }

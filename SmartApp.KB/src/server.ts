@@ -104,7 +104,7 @@ wss.on('connection', (ws: WebSocket) => {
         try {
             reply = {...reply, reqId: j.reqId};
             ws.send(JSON.stringify(reply));
-            log.info(LOGMODNAME, 'replied: ', reply);
+            // log.info(LOGMODNAME, 'replied: ', reply);
         } catch (e) { log.error(LOGMODNAME, 'error sending reply', e); }
     });
 
