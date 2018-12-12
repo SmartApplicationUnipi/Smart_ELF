@@ -90,7 +90,7 @@ class QaService:
                 #produce answer
                 return True
             else:
-                res = tp.check_exact_match(input_q, query_corso, q_corso_answ, ["aula"])
+                res = tp.check_exact_match(input_q, self.query_corso, self.q_corso_answ, ["aula"])
                 if (res[0] == True):
                     # perform query to kb
                     #produce answer
