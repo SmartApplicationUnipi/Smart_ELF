@@ -178,6 +178,6 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     q = janus.Queue(loop=loop)
 
-    loop.run_until_complete(myHandler(q.sync_q, log))
-    loop.run_until_complete(speech_to_text(q.async_q, log))
+    loop.run_until_complete(myHandler(q.sync_q))
+    loop.run_until_complete(speech_to_text(q.async_q))
     loop.run_forever()
