@@ -34,17 +34,17 @@ export abstract class ElfUI implements IElfUIEventListener {
 	public onEvent(e: ElfUIEvent): void {
 		let emotion = e.getAny(KEY_EMOTION) as ISBEEmotion;
 		if (emotion) {
-				this.onEmotionChanged(e.getAny(KEY_EMOTION) as ISBEEmotion);
+			this.onEmotionChanged(e.getAny(KEY_EMOTION) as ISBEEmotion);
 		}
-		
+
 		let position = e.getAny(KEY_POSITION) as Point;
 		if (position) {
-				this.onPositionChanged(position);
+			this.onPositionChanged(position);
 		}
 
 		let contents = this.getContentFactory().create(e);
 		if (contents) {
-				this.onContentChanged(contents);
+			this.onContentChanged(contents);
 		}
 	}
 

@@ -36,6 +36,16 @@ export class EyeOpenessPropertyAdapter extends PropertyAdapter {
             ry: 54
         };
     }
+
+    calm(calm: number): object {
+        return {
+            ry: 30
+        }
+    }
+
+    defensive(defensive: number): object {
+        return {}
+    }
 }
 
 export class EyebrowRotationPropertyAdapter extends PropertyAdapter {
@@ -94,6 +104,16 @@ export class EyebrowRotationPropertyAdapter extends PropertyAdapter {
             // secondControlPointY: -10
         };
     }
+
+    calm(calm: number): object {
+        return {
+
+        }
+    }
+
+    defensive(defensive: number): object {
+        return {}
+    }
 }
 
 export class MouthRotationPropertyAdapter extends PropertyAdapter {
@@ -151,6 +171,19 @@ export class MouthRotationPropertyAdapter extends PropertyAdapter {
             secondControlPointY: 50
         };
     }
+
+    calm(calm: number): object {
+        return {
+            firstControlPointX: 0,
+            firstControlPointY: 10,
+            secondControlPointX: 0,
+            secondControlPointY: 10
+        }
+    }
+
+    defensive(defensive: number): object {
+        return {}
+    }
 }
 
 export class EyebrowPositionPropertyAdapter extends PropertyAdapter {
@@ -196,6 +229,17 @@ export class EyebrowPositionPropertyAdapter extends PropertyAdapter {
             y2: 0
         };
     }
+
+    calm(calm: number): object {
+        return {
+            y1: 20,
+            y2: 20
+        }
+    }
+
+    defensive(defensive: number): object {
+        return {}
+    }
 }
 
 export class MouthPositionPropertyAdapter extends PropertyAdapter {
@@ -240,6 +284,17 @@ export class MouthPositionPropertyAdapter extends PropertyAdapter {
             y1: 0,
             y2: 0
         };
+    }
+
+    calm(calm: number): object {
+        return {
+            y1: 20,
+            y2: 20
+        }
+    }
+    
+    defensive(defensive: number): object {
+        return {}
     }
 }
 
