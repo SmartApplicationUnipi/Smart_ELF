@@ -99,18 +99,18 @@ class online_module():
                     for candidate in res["results"]:
                         if candidate["confidence"] < 80:
                             #new face add it
-                            print("non ti conosco.. mi ricordero")
+                            print("I know you.. i will remember")
                             self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
                         else:
                             #I know it and push a tuple to KB
-                            print("ti conosco. Sei {}".format(candidate["face_token"]))
+                            print("i know you. You are {}".format(candidate["face_token"]))
 
                             face["face_token"] = candidate["face_token"]
                             face.update({"known": True})
                             face.update({'confidence_identity' : candidate["confidence"]})
                 else:
                     #face doesn't match add it
-                    print("non ti conosco.. mi ricordero")
+                    print("I don't know you.. I will remember")
                     self.client.addFace(faceset_token = self.faceset_token, face_tokens = face["face_token"])
             except Exception as e:
                 #TODO manage different possible error (this solution resolve EMPRTY_SET VALUE ERROR)

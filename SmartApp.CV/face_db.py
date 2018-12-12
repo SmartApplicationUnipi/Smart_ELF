@@ -81,6 +81,13 @@ class face_db():
         log.debug("The DataBase will be save every " + str(save_every_minute) + " minutes.")
 
     def _saver(self, save_every_minute):
+        """
+            serialize face_db every given inteval of time
+
+            params:
+                save_every_minute: interval of time
+
+        """
         self.close()
         log.debug("The DataBase has been permanently saved on the disk")
         self.t = Timer(save_every_minute * 60, self._saver, [save_every_minute])
