@@ -3,9 +3,9 @@ import json
 from kb import KnowledgeBaseClient
 
 k = KnowledgeBaseClient(True)
-myID = "testMachine"
+myID = k.register()['details']
 
-registering = k.registerTags({"RDF": "an rdf triple", "TEST": "test data"})
+registering = k.registerTags(myID, {"RDF": "an rdf triple", "TEST": "test data"})
 print(registering)
 if (registering['success'] == 0):
      print('registration failed')

@@ -17,7 +17,7 @@ export type DatabaseRule = Map<number, DataObject>;
 
 export let databaseFact = new Map<number, DataObject>();
 export let databaseRule = new Map<number, DataObject>();
-let subscriptions = new Map<object, SubCallback[]>();
+const subscriptions = new Map<object, SubCallback[]>();
 let userTags = new Map<string, Map<string, TagInfo>>();
 let baseIdSource = 0;
 let uniqueFactId = 0;
@@ -25,7 +25,7 @@ let uniqueRuleId = 0;
 
 const DATABASEFACTPATH = './db/databaseFact';
 const DATABASERULEPATH = './db/databaseRule';
-const SUBSCRIPTIONSPATH = './db/subscriptions';
+// const SUBSCRIPTIONSPATH = './db/subscriptions';
 const USERTAGSPATH = './db/userTags';
 const UNIQUEFACTIDPATH = './db/uniqueFactId';
 const UNIQUERULEIDPATH = './db/uniqueRuleId';
@@ -44,13 +44,16 @@ try {
 } catch (e) {
     log.warn('KB', 'error loading ' + DATABASERULEPATH, e);
 }
-try {
-    file = readFileSync('./db/subscriptions', 'utf8');
-    subscriptions = new Map(JSON.parse(file));
+// TODO: think a way to save subscriptions.
+// at this time it has no sense because the majority are incapsulating
+// websockets that will be closed if we restart the kb
+// try {
+//     file = readFileSync('./db/subscriptions', 'utf8');
+//     subscriptions = new Map(JSON.parse(file));
 
-} catch (e) {
-    log.warn('KB', 'error loading ' + SUBSCRIPTIONSPATH, e);
-}
+// } catch (e) {
+//     log.warn('KB', 'error loading ' + SUBSCRIPTIONSPATH, e);
+// }
 try {
     file = readFileSync(USERTAGSPATH, 'utf8');
     userTags = new Map(JSON.parse(file));
@@ -71,14 +74,17 @@ try {
 }
 
 if (!databaseFact.has(42)) {
-    databaseFact.set(42, { _id: 42, _meta: { idSource: 'God', tag: 'Everything', TTL: 42, reliability: 100, creationTime: new Date() }, _data: { text: 'That\'s the answer.' } });
+    databaseFact.set(42, {
+        _data: { text: 'That\'s the answer.' }, _id: 42,
+        _meta: { idSource: 'God', tag: 'Everything', TTL: 42, reliability: 100, creationTime: new Date() },
+    });
 }
 
 // const repetitionTime = 86400000 / 2;
-const repetitionTime = 30 * 60 * 1000;
-const now = new Date();
-const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes() + 1, 0, 0);
-const millsToDump = dumpDate.getTime() - now.getTime();
+// const now = new Date();
+// const dumpDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 1, 0, 0);
+const repetitionTime = 60 * 1000;
+const millsToDump = 60 * 1000; // dumpDate.getTime() - now.getTime();
 // if (millsToDump <= 0) {
 //     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
 // }
@@ -88,18 +94,24 @@ function writeCallback(filename: string, err: any) {
 }
 
 function dumpDatabase() {
-    // tslint:disable-next-line:max-line-length
-    const f1 = () => { writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8', (e) => writeCallback('databaseFact', e)); };
-    // tslint:disable-next-line:max-line-length
-    const f2 = () => { writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8', (e) => writeCallback('databaseRule', e)); };
-    // tslint:disable-next-line:max-line-length
-    const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8', (e) => writeCallback('subscriptions', e)); };
-    // tslint:disable-next-line:max-line-length
-    const f4 = () => { writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8', (e) => writeCallback('userTags', e)); };
+    const f1 = () => {
+        writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8',
+            (e) => writeCallback('databaseFact', e));
+    };
+    const f2 = () => {
+        writeFile(DATABASERULEPATH, JSON.stringify([...databaseRule]), 'utf8',
+            (e) => writeCallback('databaseRule', e));
+    };
+    // const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8',
+    // (e) => writeCallback('subscriptions', e)); };
+    const f4 = () => {
+        writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8',
+            (e) => writeCallback('userTags', e));
+    };
     const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
     const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
     log.info('KB', 'starting backup');
-    Promise.all([f1(), f2(), f3(), f4(), f5(), f6()])
+    Promise.all([f1(), f2(), f4(), f5(), f6()])
         .then(() => { setTimeout(dumpDatabase, repetitionTime); });
 }
 
@@ -170,9 +182,9 @@ export class TagInfo {
 
 export function getAllTags(includeShortDesc: boolean) {
     const allTags: any = {};
-    for (const [user, tags] of userTags.entries()) {
+    for (const [user, tags] of userTags) {
         const tagsArray: any = {};
-        for (const [tag, tagInfo] of tags.entries()) {
+        for (const [tag, tagInfo] of tags) {
             tagsArray[tag] = includeShortDesc ? tagInfo.desc : null;
         }
         allTags[user] = tagsArray;
@@ -255,6 +267,8 @@ export function query(jreq: any) {
 
     if (jreq.hasOwnProperty('_meta')) { queryobj._meta = jreq._meta; delete jreq._meta; }
 
+    if (jreq.hasOwnProperty('_predicates')) { queryobj._predicates = jreq._predicates; delete jreq._predicates; }
+
     if (jreq.hasOwnProperty('_data')) {
         queryobj._data = jreq._data;
     } else {
@@ -262,7 +276,9 @@ export function query(jreq: any) {
     }
 
     let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
-    const m2 = queryRules(jreq);
+    console.log(m);
+    const m2 = queryRules(queryobj);
+    console.log(m2);
     m = new Map([...m, ...m2]);
 
     if (m.size === 0) {
@@ -271,7 +287,7 @@ export function query(jreq: any) {
 }
 
 export function subscribe(idSource: string, subreq: object, callback: SubCallback) {
-    const jreq = normalizeObj(subreq);
+    const jreq = normalizeQuery(subreq);
     if (!subscriptions.has(jreq)) {
         subscriptions.set(jreq, [callback]);
     } else { subscriptions.get(jreq).push(callback); }
@@ -331,15 +347,17 @@ function normalizeRule(rule: any): DataRule {
     return norm;
 }
 
-function normalizeObj(sub: any) {
+function normalizeQuery(jquery: any) {
     const norm: any = {};
 
-    if (sub.hasOwnProperty('_meta')) { norm._meta = sub._meta; delete sub._meta; }
+    if (jquery.hasOwnProperty('_id')) { norm._id = jquery._id; delete jquery._id; }
 
-    if (sub.hasOwnProperty('_data')) {
-        norm._data = sub._data;
+    if (jquery.hasOwnProperty('_meta')) { norm._meta = jquery._meta; delete jquery._meta; }
+
+    if (jquery.hasOwnProperty('_data')) {
+        norm._data = jquery._data;
     } else {
-        if (Object.keys(sub).length > 0) { norm._data = sub; }
+        if (Object.keys(jquery).length > 0) { norm._data = jquery; }
     }
 
     return norm;

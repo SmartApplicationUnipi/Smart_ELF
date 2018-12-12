@@ -42,6 +42,15 @@ export function findMatches(query: object, dataset: object[], initBinds: object[
     return matcher.start(query, dataset, initBinds);
 }
 
+export function findOnlyBinds(query: object, dataset: object[], initBind: object[] = []): object[] {
+    const m = findMatches(query, dataset, initBind);
+    let result: object[] = [];
+    for (const v of m.values()) {
+        result = result.concat(v);
+    }
+    return result;
+}
+
 // per ogni oggetto ho dei bind iniziali diversi
 export function findMatches2(query: object, dataset: object[], initBinds: object[][]): Matches {
     const matches = new Map<object, object[]>();
@@ -122,10 +131,10 @@ class Matcher {
         this.outerSorted = this.sort(q);
         const result = [];
         for (const key of ruleSet.keys()) {
-            const rule = ruleSet.get(key)['_head'];
+            const rule = ruleSet.get(key)._data._head;
             const sortedRule = this.sort(rule);
             if (this.compareRule(q, this.outerSorted, rule, sortedRule)) {
-                result.push(ruleSet.get(key));
+                result.push(ruleSet.get(key)._data);
             }
 
         }
@@ -631,6 +640,7 @@ class Matcher {
         for (const queryKey of sortedQuery.get(this.ID_AP)) {
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'key => ' + queryKey, 4);
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'value => ' + query[queryKey], 4);
+            console.log('asdasadsasdasdadsads ', rule, queryKey);
             if (rule.hasOwnProperty(queryKey)) {
                 D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'Rule has the same key associated to something (don\'t care what)', 3);
                 continue;

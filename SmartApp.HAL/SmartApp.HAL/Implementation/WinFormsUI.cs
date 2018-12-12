@@ -80,14 +80,6 @@ namespace SmartApp.HAL.Implementation
 
                 active = !active;
             };
-
-            // Keep track of when the user is engaged
-            bool engaged = false;
-            _videoManager.IsEngagedChanged += (_, e) =>
-            {
-                engaged = e;
-                image.Invalidate();
-            };
             
             // Draw the rectangles for the faces on the bitmap and show it on the screen
             _videoSource.FrameReady += (_, frame) => {
@@ -122,15 +114,7 @@ namespace SmartApp.HAL.Implementation
 
                             g.DrawRectangle(pen, rect);
                         }
-
-                        // Print current fps value
-                        g.DrawString($"{_videoSource.Framerate} fps", font, Brushes.Red, 0, 0);
-
-                        // Print the engagement state
-                        if (engaged)
-                        {
-                            g.DrawString("User engaged", font, Brushes.DarkGreen, 0, H - font.Height);
-                        }
+                        
                     }
 
                     latestTimestamp = frame.Timestamp;
