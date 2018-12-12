@@ -4,9 +4,25 @@ The UI module is in charge to show all the information that ELF want to show, em
 
 It can display several types of informations (see below) and provides mechanism to define a single action.
 
-It is connected to the TTS module to receive the audio data to play and with the KB in order to display different kind of informations.
+It is connected to the TTS module to receive the audio data to play and with the KB in order to display different kind of informations. If the connection goes down, the system will  try to reconnect after a certain amount of time (default: 10s).
 
-The interaction is event-based: the UI receives an event and react to it.
+The interaction is event-based: the UI receives an event and reacts to it.
+
+## KB Interaction
+
+The UI is subscribed to the KB for the following tuples:
+
+- { "TAG": "UI_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple can be used to trigger an emotion change of the face.
+- { "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "\$a", "yaw": "\$b" } }: This tuple can be used to let the face pointing the user
+- { "TAG": "ENLP_ELF_EMOTION", "valence": "\$v", "arousal": "\$a" }: This tuple is used to get the internal emotion of ELF. It is similar to UI_ELF_EMOTION but is triggered only by the ENLP group.
+
+Other modules can request a specific emotion, represented by the pair <valence, arousal> with adding a tuple in the KB of the form {"TAG": "UI_ELF_EMOTION", "valence", "\$v", "arousal": "\$a"}.
+
+## Behaviors
+
+There are defined some custom behaviors that allow ELF to modify not ontly the expression of the UI but also other properties:
+
+- Defensive: This property indicates how much the UI should show a defensive behavior to the user. It's value is in the range [0-1]. Currently is defined by the KB rule { "TAG": "UI_ELF_BEHAVIOR", 'defensive': '\$x' } <- { 'z_index': '\$x' } that simply use the distance of the user form ELF.
 
 ## Event
 
@@ -106,9 +122,19 @@ Channels provide a way to specify a "priority" for a certain event or action.
 
 - Support for error reporting and logs
 
+## Configuration
+
+In order to run properly, the system needs a configuration JSON file named "elfconfig.json" in the main folder. This will be packed into the final bundle by Webpack.
+
+This file contains a JSON object with:
+
+- KB_URL: The address of the KB module
+- TTS_URL: The address of the TTS module
+
 ## TODO
 
-- Support for position
 - Support for actions
 - Support for channels
 - Design an awesome UI
+- Improve the expression engine
+- Change the expression implementation to support auto-generation of expressions from the KB

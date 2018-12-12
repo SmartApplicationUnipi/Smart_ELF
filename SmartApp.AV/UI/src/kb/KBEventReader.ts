@@ -2,74 +2,61 @@ import * as Logger from '../log/Logger';
 
 import { BaseEventReader } from '../reader/EventReader';
 import { Message, MessageBuilder } from './Message';
-import { ElfUIEvent, KEY_CONTENT } from '../ui/event/ElfUIEvent';
+import { ElfUIEvent, KEY_CONTENT, KEY_EMOTION, KEY_POSITION } from '../ui/event/ElfUIEvent';
 import { KBResponse } from './KBResponse';
+import { AutoSocket, AutoSocketListener } from '../utils/AutoSocket';
+import { Point } from '../utils/Point';
+import { ValenceArousalEmotion } from '../emotion/Emotion';
+import { BehaviorRepository, IBehavior } from '../behavior/BehaviorRepository';
 
-// const KB_URL: string = "ws://localhost:5666" // Local KB
-const KB_URL: string = "ws://131.114.3.213:5666" // Remote KB
+export class KBRule {
+	constructor(private head: object, private body: Array<object>) { }
+
+	public toString() {
+		return JSON.stringify(this.head) + " <- " + this.body.map(val => JSON.stringify(val)).join(" ; ");
+	}
+}
 
 /**
  * This class implements an BaseEventReader that receives messages from the KB.
  */
-export class KBEventReader extends BaseEventReader {
-	private logger: Logger.ILogger = Logger.getInstance();
+export class KBEventReader extends BaseEventReader implements AutoSocketListener {
+
+	private behaviorRepo: BehaviorRepository = new BehaviorRepository();
 
 	/**
 	 * Socket for communicatin with the KB.
 	 */
-	private socket: WebSocket;
+	private socket: AutoSocket;
+
+	constructor(private url: string) {
+		super();
+	}
 
 	/**
 	 * List of queries for the KB.
 	 */
 	private eventToSubscribe: Array<object> = [
-		{ "TAG": "ENLP_EMOTIVE_ANSWER", "text": "$x", "valence": "$v", "arousal": "$a" },
+		// Other modules events
 		{ "TAG": "ENLP_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
-		{ "TAG": "VISION_FACE_ANALYSIS", "interlocutor": "True", "tolookAt": { "pinch": "$a", "yaw": "$b" } }
+		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } },
+
+		// UI Events
+		{ "TAG": "UI_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
+		{ "TAG": "UI_ELF_BEHAVIOR", 'defensive': '$x' }
 	];
+
+	private rulesToAdd = [
+		new KBRule({ "TAG": "UI_ELF_BEHAVIOR", 'defensive': '$x' }, [{ 'z_index': '$x' }])
+	]
 
 	public start(): void {
 		try {
-			this.socket = new WebSocket(KB_URL);
-
-			this.socket.onclose = () => {
-				this.logger.log(Logger.LEVEL.INFO, "KBEventReader: Socket closed...");
-				this.socket = null;
-			}
-
-			this.socket.onmessage = message => {
-				try {
-					let response = KBResponse.from(message.data);
-					this.logger.log(Logger.LEVEL.INFO, response);
-
-					if (response.isSuccessful()) {
-						this.logger.log(Logger.LEVEL.INFO, "Success!");
-
-						// Check if is data or success response
-						if(response.getData() instanceof Object) {
-							// This is valid data to parse
-							let event = this.buildEvent(response);
-							if (event) {
-								this.listener.onEvent(event);
-							}
-						}
-
-					} else {
-						this.logger.log(Logger.LEVEL.INFO, "FAIL!");
-					}
-				} catch (ex) {
-					this.logger.log(Logger.LEVEL.ERROR, "KBEventReader: An error occurred while reading a new message", ex);
-				}
-			}
-
-			this.socket.onopen = () => {
-				this.logger.log(Logger.LEVEL.INFO, "KBEventReader: Socket opened...");
-
-				// Now subscribe to the events
-				this.eventToSubscribe.forEach(obj => this.subscribeKB(obj));
-			}
+			this.socket = new AutoSocket(this.url);
+			this.socket.setListener(this);
+			this.socket.start();
 		} catch (ex) {
-			this.logger.log(Logger.LEVEL.ERROR, ex);
+			Logger.getInstance().log(Logger.LEVEL.ERROR, ex);
 			if (this.socket) this.socket.close();
 			this.socket = null;
 		}
@@ -96,7 +83,73 @@ export class KBEventReader extends BaseEventReader {
 	 */
 	private buildEvent(response: KBResponse): ElfUIEvent {
 		// TODO: This process should be based on registered queries and their responses from the KB
-		return (new ElfUIEvent()).putAny(KEY_CONTENT, response.getData());
+		let data = response.getData();
+		let tag = data['TAG'];
+		if (!tag) {
+			tag = data['tag']; // try another key
+		}
+		switch (tag) {
+			// TODO: those code should be with the definition of the query
+			case 'ENLP_EMOTIVE_ANSWER':
+				let emotion1 = {
+					valence: data['valence'],
+					arousal: data['arousal']
+				}
+				let ev1 = (new ElfUIEvent())
+					.putAny(KEY_CONTENT, data);
+
+				if (emotion1.valence != void 0 && emotion1.arousal != void 0) {
+					ev1.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion1.valence, emotion1.arousal));
+				}
+				return ev1;
+			case 'ENLP_ELF_EMOTION':
+				let emotion2 = {
+					valence: data['valence'],
+					arousal: data['arousal']
+				}
+				let ev2 = (new ElfUIEvent())
+					.putAny(KEY_CONTENT, data);
+
+				if (emotion2.valence != void 0 && emotion2.arousal != void 0) {
+					ev2.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion2.valence, emotion2.arousal));
+				}
+				return ev2;
+			case 'VISION_FACE_ANALYSIS':
+				let position = {
+					x: data['look_at']['pinch'],
+					y: data['look_at']['yaw']
+				}
+				let ev3 = new ElfUIEvent();
+				if (position.x != void 0 && position.y != void 0) {
+					ev3.putAny(KEY_POSITION, new Point(position.x, position.y));
+				}
+				return ev3;
+			case 'UI_ELF_EMOTION':
+				let emotion4 = {
+					valence: data['valence'],
+					arousal: data['arousal']
+				}
+				let ev4 = (new ElfUIEvent())
+					.putAny(KEY_CONTENT, data);
+
+				if (emotion4.valence != void 0 && emotion4.arousal != void 0) {
+					ev4.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion4.valence, emotion4.arousal));
+				}
+				return ev4;
+			case 'UI_ELF_BEHAVIOR':
+				let behavior = this.behaviorRepo.getFromObject(data);
+
+				if(behavior) {
+					let emotion = behavior.getEmotion(data);
+					if(emotion) {
+						return new ElfUIEvent().putAny(KEY_EMOTION, emotion);
+					}
+				}
+				break;
+		}
+
+		Logger.getInstance().log(Logger.LEVEL.ERROR, "Response not recognized.", response);
+		return null;
 	}
 
 	/**
@@ -107,7 +160,7 @@ export class KBEventReader extends BaseEventReader {
 		let message = new MessageBuilder(KB_SECRET_TOKEN)
 			.setMethod(KB_OP.SUBSCRIBE)
 			.addParam(PARAMS.JSON_REQ, request)
-			.build()
+			.build();
 		this.send(message);
 	}
 
@@ -115,8 +168,12 @@ export class KBEventReader extends BaseEventReader {
 	 * Adds a new fact to the KB.
 	 * @param message The message containing the new fact
 	 */
-	public addFactKB(message: Message): void {
+	public addRule(rule: KBRule): void {
 		if (this.isConnectionOpen()) {
+			let message = new MessageBuilder(KB_SECRET_TOKEN)
+				.setMethod(KB_OP.SUBSCRIBE)
+				.addParam(PARAMS.JSON_REQ, rule.toString())
+				.build();
 			this.send(message);
 		}
 	}
@@ -132,9 +189,53 @@ export class KBEventReader extends BaseEventReader {
 	 * Send a message to the KB
 	 */
 	private send(message: Message): void {
-		this.logger.log(Logger.LEVEL.INFO, "KBEventReader: Sending ", message);
+		Logger.getInstance().log(Logger.LEVEL.INFO, "KBEventReader: Sending ", message);
 		return this.socket.send(JSON.stringify(message));
 	}
+
+	public onMessage(message: any): void {
+		try {
+			let response = KBResponse.from(message);
+			Logger.getInstance().log(Logger.LEVEL.INFO, response);
+
+			if (response.isSuccessful()) {
+				Logger.getInstance().log(Logger.LEVEL.INFO, "Success!");
+
+				// Check if is data or success response
+				if (response.getData() instanceof Object) {
+					// This is valid data to parse
+					let event = this.buildEvent(response);
+					if (event) {
+						this.listener.onEvent(event);
+					}
+				}
+			} else {
+				Logger.getInstance().log(Logger.LEVEL.INFO, "FAIL!");
+			}
+		} catch (ex) {
+			Logger.getInstance().log(Logger.LEVEL.ERROR, "KBEventReader: An error occurred while reading a new message", ex);
+		}
+	}
+
+	public onError(error: any): void {
+		Logger.getInstance().log(Logger.LEVEL.ERROR, "KBEventReader: Socket error.", error);
+	}
+
+	public onClose(): void {
+		Logger.getInstance().log(Logger.LEVEL.INFO, "KBEventReader: Socket closed...");
+		this.socket = null;
+	}
+
+	public onOpen(): void {
+		Logger.getInstance().log(Logger.LEVEL.INFO, "KBEventReader: Socket opened...");
+
+		// Add rules
+		this.rulesToAdd.forEach(rule => this.addRule(rule))
+
+		// Now subscribe to the events
+		this.eventToSubscribe.forEach(obj => this.subscribeKB(obj));
+	}
+
 }
 
 /**

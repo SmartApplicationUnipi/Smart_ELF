@@ -28,11 +28,25 @@ class EttService:
         to the user in order to transform it with respect to some emotion
         extrapolated by ELF internal state (tuples)
         """
-        answer = param[0][0][0]["$input"]
+        answer_arr = param[0]['details'] # [0]["$input"]
+        answer = answer_arr[0]['object']['_data']['text']
+        print(answer)
         logging.info("\tcallback ett called")
-        a_fact, e_fact = prepare_answer(answer)
+        query_enlp = {
+            "_data": {
+                "tag":"ENLP_ELF_EMOTION",
+            }
+        }
+        res_enlp = self.kb_client.query(query_enlp)
+        if res_enlp["success"]:
+            data_enlp = res_enlp["details"][0]["object"]["_data"]
+            ies = (data_enlp["valence"], data_enlp["arousal"])
+        else:
+            print("ETT: No IES, using default")
+            ies = (0., 0.)
+
+        a_fact = prepare_answer(answer, ies)
         self.write_to_KB(a_fact, TAG_COLORED_ANSWER)
-        self.write_to_KB(e_fact, TAG_ELF_EMOTION)
 
     def start(self):
         """Subscribe and wait for data"""
