@@ -29,8 +29,17 @@ namespace SmartApp.HAL.Implementation
         private readonly VideoCapture _capture = new VideoCapture();
         private readonly CascadeClassifier _faceDetector = new CascadeClassifier("OpenCV/haarcascade_frontalface_default.xml");
 
-        public LocalCameraSource(ILogger<LocalCameraSource> logger)
+        private KBWrapper.IKbWrapper _kb;
+
+        public LocalCameraSource(ILogger<LocalCameraSource> logger, KBWrapper.IKbWrapper kb)
         {
+            _kb = kb;
+            // Engagment event received, start or stop the capture
+            kb.OnMessage += (sender, e) => {
+                if (e.Value) this.Start();
+                else this.Stop();
+            };
+
             _logger = logger;
             _logger.LogInformation("Local camera source loaded.");
 

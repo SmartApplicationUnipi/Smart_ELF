@@ -7,12 +7,13 @@ import { KBResponse } from './KBResponse';
 import { AutoSocket, AutoSocketListener } from '../utils/AutoSocket';
 import { Point } from '../utils/Point';
 import { ValenceArousalEmotion } from '../emotion/Emotion';
+import { BehaviorRepository, IBehavior } from '../behavior/BehaviorRepository';
 
-class KBRule {
+export class KBRule {
 	constructor(private head: object, private body: Array<object>) { }
 
 	public toString() {
-		JSON.stringify(this.head) + " <- " + this.body.map(val => JSON.stringify(val)).join(" ; ");
+		return JSON.stringify(this.head) + " <- " + this.body.map(val => JSON.stringify(val)).join(" ; ");
 	}
 }
 
@@ -20,6 +21,8 @@ class KBRule {
  * This class implements an BaseEventReader that receives messages from the KB.
  */
 export class KBEventReader extends BaseEventReader implements AutoSocketListener {
+
+	private behaviorRepo: BehaviorRepository = new BehaviorRepository();
 
 	/**
 	 * Socket for communicatin with the KB.
@@ -34,13 +37,17 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * List of queries for the KB.
 	 */
 	private eventToSubscribe: Array<object> = [
-		// { "TAG": "ENLP_EMOTIVE_ANSWER", "text": "$x", "valence": "$v", "arousal": "$a" },
+		// Other modules events
 		{ "TAG": "ENLP_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
-		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } }
+		{ "TAG": "VISION_FACE_ANALYSIS", "is_interlocutor": "True", "look_at": { "pinch": "$a", "yaw": "$b" } },
+
+		// UI Events
+		{ "TAG": "UI_ELF_EMOTION", "valence": "$v", "arousal": "$a" },
+		{ "TAG": "UI_ELF_BEHAVIOR", 'defensive': '$x' }
 	];
 
 	private rulesToAdd = [
-		new KBRule({ 'apology': '$x' }, [{ 'z_index': '$x' }])
+		new KBRule({ "TAG": "UI_ELF_BEHAVIOR", 'defensive': '$x' }, [{ 'z_index': '$x' }])
 	]
 
 	public start(): void {
@@ -78,7 +85,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 		// TODO: This process should be based on registered queries and their responses from the KB
 		let data = response.getData();
 		let tag = data['TAG'];
-		if(!tag) {
+		if (!tag) {
 			tag = data['tag']; // try another key
 		}
 		switch (tag) {
@@ -91,8 +98,8 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 				let ev1 = (new ElfUIEvent())
 					.putAny(KEY_CONTENT, data);
 
-				if (emotion1.valence && emotion1.arousal) {
-					ev1.putAny(KEY_EMOTION, emotion1);
+				if (emotion1.valence != void 0 && emotion1.arousal != void 0) {
+					ev1.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion1.valence, emotion1.arousal));
 				}
 				return ev1;
 			case 'ENLP_ELF_EMOTION':
@@ -103,7 +110,7 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 				let ev2 = (new ElfUIEvent())
 					.putAny(KEY_CONTENT, data);
 
-				if (emotion2.valence && emotion2.arousal) {
+				if (emotion2.valence != void 0 && emotion2.arousal != void 0) {
 					ev2.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion2.valence, emotion2.arousal));
 				}
 				return ev2;
@@ -113,10 +120,32 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 					y: data['look_at']['yaw']
 				}
 				let ev3 = new ElfUIEvent();
-				if(position.x && position.y) {
+				if (position.x != void 0 && position.y != void 0) {
 					ev3.putAny(KEY_POSITION, new Point(position.x, position.y));
 				}
 				return ev3;
+			case 'UI_ELF_EMOTION':
+				let emotion4 = {
+					valence: data['valence'],
+					arousal: data['arousal']
+				}
+				let ev4 = (new ElfUIEvent())
+					.putAny(KEY_CONTENT, data);
+
+				if (emotion4.valence != void 0 && emotion4.arousal != void 0) {
+					ev4.putAny(KEY_EMOTION, new ValenceArousalEmotion(emotion4.valence, emotion4.arousal));
+				}
+				return ev4;
+			case 'UI_ELF_BEHAVIOR':
+				let behavior = this.behaviorRepo.getFromObject(data);
+
+				if(behavior) {
+					let emotion = behavior.getEmotion(data);
+					if(emotion) {
+						return new ElfUIEvent().putAny(KEY_EMOTION, emotion);
+					}
+				}
+				break;
 		}
 
 		Logger.getInstance().log(Logger.LEVEL.ERROR, "Response not recognized.", response);
@@ -139,8 +168,12 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 	 * Adds a new fact to the KB.
 	 * @param message The message containing the new fact
 	 */
-	public addFactKB(message: Message): void {
+	public addRule(rule: KBRule): void {
 		if (this.isConnectionOpen()) {
+			let message = new MessageBuilder(KB_SECRET_TOKEN)
+				.setMethod(KB_OP.SUBSCRIBE)
+				.addParam(PARAMS.JSON_REQ, rule.toString())
+				.build();
 			this.send(message);
 		}
 	}
@@ -195,6 +228,9 @@ export class KBEventReader extends BaseEventReader implements AutoSocketListener
 
 	public onOpen(): void {
 		Logger.getInstance().log(Logger.LEVEL.INFO, "KBEventReader: Socket opened...");
+
+		// Add rules
+		this.rulesToAdd.forEach(rule => this.addRule(rule))
 
 		// Now subscribe to the events
 		this.eventToSubscribe.forEach(obj => this.subscribeKB(obj));

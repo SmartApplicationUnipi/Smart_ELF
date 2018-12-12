@@ -8,7 +8,9 @@ function isLessEqual(op1: string, op2: string): boolean { return Number(op1) <= 
 // DATE PREDICATES
 function isEqualDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) === (new Date(op2).getTime()); }
 function isAfterDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) > (new Date(op2).getTime()); }
+function isAfterEqualDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) >= (new Date(op2).getTime()); }
 function isBeforeDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) < (new Date(op2).getTime()); }
+function isBeforeEqualDate(op1: string, op2: string): boolean { return (new Date(op1).getTime()) <= (new Date(op2).getTime()); }
 
 // STRING PREDICATES
 function isEqualString(op1: string, op2: string): boolean { return op1 === op2; }
@@ -52,7 +54,9 @@ const avaiableFunctions: { [index: string]: (op1: string, op2: string,  ...other
     'isLessEqual': isLessEqual,
     'isEqualDate': isEqualDate,
     'isAfterDate': isAfterDate,
+    'isAfterEqualDate': isAfterEqualDate,
     'isBeforeDate': isBeforeDate,
+    'isBeforeEqualDate': isBeforeEqualDate,
     'isEqualString': isEqualString,
     'isGreaterString': isGreaterString,
     'isLessString': isLessString,

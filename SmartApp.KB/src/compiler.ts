@@ -24,6 +24,5 @@ export function transformRule(request: string): object {
     reply['_head'] = JSON.parse(headBodyPred[0].trim());
     reply['_body'] = bodyAry;
     reply['_predicates'] = predAry;
-    console.log(reply);
     return reply;
 }
