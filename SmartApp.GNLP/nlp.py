@@ -16,7 +16,7 @@ def NLP_GetTemplate(intent):
 
 def NLP_Generate (JSON_Object):
 
-    placeholders, template = NLP_GetTemplate(JSON_Object['intent']) 
+    placeholders, template = NLP_GetTemplate(JSON_Object['intent'])
     for el in placeholders:
 
         key = el[1:-1]
@@ -26,14 +26,18 @@ def NLP_Generate (JSON_Object):
 
 
 
-def NLP_Understand (string, language = "en"): 
+def NLP_Understand (string, language = "en"):
 
-    if language != "en":
-        raise NotImplementedError("Language not implemented yet!")
-    
+    endpoint = 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/118d13b3-b1fe-4ed5-be14-b48ca355935f'
+    sub_key  = 'f92fd052225848cca5de626fd874a7b5'
+
+    if language == "it":
+        endpoint = 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/c2ccb574-0462-4711-8099-786a67ee4eba'
+        sub_key  = 'f92fd052225848cca5de626fd874a7b5'
+
     headers = {
         # Request headers
-        'Ocp-Apim-Subscription-Key': 'f92fd052225848cca5de626fd874a7b5',
+        'Ocp-Apim-Subscription-Key': sub_key,
     }
 
     params ={
@@ -47,14 +51,14 @@ def NLP_Understand (string, language = "en"):
     }
 
     try:
-        r = requests.get('https://westus.api.cognitive.microsoft.com/luis/v2.0/apps/118d13b3-b1fe-4ed5-be14-b48ca355935f',headers=headers, params=params)
+        r = requests.get(endpoint,headers=headers, params=params)
         return r.json()
-    
+
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
         raise e
 
- 
+
 
 if __name__ == '__main__':
 

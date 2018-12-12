@@ -29,12 +29,14 @@ class GNLP_Service:
 		print("Analysing...")
 
 		print(res)
-		question = res[0]['details'][0]['object']['_data']
+		obj      = res[0]['details'][0]['object']['_data']
+		question = obj['text']
+		lang     = obj['language']
 		print(question)
 		question = question['text']
-		luis_analysis = NLP_Understand(question)
+		luis_analysis = NLP_Understand(question, language = lang)
 		print('asd2')
-		spacy_analysis = get_dependency_tree(question)
+		spacy_analysis = get_dependency_tree(question, language = lang)
 		print('asd3')
 		self.KBC.addFact(self.ID, "NLP_ANALYSIS", 1, 50, {
 			"tag" : "NLP_ANALYSIS",
@@ -44,8 +46,6 @@ class GNLP_Service:
 			"time_stamp": 1 # TODO
 			}
 		)
-
-		print('asd4')
 		# Logging some infos
 
 		pp = pprint.PrettyPrinter()
@@ -79,7 +79,7 @@ class GNLP_Service:
 		TAG_CRW_RAW_INFO = "CRAWLER_DATA_ENTRY"
 		TAG_REASONER_OUTPUT = "REASONING_FRAME"
 		#self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_USER_TRANSCRIPT}, "_data" : {"text": "?d} }, self.analyse)
-		self.KBC.subscribe(self.ID, {"_data": { "tag": TAG_USER_TRANSCRIPT ,"text": "$d"} }, self.analyse)
+		self.KBC.subscribe(self.ID, {"_data": { "tag": TAG_USER_TRANSCRIPT ,"text": "$d", "language": "$lang"} }, self.analyse)
 		# self.KBC.subscribe(self.ID, {"_data" : "$d" }, self.analyse)
 		# self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_CRW_RAW_INFO}, "_data" : {"data": "$input"} }, self.analyse)
 		# self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_REASONER_OUTPUT}, "_data" : {"text": "$input"} }, self.answer)
