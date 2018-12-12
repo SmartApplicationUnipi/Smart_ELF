@@ -1,6 +1,5 @@
 import { readFileSync, writeFile } from 'fs';
 import { transformRule } from './compiler';
-import { security } from './config';
 import { Debugger } from './debugger';
 import { checkRules, queryRules } from './inferenceStub';
 import { Logger } from './logger';
@@ -10,7 +9,6 @@ const debug = new Debugger();
 const log = Logger.getInstance();
 
 type SubCallback = (r: any) => any;
-const TOKEN = security.token;
 
 export type DatabaseFact = Map<number, DataObject>;
 export type DatabaseRule = Map<number, DataObject>;

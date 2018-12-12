@@ -179,7 +179,7 @@ class Matcher {
                     break;
                 }
                 case this.ID_PP: {
-                    break;;
+                    break;
                 }
             }
         }
