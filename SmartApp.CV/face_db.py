@@ -45,9 +45,24 @@ def _take(item_or_value):
 def _comparator_token(first_token, second_token):
     return first_token == second_token, 1
 
-def _comparator_descriptor(first_descriptor, second_descriptor, threshold = 0.6):
-    distance = norm(first_descriptor - second_descriptor)
-    return (distance < threshold), max(1 - distance/threshold, 0)
+def _comparator_descriptor(first_descr, second_descr, threshold = 0.6):
+    """
+    Computes Euclidean distance between two face descriptors. The first descriptor may be
+    None, that case the distance is set to infinity.
+
+    @ params:
+        - first_descr: descriptor
+        - second_descr: descriptor
+        - threshold: distnce threshold to determine if there was a match
+    @ returns:
+        - known: [True, False] whether there was a match or not
+        - confidence: [0,1] confidence about the match
+    """
+    distance = float('inf') if first_descr is None else norm(first_descr - second_descr)
+    known = (distance < threshold)
+    confidence = round(max(1 - distance/threshold, 0), 4)
+    #print (known, confidence, distance)
+    return known, confidence
 
 class face_db():
     """
