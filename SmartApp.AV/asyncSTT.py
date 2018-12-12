@@ -68,7 +68,16 @@ async def speech_to_text(queue):
 
     kb_client = kb.KnowledgeBaseClient(False)
     kb_ID = (kb_client.register())['details']
-    kb_client.registerTags(kb_ID, { 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : 'text from audio '} })
+    kb_client.registerTags(kb_ID, { 'AV_IN_TRANSC_EMOTION' : {'desc' : 'text from audio', 'doc' : """```json
+                                                                                                     tuple = {
+                                                                                                       "tag": 'AV_IN_TRANSC_EMOTION',
+                                                                                                       "timestamp": int,
+                                                                                                       "ID": int,
+                                                                                                       "text": string,
+                                                                                                       "language": string,
+                                                                                                       "valence": float,
+                                                                                                       "arousal": float
+                                                                                                     }```"""} })
 
 
     # Create new recogniers for all the services used
