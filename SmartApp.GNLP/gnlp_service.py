@@ -5,7 +5,7 @@ import sys
 PATH_TO_KB_MODULE = '../SmartApp.KB/bindings/python/'
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
-from kb import *
+from kb import KnowledgeBaseClient
 from nlp import *
 from dep_tree import get_dependency_tree
 
@@ -14,11 +14,13 @@ class GNLP_Service:
 	def __init__(self):
 		listTag = {'NLP_ANSWER': {'desc': 'general_nlp_answer', 'doc': 'nlp_answer_doc'}, 'NLP_ANALYSIS': {'desc': 'parse_trees_and_entity_rec', 'doc': 'nlp_analysis_doc'}}
 		self.KBC = KnowledgeBaseClient(True)
-		self.KBC.registerTags(listTag)
-		self.ID = 'GNLP'
+		self.ID = (self.KBC.register())['details']
+		nlp_answer_info = {'desc': 'Query answer from General NLP', 'doc': 'doc about nlp_answer'}
+		nlp_analysis_info = {'desc': 'Query analysis from General NLP', 'doc': 'doc about nlp_analysis'}
+		self.KBC.registerTags(self.ID, {'NLP_ANSWER': nlp_answer_info, 'NLP_ANALYSIS': nlp_analysis_info})
 		print("Registered to the KB")
 
-	def analyse(self, res):
+	def analyse(self, *res):
 		'''
 		Callback that analyse the user query
 		TODO: Handle the different intents and querys the KB for the
@@ -27,7 +29,7 @@ class GNLP_Service:
 		print("Analysing...")
 
 		print(res)
-		question = res[0][0]["$d"]
+		question = res[0]['details'][0]['object']['_data']
 		print(question)
 		question = question['text']
 		luis_analysis = NLP_Understand(question)
@@ -50,20 +52,17 @@ class GNLP_Service:
 		pp.pprint(luis_analysis)
 		pp.pprint(spacy_analysis)
 		print(question)
-		print (answer)
 
-	def answer(self, res):
+		self.answer(question)
+
+	def answer(self, question):
 		'''
 		Callback that answer the user query
 		'''
 
 		print("Answering...")
-		answer = ""
+		answer = "I don't have any jokes for you at the moment, sorry!"
 
-		if len(res) == 0:
-			answer = "I don't have any jokes for you at the moment, sorry!"
-		else:
-			answer = query[0]["$joke"]
 
 		self.KBC.addFact(self.ID, "NLP_ANSWER", 1, 50, {
 			"tag" : "NLP_ANSWER",
@@ -79,10 +78,11 @@ class GNLP_Service:
 		TAG_USER_TRANSCRIPT = "AV_IN_TRANSC_EMOTION"
 		TAG_CRW_RAW_INFO = "CRAWLER_DATA_ENTRY"
 		TAG_REASONER_OUTPUT = "REASONING_FRAME"
-		# self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_USER_TRANSCRIPT}, "_data" : {"text": "At which time Prof Poloni has lecture?"} }, self.analyse)
-		self.KBC.subscribe(self.ID, {"_data" : "$d" }, self.analyse)
-		self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_CRW_RAW_INFO}, "_data" : {"data": "$input"} }, self.analyse)
-		self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_REASONER_OUTPUT}, "_data" : {"text": "$input"} }, self.answer)
+		#self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_USER_TRANSCRIPT}, "_data" : {"text": "?d} }, self.analyse)
+		self.KBC.subscribe(self.ID, {"_data": { "tag": TAG_USER_TRANSCRIPT ,"text": "$d"} }, self.analyse)
+		# self.KBC.subscribe(self.ID, {"_data" : "$d" }, self.analyse)
+		# self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_CRW_RAW_INFO}, "_data" : {"data": "$input"} }, self.analyse)
+		# self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_REASONER_OUTPUT}, "_data" : {"text": "$input"} }, self.answer)
 
 		#subscribe(self.ID, {"text_f_audio": "$input"}, self.callback)
 		print("Subscribed to the KB")
