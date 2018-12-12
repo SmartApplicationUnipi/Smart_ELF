@@ -11,7 +11,7 @@ export abstract class IBehavior<Input> {
 }
 
 function linear(x:number): number {
-    return x;
+    return 1 - x;
 }
 
 export class DefensiveBehavior extends IBehavior<number> {
