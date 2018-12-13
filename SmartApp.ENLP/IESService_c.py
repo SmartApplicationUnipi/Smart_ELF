@@ -6,6 +6,7 @@ import threading
 from kb import KnowledgeBaseClient
 import emotion_conversion as em_conv
 import logging
+import datetime
 
 import math
 class IESService:
@@ -46,7 +47,7 @@ class IESService:
         # do stuff do stuff
         new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, (-0.5,-0.8) )
         fact = {
-            "time_stamp": 3, #fix this!!!!!
+            "time_stamp": str(datetime.datetime.now()),
             "valence" : new_emotion_point[0],
             "arousal" : new_emotion_point[1],
             "tag": TAG_ELF_EMOTION
@@ -61,34 +62,39 @@ class IESService:
         logging.info("\tcallback IES called")
         self.timer.cancel()
         user_coord, emotion = self.get_mean_user_emotion()
-        if (emotion == self.last_user_emotion):
-            self.threshold += 1
-            new_emotion_point = user_coord
-        if (self.threshold >= self.max_threshold):
-            # travel with modifier
-            self.dist_modifier = 1.1
-            new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
+        if (user_coord[0] == 0 and user_coord[1] == 0):
+            self.timer = threading.Timer(self.idle_time_update, self.timed_update)
+            return
         else:
-            self.dist_modifier = 1.0
-            logging.debug("\tCurrent user coord: " + str(user_coord) + "Closest Emotion category: " + str(emotion))
-            new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
 
-        fact = {
-            "time_stamp": 3, #fix this!!!!!
-            "valence" : new_emotion_point[0],
-            "arousal" : new_emotion_point[1],
-            "tag": TAG_ELF_EMOTION
-        }
-        self.write_to_KB(fact, TAG_ELF_EMOTION)
-        self.timer = threading.Timer(self.idle_time_update, self.timed_update)
+            if (emotion == self.last_user_emotion):
+                self.threshold += 1
+                new_emotion_point = user_coord
+            if (self.threshold >= self.max_threshold):
+                # travel with modifier
+                self.dist_modifier = 1.1
+                new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
+            else:
+                self.dist_modifier = 1.0
+                logging.debug("\tCurrent user coord: " + str(user_coord) + "Closest Emotion category: " + str(emotion))
+                new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
 
-    def _get_query_datas(self,response):
+            fact = {
+                "time_stamp": str(datetime.datetime.now()),
+                "valence" : new_emotion_point[0],
+                "arousal" : new_emotion_point[1],
+                "tag": TAG_ELF_EMOTION
+            }
+            self.write_to_KB(fact, TAG_ELF_EMOTION)
+            self.timer = threading.Timer(self.idle_time_update, self.timed_update)
+
+    def _get_query_datas(self, response):
         """Metodo per accedere velocemente al risultato di una query
             ritorna il dizionario datas
         """
-
+        obj = response[0]
         obj = response["details"][0]["object"]
-        datas = obj["_data"]
+        datas = obj["_data"]['emotion']
         return datas
 
     def get_mean_user_emotion(self):
@@ -120,7 +126,7 @@ class IESService:
 
         query_enlp = {
             "_data": {
-                "tag":"ENLP_ELF_EMOTION",
+                "tag":TAG_ELF_EMOTION
             }
         }
 
@@ -132,7 +138,6 @@ class IESService:
         else:
             success = False
             print("Error while retrieving enlp internal emotion")
-
 
         if success:
             a /= 2
@@ -148,9 +153,7 @@ class IESService:
 
 
     def travel_in_emotion_space(self, start, end):
-        """
-        https://math.stackexchange.com/questions/175896/finding-a-point-along-a-line-a-certain-distance-away-from-another-point
-        start e end tuple (valence, arousal)
+        """Start e end tuple (valence, arousal)
         modifica le coordinate di valence arousal dello stato interno
         lo stato interno è il punto start, end è la coordinata standard dell'emozione dell'utente
         ritorna
@@ -178,6 +181,6 @@ class IESService:
         """
         Start service
         """
-        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input"}}, self.on_user_interaction) #todo change with appropriate tag
+        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_VISION, "is_interlocutor":"True"}}, self.on_user_interaction)
         self.timer = threading.Timer(self.idle_time_update, self.timed_update)
         self.timer.start()
