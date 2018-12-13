@@ -6,6 +6,7 @@ TAG_ANSWER = "NLP_ANSWER" # nlp answer to provide BEFORE addition of emotions
 TAG_COLORED_ANSWER = "ENLP_EMOTIVE_ANSWER" # answer to provide with added emotion
 TAG_USER_EMOTION = "ENLP_USER_EMOTION" # our guess for user emotion
 TAG_ELF_EMOTION = "ENLP_ELF_EMOTION" # our guess for elf internal status
+TAG_VISION = "VISION_FACE_ANALYSIS"
 
 PATH_TO_KB_MODULE = '../SmartApp.KB/bindings/python/'
 
