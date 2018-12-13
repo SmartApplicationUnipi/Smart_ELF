@@ -9,7 +9,6 @@ import json as json
 import templates as tp
 #  libreria spacy matcher per
 
-
 """
 This service is used to answer user's query
 """
@@ -19,7 +18,7 @@ class QaService:
         self.logging_lvl = logging_lvl
         self.kb_ID = kb_ID
         #logging.basicConfig(stream=sys.stderr, level=logging_lvl)
-        logging.info('\tETT Service started')
+        logging.info('\tQA Service Handler created')
         self.kb_client = KnowledgeBaseClient(True)
         self.query_prof, self.q_prof_answ, self.query_corso, self.q_corso_answ,\
         self.dict_q_aule, self.dict_answ_aule = tp.init_templates_dict()

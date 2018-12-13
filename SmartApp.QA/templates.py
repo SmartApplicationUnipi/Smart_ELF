@@ -101,5 +101,5 @@ def preprocess_sentence(sentence):
     #print(preprocessed)
     return preprocessed
 
-
-__main__()
+if __name__ == '__main__':
+    __main__()

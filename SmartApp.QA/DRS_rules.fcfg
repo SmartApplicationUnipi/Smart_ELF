@@ -1,0 +1,220 @@
+####################
+# STARTING TOKEN
+####################
+
+#% start S
+% start S
+
+###############
+# GRAMMAR RULES
+###############
+
+##############################
+#ACCUMULATOR RULES DEFINITION
+##############################
+
+#####Apposition Addition#####
+#TODO: decide if to force AAPPO to be HAN=1
+
+PNP[SEM=<app(?o,?p)>,HAN=0] -> AAPPO[SEM=?p] PNP[SEM=?o,HAN=1]
+PNP[SEM=<app(?o,?p)>,HAN=1] -> AAPPO[SEM=?p] PNP[SEM=?o,HAN=2]
+PNP[SEM=<app(?o,?p)>,HAN=2] -> AAPPO[SEM=?p] PNP[SEM=?o,HAN=3]
+PNP[SEM=<app(?o,?p)>,HAN=3] -> AAPPO[SEM=?p] PNP[SEM=?o,HAN=4]
+#...
+
+RECU_PNP[SEM=?s,SEMD=<\P.(DRS([x],[])+P(x))>,HAN=0] -> PNOUN[SEM=?s]
+RECU_PNP[SEM=?s,SEMD=<\P H.(DRS([x],[])+P(x)+H(x))>,HAN=1] -> PNOUN[SEM=?s]
+RECU_PNP[SEM=?s,SEMD=<\P Q H.(DRS([x],[])+P(x)+Q(x)+H(x))>,HAN=2] -> PNOUN[SEM=?s]
+RECU_PNP[SEM=?s,SEMD=<\P Q R H.(DRS([x],[])+P(x)+Q(x)+R(x)+H(x))>,HAN=3] -> PNOUN[SEM=?s]
+RECU_PNP[SEM=?s,SEMD=<\P Q R S H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+H(x))>,HAN=4] -> PNOUN[SEM=?s]
+RECU_PNP[SEM=?s,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,HAN=5] -> PNOUN[SEM=?s]
+#...
+
+#####Determinants Addition#####
+#TODO: try to set a fix the right/left path of determinants addition
+#TODO: decide if to force DET to be HAN=1
+
+UCNP[SEM=<app(?o,?p)>,HAN=0] -> DET[SEM=?p] UCNP[SEM=?o,HAN=1]
+UCNP[SEM=<app(?o,?p)>,HAN=1] -> DET[SEM=?p] UCNP[SEM=?o,HAN=2]
+UCNP[SEM=<app(?o,?p)>,HAN=2] -> DET[SEM=?p] UCNP[SEM=?o,HAN=3]
+UCNP[SEM=<app(?o,?p)>,HAN=3] -> DET[SEM=?p] UCNP[SEM=?o,HAN=4]
+#...
+
+UCNP[SEM=<app(?o,?p)>,HAN=0] -> UCNP[SEM=?o,HAN=1] DET[SEM=?p]
+UCNP[SEM=<app(?o,?p)>,HAN=1] -> UCNP[SEM=?o,HAN=2] DET[SEM=?p]
+UCNP[SEM=<app(?o,?p)>,HAN=2] -> UCNP[SEM=?o,HAN=3] DET[SEM=?p]
+UCNP[SEM=<app(?o,?p)>,HAN=3] -> UCNP[SEM=?o,HAN=4] DET[SEM=?p]
+#...
+
+RECU_UCNP[SEM=?s,SEMD=<\P.(DRS([],[])+P(x))>,HAN=0] -> CNOUN[SEM=?s]
+RECU_UCNP[SEM=?s,SEMD=<\P H.(DRS([x],[])+P(x)+H(x))>,HAN=1] -> CNOUN[SEM=?s]
+RECU_UCNP[SEM=?s,SEMD=<\P Q H.(DRS([x],[])+P(x)+Q(x)+H(x))>,HAN=2] -> CNOUN[SEM=?s]
+RECU_UCNP[SEM=?s,SEMD=<\P Q R H.(DRS([x],[])+P(x)+Q(x)+R(x)+H(x))>,HAN=3] -> CNOUN[SEM=?s]
+RECU_UCNP[SEM=?s,SEMD=<\P Q R S H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+H(x))>,HAN=4] -> CNOUN[SEM=?s]
+RECU_UCNP[SEM=?s,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,HAN=5] -> CNOUN[SEM=?s]
+#...
+
+#####Complex Verbal Forms#####
+#enriching a verb with auxiliary, servile, passive, ...
+#TODO: VERB_ADD is treated poorly syntactically, with no semantic meaning, decide if this is correct
+#TODO: decide if to force VERB_ADD to be HAN=1
+
+
+
+#####Complex Sentence#####
+#TODO: decide if to force COMPL to be HAN=1
+
+CS[SEM=<app(?o,?p)>,HAN=0,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=1,SEMS=?s]
+CS[SEM=<app(?o,?p)>,HAN=1,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=2,SEMS=?s]
+CS[SEM=<app(?o,?p)>,HAN=2,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=3,SEMS=?s]
+CS[SEM=<app(?o,?p)>,HAN=3,SEMS=?s] -> COMPL[SEM=?p] CS[SEM=?o,HAN=4,SEMS=?s]
+#...
+
+CS[SEM=<app(?o,?p)>,HAN=0,SEMS=?s] -> CS[SEM=?o,HAN=1,SEMS=?s] COMPL[SEM=?p]
+CS[SEM=<app(?o,?p)>,HAN=1,SEMS=?s] -> CS[SEM=?o,HAN=2,SEMS=?s] COMPL[SEM=?p]
+CS[SEM=<app(?o,?p)>,HAN=2,SEMS=?s] -> CS[SEM=?o,HAN=3,SEMS=?s] COMPL[SEM=?p]
+CS[SEM=<app(?o,?p)>,HAN=3,SEMS=?s] -> CS[SEM=?o,HAN=4,SEMS=?s] COMPL[SEM=?p]
+#...
+
+REC_ACC[SEM=?p,SEMD=<\P.(DRS([],[])+P(x))>,HAN=0,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P H.(DRS([x],[])+P(x)+H(x))>,HAN=1,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q H.(DRS([x],[])+P(x)+Q(x)+H(x))>,HAN=2,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q R H.(DRS([x],[])+P(x)+Q(x)+R(x)+H(x))>,HAN=3,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q R S H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+H(x))>,HAN=4,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+REC_ACC[SEM=?p,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,HAN=5,SEMS=?s] -> MS[PRED=?p,SEM=?s]
+#...
+
+#########################
+#ITALIAN GRAMMAR RULES
+#########################
+#TODO:add number (NUM) and gender (GEN) checks!!
+
+#####SENTENCES#####
+#TODO: merge SEM and SEMS
+S[SEM=<(?s+?f)>] -> CS[SEM=?s,HAN=0,SEMS=?f]
+
+#####Complex Sentence#####
+#defined recursively to add complements
+CS[SEM=<app(?t,?r)>,HAN=?d,SEMS=?s] -> REC_ACC[SEM=?r,SEMD=?t,HAN=?d,SEMS=?s]
+
+MS[SEM=<app(?n,?v)>,PRED=?p] -> VP[SEM=?v,PRON=?n,PRED=?p]
+MS[SEM=<app(?c,?v)>,PRED=?p] -> VP[SEM=?v,PRON=?n,PRED=?p] SUBJ[SEM=?c,HAN=1]
+
+SUBJ[SEM=?c,HAN=?d] -> NP[SEM=?c,HAN=?d]
+
+#########################
+#####NOUN PHRASES#####
+#########################
+#defined recursively to add determinants
+
+UCNP[SEM=<app(?t,?r)>,HAN=?d] -> RECU_UCNP[SEM=?r,SEMD=?t,HAN=?d]
+
+NP[SEM=?n,HAN=?d] -> PNP[SEM=?n,HAN=?d]
+
+#####Articled Noun Phrase#####
+#TODO: decide if using CNP for ART UCNP
+NP[SEM=?n,HAN=?d] -> ART[] UCNP[SEM=?n,HAN=?d]
+NP[SEM=?n,HAN=?d] -> ART[] UPNP[SEM=?n,HAN=?d]
+
+#####Proper Noun Phrase#####
+#defined recursively to add appositions
+PNP[SEM=<app(?t,?r)>,HAN=?d] -> RECU_PNP[SEM=?r,SEMD=?t,HAN=?d]
+
+#####Unarticled Noun Phrase#####
+
+UPNP[SEM=<app(?r,?n)>,HAN=0] -> UAPPO[SEM=?n] NP[SEM=?r,HAN=1]
+UPNP[SEM=<app(?r,?n)>,HAN=1] -> UAPPO[SEM=?n] NP[SEM=?r,HAN=2]
+UPNP[SEM=<app(?r,?n)>,HAN=2] -> UAPPO[SEM=?n] NP[SEM=?r,HAN=3]
+
+#########################
+#####VERBAL PHRASES#####
+#########################
+
+VP[SEM=<app(?v,?o)>,PRON=?n,PRED=?p] -> TV[SEM=?v,PRON=?n,PRED=?p] OBJ[SEM=?o,HAN=1]
+VP[SEM=?v,PRON=?n,PRED=?p] -> IV[SEM=?v,PRON=?n,PRED=?p]
+
+#####Transitive Verbs#####
+#TODO: VERB_ADD bring no semantic meaning, they're just syntactic
+#defined recursively to add VERB_ADDs (auxiliary, servile, passive forms, ...)
+TV[SEM=?o,PRON=?n,PRED=?p] -> VERB_ADD[PRON=?n] TV[SEM=?o,PRED=?p]
+TV[SEM=?s,PRED=?p] -> IFTV[SEM=?s,PRED=?p]
+IV[SEM=?s,PRED=?p,PRON=?n] -> SFIV[SEM=?s,PRED=?p,PRON=?n]
+
+
+#####Verb Additions#####
+#TODO: add auxiliary verbs and passive forms and, maybe, add a semantic
+VERB_ADD[PRON=?p] -> SERV[PRON=?p]
+
+#########################
+#####APPOSITIONS#####
+#########################
+
+#####Articled Apposition#####
+#TODO: define apposizione (both ART+CNOUN or PNOUN)
+#AAPPO
+#AAPPO
+
+#####Unrticled Apposition#####
+UAPPO[SEM=?n] -> CNOUN[SEM=?n]
+
+#########################
+#####DETERMINANTS#####
+#########################
+#TODO: define adjectives as determinants
+#TODO: discern between determinants complements (introduced by 'di','con',derivates,...) and non-determinants complements (others)
+#TODO: DET -> COMPL rules creates a cycle (DET -> COMPL -> UCNP -> DET) and this can be a problem
+
+DET[SEM=?c] -> COMPL[SEM=?c]
+
+#########################
+#####COMPLEMENTS#####
+#########################
+#TODO: define other complements
+#TODO: decide if other HAN levels are needed
+
+COMPL[SEM=<app(?p,?n)>,HAN=0] -> AP[SEM=?p] UPNP[SEM=?n,HAN=1]
+#TODO: discover why it doesn't work (actually now it isn't causing issues, but must be investigated the same)
+#COMPL[SEM=<app(?p,?n)>,HAN=0] -> AP[SEM=?p] UCNP[SEM=?n,HAN=1]
+COMPL[SEM=?c] -> ADV[SEM=?c]
+
+OBJ[SEM=?c,HAN=?d] -> NP[SEM=?c,HAN=?d]
+
+###############
+#LEXICON RULES
+###############
+
+#####ARTICLES#####
+
+ART[] -> 'la'
+
+#####PREPOSITIONS#####
+
+#####Simple Prepositions#####
+
+#####Articled Prepositions#####
+AP[SEM=<\X x.(X(\y.(DRS([],[belong(x,y)]))))>] -> 'del'
+
+#####NOUNS#####
+
+#####Proper Nouns#####
+PNOUN[SEM=<\x.(DRS([],[Attardi(x)]))>] -> 'Attardi'
+
+#####Common Nouns#####
+CNOUN[SEM=<\x.(DRS([],[professor(x)]))>] -> 'professor'
+CNOUN[SEM=<\x.(DRS([],[lecture(x)]))>] -> 'lezione'
+
+#####ADVERBS#####
+
+#TODO: specify complement type and adequate the relative predicate
+ADV[SEM=<\x.(DRS([y],[unknown(y),target(y),location(y),complement(x,y)]))>] -> 'dove' | 'dov'
+
+#####VERBS#####
+
+#####Servile Verbs#####
+SERV[PRON=<\P.(DRS([x],[subject(x),singular(x),1stperson(x)])+P(x))>] -> 'posso'
+
+#####Simple-form Intransitive Verbs#####
+SFIV[SEM=<\x.(DRS([],[be(x)]))>,PRED=<\x.(DRS([],[predicate(x),be(x)]))>,PRON=<\P.(DRS([x],[subject(x),singular(x),3rdperson(x)])+P(x))>] -> 'è'
+
+#####Infinite-form Transitive Verbs#####
+IFTV[SEM=<\X x.(X(\y.((DRS([],[locate(x,y)])))))>,PRED=<\x.(DRS([],[predicate(x),locate(x)]))>] -> 'trovare'

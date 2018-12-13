@@ -1,6 +1,6 @@
+#from nltk import *
 from nltk.parse import load_parser
 from nltk.sem.drt import DrtParser
-from nltk import *
 from interface_tags import TAG_DRS
 
 def drs_matcher(s,p,QA_services,debug="no"):
