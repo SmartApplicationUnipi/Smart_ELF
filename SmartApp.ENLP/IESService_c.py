@@ -74,7 +74,7 @@ class IESService:
             new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
 
         fact = {
-            "time_stamp": 3, #fix this!!!!!
+            "timestamp": 3, #fix this!!!!!
             "valence" : new_emotion_point[0],
             "arousal" : new_emotion_point[1],
             "tag": TAG_ELF_EMOTION

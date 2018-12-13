@@ -29,7 +29,11 @@ class EttService:
         extrapolated by ELF internal state (tuples)
         """
         answer_arr = param[0]['details'] # [0]["$input"]
+
         answer = answer_arr[0]['object']['_data']['text']
+        timestamp = answer_arr[0]['object']['_data']['timestamp']
+        language = answer_arr[0]['object']['_data']['language']
+
         print(answer)
         logging.info("\tcallback ett called")
         query_enlp = {
@@ -45,12 +49,12 @@ class EttService:
             print("ETT: No IES, using default")
             ies = (0., 0.)
 
-        a_fact = prepare_answer(answer, ies)
+        a_fact = prepare_answer(answer, ies, timestamp,language)#TODO: add language forwarding!!!!
         self.write_to_KB(a_fact, TAG_COLORED_ANSWER)
 
     def start(self):
         """Subscribe and wait for data"""
-        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_ANSWER, "text": "$input"}}, self.add_emotion) # from the 'gnlp' module
+        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_ANSWER, "text": "$input", "timestamp": "$time", "language": "$lang"}}, self.add_emotion) # from the 'gnlp' module
 
 
 if __name__ == "__main__":

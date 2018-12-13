@@ -37,6 +37,7 @@ def color_answer(answer, emotion, language="en"):
     Changes the text of the answer with the emotion described by
     the given valence and arousal
     """
+    #TODO: check language format
 
     if(emotion=='sad' or emotion=='bored'):
         colored_answer = "ok..." + answer
@@ -67,7 +68,7 @@ def emotion_from_ELF(ies):
 
     valence = ies[0]
     arousal = ies[1]
-    
+
     return circumplex_to_emotion(valence, arousal), valence, arousal
 
 def correct_grammar(answer):
@@ -80,7 +81,7 @@ def correct_grammar(answer):
 
     return answer
 
-def prepare_answer(answer, ies):
+def prepare_answer(answer, ies, timestamp,language):
     """
     Offers the service of eTT, consisting in manipulating an answer
     to the user in order to transform it with respect to some emotion
@@ -89,13 +90,14 @@ def prepare_answer(answer, ies):
     emotion, valence, arousal = emotion_from_ELF(ies)
     answer = answer.lower() #go lowercase
     answer = correct_grammar(answer) #just for first templates, remove later!!!!
-    colored_answer = color_answer(answer, emotion, "en")
+    colored_answer = color_answer(answer, emotion, language)
     answer_fact = {
-        "time_stamp": 3, #fix this!!!!!
+        "timestamp": timestamp,
         "text": colored_answer,
         "valence": valence,
         "arousal" : arousal,
-        "tag": TAG_COLORED_ANSWER
+        "tag": TAG_COLORED_ANSWER,
+        "language": language
     }
 
     return answer_fact

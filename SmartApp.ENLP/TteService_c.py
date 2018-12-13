@@ -29,19 +29,21 @@ class TteService:
         Assess user emotion from a given sentence
         """
         sentence_arr = param[0]['details'] # [0]["$input"]
-        sentence = sentence_arr[0]['object']['_data']['text']
 
+        sentence = sentence_arr[0]['object']['_data']['text']
         lang = sentence_arr[0]['object']['_data']['language']
+        timestamp = sentence_arr[0]['object']['_data']['timestamp']
+
         logging.info("\tcallback TTE called")
         logging.debug("\t Language: " + lang + "\tSentence: " + sentence)
         if (lang == "it"):
             sentence = translate(sentence,self.watson_auth)
-        fact = extract_emotion(sentence, lang)
+        fact = extract_emotion(sentence, lang, timestamp)
         self.write_to_KB(fact)
         return
 
     def start(self):
-        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang"}}, self.text_to_emotion) #from the 'text to speech' module
+        self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang", "timestamp": "$time"}}, self.text_to_emotion) #from the 'text to speech' module
 
     if __name__ == "__main__":
         '''

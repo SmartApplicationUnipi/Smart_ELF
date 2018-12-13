@@ -15,7 +15,7 @@ When the user talks with ELF he produces a sentence, often a query. The user sen
 
 ```
 tuple = {
-  "time_stamp": int,
+  "timestamp": int,
   "valence": float,
   "arousal": float,
   "language" : string,
@@ -23,7 +23,7 @@ tuple = {
 
 }
 ```
-The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect. `language` indicates the language of the original user sentence.
+The `tag` field has to be used to query for this kind of information. Emotion is given following Russell's circumplex model of affect. `language` indicates the language of the original user sentence and is forwarded. `timestamp` is forwarded for analytics purposes.
 
 ## ELF Internal Emotional State (IES)
 In order to provide a realistic answer to the user the module has to compute what is the emotional state of ELF itself.
@@ -31,7 +31,7 @@ The service `IESService_c.py` is dedicated to this task. It retrieves from the K
 It publishes on the KB the result of this computation in the following format:
 ```
 emotion = {
-  "time_stamp" : int,
+  "timestamp" : int,
   "valence" : float,
   "arousal" : float,
   "query" : user_query,
@@ -50,14 +50,15 @@ The module publishes in the KB the tuple related to the new answer to be provide
 
 ```
 answer = {
-  "time_stamp": int,
+  "timestamp": int,
   "text" : colored_answer,
   "valence" : float,
   "arousal" : float,
-  "tag": "ENLP_EMOTIVE_ANSWER"
+  "tag": "ENLP_EMOTIVE_ANSWER",
+  "language" : string
 }
 ```
-where `valence` and `arousal` coordinates identify the emotion with which the answer has to be given to the user and `text` provides the text of the answer augmented with emotional content.
+where `valence` and `arousal` coordinates identify the emotion with which the answer has to be given to the user and `text` provides the text of the answer augmented with emotional content. `language` is used during answer augmentation and forwarded.
 
 ## Tags of other modules
 1. We use `"TEXT_F_AUDIO"` as the tag to identify the user sentence transcript tuple and the field `"text"` to retrieve the actual transcript. The field `"language"` identifies the text language.
