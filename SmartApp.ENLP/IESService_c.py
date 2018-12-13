@@ -88,13 +88,13 @@ class IESService:
             self.write_to_KB(fact, TAG_ELF_EMOTION)
             self.timer = threading.Timer(self.idle_time_update, self.timed_update)
 
-    def _get_query_datas(self,response):
+    def _get_query_datas(self, response):
         """Metodo per accedere velocemente al risultato di una query
             ritorna il dizionario datas
         """
-
+        obj = response[0]
         obj = response["details"][0]["object"]
-        datas = obj["_data"]
+        datas = obj["_data"]['emotion']
         return datas
 
     def get_mean_user_emotion(self):
