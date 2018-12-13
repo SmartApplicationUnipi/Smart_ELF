@@ -1,0 +1,16 @@
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\bin\Debug\DirectShow.Capture.dll
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\bin\Debug\DirectShow.Capture.pdb
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\bin\Debug\DirectShowLib-2005.dll
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.csprojAssemblyReference.cache
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.csproj.CoreCompileInputs.cache
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.csproj.CopyComplete
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.dll
+C:\Users\dima9\Documents\SA\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.pdb
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\bin\Debug\capturelib.dll
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\bin\Debug\capturelib.pdb
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\bin\Debug\DirectShowLib-2005.dll
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.csprojAssemblyReference.cache
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.csproj.CoreCompileInputs.cache
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\obj\Debug\DirectShow.Capture.csproj.CopyComplete
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\obj\Debug\capturelib.dll
+C:\Users\dima9\Documents\SA\Smart_ELF\SmartApp.HAL\DirectShow.Capture\src\obj\Debug\capturelib.pdb

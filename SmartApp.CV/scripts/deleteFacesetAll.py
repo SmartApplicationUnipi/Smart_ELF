@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '../online/')
 from SDK.face_client import Facepp_Client
 
 client = Facepp_Client()

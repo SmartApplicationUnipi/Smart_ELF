@@ -43,10 +43,10 @@ public class CrawlingManager {
     public static final String[] ACCEPTED_PROTOCOLS = {"https", "http"};
 
     private int maxCrawlingDepth;
-    private Set<Link> linkSet;
+    private Set<CrawlerAddress> crawlerAddressSet;
     // New urls discovered while crawling
     private Set<String> newUrls;
-    private BlockingQueue<Link> linkQueue;
+    private BlockingQueue<CrawlerAddress> crawlerAddressQueue;
     private DataAggregator aggregator;
     // Executor that runs each elf_crawler in parallel
     private ExecutorService executor;
@@ -86,27 +86,27 @@ public class CrawlingManager {
         // Create as many threads as processor cores in this machine
         int processors = threads > 0 ? threads : Runtime.getRuntime().availableProcessors();
         this.maxCrawlingDepth = maxCrawlingDepth > 0 ? maxCrawlingDepth : DEFAULT_MAX_CRAWLING_DEPTH;
-        this.linkSet = new HashSet<>(urlSet.size() * INITIAL_URL_SET_SCALE);
+        this.crawlerAddressSet = new HashSet<>(urlSet.size() * INITIAL_URL_SET_SCALE);
         this.newUrls = new HashSet<>(EXPECTED_NEW_URLS);
-        this.linkQueue = new LinkedBlockingQueue<>(EXPECTED_NEW_URLS);
+        this.crawlerAddressQueue = new LinkedBlockingQueue<>(EXPECTED_NEW_URLS);
         this.aggregator = new DataAggregator();
         this.workingCrawlers = new AtomicInteger(0);
         this.executor = Executors.newFixedThreadPool(processors);
 
         // Add initial links
         for (String url : urlSet)
-            linkSet.add(new Link(url, 0));
+            crawlerAddressSet.add(new CrawlerAddress(url, 0));
 
-        for (Link l : this.linkSet) addCrawlingTask(l);
+        for (CrawlerAddress l : this.crawlerAddressSet) addCrawlingTask(l);
     }
 
     public List<DataEntry> executeAllCrawlers() throws ExecutionException, InterruptedException {
         // We expect that the total amount of links is the amount of initial links powered to the max crawling depth
-        //Map<String, List<RdfRelation>> crawledRDF = new HashMap<>((int)Math.pow(this.linkSet.size(), DEFAULT_MAX_CRAWLING_DEPTH));
+        //Map<String, List<RdfRelation>> crawledRDF = new HashMap<>((int)Math.pow(this.crawlerAddressSet.size(), DEFAULT_MAX_CRAWLING_DEPTH));
 
         while (this.workingCrawlers.get() > 0) {
-            while (this.linkQueue.size() > 0) {
-                Link l = this.linkQueue.take();
+            while (this.crawlerAddressQueue.size() > 0) {
+                CrawlerAddress l = this.crawlerAddressQueue.take();
                 addCrawlingTask(l);
             }
         }
@@ -127,19 +127,19 @@ public class CrawlingManager {
     }
 
     public List<String> getAllUrls() {
-        List<String> urls = new ArrayList<>(this.linkSet.size());
+        List<String> urls = new ArrayList<>(this.crawlerAddressSet.size());
 
-        for (Link l : this.linkSet)
+        for (CrawlerAddress l : this.crawlerAddressSet)
             urls.add(l.getUrl());
 
         return urls;
     }
 
-    private void addCrawlingTask(Link link) {
+    private void addCrawlingTask(CrawlerAddress crawlerAddress) {
         this.executor.submit(() -> {
             try {
                 // First download the file
-                DownloadedFile df = downloadFile(link);
+                DownloadedFile df = downloadFile(crawlerAddress);
 
                 // Given the content type of the document, assign corresponding Crawler
                 Crawler c;
@@ -167,11 +167,11 @@ public class CrawlingManager {
                 this.aggregator.addData(data.getDataEntries());
 
                 // Add new discovered links if they haven't been crawled yet
-                if (df.getLink().getDepth() + 1 < this.maxCrawlingDepth)
-                    for (Link l : data.getExternalLinks())
-                        if (!this.linkSet.contains(l)) {
-                            this.linkQueue.add(l);
-                            this.newUrls.add(link.getUrl());
+                if (df.getCrawlerAddress().getDepth() + 1 < this.maxCrawlingDepth)
+                    for (CrawlerAddress l : data.getDiscoveredAddresses())
+                        if (!this.crawlerAddressSet.contains(l)) {
+                            this.crawlerAddressQueue.add(l);
+                            this.newUrls.add(crawlerAddress.getUrl());
                         }
 
             }
@@ -186,9 +186,9 @@ public class CrawlingManager {
         this.workingCrawlers.incrementAndGet();
     }
 
-    public DownloadedFile downloadFile(Link link) throws IOException {
+    public DownloadedFile downloadFile(CrawlerAddress crawlerAddress) throws IOException {
 
-        URL urlobj = new URL(link.getUrl());
+        URL urlobj = new URL(crawlerAddress.getUrl());
         URLConnection con = urlobj.openConnection();
 
         BufferedReader in = new BufferedReader(
@@ -204,7 +204,7 @@ public class CrawlingManager {
         in.close();
 
         String contentHeader = con.getHeaderField("Content-Type");
-        return new DownloadedFile(link, sb.toString(), getContentType(contentHeader, link.getUrl()));
+        return new DownloadedFile(crawlerAddress, sb.toString(), getContentType(contentHeader, crawlerAddress.getUrl()));
     }
 
     private static String getContentType(String header, String url)

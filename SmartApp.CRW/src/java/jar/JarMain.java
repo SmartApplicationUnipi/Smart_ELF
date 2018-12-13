@@ -8,7 +8,10 @@ import elf_crawler.crawler.Tag;
 import elf_crawler.relationship.RelationshipSet;
 import elf_crawler.util.LogLevel;
 import elf_crawler.util.Logger;
-import elf_kb_protocol.*;
+import elf_kb_protocol.Fact;
+import elf_kb_protocol.KBConnection;
+import elf_kb_protocol.KBTTL;
+import elf_kb_protocol.TagList;
 
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
@@ -27,6 +30,7 @@ public class JarMain {
                     "-t,-threads <numthreads>: how many threads to use in the Crawler. Default is the amount of threads in the CPU\n" +
                     "-u,-urls <filename>: url set location (required)\n";
     private static final String USAGE_STRING = "Usage: <crawler> <flags>\n\nFlags:\n" + FLAGS_STRING;
+    private static final int DEFAULT_SLEEP_TIME = 720;
 
 
     private static int maxCrawlingDepth = 1;
@@ -36,6 +40,7 @@ public class JarMain {
     private static String taglistFilename = null;
     private static String KBHost = null;
     private static int KBPort = -1;
+    private static int sleepTime = -1;
 
     public static void main(String[] args) throws Exception {
         List<Argument> arg = parseArgs(args);
@@ -45,13 +50,7 @@ public class JarMain {
 
         RelationshipSet rs = new RelationshipSet(rsFilename);
         URLSet urlSet = new URLSet(urlsetFilename);
-        KBTagManager KBTagManager = new KBTagManager(taglistFilename);
-        CrawlingManager cm = new CrawlingManager(urlSet, rs, maxCrawlingDepth, threads);
-        List<DataEntry> dataEntries = cm.executeAllCrawlers();
-        cm.shutdown();
-
-        Logger.info("Crawler finished!");
-        Logger.info(String.format("Crawled has discovered %d new links.", cm.getNewLinkCount()));
+        KBTagManager tagm = new KBTagManager(taglistFilename);
 
         Logger.info("Attempting to create a connection to KB");
         try {
@@ -59,24 +58,21 @@ public class JarMain {
             Logger.info("Registering Crawler!");
 
             TagList jreq = new TagList();
-            for (Tag t : KBTagManager.getAllTags()) {
+            for (Tag t : tagm.getAllTags()) {
                 jreq.addTag(t.getTagName(), t.getDesc(), t.getDoc());
                 Logger.info("Registering tag " + t);
             }
             con.registerTags(jreq);
 
             Logger.info("Crawler entity registered!");
-            for (DataEntry d : dataEntries) {
-                if (d == null) continue;
 
-                if (!KBTagManager.hasTag(d.tag)) {
-                    Logger.error("Unregistered tag '" + d.tag + "' found in " + d);
-                    continue;
-                }
+            do
+            {
+                executeCrawlCycle(rs, urlSet, con, tagm);
 
-                Logger.info("Added entry: " + d);
-                con.addFact(new Fact(d.tag, KBTTL.DAY, 100, d));
-            }
+                if (sleepTime > 0)
+                    Thread.sleep(sleepTime * 60000);
+            } while (sleepTime != -1);
 
             con.closeConnection();
 
@@ -88,12 +84,48 @@ public class JarMain {
         Logger.info("Crawler has ended successfully!");
     }
 
+    private static void executeCrawlCycle(RelationshipSet rs, URLSet urlSet, KBConnection con, KBTagManager tagm) throws Exception {
+        Logger.info("Starting new crawling cycle!");
+        CrawlingManager cm = new CrawlingManager(urlSet, rs, maxCrawlingDepth, threads);
+        List<DataEntry> dataEntries = cm.executeAllCrawlers();
+        cm.shutdown();
+        Logger.info("Crawler cycle finished!");
+
+        Logger.info(String.format("Crawled has discovered %d new links.", cm.getNewLinkCount()));
+
+        for (DataEntry d : dataEntries) {
+            if (d == null) continue;
+
+            if (!tagm.hasTag(d.tag)) {
+                Logger.error("Unregistered tag '" + d.tag + "' found in " + d);
+                continue;
+            }
+
+            Logger.info("Added entry: " + d);
+            con.addFact(new Fact(d.tag, KBTTL.DAY, 100, d));
+        }
+    }
+
     private static void processArgs(List<Argument> arg) {
         if (arg.isEmpty())
             Logger.critical(USAGE_STRING);
 
         for (Argument a : arg) {
             switch (a.flag.toLowerCase()) {
+
+                case "continuous":
+                    if (a.values.size() > 1)
+                        Logger.critical("Usage:\n-continuous <sleep-time-minutes> Sets the crawler to run continously," +
+                                " with a sleep time in minutes between each crawl cycle. You may omit the time, in which " +
+                                "case, this will set the default sleep value to 720 minutes.");
+
+                    if (a.values.size() == 1)
+                        sleepTime = Integer.parseInt(a.values.get(0));
+                    else
+                        sleepTime = DEFAULT_SLEEP_TIME;
+                    if (sleepTime <= 0)
+                        Logger.critical("Sleep time must be positive.");
+                    break;
                 case "d":
                     if (a.values.size() != 1)
                         Logger.critical("Usage:\n-d <max-crawling-depth> The maximum depth to crawl for.");
@@ -139,7 +171,6 @@ public class JarMain {
                     rsFilename = a.values.get(0);
 
                     break;
-
                 case "tag":
                 case "taglist":
                     if (a.values.size() != 1)

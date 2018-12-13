@@ -2,12 +2,7 @@ package elf_crawler.crawler;
 
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
-import com.jayway.jsonpath.spi.json.GsonJsonProvider;
-import com.jayway.jsonpath.spi.json.JsonProvider;
-import elf_crawler.relationship.CSVRelation;
 import elf_crawler.relationship.JsonPathRelation;
 import elf_crawler.relationship.RelationQuery;
 import elf_crawler.relationship.RelationshipSet;
@@ -33,10 +28,10 @@ public class JSONCrawler extends Crawler {
     @Override
     public CrawledData crawl() {
         super.timestamp = System.currentTimeMillis();
-        List<RelationQuery> relations = rs.getWebsiteRelations(super.file.getLink().getUrl());
+        List<RelationQuery> relations = rs.getWebsiteRelations(super.file.getCrawlerAddress());
         List<DataEntry> entries = buildEntries(relations);
 
-        return new CrawledData(super.file.getLink(), entries);
+        return new CrawledData(super.file.getCrawlerAddress(), entries);
     }
 
     private List<DataEntry> buildEntries(List<RelationQuery> relations) {
@@ -45,7 +40,7 @@ public class JSONCrawler extends Crawler {
         for (RelationQuery r : relations)
         {
             if (!(r instanceof JsonPathRelation)) {
-                Logger.error(String.format("A wrong relationship exists for the document %s.", this.file.getLink().getUrl()));
+                Logger.error(String.format("A wrong relationship exists for the document %s.", this.file.getCrawlerAddress().getUrl()));
                 continue;
             }
 
@@ -56,11 +51,11 @@ public class JSONCrawler extends Crawler {
             {
                 JSONArray arr = (JSONArray)resultJson;
                 for (Object e : arr)
-                    entries.add(new DataEntry(super.file.getLink().getUrl(), r.getTag(), super.timestamp, DataEntryType.JSON, e));
+                    entries.add(new DataEntry(super.file.getCrawlerAddress().getUrl(), r.getTag(), super.timestamp, DataEntryType.JSON, e));
             }
 
             if (resultJson instanceof JSONObject || resultJson instanceof Map)
-                entries.add(new DataEntry(super.file.getLink().getUrl(), r.getTag(), super.timestamp, DataEntryType.JSON, resultJson));
+                entries.add(new DataEntry(super.file.getCrawlerAddress().getUrl(), r.getTag(), super.timestamp, DataEntryType.JSON, resultJson));
         }
 
         return entries;

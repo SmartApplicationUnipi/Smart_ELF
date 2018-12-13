@@ -3,7 +3,7 @@ import cv2
 from scipy import misc
 import numpy as np
 import json
-from pkg_resources import resource_filename
+import os
 
 class FERModel:
     """
@@ -70,7 +70,6 @@ class FERModel:
         resized_image = cv2.resize(gray_image, self.target_dimensions, interpolation=cv2.INTER_LINEAR)
         final_image = np.array([np.array([resized_image]).reshape(list(self.target_dimensions)+[self.channels])])
         prediction = self.model.predict(final_image)
-        # self._print_prediction(prediction[0])
         return self._prediction_to_json(prediction[0])
 
     def _check_emotion_set_is_supported(self):
@@ -107,8 +106,11 @@ class FERModel:
         model_suffix = ''.join(sorted_indices)
         model_file = 'models/conv_model_%s.hdf5' % model_suffix
         emotion_map_file = 'models/conv_emotion_map_%s.json' % model_suffix
-        emotion_map = json.loads(open(resource_filename('EmoPy',emotion_map_file)).read())
-        return load_model(resource_filename('EmoPy',model_file)), emotion_map
+        package_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+        emotion_map = json.loads(open(os.path.join(package_path, emotion_map_file)).read())
+        model = load_model(os.path.join(package_path, model_file))
+        model._make_predict_function() # precompile pretict to make this model thread-safe
+        return model, emotion_map
 
     def _print_prediction(self, prediction):
         normalized_prediction = [x/sum(prediction) for x in prediction]
@@ -121,7 +123,7 @@ class FERModel:
                 break
         print('Dominant emotion: %s' % dominant_emotion)
         print()
-    
+
     def _prediction_to_json(self, prediction):
         normalized_prediction = [x/sum(prediction) for x in prediction]
         predictions = {}

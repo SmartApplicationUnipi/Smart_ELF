@@ -1,26 +1,18 @@
-from drs import f
+from drs import drs_matcher
 
-#parstring = 'rules.fcfg'; sentence = 'Angus knows Irene'
-#parstring = 'ELF_rules.fcfg'; sentence = 'dove posso trovare la lezione del professor Attardi'
-#parstring = 'SEM_rules.fcfg'; sentence = 'lezione del professor Attardi'
-#parstring = 'prove.fcfg'; sentence = 'one two three four'
-#parstring = 'properties.fcfg'; sentence = '<object1> <relation> <property2> <property3> <object2> <relation> <property3> <object2>'
-#parstring = 'properties.fcfg'; sentence = '<object1> <property2> <object2> <object1>'
-#parstring = 'grammar_rules.fcfg'; sentence = 'professor'
-#parstring = 'grammar_rules.fcfg'; sentence = 'Attardi'
-#parstring = 'grammar_rules.fcfg'; sentence = 'professor Attardi'
-#parstring = 'binary.fcfg'; sentence = 'one two'
-parstring = 'TEST_rules.fcfg'; sentence = 'dove posso trovare la lezione del professor Attardi'
-#parstring = 'TEST_rules.fcfg'; sentence = 'dov è la lezione del professor Attardi'
-#parstring = 'TEST_rules.fcfg'; sentence = 'dove'
+#parstring = 'property_rules_structure.fcfg'; sentence = '<object1> <relation> <property2> <property3> <object2> <relation> <property3> <object2>'
+#parstring = 'property_rules_structure.fcfg'; sentence = '<object1> <property2> <object2> <object1>'
+#parstring = 'property_rules_structure.fcfg'; sentence = '<object1> <relation> <object2>'
+#parstring = 'DRS_rules.fcfg'; sentence = 'dove posso trovare la lezione del professor Attardi'
+parstring = 'DRS_rules.fcfg'; sentence = 'dov è la lezione del professor Attardi'
 
-tree = True
-#tree = False
+#display_parse_tree = True
+display_parse_tree = False
 
 if __name__ == "__main__":
-    res = f(sentence,parstring,debug="yes")
+    res = drs_matcher(sentence,parstring,"",debug="yes") #do not change this call!
     for el in res:
-        if (tree):
+        if (display_parse_tree):
             print(el)
         else:
             print(el.label()['SEM'].simplify())

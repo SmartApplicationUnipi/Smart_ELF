@@ -18,6 +18,7 @@ namespace SmartApp.HAL.Implementation
         private AudioBeamFrameReader _audioBeamFrameReader = null;
         private readonly byte[] _waveBuffer = null;
         private int _waveBufferPos = 0;
+        private bool _isRecording = false;
 
         public KinectAudioSource(ILogger<KinectAudioSource> logger)
         {
@@ -27,7 +28,7 @@ namespace SmartApp.HAL.Implementation
             AudioSource audioSource = _kinect.AudioSource;
             //audioSource.AudioBeams[0].AudioBeamMode = AudioBeamMode.Manual; //scegli angolo "di ascolto"
             //audioSource.AudioBeams[0].BeamAngle = 0; //angolo 0 == al centro (valori da -50 a +50 da sinistra a destra)
-            _waveBuffer = new byte[64000 * 5]; //avg_byte_per_sec * 5
+            _waveBuffer = new byte[64000 * 30]; //avg_byte_per_sec * 30
             _audioBeamFrameReader = audioSource.OpenReader();
             _audioBeamFrameReader.IsPaused = true;
             if (!_kinect.IsOpen) { 
@@ -73,10 +74,13 @@ namespace SmartApp.HAL.Implementation
 
         private void PublishBuffer()
         {
-            _logger.LogInformation("Kinect published audio.");
-            byte[] convertedWave = AudioSample.ConvertFormat32fTO16int(_waveBuffer,1);
-            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, convertedWave, convertedWave.Length, new AudioSample.FixedWaveFormat(16000)));
-            _waveBufferPos = 0;
+            if (_waveBufferPos > 64000*1.5) //if less then 1.5 seconds, don't publish
+            {
+                _logger.LogInformation("Kinect published audio.");
+                byte[] convertedWave = AudioSample.ConvertFormat32fTO16int(_waveBuffer, _waveBufferPos, 1);
+                SampleReady?.Invoke(this, new AudioSample(DateTime.Now, convertedWave, convertedWave.Length, new AudioSample.FixedWaveFormat(16000)));
+                _waveBufferPos = 0;
+            }
         }
 
         public event EventHandler<AudioSample> SampleReady;
@@ -106,6 +110,8 @@ namespace SmartApp.HAL.Implementation
                 _audioBeamFrameReader.FrameArrived += Reader_FrameArrived;
                 _audioBeamFrameReader.IsPaused = false;
                 _waveBufferPos = 0;
+                _isRecording = true;
+
             }
         }
 
@@ -117,6 +123,12 @@ namespace SmartApp.HAL.Implementation
             }
             _audioBeamFrameReader.FrameArrived -= Reader_FrameArrived;
             _audioBeamFrameReader.IsPaused = true;
+            _isRecording = false;
+        }
+
+        public bool IsRecording()
+        {
+            return _isRecording;
         }
     }
 }
