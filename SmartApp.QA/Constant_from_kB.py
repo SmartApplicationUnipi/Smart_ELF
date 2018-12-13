@@ -30,24 +30,23 @@ class ConstantFromkB:
         else:
             file.write("\n#section for " +tag + ":\n")
 
-        #get results
         ris = []
+        #get results and append them in to ris list
         for obj in answ['details']:
             ris.append(obj['object']['_data']['data']['name'])
 
         #write them in rules file
         for r in ris:
+            string = str(r).lower()
+            predicate = "_".join(string.split(" "))
             #create strings to write
-            str_tmp = str(r)+ ("(x)")
-            str_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + str_tmp + "]))>] -> '" + str(r) + "'\n"
+            if len(string) > 1 and tag==TAG_COURSE:
+                string2 = string.split(" ")[0]
+                str_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + predicate + "]))>] -> '" + string + "' | '" + string2 + "'"  + "\n"
+            else:
+                str_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + predicate + "]))>] -> '" + string + "\n"
             file.write(str_to_write)
 
-            #if the tuple concerns a course, add  to rules the first word of full name as well
-            if (tag==TAG_COURSE):
-                name = str(r).split(" ")
-                if len(name) > 1:
-                    str_to_write2 = "PNOUN[SEM=<\\x.(DRS([],[" + name[0] + ("(x)") + "]))>] -> '" + str(r) + "'\n"
-                    file.write(str_to_write2)
 
     def extract_teachers_from_KB(self,tag, file):
         """This method is the one devoted to extract "constants" information from the KB
@@ -61,10 +60,11 @@ class ConstantFromkB:
         else:
             file.write("\n#section for " +tag + ":\n")
 
-        #write them in rules file
+        #write them directly in to rules file
         for r in answ["details"][0]["object"]["_data"]["data"]:
             #create strings (one forn full name, one for surname) to write
-            name = str(r).split(" ")
+            name = str(r).lower().split(" ")
+            # heuristic to take the surname
             n = len(name)
             if name[n-2] == "DE" or name[n-2] == "DEL" or name[n-2] == "DI" or name[n-2] == "DELLA":
                 tmp = name[n-2:]
@@ -72,14 +72,14 @@ class ConstantFromkB:
             else:
                 surname = name[-1]
 
-            name_x = str(r)+ ("(x)")
+            name2write = " ".join(name)
+            predicate = "_".join(name) + "(x)"
 
-            surname_x = surname + ("(x)")
-            str1_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + name_x + "]))>] -> '" + str(r) + "'\n"
+            if name=='': #TODO when finally crawler groupi implements filter, we caan delete this rusles
+                continue
+
+            str1_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + predicate + "]))>] -> '" + name2write + "'|'" + surname + "'\n"
             file.write(str1_to_write)
-
-            str2_to_write = "PNOUN[SEM=<\\x.(DRS([],[" + surname_x + "]))>] -> '" + str(r) + "'\n"
-            file.write(str2_to_write)
 
 
     def start(self):
