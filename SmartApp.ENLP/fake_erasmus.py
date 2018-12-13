@@ -17,7 +17,7 @@ def __main__():
     kb_client.registerTags(kb_ID, tags)
     obj_from_erasmus = {
         "tag": TAG_ANSWER,
-        "text": "Professor Gervasi is giving classes of the Smart Application course in room L on Wednesday at 14:00",
+        "text": "Professor Attardi",
         "user_query" : "What time Prof. Gervasi teaches Smart Application?",
         "time_stamp" : 1
     }

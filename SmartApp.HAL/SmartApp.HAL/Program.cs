@@ -95,7 +95,7 @@ namespace SmartApp.HAL
             using (serviceProvider.GetRequiredService<IAudioSource>())
             {
                 //init KB wrapper
-                KBWrapperInit(serviceProvider.GetRequiredService<KBWrapper.IKbWrapper>());
+                KBWrapperInit(serviceProvider.GetRequiredService<KBWrapper.IKbWrapper>(), serviceProvider.GetService<ILogger<Program>>());
                 // Start the audio and video managers
                 serviceProvider.GetRequiredService<IVideoManager>().Start();
                 serviceProvider.GetRequiredService<IAudioManager>().Start();
@@ -112,30 +112,41 @@ namespace SmartApp.HAL
             NLog.LogManager.Shutdown();
         }
 
-        private static void KBWrapperInit(KBWrapper.IKbWrapper kb)
+        private static void KBWrapperInit(KBWrapper.IKbWrapper kb, ILogger logger)
         {
+            bool isConnected = false;
+            int backoff = 2;
             kb.OnOpen += (sender, e) => {
-                Console.WriteLine("Wrapper: onOpen");
+                isConnected = true;
+                logger.LogInformation("Wrapper: onOpen");
             };
 
             kb.OnClose += (sender, e) => {
-                Console.WriteLine("Wrapper: onClose");
+                isConnected = false;
+                while (!isConnected)
+                {
+                    logger.LogError("Kb connection closed, try to reconnect.");
+                    backoff *= backoff;
+                    if (backoff > 30) backoff = 30;
+                    Thread.Sleep(backoff*1000);
+                    kb.Connect();
+                }
             };
 
             kb.OnConnected += (sender, e) => {
-                Console.WriteLine("Wrapper: OnConnected");
+
+                logger.LogTrace("Wrapper: OnConnected");
             };
 
             kb.OnMessage += (sender, e) => {
-                Console.WriteLine("Wrapper: onMessage: " + e.Value);
+                logger.LogTrace("Wrapper: onMessage: " + e.Value);
             };
 
             kb.OnError += (sender, e) => {
-                Console.WriteLine("Wrapper: onError " + e.message);
+                logger.LogTrace("Wrapper: onError " + e.message);
             };
-
+            int i = 0;
             kb.Connect();
-
 
         }
     }

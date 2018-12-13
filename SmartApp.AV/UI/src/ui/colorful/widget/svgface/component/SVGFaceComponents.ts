@@ -45,7 +45,6 @@ export class Eye extends AbstractSVGFaceComponent implements IAnimated {
 
     public onEmotionChanged(e: ISBEEmotion): void {
         let updates = this.computePropertiesUpdates(e);
-        console.log(updates);
 
         this.update(updates);
 
@@ -102,7 +101,6 @@ export class Eyebrow extends AbstractSVGFaceComponent implements IAnimated {
 
     public onEmotionChanged(e: ISBEEmotion): void {
         let updates = this.computePropertiesUpdates(e);
-        console.log(updates);
 
         // TODO: we need to handle better the bezier courve points...
         let lp = {
@@ -212,7 +210,6 @@ export class Mouth extends AbstractSVGFaceComponent implements IAnimated {
 
     public onEmotionChanged(e: ISBEEmotion): void {
         let updates = this.computePropertiesUpdates(e);
-        console.log(updates);
 
         // TODO: we need to handle better the bezier courve points...
         let lp = {

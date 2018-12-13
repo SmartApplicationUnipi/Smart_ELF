@@ -1,5 +1,7 @@
-import external.hal_client as hal
+import sys
+sys.path.insert(0, '../../SmartApp.CV')
 from online.SDK.face_client import Facepp_Client as online
+import external_modules.hal_client as hal
 import time
 import numpy as np
 import cv2

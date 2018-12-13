@@ -1,0 +1,7 @@
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\DirectShow.Capture\src\bin\Debug\capturelib.dll
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\DirectShow.Capture\src\bin\Debug\capturelib.pdb
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\DirectShow.Capture\src\obj\Debug\CaptureLib.csprojAssemblyReference.cache
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\DirectShow.Capture\src\obj\Debug\CaptureLib.csproj.CoreCompileInputs.cache
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\DirectShow.Capture\src\obj\Debug\CaptureLib.csproj.CopyComplete
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\DirectShow.Capture\src\obj\Debug\capturelib.dll
+C:\Users\dima9\Documents\SA\Smart_ELF\tools\SmartApp.TOOLS\DirectShow.Capture\src\obj\Debug\capturelib.pdb

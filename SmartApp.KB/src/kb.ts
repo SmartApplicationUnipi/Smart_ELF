@@ -1,6 +1,5 @@
 import { readFileSync, writeFile } from 'fs';
 import { transformRule } from './compiler';
-import { security } from './config';
 import { Debugger } from './debugger';
 import { checkRules, queryRules } from './inferenceStub';
 import { Logger } from './logger';
@@ -10,7 +9,6 @@ const debug = new Debugger();
 const log = Logger.getInstance();
 
 type SubCallback = (r: any) => any;
-const TOKEN = security.token;
 
 export type DatabaseFact = Map<number, DataObject>;
 export type DatabaseRule = Map<number, DataObject>;
@@ -56,7 +54,7 @@ try {
 // }
 try {
     file = readFileSync(USERTAGSPATH, 'utf8');
-    userTags = new Map(JSON.parse(file));
+    userTags = objectToMapNested(JSON.parse(file), 1);
 } catch (e) {
     log.warn('KB', 'error loading ' + USERTAGSPATH, e);
 }
@@ -89,11 +87,28 @@ const millsToDump = 60 * 1000; // dumpDate.getTime() - now.getTime();
 //     millsToDump += 86400000; // now it's after dumpTime, try tomorrow.
 // }
 
+function mapToObjectNested<T>(map: Map<string, T>): Object {
+    const obj = Object.create(null);
+    for (let [k, v] of map) {
+        obj[k] = v instanceof Map ? mapToObjectNested(v) : v;
+    }
+    return obj;
+}
+
+function objectToMapNested<T>(obj: { [index: string]: any }, maxDepth = Infinity): Map<string, T> {
+    const map = new Map<string, T>();
+    for (let k of Object.keys(obj)) {
+        map.set(k, (typeof obj[k] === 'object' && maxDepth > 0) ? objectToMapNested(obj[k], maxDepth - 1) : obj[k]);
+    }
+    return map;
+}
+
 function writeCallback(filename: string, err: any) {
     if (err) { log.error('KB', 'error saving ' + filename, err); } else { log.info('KB', filename + ' saved'); }
 }
 
-function dumpDatabase() {
+let currTimeout: NodeJS.Timeout;
+function dumpDatabaseRoutine() {
     const f1 = () => {
         writeFile(DATABASEFACTPATH, JSON.stringify([...databaseFact]), 'utf8',
             (e) => writeCallback('databaseFact', e));
@@ -105,17 +120,21 @@ function dumpDatabase() {
     // const f3 = () => { writeFile(SUBSCRIPTIONSPATH, JSON.stringify([...subscriptions]), 'utf8',
     // (e) => writeCallback('subscriptions', e)); };
     const f4 = () => {
-        writeFile(USERTAGSPATH, JSON.stringify([...userTags]), 'utf8',
+        writeFile(USERTAGSPATH, JSON.stringify(mapToObjectNested(userTags)), 'utf8',
             (e) => writeCallback('userTags', e));
     };
     const f5 = () => { writeFile(UNIQUEFACTIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueFactId', e)); };
-    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueFactId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
+    const f6 = () => { writeFile(UNIQUERULEIDPATH, uniqueRuleId, 'utf8', (e) => writeCallback('uniqueRuleId', e)); };
     log.info('KB', 'starting backup');
     Promise.all([f1(), f2(), f4(), f5(), f6()])
-        .then(() => { setTimeout(dumpDatabase, repetitionTime); });
+        .then(() => { currTimeout = setTimeout(dumpDatabaseRoutine, repetitionTime); });
 }
 
-setTimeout(dumpDatabase, millsToDump);
+currTimeout = setTimeout(dumpDatabaseRoutine, millsToDump);
+
+export function stopdump() {
+    clearTimeout(currTimeout);
+}
 
 export class Response {
     public success: boolean;
@@ -182,13 +201,13 @@ export class TagInfo {
 
 export function getAllTags(includeShortDesc: boolean) {
     const allTags: any = {};
-    for (const [user, tags] of userTags) {
+    userTags.forEach((tags, user, map) => {
         const tagsArray: any = {};
         for (const [tag, tagInfo] of tags) {
             tagsArray[tag] = includeShortDesc ? tagInfo.desc : null;
         }
         allTags[user] = tagsArray;
-    }
+    });
     return new Response(true, allTags);
 }
 
@@ -261,29 +280,15 @@ export function updateFactByID(id: number, idSource: string, tag: string, TTL: n
 }
 
 export function query(jreq: any) {
-    const queryobj: any = {};
+    const queryobj = normalizeQuery(jreq);
 
-    if (jreq.hasOwnProperty('_id')) { queryobj._id = jreq._id; delete jreq._id; }
-
-    if (jreq.hasOwnProperty('_meta')) { queryobj._meta = jreq._meta; delete jreq._meta; }
-
-    if (jreq.hasOwnProperty('_predicates')) { queryobj._predicates = jreq._predicates; delete jreq._predicates; }
-
-    if (jreq.hasOwnProperty('_data')) {
-        queryobj._data = jreq._data;
-    } else {
-        if (Object.keys(jreq).length > 0) { queryobj._data = jreq; }
-    }
-
-    let m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
-    console.log(m);
+    const m = matcher.findMatches(queryobj, Array.from(databaseFact.values()));
     const m2 = queryRules(queryobj);
-    console.log(m2);
-    m = new Map([...m, ...m2]);
+    const m3 = new Map([...Array.from(m.entries()), ...Array.from(m2.entries())]);
 
-    if (m.size === 0) {
+    if (m3.size === 0) {
         return new Response(false, {});
-    } else { return new Response(true, m); }
+    } else { return new Response(true, m3); }
 }
 
 export function subscribe(idSource: string, subreq: object, callback: SubCallback) {
@@ -314,10 +319,10 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
     const metadata = new Metadata(idSource, ruleTag, new Date(Date.now()), 0, 0);
     const dataobject = {
         _data: normalizeRule(jsonObj),
-        // TODO: check this. Stiamo imponendo un formato interno di rappresentazione per le head e i body
         _id: uniqueRuleId_gen(),
         _meta: metadata,
     };
+
 
     databaseRule.set(dataobject._id, dataobject);
     return new Response(true, dataobject._id);
@@ -325,7 +330,6 @@ export function addRule(idSource: string, ruleTag: string, jsonRule: string) {
 
 function normalizeRule(rule: any): DataRule {
     const norm: DataRule = new DataRule({}, []);
-
     if (rule._head.hasOwnProperty('_meta')) { norm._head._meta = rule._head._meta; delete rule._head._meta; }
 
     if (rule._head.hasOwnProperty('_data')) {
@@ -333,17 +337,25 @@ function normalizeRule(rule: any): DataRule {
     } else {
         if (Object.keys(rule._head).length > 0) { norm._head._data = rule._head; }
     }
-    for (const pred of rule._body) {
+    for (let i = 0; i < rule._body.length; ++i) {
+        //        for (const pred of rule._body) {
         const normb: any = {};
-        if (pred.hasOwnProperty('_meta')) { normb._meta = pred._meta; delete pred._meta; }
-
-        if (pred.hasOwnProperty('_data')) {
-            normb._data = pred._data;
+        if (rule._body[i].hasOwnProperty('_meta')) { normb._meta = rule._body[i]._meta; delete rule._body[i]._meta; }
+        if (rule._body[i].hasOwnProperty('_predicates')) {normb._predicates = rule._body[i]._predicates;
+                                                          delete rule._body[i]._predicates; }
+        if (rule._body[i].hasOwnProperty('_data')) {
+            normb._data = rule._body[i]._data;
         } else {
-            if (Object.keys(pred).length > 0) { normb._data = pred; }
+            if (Object.keys(rule._body[i]).length > 0) { normb._data = rule._body[i]; }
+        }
+
+
+        if (i === rule._body.length - 1) {
+            normb._predicates = rule._predicates;
         }
         norm._body.push(normb);
     }
+
     return norm;
 }
 
@@ -354,6 +366,8 @@ function normalizeQuery(jquery: any) {
 
     if (jquery.hasOwnProperty('_meta')) { norm._meta = jquery._meta; delete jquery._meta; }
 
+    if (jquery.hasOwnProperty('_predicates')) { norm._predicates = jquery._predicates; delete jquery._predicates; }
+
     if (jquery.hasOwnProperty('_data')) {
         norm._data = jquery._data;
     } else {
@@ -361,7 +375,6 @@ function normalizeQuery(jquery: any) {
     }
 
     return norm;
-
 }
 
 export function removeRule(idSource: string, idRule: number) {

@@ -62,7 +62,7 @@ export function findMatches2(query: object, dataset: object[], initBinds: object
     return matches;
 }
 
-export function findCompatibleRules(query: object, ruleSet: Map<number, object>): { [index: string]: any }[] {
+export function findCompatibleRules(query: object, ruleSet: object[]): { [index: string]: any }[] {
     const matcher = new Matcher();
     return matcher.compareRules(query, ruleSet);
 }
@@ -102,9 +102,9 @@ class Matcher {
         const matches: Matches = new Map<object, object[]>();
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
-        this.initBinds = [...iBinds];
+        this.initBinds = JSON.parse(JSON.stringify(iBinds));
         for (const data of dataset) {
-            this.currBinds = this.initBinds.map((x) => Object.assign({}, x));
+            this.currBinds = JSON.parse(JSON.stringify(this.initBinds));
             // this.currBinds = [...this.initBinds];
             D.newLine(1);
             if (this.matchBind(this.outerQuery, this.outerSorted, data)) {
@@ -126,15 +126,14 @@ class Matcher {
         return matches;
     }
 
-    public compareRules(q: { [index: string]: any }, ruleSet: Map<number, { [index: string]: any }>): { [index: string]: any }[] {
+    public compareRules(q: { [index: string]: any }, ruleSet: { [index: string]: any }[]): { [index: string]: any }[] {
         this.outerQuery = q;
         this.outerSorted = this.sort(q);
         const result = [];
-        for (const key of ruleSet.keys()) {
-            const rule = ruleSet.get(key)._data._head;
-            const sortedRule = this.sort(rule);
-            if (this.compareRule(q, this.outerSorted, rule, sortedRule)) {
-                result.push(ruleSet.get(key)._data);
+        for (const rule of ruleSet) {
+            const sortedRule = this.sort(rule._head);
+            if (this.compareRule(q, this.outerSorted, rule._head, sortedRule)) {
+                result.push(rule);
             }
 
         }
@@ -180,7 +179,7 @@ class Matcher {
                     break;
                 }
                 case this.ID_PP: {
-                    break;;
+                    break;
                 }
             }
         }
@@ -604,7 +603,7 @@ class Matcher {
         return true;
     }
 
-    private compareAtomObject(_query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
+    private compareAtomObject(query: { [index: string]: any }, sortedQuery: SortMap, rule: { [index: string]: any }, sortedRule: SortMap): boolean {
         D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Enter case compare Atom : Object', 5);
         for (const queryKey of sortedQuery.get(this.ID_AO)) {
             D.clog(Colors.BLUE, 'KEY', this.ID_AO, '', 'key => ' + queryKey, 4);
@@ -612,10 +611,14 @@ class Matcher {
             if (rule.hasOwnProperty(queryKey)) {
                 if (isObject(rule[queryKey])) {
                     D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', '(TOO MUCH RELAXED) Rule has an object associated to the key', 3);
-                    continue; // TODO: too much relaxed
+                    if (this.compareRule(query[queryKey], this.sort(query[queryKey]), rule[queryKey], this.sort(rule[queryKey]))) {
+                        continue;
+                    } else {
+                        return false;
+                    }
                 } else if (isPlaceholder(rule[queryKey])) {
                     D.clog(Colors.YELLOW, 'OK', this.ID_AO, '', 'Rule has a placeholder associated to the key', 3);
-                    continue; // TODO: too much relaxed
+                    continue;
                 } else {
                     D.clog(Colors.RED, 'FAIL', this.ID_AO, '', 'In the rule the key `' + queryKey + '\' is associated to an atom', 3);
                     D.clog(Colors.BLUE, 'INFO', this.ID_AO, '', 'Exit case compare Atom : Object', 5);
@@ -640,7 +643,6 @@ class Matcher {
         for (const queryKey of sortedQuery.get(this.ID_AP)) {
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'key => ' + queryKey, 4);
             D.clog(Colors.BLUE, 'KEY', this.ID_AP, '', 'value => ' + query[queryKey], 4);
-            console.log('asdasadsasdasdadsads ', rule, queryKey);
             if (rule.hasOwnProperty(queryKey)) {
                 D.clog(Colors.GREEN, 'OK', this.ID_AP, '', 'Rule has the same key associated to something (don\'t care what)', 3);
                 continue;

@@ -42,7 +42,7 @@ export class TTSEventReader extends BaseEventReader implements AutoSocketListene
 
 			let event = new ElfUIEvent()
 				.putAny(KEY_CONTENT, { "audio": data });
-
+				
 			setTimeout(_ => {
 				this.listener.onEvent(event);
 			}, 0);

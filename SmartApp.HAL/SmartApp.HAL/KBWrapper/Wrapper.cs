@@ -2,15 +2,17 @@
 using System.Configuration;
 using Newtonsoft.Json.Linq;
 using WebSocketSharp;
+using NLog;
 
 namespace KBWrapper {
 
     //---------------------------------------------------------------
     // Wrapper Class
     //---------------------------------------------------------------
-    public class Wrapper :IKbWrapper{
+    public class Wrapper : IKbWrapper{
 
         private static readonly string USER_ENGAGED = "USER_ENGAGED";
+        private static readonly NLog.Logger Log = NLog.LogManager.GetCurrentClassLogger();
 
         private string SOURCE_ID;
 
@@ -19,11 +21,7 @@ namespace KBWrapper {
         private string socketAddress;
         private string token;
 
-        //dealing in stupid way with this async lib
-        private bool waitingRegisterResponse = false;
-        private bool waitingRegisterTagResponse = false;
-        private bool waitingSubscribeResponse = false;
-
+        private bool receivedSubscriptionResponse = false;
 
         public Wrapper() {
             readWebSocketConfig();
@@ -39,24 +37,23 @@ namespace KBWrapper {
         //---------------------------------------------------------------
         public void Connect() {
             socket.Connect();
+            if (socket.ReadyState == WebSocketState.Closed) return;
             this.Register();
-            this.waitingRegisterResponse = true;
         }
 
         public void Close() {
             socket.Close();
-            //socket.dispose() ??
         }
 
         public void WriteUserEngaged() {
-            this.removePreviousUserEngaged();
+            //this.removePreviousUserEngaged();
             Message.UserEngaged engaged = new Message.UserEngaged(true);
             this.AddFact(USER_ENGAGED, 1, 100, engaged);
         }
 
 
         public void RemoveUserEngaged() {
-            this.removePreviousUserEngaged();
+            //this.removePreviousUserEngaged();
             Message.UserEngaged engaged = new Message.UserEngaged(false);
             this.AddFact(USER_ENGAGED, 1, 100, engaged);
         }
@@ -102,7 +99,8 @@ namespace KBWrapper {
         }
 
         private void Send(string request) {
-            Console.WriteLine(String.Format("Sending: {0}", request));
+            if (socket.ReadyState == WebSocketState.Closed) return;
+            Log.Debug(String.Format("Sending: {0}", request));
             socket.SendAsync(request, null);
         }
         //---------------------------------------------------------------
@@ -115,12 +113,12 @@ namespace KBWrapper {
                 string port = ConfigurationManager.AppSettings[ConfigKeys.Port];
                 token = ConfigurationManager.AppSettings[ConfigKeys.Token];
                 if (address == null || port == null || token == null) {
-                    Console.WriteLine("The config file MUST contain Address, Port, and Token.");
+                    Log.Error("The config file MUST contain Address, Port, and Token.");
                     throw new ConfigurationErrorsException("The config file MUST contain Address, Port, and Token.");
                 }
                 socketAddress = String.Format("ws://{0}:{1}", address, port);
             } catch (ConfigurationErrorsException) {
-                Console.WriteLine("Error reading app settings");
+                Log.Error("Error reading app settings");
                 throw;
             }
         }
@@ -128,7 +126,7 @@ namespace KBWrapper {
         private void removePreviousUserEngaged() {
             JObject o = new JObject();
             JObject meta = new JObject();
-            meta["tag"] = "USER_ENGAGED";
+            meta["tag"] = USER_ENGAGED;
             o["_meta"] = meta;
 
             JObject w = new JObject();
@@ -141,7 +139,7 @@ namespace KBWrapper {
         private void subscribeForUserEngagedEvents() {
             JObject o = new JObject();
             JObject meta = new JObject();
-            meta["tag"] = "USER_ENGAGED";
+            meta["tag"] = USER_ENGAGED;
             o["_meta"] = meta;
 
             JObject w = new JObject();
@@ -156,65 +154,72 @@ namespace KBWrapper {
         // CallBacks
         //----------------------------------------------------------------------
         private void _OnOpen(Object sender, System.EventArgs empty) {
-            Console.WriteLine("Connection with KB opened.");
+            Log.Info("Connection with KB opened.");
             OnOpen?.Invoke(this, EventArgs.Empty);
         }
 
         private void _OnClose(Object sender, WebSocketSharp.CloseEventArgs e) {
-            Console.WriteLine(String.Format("Connection with KB closed (code {0}: {1})", e.Code, e.Reason));
+            Log.Info(String.Format("Connection with KB closed (code {0}: {1})", e.Code, e.Reason));
             OnClose?.Invoke(this, EventArgs.Empty);
         }
 
         private void _OnMessage(Object sender, WebSocketSharp.MessageEventArgs e) {
-            Console.WriteLine("Message received from KB." + e.Data);
-            if (!wrapperHandled(e.Data)) {
-                // TODO: if reqId is not remFact or AddFact -> KB update not merged
-                JObject o = JObject.Parse(e.Data);
+            Log.Debug("Message received from KB." + e.Data);
+            JObject msg = JObject.Parse(e.Data);
+            if (!wrapperHandled(msg)) { // subscribed tuples
                 JArray a = null;
                 try {
-                    a = JArray.FromObject(o["details"]);
+                    a = JArray.FromObject(msg["details"]);
+                    //Log.Info(String.Format("Subscribe receive {0}", a.Count));
                     foreach (var obj in a) {
                         Message.UserEngaged u = JObject.FromObject(obj["object"]["_data"]).ToObject<Message.UserEngaged>();
                         OnMessage?.Invoke(this, new MessageEventArgs(u));
                     }
-                } catch (Exception) { }
+                } catch { }
             }
         }
 
         private void _OnError(Object sender, WebSocketSharp.ErrorEventArgs e) {
-            Console.WriteLine(String.Format("An error occurs during the interaction with KB. (Message: {0}. Exception: {1})", e.Message, e.Exception.Message));
+            Log.Error(String.Format("An error occurs during the interaction with KB. (Message: {0}. Exception: {1})", e.Message, e.Exception.Message));
             OnError?.Invoke(this, new ErrorEventArgs(e));
         }
 
         //Private handling of onMessage
-        private bool wrapperHandled(string json) {
-
-            if (this.waitingRegisterResponse) {
-                RegisterResponse r = JObject.Parse(json).ToObject<RegisterResponse>();
-                this.SOURCE_ID = r.SourceID;
-
-                Message.Tag tag = new Message.Tag(USER_ENGAGED, "A human is about to interact with ELF", "(A human is about to interact with ELF).verbose()");
-                this.RegisterTags(new Message.Tag[] { tag });
-
-                this.waitingRegisterResponse = false;
-                this.waitingRegisterTagResponse = true;
-                return true;
+        private bool wrapperHandled(JObject json) {
+            string msgID = json["reqId"].ToString();
+            if (msgID == null) { // <- subscribed messages
+                return false;
             }
 
-            if (this.waitingRegisterTagResponse) {
-                //should I check the answer? -> false, someone already (me, before crashing) register this tag -> I can add fact with that tag anyway
-                this.waitingRegisterTagResponse = false;
-                this.waitingSubscribeResponse = true;
-                this.subscribeForUserEngagedEvents();
-                return true;
-            }
+            switch (msgID) {
+                case Message.REGISTER_ID:
+                    RegisterResponse r = json.ToObject<RegisterResponse>();
+                    this.SOURCE_ID = r.SourceID;
 
-            if (this.waitingSubscribeResponse) {
-                this.waitingSubscribeResponse = false;
-                OnConnected?.Invoke(this, true);
-                return true;
+                    Message.Tag tag = new Message.Tag(USER_ENGAGED, "A human is about to interact with ELF", System.IO.File.ReadAllText(@"./doc.md"));
+                    Log.Debug("Got register response, assigned id: " + this.SOURCE_ID + ". Register user engagedTag.");
+                    this.RegisterTags(new Message.Tag[] { tag });
+                    break;
+
+                case Message.REGISTER_TAG_ID:
+                    Log.Debug("User engaged tag registered. Subscribe to that tag");
+                    this.subscribeForUserEngagedEvents();
+                    break;
+
+                case Message.SUBCRIBE_ID:
+                    if (!receivedSubscriptionResponse) {
+                        Log.Debug("Subscribed to user engaged tag");
+                        receivedSubscriptionResponse = true;
+                        OnConnected?.Invoke(this, true);
+                        break;
+                    }
+                    return false;
+
+                case Message.ADD_FACT_ID:
+                case Message.REMOVE_FACT_ID:
+                    break;
             }
-            return false;
+            return true;
         }
 
         //---------------------------------------------------------------

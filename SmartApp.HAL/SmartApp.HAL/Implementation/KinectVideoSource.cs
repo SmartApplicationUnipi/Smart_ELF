@@ -7,6 +7,7 @@ using SmartApp.HAL.Model;
 using SmartApp.HAL.Services;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -79,7 +80,11 @@ namespace SmartApp.HAL.Implementation
                 _kinect.Open();
             }
 
-            _framerate = 15f;
+            if (!float.TryParse(ConfigurationManager.AppSettings["Framerate"], out _framerate))
+            {
+                _framerate = 20f;
+            }
+
             _timer = new System.Timers.Timer(1000.0 / _framerate) { AutoReset = true, Enabled = false };
             _timer.Elapsed += OnTimerTick;
            

@@ -1,4 +1,4 @@
-from constants import PRE,PAR_PRE,CHILD_PRE,REL_PRE,R_ID,KW,CON,VALUE,DRS,VARS,PREDS
+from constants import PRE,PAR_PRE,CHILD_PRE,REL_PRE,R_ID,KW,CON,VALUE,DRS,VARS,PREDS,SIBL_PRE
 
 def retrieve_professors_names():
     list = []
@@ -16,7 +16,7 @@ transform_rules =   [
                         },
                         {PRE:{
                             R_ID:KW,
-                            VALUE:["prof","prof.","professore","professor"]
+                            VALUE:["prof","prof.","professore","professor","professoressa"]
                             },
                         DRS:{VARS:["$1"],
                             PREDS:["person($1)","professor($1)"]
@@ -48,7 +48,7 @@ transform_rules =   [
                         },
                         {PRE:{
                             R_ID:KW,
-                            VALUE:["di","del","dello","della","dei","degli","delle"]
+                            VALUE:["di","del","dello","della","dei","degli","delle","ha"]
                             },
                         DRS:{VARS:["$1","$2"],
                             PREDS:["own($1,$2)"]
@@ -80,10 +80,28 @@ transform_rules =   [
                         },
                         {PRE:{
                             R_ID:KW,
-                            VALUE:["quando"]
+                            VALUE:["quando","ora"]
                             },
                         DRS:{VARS:["$1"],
                             PREDS:["time($1)","unknown($1)","target($1)"]
+                            }
+                        },
+                        {PRE:{
+                            R_ID:KW,
+                            VALUE:["studio"]
+                            },
+                        DRS:{
+                            VARS:["$l"],
+                            PREDS:["location($l)","unknown($l)"]
+                            }
+                        },
+                        {PRE:{
+                            R_ID:KW,
+                            VALUE:["riceve","ricevimento"]
+                            },
+                        DRS:{
+                            VARS:["$o"],
+                            PREDS:["ricevimento($o)","unkwnown($o)"]
                             }
                         }
                     ]
@@ -120,6 +138,39 @@ merge_rules =       [
                             },
                         REL_PRE:{},
                         PREDS:["equals($1,$2)"]
-                        }
+                        },
+                        {PAR_PRE:{
+                            R_ID:CON,
+                            VALUE:["location($1)"]
+                            },
+                        CHILD_PRE:{
+                            R_ID:CON,
+                            VALUE:["person($2)"]
+                            },
+                        REL_PRE:{},
+                        PREDS:["own($2,$1)"]
+                        },
+                        {SIBL_PRE:{
+                            R_ID:CON,
+                            VALUE:["person($1)"]
+                            },
+                        SIBL_PRE:{
+                            R_ID:CON,
+                            VALUE:["dipartimento($2)"]
+                            },
+                        SIBL_PRE:{
+                            R_ID:CON,
+                            VALUE:["ricevimento($3)"]
+                                },
+                        SIBL_PRE:{
+                            R_ID:CON,
+                            VALUE:["unknown($4),location($4)"]
+                                },
+                        REL_PRE:{},
+                        PREDS:["equals($4,$2)"]
+                        },
+                        {PAR_PRE:{
+
+                        }}
                     ]
 rules = {'local' : transform_rules, 'merge' : merge_rules}
