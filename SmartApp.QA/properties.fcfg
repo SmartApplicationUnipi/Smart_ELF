@@ -1,0 +1,45 @@
+% start NP
+
+S[SEM=?subj] -> NP[SEM=?subj,DEP=0]
+#S[SEM=<app(?subj,?vp)>] -> NP[SEM=?subj,DEP=0] VP[SEM=?vp]
+
+PROP[SEM=<app(?r,?obj)>] -> REL[SEM=?r] NP[SEM=?obj,DEP=1]
+#VP[SEM=<app(?r,?obj)>] -> REL[SEM=?r] NP[SEM=?obj,DEP=1]
+
+NP[SEM=?x,DEP=?d] -> ACCU[SEM=?x,DEP=?d]
+PROP[SEM=?v] -> DET[SEM=?v]
+BAS_ACC[SEM=?v] -> NOUN[SEM=?v]
+
+DET[SEM=?v] -> ADJ[SEM=?v]
+DET[SEM=?v] -> NOUN[SEM=?v]
+
+#ACCU[SEM=?o,DEP=0] -> BAS_ACC[SEM=?o]
+ACCU[SEM=<app(?o,?p)>,DEP=0] -> PROP[SEM=?p] ACCU[SEM=?o,DEP=1]
+ACCU[SEM=<app(?o,?p)>,DEP=1] -> PROP[SEM=?p] ACCU[SEM=?o,DEP=2]
+ACCU[SEM=<app(?o,?p)>,DEP=2] -> PROP[SEM=?p] ACCU[SEM=?o,DEP=3]
+ACCU[SEM=<app(?o,?p)>,DEP=3] -> PROP[SEM=?p] ACCU[SEM=?o,DEP=4]
+
+ACCU[SEM=<app(?o,?p)>,DEP=0] -> ACCU[SEM=?o,DEP=1] PROP[SEM=?p]
+ACCU[SEM=<app(?o,?p)>,DEP=1] -> ACCU[SEM=?o,DEP=2] PROP[SEM=?p]
+ACCU[SEM=<app(?o,?p)>,DEP=2] -> ACCU[SEM=?o,DEP=3] PROP[SEM=?p]
+ACCU[SEM=<app(?o,?p)>,DEP=3] -> ACCU[SEM=?o,DEP=4] PROP[SEM=?p]
+
+ACCU[SEM=<app(?t,?r)>,DEP=?d] -> REC_ACC[SEM=?r,SEMD=?t,DEP=?d]
+
+REC_ACC[SEM=?s,SEMD=<\P.(DRS([],[])+P(x))>,DEP=0] -> BAS_ACC[SEM=?s]
+REC_ACC[SEM=?s,SEMD=<\P H.(DRS([x],[])+P(x)+H(x))>,DEP=1] -> BAS_ACC[SEM=?s]
+REC_ACC[SEM=?s,SEMD=<\P Q H.(DRS([x],[])+P(x)+Q(x)+H(x))>,DEP=2] -> BAS_ACC[SEM=?s]
+REC_ACC[SEM=?s,SEMD=<\P Q R H.(DRS([x],[])+P(x)+Q(x)+R(x)+H(x))>,DEP=3] -> BAS_ACC[SEM=?s]
+REC_ACC[SEM=?s,SEMD=<\P Q R S H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+H(x))>,DEP=4] -> BAS_ACC[SEM=?s]
+REC_ACC[SEM=?s,SEMD=<\P Q R S T H.(DRS([x],[])+P(x)+Q(x)+R(x)+S(x)+T(x)+H(x))>,DEP=5] -> BAS_ACC[SEM=?s]
+
+###### LEXICON
+
+ADJ[SEM=<\x.(DRS([],[prop1(x)]))>] -> '<property1>'
+ADJ[SEM=<\x.(DRS([],[prop2(x)]))>] -> '<property2>'
+ADJ[SEM=<\x.(DRS([],[prop3(x)]))>] -> '<property3>'
+
+NOUN[SEM=<\x.(DRS([],[object1(x)]))>] -> '<object1>'
+NOUN[SEM=<\x.(DRS([],[object2(x)]))>] -> '<object2>'
+
+REL[SEM=<\X x.(X(\y.(DRS([],[relation(x,y)]))))>] -> '<relation>'
