@@ -1,6 +1,6 @@
 import sys
 import logging
-from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER, TAG_USER_TRANSCRIPT
+from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER, TAG_ELF_EMOTION, TAG_COLORED_ANSWER, TAG_USER_TRANSCRIPT, TAG_VISION
 sys.path.insert(0, PATH_TO_KB_MODULE)
 import threading
 from kb import KnowledgeBaseClient
@@ -92,9 +92,10 @@ class IESService:
         """Metodo per accedere velocemente al risultato di una query
             ritorna il dizionario datas
         """
-        obj = response[0]
+
         obj = response["details"][0]["object"]
-        datas = obj["_data"]['emotion']
+        datas = obj["_data"]
+        print(datas)
         return datas
 
     def get_mean_user_emotion(self):
@@ -182,5 +183,13 @@ class IESService:
         Start service
         """
         self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_VISION, "is_interlocutor":"True"}}, self.on_user_interaction)
+        # appena avviato ELF è di buonumore, e non presagisce nulla, delle sventure che stanno per accadergli
+        fact = {
+            "time_stamp": str(datetime.datetime.now()),
+            "valence" : 0.8,
+            "arousal" : 0.5,
+            "tag": TAG_ELF_EMOTION
+        }
+        self.write_to_KB(fact, TAG_ELF_EMOTION)
         self.timer = threading.Timer(self.idle_time_update, self.timed_update)
         self.timer.start()

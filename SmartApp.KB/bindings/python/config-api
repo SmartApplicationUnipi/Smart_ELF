@@ -1,5 +1,5 @@
 [host-config]
-host-name : ws://131.114.3.213
+host-name : ws://localhost
 port : 5666
 [security]
 token : smartapp1819

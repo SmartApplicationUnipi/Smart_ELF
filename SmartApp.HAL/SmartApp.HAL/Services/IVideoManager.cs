@@ -12,6 +12,7 @@ namespace SmartApp.HAL.Services
 
         bool IsEngaged { get; }
 
-        event EventHandler<bool> IsEngagedChanged;
+        float Framerate { get; set; }
+        
     }
 }

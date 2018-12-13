@@ -45,7 +45,10 @@ namespace SmartApp.HAL
             services.AddSingleton<IAudioManager, AudioManager>();
 
             // User interface
-            services.AddSingleton<IUserInterface, WinFormsUI>();
+            //services.AddSingleton<IUserInterface, WinFormsUI>();
+
+            // KB wrapper
+            services.AddSingleton<KBWrapper.IKbWrapper, KBWrapper.Wrapper>();
 
             // Network
             services.AddSingleton<INetwork, Network>();
@@ -82,6 +85,7 @@ namespace SmartApp.HAL
             //    : (IVideoSource)serviceProvider.GetService<LocalCameraSource>();
         }
 
+
         public static void Main(string[] args)
         {
             var serviceProvider = BuildDIContainer();
@@ -90,16 +94,60 @@ namespace SmartApp.HAL
             using (serviceProvider.GetRequiredService<IVideoSource>())
             using (serviceProvider.GetRequiredService<IAudioSource>())
             {
+                //init KB wrapper
+                KBWrapperInit(serviceProvider.GetRequiredService<KBWrapper.IKbWrapper>(), serviceProvider.GetService<ILogger<Program>>());
                 // Start the audio and video managers
                 serviceProvider.GetRequiredService<IVideoManager>().Start();
                 serviceProvider.GetRequiredService<IAudioManager>().Start();
+                serviceProvider.GetRequiredService<IVideoSource>().Start();
 
                 // Run the sample application
-                serviceProvider.GetRequiredService<IUserInterface>().Run();
+                //serviceProvider.GetRequiredService<IUserInterface>().Run();
+                while (true)
+                {
+                    Console.ReadLine();
+                }
             }
-
             // Explicitely shutdown NLog
             NLog.LogManager.Shutdown();
+        }
+
+        private static void KBWrapperInit(KBWrapper.IKbWrapper kb, ILogger logger)
+        {
+            bool isConnected = false;
+            int backoff = 2;
+            kb.OnOpen += (sender, e) => {
+                isConnected = true;
+                logger.LogInformation("Wrapper: onOpen");
+            };
+
+            kb.OnClose += (sender, e) => {
+                isConnected = false;
+                while (!isConnected)
+                {
+                    logger.LogError("Kb connection closed, try to reconnect.");
+                    backoff *= backoff;
+                    if (backoff > 30) backoff = 30;
+                    Thread.Sleep(backoff*1000);
+                    kb.Connect();
+                }
+            };
+
+            kb.OnConnected += (sender, e) => {
+
+                logger.LogTrace("Wrapper: OnConnected");
+            };
+
+            kb.OnMessage += (sender, e) => {
+                logger.LogTrace("Wrapper: onMessage: " + e.Value);
+            };
+
+            kb.OnError += (sender, e) => {
+                logger.LogTrace("Wrapper: onError " + e.message);
+            };
+            int i = 0;
+            kb.Connect();
+
         }
     }
 }

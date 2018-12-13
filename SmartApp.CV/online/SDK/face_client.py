@@ -15,9 +15,9 @@ Facepp_Client
     implementation of the client for Face++ APIs.
     it provide interfaces all APIs documented in https://console.faceplusplus.com/documents/6329329
 """
-class Facepp_Client(object):
+class Facepp_Client():
 
-    def __init__(self, api_key=None, api_secret=None):
+    def __init__(self, api_key=None, api_secret=None, timeout_request = 5):
 
         api_key = os.getenv('FACEpp_KEY', None) if api_key==None else api_key
         api_secret = os.getenv('FACEpp_SECRET', None) if api_secret==None else api_secret
@@ -31,7 +31,12 @@ class Facepp_Client(object):
         self.url_params = { 'api_key': api_key, 'api_secret': api_secret}
         self.detect_params = {}
 
+        self.timeout = timeout_request
+
     def _sendRequest(self, *args, **kwargs):
+        #Is usefull have more sec before the timeout error because the request
+        #can easily take more than 1 sec. DEFAULT 5 sec
+        kwargs.update({"timeout": self.timeout})
         jr = json.loads(requests.post(*args, **kwargs).text)
         err = jr.get("error_message")
         if err: raise ValueError(err)

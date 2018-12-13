@@ -25,11 +25,16 @@ namespace SmartApp.HAL.Implementation
         private readonly INetwork _network;
         private readonly ILogger<VideoManager> _logger;
 
+        private float _framerate = 5f;
+        private DateTime _previousSendTime = DateTime.MinValue;
+        
+
         public VideoManager(IVideoSource source, IAudioSource audioSource, INetwork network, ILogger<VideoManager> logger)
         {
             _videoSource = source ?? throw new ArgumentNullException(nameof(source));
             _audioSource = audioSource ?? throw new ArgumentNullException(nameof(audioSource));
             _network = network ?? throw new ArgumentNullException(nameof(network));
+            _network.RegisterVideoManager(this);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -37,27 +42,9 @@ namespace SmartApp.HAL.Implementation
         {
             _videoSource.FrameReady += (_, frame) =>
             {
-                // Check if the user engagement changed
-                var newEngaged = frame.Faces.Any(f => f.IsEngaged);
-                if (newEngaged != IsEngaged)
-                {
-                    // Start recording audio when the user is engaged
-                    if (newEngaged)
-                    {
-                        _audioSource.Start();
-                    }
-                    else
-                    {
-                        _audioSource.Stop();
-                    }
-
-                    IsEngaged = newEngaged;
-                    _logger.LogInformation($"User {(IsEngaged ? string.Empty : "not ")}engaged.");
-                    IsEngagedChanged?.Invoke(this, IsEngaged);
-                }
-
-                // Exit immediately if we did not find any face
-                if (frame.Faces.Count == 0)
+                double timeFromLast = DateTime.Now.Subtract(_previousSendTime).TotalSeconds;
+                // Exit immediately if we did not find any face or the packet is to fast
+                if (frame.Faces.Count == 0 || timeFromLast < 1/_framerate)
                 {
                     return;
                 }
@@ -95,14 +82,34 @@ namespace SmartApp.HAL.Implementation
                         }
                     });
                 }
-
+                _logger.LogInformation("Video manager send packet with {0} faces", frame.Faces.Count);
+                _previousSendTime = DateTime.Now;
                 _network.SendPacket(packet);
 
             };
         }
 
-        public bool IsEngaged { get; private set; }
+        public float Framerate
+        {
+            get
+            {
+                lock (this)
+                {
+                    return _framerate;
+                }
+            }
+            set
+            {
+                lock (this)
+                {
+                    _framerate = value;
+                    _logger.LogInformation("New framerate: {0} fps.", value);
+                }
+            }
+        }
 
-        public event EventHandler<bool> IsEngagedChanged;
+
+        public bool IsEngaged { get; private set; }
+        
     }
 }

@@ -35,7 +35,7 @@ class KnowledgeBaseClient():
 	def close_websocket(self):
 		if(not self.persistence):
 			self.websocket.close()
-	
+
 	# this method sends a message on a websocket
 	# the message format to the knowledge base api is
 	# { "method": METHODNAME, "params": PARAMSOBJECT, "token": TOKEN}
@@ -43,7 +43,7 @@ class KnowledgeBaseClient():
 	# PARAMSOBJECT is a map in which each key is the name of the parameter
 	# TOKEN is the authentiation tocken string
 	def remote_call(self, method: str, params: map ):
-		
+
 		request = {"method": method, "params": params, "token": self.token}
 		self.get_websocket()
 		self.websocket.send(json.dumps(request))
@@ -80,7 +80,7 @@ class KnowledgeBaseClient():
 
 	def queryFact(self, jsonReq: map):
 		return self.remote_call("queryFact", {"jsonReq": jsonReq})
-	
+
 	def removeFact(self, idSource: str, jsonReq: map):
 		return self.remote_call("removeFact", {"idSource": idSource, "jsonReq": jsonReq})
 

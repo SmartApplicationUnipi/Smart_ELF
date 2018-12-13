@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 from keras.callbacks import Callback
 import os
 
-from pkg_resources import resource_filename
-
 class PlotLosses(Callback):
 
     def __init__(self, figure_dir='output',figure_name='loss_plot.png',figure_path='output/loss_plot.png'):

@@ -29,8 +29,17 @@ namespace SmartApp.HAL.Implementation
         private readonly VideoCapture _capture = new VideoCapture();
         private readonly CascadeClassifier _faceDetector = new CascadeClassifier("OpenCV/haarcascade_frontalface_default.xml");
 
-        public LocalCameraSource(ILogger<LocalCameraSource> logger)
+        private KBWrapper.IKbWrapper _kb;
+
+        public LocalCameraSource(ILogger<LocalCameraSource> logger, KBWrapper.IKbWrapper kb)
         {
+            _kb = kb;
+            // Engagment event received, start or stop the capture
+            kb.OnMessage += (sender, e) => {
+                if (e.Value) this.Start();
+                else this.Stop();
+            };
+
             _logger = logger;
             _logger.LogInformation("Local camera source loaded.");
 
@@ -76,7 +85,7 @@ namespace SmartApp.HAL.Implementation
                 // Publish a completed frame
                 FrameReady?.Invoke(this, new VideoFrame(
                     DateTime.Now,
-                    faceBounds.Select(bounds => new VideoFrame.Face(bounds, -1, -1, -1, IsUserEngaged(frame, bounds))).ToList(),
+                    faceBounds.Select(bounds => new VideoFrame.Face(bounds, -1, -1, -1)).ToList(),
                     frame.ToImage<Bgr, byte>(),
                     _frameWidth,
                     _frameHeigth
@@ -101,26 +110,6 @@ namespace SmartApp.HAL.Implementation
         {
             _timer.Stop();
             _logger.LogInformation("Capture stopped.");
-        }
-
-        public float Framerate
-        {
-            get
-            {
-                lock (this)
-                {
-                    return _framerate;
-                }
-            }
-            set
-            {
-                lock (this)
-                {
-                    _framerate = value;
-                    _timer.Interval = 1000.0 / value;
-                    _logger.LogInformation("New framerate: {0} fps.", value);
-                }
-            }
         }
 
         public bool IsAvailable{ get; set; }

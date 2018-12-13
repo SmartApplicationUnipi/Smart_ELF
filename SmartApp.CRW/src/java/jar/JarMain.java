@@ -1,21 +1,21 @@
 package jar;
 
-import com.sun.webkit.network.URLs;
 import elf_crawler.CrawlingManager;
 import elf_crawler.URLSet;
 import elf_crawler.crawler.DataEntry;
 import elf_crawler.crawler.KBTagManager;
 import elf_crawler.crawler.Tag;
-import elf_crawler.relationship.RelationQuery;
 import elf_crawler.relationship.RelationshipSet;
 import elf_crawler.util.LogLevel;
 import elf_crawler.util.Logger;
-import elf_kb_protocol.*;
+import elf_kb_protocol.Fact;
+import elf_kb_protocol.KBConnection;
+import elf_kb_protocol.KBTTL;
+import elf_kb_protocol.TagList;
 
 import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class JarMain {
 
@@ -69,7 +69,9 @@ public class JarMain {
             do
             {
                 executeCrawlCycle(rs, urlSet, con, tagm);
-                Thread.sleep(sleepTime * 60000);
+
+                if (sleepTime > 0)
+                    Thread.sleep(sleepTime * 60000);
             } while (sleepTime != -1);
 
             con.closeConnection();

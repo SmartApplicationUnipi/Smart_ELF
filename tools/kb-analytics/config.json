@@ -1,0 +1,7 @@
+{
+    "kb": {
+        "url": "ws://localhost:5666",
+        "token": "smartapp1819"
+    },
+    "videoRecordingsPath": "../SmartApp.TOOLS/InteractionsLogger/Recordings"
+}
