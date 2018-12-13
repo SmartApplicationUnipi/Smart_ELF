@@ -32,18 +32,18 @@ class GNLP_Service:
 		obj      = res[0]['details'][0]['object']['_data']
 		question = obj['text']
 		lang     = obj['language']
+		ts		 = obj['time_stamp']		
 		print(question)
 		question = question['text']
 		luis_analysis = NLP_Understand(question, language = lang)
-		print('asd2')
 		spacy_analysis = get_dependency_tree(question, language = lang)
-		print('asd3')
 		self.KBC.addFact(self.ID, "NLP_ANALYSIS", 1, 50, {
 			"tag" : "NLP_ANALYSIS",
+			"language": lang,
 			"entities": luis_analysis,
 			"dependencies": spacy_analysis,
 			"user_query": question,
-			"time_stamp": 1 # TODO
+			"time_stamp": ts # TODO
 			}
 		)
 		# Logging some infos
@@ -53,9 +53,9 @@ class GNLP_Service:
 		pp.pprint(spacy_analysis)
 		print(question)
 
-		self.answer(question)
+		self.answer(question, lang, ts)
 
-	def answer(self, question):
+	def answer(self, question, lang, ts):
 		'''
 		Callback that answer the user query
 		'''
@@ -66,9 +66,10 @@ class GNLP_Service:
 
 		self.KBC.addFact(self.ID, "NLP_ANSWER", 1, 50, {
 			"tag" : "NLP_ANSWER",
+			"language" : lang,
 			"text": answer,
 			"user_query": question,
-			"time_stamp": 1 # TODO
+			"time_stamp": ts # TODO
 			}
 		)
 
