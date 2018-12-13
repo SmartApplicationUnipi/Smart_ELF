@@ -46,7 +46,8 @@ class QaService:
         if question_answered==True:
             pass
         else:
-            question_answered = drs_matcher(answer_arr,"TEST_rules+constants.fcfg",self.kb_client,self.kb_ID)
+            question_answered = drs_matcher(query,"TEST_rules+constants.fcfg",self)
+            #TODO: check if question was "answered" by DRS
 
         response = {
             "tag": TAG_ANSWER,
