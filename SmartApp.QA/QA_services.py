@@ -1,5 +1,5 @@
 import sys
-from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER
+from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER, EXPANDED_RULE_FILE_NAME
 sys.path.insert(0, PATH_TO_KB_MODULE)
 from kb import KnowledgeBaseClient
 from tree_templates.tree_matcher import match_tree
@@ -45,7 +45,7 @@ class QaService:
         if question_answered==True:
             pass
         else:
-            question_answered = drs_matcher(query,"TEST_rules+constants.fcfg",self)
+            question_answered = drs_matcher(query,EXPANDED_RULE_FILE_NAME,self)
             #TODO: check if question was "answered" by DRS
 
         response = {
