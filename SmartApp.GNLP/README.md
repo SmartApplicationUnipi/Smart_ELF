@@ -53,7 +53,7 @@ For the analysis phase:
   "entities": entities,
   "dependencies": parse_tree,
   "user_query": question,
-  "time_stamp": 1 # TODO
+  "timestamp": 1 # TODO
 }
 ```
 For the answer phase
@@ -62,7 +62,7 @@ For the answer phase
   "tag" : "NLP_ANSWER",
   "text": answer,
   "user_query": question,
-  "time_stamp": 1 # TODO
+  "timestamp": 1 # TODO
 }
 ```
 
