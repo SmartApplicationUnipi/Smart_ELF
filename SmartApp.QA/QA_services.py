@@ -43,10 +43,13 @@ class QaService:
 
         question_answered = self.qa_exact_temp_matching(query)
         if question_answered==True:
-            pass
+            pass #should return
         else:
             question_answered = drs_matcher(query,EXPANDED_RULE_FILE_NAME,self)
-            #TODO: check if question was "answered" by DRS
+            if question_answered==True:
+                pass #should return
+            else:
+                pass #should produce default answer
 
         response = {
             "tag": TAG_ANSWER,
@@ -54,6 +57,7 @@ class QaService:
             "time_stamp" : 1
         }
         self.write_to_KB(response,TAG_ANSWER)
+        print('Default answer produced')
 
 
 

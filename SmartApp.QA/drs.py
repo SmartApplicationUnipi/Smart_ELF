@@ -15,7 +15,7 @@ def drs_matcher(s,p,QA_services,debug="no"):
                 res.append(str(tree.label()['SEM'].simplify()))
     #if we have a failure in the parser tree, return False or rethrow exception
     except:
-        print('exception occurred')
+        print('Error occurred while parsing sentence, due to insufficient or wrong rules. No DRS could be produced')
         if(debug == "yes"): #forwarding output to do further testing when developing new grammar rules
             raise
         elif(debug == "no"):
@@ -31,4 +31,5 @@ def drs_matcher(s,p,QA_services,debug="no"):
             QA_services.write_to_KB(DRS, TAG_DRS)
             return True
         else:
+            print('No DRS could be produced')
             return False
