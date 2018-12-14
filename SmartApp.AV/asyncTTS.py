@@ -84,6 +84,8 @@ async def kb_to_audio(queue):
     def callbfun(res):
         log.info("Receive data from KB " + str(res))
 
+        print("data from kb")
+
         timestamp = res[0][0]["$ts"]
         text = res[0][0]['$input']
         valence = res[0][0]['$v']
