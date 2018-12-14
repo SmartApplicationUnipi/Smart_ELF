@@ -93,7 +93,10 @@ async def kb_to_audio(queue):
         language = res[0][0]["$l"]
 
         ttm = make_mary_text(text, valence, arousal)
+
         audio = make_audio(ttm, language)
+
+        print("merryTTS work! ")
 
         queue.put({"id": timestamp,
                    "audio": base64.b64encode(audio).decode('ascii'),
