@@ -59,15 +59,15 @@ def color_answer(answer, emotion, language="en"):
 
     return colored_answer
 
-def emotion_from_ELF():
+def emotion_from_ELF(ies):
     """
     Assess the emotion that ELF needs to use given its state (tuples)
     """
     #read tuples from ELF state, use DBI to assess valence and arousal values that ELF needs to answer
-    import random #remove bipolarism!!!!!
-    valence = random.uniform(-1.0, 1.0) #remove bipolarism!!!!!
-    arousal = random.uniform(-1.0, 1.0) #remove bipolarism!!!!!
 
+    valence = ies[0]
+    arousal = ies[1]
+    
     return circumplex_to_emotion(valence, arousal), valence, arousal
 
 def correct_grammar(answer):
@@ -80,27 +80,22 @@ def correct_grammar(answer):
 
     return answer
 
-def prepare_answer(answer):
+def prepare_answer(answer, ies):
     """
     Offers the service of eTT, consisting in manipulating an answer
     to the user in order to transform it with respect to some emotion
     extrapolated by ELF internal state (tuples)
     """
-    emotion, valence, arousal = emotion_from_ELF()
+    emotion, valence, arousal = emotion_from_ELF(ies)
     answer = answer.lower() #go lowercase
     answer = correct_grammar(answer) #just for first templates, remove later!!!!
     colored_answer = color_answer(answer, emotion, "en")
     answer_fact = {
-        "TIME_STAMP": 3, #fix this!!!!!
+        "time_stamp": 3, #fix this!!!!!
         "text": colored_answer,
-        "VALENCE": valence,
-        "AROUSAL" : arousal,
-        "TAG": TAG_COLORED_ANSWER
+        "valence": valence,
+        "arousal" : arousal,
+        "tag": TAG_COLORED_ANSWER
     }
-    emotion_fact = {
-        "TIME_STAMP": 3, #fix this!!!!!
-        "VALENCE" : valence,
-        "AROUSAL" : arousal,
-        "TAG": TAG_ELF_EMOTION
-    }
-    return answer_fact, emotion_fact
+
+    return answer_fact

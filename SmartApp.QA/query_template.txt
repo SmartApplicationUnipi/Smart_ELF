@@ -1,0 +1,62 @@
+LEZIONI
+1Dove posso trovare la lezione di $
+2Dov'è la lezione di $
+2Dove è la lezione di $
+3Dove fa lezione $
+4In che aula è la lezione di $
+5Dimmi l'aula della lezione di $
+6Dove devo andare per seguire la lezione di $
+28Dove si trova la lezione di $
+
+LEZIONI ORARI
+7A che ora inizia la lezione di $
+8Sono in tempo per la lezione di $
+9A che ora finisce la lezione di $
+8La lezione di $ è già iniziata
+10Quando inizia la lezione di $
+11Quando farà lezione $
+12Quando sarà la prossima lezione di $
+12Quando $ terrà lezione
+13A che ora fa lezione $
+14In che giorno è la prossima lezione di $
+15In che giorno fa lezione $
+16In che giorno e a che ora è la prossima lezione di $
+16In che giorno e a che ora fa lezione $
+17Qual’è l’orario settimanale di $
+18Qual’è l’orario settimanale delle lezioni di $
+19Quali sono le lezioni di $
+
+LEZIONI ORARI CORSI
+29Quando sarà la prossima lezione del corso di $
+30A che ora è la prossima lezione del corso di $
+31In che giorno è la prossima lezione del corso di $
+32In che giorno e a che ora è la prossima lezione del corso di $
+33Qual’è l’orario settimanale del corso di $
+34Qual’è l’orario settimanale delle lezioni del corso di $
+51Quando sono le lezioni del corso di $
+
+LEZIONI COME ARRIVARE
+36Dove è l'aula $
+36Dove sta l'aula $
+37Come faccio a raggiungere l'aula $
+38Che lezione c'è in aula $
+
+LEZIONE CANCELLATA
+39La lezione di $ è stata cancellata
+40La lezione del corso di $ è stata cancellata
+41La lezione di $ del giorno $ è stata cancellata
+42La lezione del corso di $ del giorno $ è stata cancellata
+43La lezione di $ delle $ è stata cancellata
+44La lezione di $ del giorno $ delle $ è stata cancellata
+
+ORARIO RICEVIMENTO
+20In quale dipartimento fa ricevimento $
+21Dove è il ricevimento di $
+22A che ora è il ricevimento di $
+23Quando è il ricevimento di $
+
+STUDIO DEL PROFESSORE
+24In quale dipartimento è lo studio di $
+25Qual’è lo studio di $
+26Qual’è il numero dello studio di $
+27Dove è lo studio di $

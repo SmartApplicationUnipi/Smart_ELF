@@ -20,11 +20,11 @@ class HALInterface(object):
     ###############################################################
     # Audio
     ###############################################################
-    def registerAsAudioReceiver(self, callback):
+    def registerAsAudioReceiver(self, callback, errback, *args, **kwargs):
         Log.debug("registerAsAudioReceiver")
         id = self.__getClientID()
-        clientThread = HALAudio.HALAudioThread(self.HALAddress, self.HALAudioPort, id, callback)
-        if clientThread.connect():
+        clientThread = HALAudio.HALAudioThread(self.HALAddress, self.HALAudioPort, id, callback, errback, *args, **kwargs)
+        if clientThread._connect():
             self.registeredClients[id] = clientThread
             clientThread.start()
             return id
@@ -36,11 +36,11 @@ class HALInterface(object):
     # Video
     ###############################################################
 
-    def registerAsVideoReceiver(self, callback):
+    def registerAsVideoReceiver(self, callback, errback, *args, **kwargs):
         Log.debug("registerAsVideoReceiver")
         id = self.__getClientID()
-        clientThread = HALVideo.HALVideoThread(self.HALAddress, self.HALVideoPort, id, callback)
-        if clientThread.connect():
+        clientThread = HALVideo.HALVideoThread(self.HALAddress, self.HALVideoPort, id, callback, errback, *args, **kwargs)
+        if clientThread._connect():
             self.registeredClients[id] = clientThread
             clientThread.start()
             return id

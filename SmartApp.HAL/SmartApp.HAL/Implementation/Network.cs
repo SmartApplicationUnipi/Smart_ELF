@@ -17,19 +17,18 @@ namespace SmartApp.HAL.Implementation
     internal class Network : INetwork
     {
         private readonly ILogger<Network> _logger;
-        private readonly IVideoSource _videoSource;
+        private IVideoManager _videoManager;
         private readonly ProtobufServer<AudioDataPacket, AudioDataPacket> _audioServer;
         private readonly ProtobufServer<VideoDataPacket, VideoControlPacket> _videoServer;
 
-        public Network(Options options, IVideoSource videoSource, ILogger<Network> logger, ILoggerFactory loggerFactory)
+        public Network(Options options, ILogger<Network> logger, ILoggerFactory loggerFactory)
         {
             if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _videoSource = videoSource ?? throw new ArgumentNullException(nameof(videoSource));
-
+            
             // Starts the audio and video servers
             _audioServer = new ProtobufServer<AudioDataPacket, AudioDataPacket>(
                 options.BindToAddress,
@@ -73,7 +72,7 @@ namespace SmartApp.HAL.Implementation
             switch (packet.RequestCase)
             {
                 case VideoControlPacket.RequestOneofCase.FramerateRequest:
-                    _videoSource.Framerate = packet.FramerateRequest.Framerate;
+                   if(_videoManager!=null) _videoManager.Framerate = packet.FramerateRequest.Framerate;
                     break;
 
                 default:
@@ -81,22 +80,39 @@ namespace SmartApp.HAL.Implementation
             }
         }
 
-
+        public void RegisterVideoManager(IVideoManager manager)
+        {
+            if (manager != null)
+            {
+                _videoManager = manager;
+            }
+        }
 
         private class ProtobufServer<TDataPacket, TControlPacket> : IDisposable
             where TDataPacket : IMessage<TDataPacket>
             where TControlPacket : IMessage<TControlPacket>
         {
-            private class Connection
+            private class Connection : IDisposable
             {
                 public Connection(TcpClient client, Thread t)
                 {
                     Client = client;
                     Thread = t;
+                    Stream = client.GetStream();
+                    RemoteEndPoint = client.Client.RemoteEndPoint;
                 }
 
                 public TcpClient Client { get; }
                 public Thread Thread { get; }
+                public EndPoint RemoteEndPoint { get; }
+                public NetworkStream Stream { get; }
+
+                public void Dispose()
+                {
+                    Client.Close();
+                    Stream.Dispose();
+                    Client.Dispose();
+                }
             }
 
             private readonly MessageParser<TControlPacket> _parser;
@@ -156,7 +172,7 @@ namespace SmartApp.HAL.Implementation
                 {
                     foreach (var c in _connections)
                     {
-                        c.Client.Close();
+                        c.Dispose();
                     }
                 }
 
@@ -236,12 +252,12 @@ namespace SmartApp.HAL.Implementation
                             {
                                 try
                                 {
-                                    packet.WriteDelimitedTo(conn.Client.GetStream());
+                                    packet.WriteDelimitedTo(conn.Stream);
                                 }
                                 catch (Exception)
                                 {
                                     // Close the client socket and interrupt its thread
-                                    conn.Client.Close();
+                                    conn.Dispose();
                                     conn.Thread.Interrupt();
                                 }
                             }
@@ -265,34 +281,26 @@ namespace SmartApp.HAL.Implementation
                     try
                     {
                         // Read an incoming data packet from the client
-                        TControlPacket packet;
-                        try
-                        {
-                            packet = _parser.ParseDelimitedFrom(connection.Client.GetStream());
-                        }
-                        catch (Exception)
-                        {
-                            // The client wither disconnected or sent an invalid packet, so kill this connection
-                            break;
-                        }
+                        var packet = _parser.ParseDelimitedFrom(connection.Stream);
 
                         // We got a new packet!
                         IncomingControlPacket?.Invoke(packet);
                     }
-                    catch (ThreadInterruptedException) when (_isDisposed)
+                    catch (Exception e)
                     {
-                        // We just got interrupted, so exit immediately
+                        if (!_isDisposed && !(e is ThreadInterruptedException))
+                        {
+                            _logger.LogInformation("Client {0} disconnected.", connection.RemoteEndPoint);
+                        }
+
+                        // The client wither disconnected or sent an invalid packet, so kill this connection.
+                        // We will reach this point also if we get interrupted.
                         break;
                     }
                 }
 
                 // Remove our self from the list of connections
-                if (!_isDisposed)
-                {
-                    _logger.LogInformation("Client {0} disconnected.", connection.Client.Client.RemoteEndPoint);
-                }
-                connection.Client.Close();
-                connection.Client.Dispose();
+                connection.Dispose();
                 while (true)
                 {
                     try

@@ -1,6 +1,6 @@
-import * as ElfUIEvent from '../event/ElfUIEvent'
-import * as Emotion from '../../emotion/Emotion'
-import * as Content from '../../content/Content';
+import * as Emotion from '../../emotion/Emotion';
+
+import { IContent } from '../../content/Content';
 
 /**
  * Base interface for objects that can be displayed by the ElfUI.
@@ -16,19 +16,19 @@ export interface UIWidget {
 /**
  * This class represent an item that have an emotion.
  */
-export abstract class EmotionalWidget {
+export abstract class EmotionalUIWidget implements UIWidget {
 	/**
 	 * Construct the widget using a neutral emotion as default.
 	 * @param emotion The current emotion. If nothing is passed, the neutral emotion is used.
 	 */
 
-	constructor(private emotion: Emotion.IEmotion = Emotion.getNeutral()) {}
+	constructor(private emotion: Emotion.ISBEEmotion = Emotion.getNeutral()) {}
 
 	/**
 	 * Set the new emotion to be displayed.
 	 * @param emotion The new emotion
 	 */
-	public setEmotion(emotion: Emotion.IEmotion): void {
+	public setEmotion(emotion: Emotion.ISBEEmotion): void {
 		this.emotion = emotion;
 		this.onEmotionChanged(this.emotion);
 	}
@@ -36,7 +36,7 @@ export abstract class EmotionalWidget {
 	/**
 	 * Get the current emotion.
 	 */
-	public getEmotion(): Emotion.IEmotion {
+	public getEmotion(): Emotion.ISBEEmotion {
 		return this.emotion;
 	}
 
@@ -44,12 +44,17 @@ export abstract class EmotionalWidget {
 	 * This method is called when the a new emotion is received from the ElfUI.
 	 * @param emotion The new emotion received
 	 */
-	abstract onEmotionChanged(emotion: Emotion.IEmotion): void;
+	abstract onEmotionChanged(emotion: Emotion.ISBEEmotion): void;
+
+	/**
+	 * Returns the HTML code of this widget.
+	 */
+	abstract render(): string;
 };
 
 /**
  * Interface that represent a factory for UIWidget starting from events.
  */
 export interface UIWidgetFactory {
-	create(event: Content.IContent): Array<UIWidget>;
+	create(event: IContent): Array<UIWidget>;
 }

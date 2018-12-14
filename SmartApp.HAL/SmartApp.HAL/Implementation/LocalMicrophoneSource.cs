@@ -9,7 +9,7 @@ namespace SmartApp.HAL.Implementation
 {
     /// <summary>
     /// Uses the local microphone as an audio source.
-    /// Samples are collected every 10 seconds (approx).
+    /// Samples are collected every 30 seconds (approx).
     /// </summary>
     internal class LocalMicrophoneSource : IAudioSource
     {
@@ -20,6 +20,7 @@ namespace SmartApp.HAL.Implementation
         private readonly byte[] _waveBuffer;
         private int _waveBufferPosition = 0;
         private DateTime _startRecordTime;
+        private bool _isRecording = false;
 
         public LocalMicrophoneSource(ILogger<LocalMicrophoneSource> logger)
         {
@@ -27,7 +28,7 @@ namespace SmartApp.HAL.Implementation
             _logger.LogInformation("Local microphone audio source loaded.");
 
             // Prepare the buffer to hold the data
-            _waveBuffer = new byte[_waveIn.WaveFormat.AverageBytesPerSecond * 10];
+            _waveBuffer = new byte[_waveIn.WaveFormat.AverageBytesPerSecond * 30];
 
             // Add the event handlers
             _waveIn.DataAvailable += OnDataAvailable;
@@ -69,13 +70,14 @@ namespace SmartApp.HAL.Implementation
         {
             // Publish a new complete sample
             _logger.LogTrace("New audio sample with WaveFormat: " + _waveIn.WaveFormat);
-            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, _waveBuffer, _waveBufferPosition, _waveIn.WaveFormat));
+            SampleReady?.Invoke(this, new AudioSample(DateTime.Now, _waveBuffer, _waveBufferPosition, new AudioSample.FixedWaveFormat(_waveIn.WaveFormat.SampleRate)));
         }
 
         public event EventHandler<AudioSample> SampleReady;
 
         public void Start()
         {
+            _isRecording = true;
             _waveIn.StartRecording();
             _startRecordTime = DateTime.Now;
             _logger.LogInformation("Recording started.");
@@ -83,6 +85,7 @@ namespace SmartApp.HAL.Implementation
 
         public void Stop()
         {
+            _isRecording = false;
             _waveIn.StopRecording();
             _logger.LogInformation("Recording stopped.");
         }
@@ -92,6 +95,11 @@ namespace SmartApp.HAL.Implementation
             // Stop the recording and dispose the audio source
             Stop();
             _waveIn.Dispose();
+        }
+
+        public bool IsRecording()
+        {
+            return _isRecording;
         }
     }
 }

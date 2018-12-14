@@ -14,23 +14,26 @@ namespace SmartApp.HAL.Implementation
     internal class WinFormsUI : IUserInterface
     {
         private readonly IVideoSource _videoSource;
-        private readonly IAudioSource _audioSource;
+        private readonly IVideoManager _videoManager;
         private readonly ILogger<WinFormsUI> _logger;
 
-        public WinFormsUI(IVideoSource videoSource, IAudioSource audioSource, ILogger<WinFormsUI> logger)
+        public WinFormsUI(IVideoSource videoSource, IVideoManager videoManager, ILogger<WinFormsUI> logger)
         {
             _videoSource = videoSource ?? throw new ArgumentNullException(nameof(videoSource));
-            _audioSource = audioSource ?? throw new ArgumentNullException(nameof(audioSource));
+            _videoManager = videoManager ?? throw new ArgumentNullException(nameof(videoManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void Run()
         {
+            const int W = 640;
+            const int H = 360;
+
             // Create a simple form with just a button and an image
             var form = new Form()
             {
                 Text = "SmartApp",
-                ClientSize = new Size(640, 530),
+                ClientSize = new Size(W, H + 50),
                 StartPosition = FormStartPosition.CenterScreen,
                 MinimizeBox = false,
                 MaximizeBox = false,
@@ -38,11 +41,11 @@ namespace SmartApp.HAL.Implementation
             };
 
             // Image to render the video
-            var buffer = new Bitmap(640, 480, PixelFormat.Format24bppRgb);
+            var buffer = new Bitmap(W, H, PixelFormat.Format24bppRgb);
             var latestTimestamp = DateTime.Now;
             var image = new PictureBox()
             {
-                Size = new Size(640, 480),
+                Size = new Size(W, H),
                 Location = new Point(0, 0),
                 Image = buffer
             };
@@ -51,14 +54,32 @@ namespace SmartApp.HAL.Implementation
             // Button
             var btn = new Button()
             {
-                Size = new Size(640, 50),
-                Location = new Point(0, 480),
-                Text = "Press and hold to record",
+                Size = new Size(W, 50),
+                Location = new Point(0, H),
+                Text = "Click to start recording",
+                ForeColor = Color.Black,
                 Font = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold)
             };
             form.Controls.Add(btn);
-            btn.MouseDown += (_, __) => { _videoSource.Start(); _audioSource.Start(); };
-            btn.MouseUp += (_, __) => { _videoSource.Stop(); _audioSource.Stop(); };
+
+            var active = false;
+            btn.Click += (_, __) =>
+            {
+                if (active)
+                {
+                    _videoSource.Stop();
+                    btn.ForeColor = Color.Black;
+                    btn.Text = "Click to start recording";
+                }
+                else
+                {
+                    _videoSource.Start();
+                    btn.ForeColor = Color.Red;
+                    btn.Text = "Click to stop recording";
+                }
+
+                active = !active;
+            };
             
             // Draw the rectangles for the faces on the bitmap and show it on the screen
             _videoSource.FrameReady += (_, frame) => {
@@ -71,17 +92,29 @@ namespace SmartApp.HAL.Implementation
 
                     using (var g = Graphics.FromImage(buffer))
                     using (var pen = new Pen(Color.Red, 3f))
-                    using (var fpsFont = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
+                    using (var font = new Font(FontFamily.GenericSansSerif, 14.0f, FontStyle.Bold))
                     {
                         g.Clear(Color.LightGray);
 
+                        // Draw the full frame
+                        g.DrawImage(frame.Image.Bitmap, new Rectangle(0, 0, W, H), new Rectangle(0, 0, frame.FrameWidth, frame.FrameHeight), GraphicsUnit.Pixel);
+
+                        var wratio = (float) frame.FrameWidth / (float) W;
+                        var hratio = (float) frame.FrameHeight / (float) H;
+
                         foreach (var face in frame.Faces)
                         {
-                            g.DrawImage(frame.Image, face.Bounds, face.Bounds, GraphicsUnit.Pixel);
-                            g.DrawRectangle(pen, face.Bounds);
-                        }
+                            // Scale the bounds of the face to fit on the canvas
+                            var rect = new Rectangle(
+                                (int) (face.Bounds.X / wratio),
+                                (int) (face.Bounds.Y / hratio),
+                                (int) (face.Bounds.Width / wratio),
+                                (int) (face.Bounds.Height / hratio)
+                            );
 
-                        g.DrawString($"{_videoSource.Framerate} fps", fpsFont, Brushes.Red, 0, 0);
+                            g.DrawRectangle(pen, rect);
+                        }
+                        
                     }
 
                     latestTimestamp = frame.Timestamp;

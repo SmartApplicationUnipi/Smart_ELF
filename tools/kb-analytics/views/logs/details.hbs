@@ -1,0 +1,32 @@
+<div class="jumbotron">
+    <h1 class="display-4">Interaction details: #{{interaction.id}}</h1>
+    <p class="lead">
+        From <strong class="font-weight-bold">{{interaction.beginTimestamp}}</strong>
+        to <strong class="font-weight-bold">{{interaction.endTimestamp}}</strong>
+    </p>
+</div>
+
+<div class="text-center" style="margin-bottom: 2em">
+    <video controls width="640" height="480">
+        <source src="/logs/videos/{{interaction.interactionName}}.mp4" type="video/mp4">
+    </video>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th scope="col">Tag</th>
+            <th scope="col">Timestamp</th>
+            <th scope="col">Fact</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each details}}
+            <tr>
+                <td>{{this.object._meta.tag}}</td>
+                <td>{{this.object._meta.creationTime}}</td>
+                <td>{{{this.object._data}}}</td>
+            </tr>
+        {{/each}}
+    </tbody>
+</table>

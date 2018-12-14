@@ -1,20 +1,26 @@
 """
 This is a fake STT fact inserter
+
+N.B.: IT'S NOT UPDATED ANYMORE!!!!!!
 """
 import sys
 from interface_tags import PATH_TO_KB_MODULE
 
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
-import kb
+from kb import KnowledgeBaseClient
 from interface_tags import TAG_USER_TRANSCRIPT
 
 def __main__():
-    myID = kb.register()
+    kb_client = KnowledgeBaseClient(False)
+    kb_ID = (kb_client.register())['details']
+    kb_client.registerTags(kb_ID, { TAG_USER_TRANSCRIPT : {'desc' : 'Fake by ENLP', 'doc' : 'FAKE by ENLP'} })
     obj_from_stt = {
-	"TAG": TAG_USER_TRANSCRIPT,
-	"text": "We will build a great wall"
+	"tag": TAG_USER_TRANSCRIPT,
+	"text": "We will build a great wall",
+    "language": "en"
 	}
-    kb.addFact(myID, TAG_USER_TRANSCRIPT, 1, 100, False, obj_from_stt)
+    res = kb_client.addFact(kb_ID, TAG_USER_TRANSCRIPT, 1, 100, obj_from_stt)
+    print(res)
 
 __main__()

@@ -11,9 +11,13 @@ pids
 *.seed
 *.pid.lock
 
+# Database data
+db/
+
 # Node
 dist/
 node_modules/
+package-lock.json
 
 # Python
 __pycache__/
@@ -26,3 +30,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# VSCODE
+.vscode

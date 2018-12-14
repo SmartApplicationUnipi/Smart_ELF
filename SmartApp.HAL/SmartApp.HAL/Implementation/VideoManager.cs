@@ -12,6 +12,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.IO;
+using System.Linq;
 using SmartApp.HAL.Model;
 using Google.Protobuf;
 
@@ -19,55 +20,96 @@ namespace SmartApp.HAL.Implementation
 {
     internal class VideoManager : IVideoManager
     {
-        private readonly IVideoSource _source;
+        private readonly IVideoSource _videoSource;
+        private readonly IAudioSource _audioSource;
         private readonly INetwork _network;
         private readonly ILogger<VideoManager> _logger;
 
-        public VideoManager(IVideoSource source, INetwork network, ILogger<VideoManager> logger)
+        private float _framerate = 5f;
+        private DateTime _previousSendTime = DateTime.MinValue;
+        
+
+        public VideoManager(IVideoSource source, IAudioSource audioSource, INetwork network, ILogger<VideoManager> logger)
         {
-            _source = source ?? throw new ArgumentNullException(nameof(source));
+            _videoSource = source ?? throw new ArgumentNullException(nameof(source));
+            _audioSource = audioSource ?? throw new ArgumentNullException(nameof(audioSource));
             _network = network ?? throw new ArgumentNullException(nameof(network));
+            _network.RegisterVideoManager(this);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public void Start()
         {
-            _source.FrameReady += (_, frame) =>
+            _videoSource.FrameReady += (_, frame) =>
             {
-                // Exit immediately if we did not find any face
-                if (frame.Faces.Count == 0)
+                double timeFromLast = DateTime.Now.Subtract(_previousSendTime).TotalSeconds;
+                // Exit immediately if we did not find any face or the packet is to fast
+                if (frame.Faces.Count == 0 || timeFromLast < 1/_framerate)
                 {
                     return;
                 }
 
-                var videoFrameRgbBuffer = new Image<Rgb, byte>(640, 480);
-
-                // Convert the incoming image which is BGR to RGB
-                var bits = frame.Image.LockBits(new Rectangle(0, 0, frame.Image.Width, frame.Image.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                using (var videoFrameBgr = new Image<Bgr, byte>(frame.Image.Width, frame.Image.Height, bits.Stride, bits.Scan0))
-                    CvInvoke.CvtColor(videoFrameBgr, videoFrameRgbBuffer, ColorConversion.Bgr2Rgb);
-                frame.Image.UnlockBits(bits);
-
                 // Prepare the packet to send over the net
                 var packet = new VideoDataPacket() {
-                    Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                    Timestamp = new DateTimeOffset(frame.Timestamp).ToUnixTimeSeconds(),
+                    FrameWidth = frame.FrameWidth,
+                    FrameHeight = frame.FrameHeight
                 };
                 foreach (var face in frame.Faces)
                 {
-                    var faceBits = frame.Image.LockBits(face.Bounds, ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                    var bytes = new byte[faceBits.Stride * faceBits.Height];
-                    Marshal.Copy(faceBits.Scan0, bytes, 0, bytes.Length);
-                    frame.Image.UnlockBits(faceBits);
+                    var buf = new byte[face.Bounds.Width * face.Bounds.Height * 3];
+                    for (var y = 0; y < face.Bounds.Height; y++)
+                    {
+                        for (var x = 0; x < face.Bounds.Width; x++)
+                        {
+                            for (var c = 0; c < 3; c++)
+                            {
+                                buf[(y * face.Bounds.Width + x) * 3 + c] = frame.Image.Data[y + face.Bounds.Top, x + face.Bounds.Left, c];
+                            }
+                        }
+                    }
 
                     packet.Faces.Add(new VideoDataPacket.Types.Face() {
-                        Id = -1,
-                        Data = ByteString.CopyFrom(bytes)
+                        Id = face.ID,
+                        Z = face.Z,
+                        Speaking = face.IsSpeaking,
+                        Data = ByteString.CopyFrom(buf),
+                        Rect = new VideoDataPacket.Types.Rectangle() {
+                            Top = face.Bounds.Top,
+                            Left = face.Bounds.Left,
+                            Width = face.Bounds.Width,
+                            Height = face.Bounds.Height
+                        }
                     });
                 }
-
+                _logger.LogInformation("Video manager send packet with {0} faces", frame.Faces.Count);
+                _previousSendTime = DateTime.Now;
                 _network.SendPacket(packet);
 
             };
         }
+
+        public float Framerate
+        {
+            get
+            {
+                lock (this)
+                {
+                    return _framerate;
+                }
+            }
+            set
+            {
+                lock (this)
+                {
+                    _framerate = value;
+                    _logger.LogInformation("New framerate: {0} fps.", value);
+                }
+            }
+        }
+
+
+        public bool IsEngaged { get; private set; }
+        
     }
 }

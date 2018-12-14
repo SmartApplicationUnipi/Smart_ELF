@@ -1,0 +1,5 @@
+[host-config]
+host-name : ws://localhost
+port : 5666
+[security]
+token : smartapp1819

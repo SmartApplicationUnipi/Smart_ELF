@@ -7,19 +7,23 @@
     "build-ts": "tsc",
     "start": "npm run build-ts && npm run serve",
     "serve": "node dist/src/server.js",
-    "test": "npm run build-ts && node dist/test/matcher.test.js && node dist/test/kb.test.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.4"
+    "test": "mkdir db.old && mv db/* db.old/ && ((tsc && mocha -r ts-node/register test/kb/* test/unificator.test.ts && mv db.old/* db/ && rm -r db.old)) || (mv db.old/* db && rm -r db.old)",
+    "install": "mkdir db && echo \"dummyfile\" >> ./db/dummydb",
+    "clear": "rm -rf node_modules/ && rm -rf db/"
   },
   "dependencies": {
-    "@types/express": "^4.16.0",
+    "@types/chai": "latest",
+    "@types/deep-equal": "^1.0.1",
+    "@types/mocha": "latest",
     "@types/ws": "^6.0.1",
-    "express": "^4.16.4",
+    "chai": "latest",
+    "deep-equal": "^1.0.1",
+    "mocha": "latest",
+    "mocha-typescript": "^1.1.17",
+    "ts-node": "latest",
+    "tslint": "latest",
+    "typescript": "latest",
     "websocket": "^1.0.28",
-    "ws": "^6.1.0"
+    "ws": "^6.1.2"
   }
 }

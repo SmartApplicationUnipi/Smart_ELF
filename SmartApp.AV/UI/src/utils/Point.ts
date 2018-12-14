@@ -11,6 +11,20 @@ export class Point {
 	constructor(private x: number, private y: number) {}
 
 	/**
+	 * Returns the value of x
+	 */
+	public getX(): number {
+		return this.x;
+	}
+
+	/**
+	 * Returns the value of y
+	 */
+	public getY(): number {
+		return this.y;
+	}
+
+	/**
 	 * Returns a new Point whose coordinates are the sum between this point and p coordinates.
 	 * @param p The point holding to add.
 	 */
@@ -25,5 +39,12 @@ export class Point {
 	public distanceTo(p: Point): number {
 		let diff = this.add(new Point(-p.x, -p.y));
 		return Math.sqrt(Math.pow(diff.x, 2) + Math.pow(diff.y, 2));
+	}
+
+	/**
+	 * Clone this object
+	 */
+	public clone(): Point {
+		return new Point(this.x, this.y);
 	}
 }
