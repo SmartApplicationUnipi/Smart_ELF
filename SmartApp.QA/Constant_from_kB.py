@@ -1,12 +1,11 @@
 import sys
-from interface_tags import PATH_TO_KB_MODULE, TAG_PROF, TAG_COURSE, TAG_ROOM
+from interface_tags import PATH_TO_KB_MODULE, TAG_PROF, TAG_COURSE, TAG_ROOM, RULE_FILE_NAME, EXPANDED_RULE_FILE_NAME
 sys.path.insert(0, PATH_TO_KB_MODULE)
 from kb import KnowledgeBaseClient
 import logging
 
-
 """
-This service is used to extract "constants" from KB such as professor's, course's and room's name
+This service is used to extract "constants" from KB such as professor's, course's and room's names
 
 """
 class ConstantFromkB:
@@ -14,13 +13,13 @@ class ConstantFromkB:
     def __init__(self, kb_ID, logging_lvl):
         self.logging_lvl = logging_lvl
         self.kb_ID = kb_ID
-        logging.info('\tConstant_from_kB Service started')
+        logging.info("\tConstant_from_kB Service Handler created")
         self.kb_client = KnowledgeBaseClient(True)
 
 
     def extract_rooms_courses_from_KB(self,tag, file):
         """This method is the one devoted to extract "constants" information from the KB
-        First it perform a query to retrieve the facts interested, then write them in file (2° parameter)
+        First it performs a query to retrieve the facts interested, then write them in file (2° parameter)
         """
 
         #answer query
@@ -84,11 +83,11 @@ class ConstantFromkB:
 
     def start(self):
         "ask for 'constants' facts"
-        logging.info("\tConstant form Kb service started")
+        logging.info("\tConstant_from_kB Service started")
 
         #open file containing rules and copy them in another file
-        rules_file = open("TEST_rules.fcfg")
-        rules_plus_constants_files = open("TEST_rules+constants.fcfg", "w+")
+        rules_file = open(RULE_FILE_NAME)
+        rules_plus_constants_files = open(EXPANDED_RULE_FILE_NAME, "w+")
         rules_plus_constants_files.write(rules_file.read())
 
         #extraxt info from KB

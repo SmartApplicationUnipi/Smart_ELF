@@ -1,5 +1,5 @@
 import sys
-from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER
+from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER, EXPANDED_RULE_FILE_NAME
 sys.path.insert(0, PATH_TO_KB_MODULE)
 from kb import KnowledgeBaseClient
 from tree_templates.tree_matcher import match_tree
@@ -8,7 +8,6 @@ import logging
 import json as json
 import templates as tp
 #  libreria spacy matcher per
-
 
 """
 This service is used to answer user's query
@@ -19,7 +18,7 @@ class QaService:
         self.logging_lvl = logging_lvl
         self.kb_ID = kb_ID
         #logging.basicConfig(stream=sys.stderr, level=logging_lvl)
-        logging.info('\tETT Service started')
+        logging.info('\tQA Service Handler created')
         self.kb_client = KnowledgeBaseClient(True)
         self.query_prof, self.q_prof_answ, self.query_corso, self.q_corso_answ,\
         self.dict_q_aule, self.dict_answ_aule = tp.init_templates_dict()
@@ -46,7 +45,7 @@ class QaService:
         if question_answered==True:
             pass
         else:
-            question_answered = drs_matcher(query,"TEST_rules+constants.fcfg",self)
+            question_answered = drs_matcher(query,EXPANDED_RULE_FILE_NAME,self)
             #TODO: check if question was "answered" by DRS
 
         response = {

@@ -43,7 +43,7 @@ def make_audio(txt, lang="en-GB"):
     mary_port = "59125"
 
     language_in="dfki-prudence"#TODO Improve with other models
-    if lang == "it":
+    if "it" in lang or "IT" in lang:
         language_in="istc-lucia-hsmm"
         lang = "it"
 
