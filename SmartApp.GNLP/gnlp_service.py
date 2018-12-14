@@ -61,7 +61,7 @@ class GNLP_Service:
 		'''
 
 		print("Answering...")
-		answer = "I don't have any jokes for you at the moment, sorry!"
+		answer = "Non ho barzellette al momento per ora!"
 
 
 		self.KBC.addFact(self.ID, "NLP_ANSWER", 1, 50, {
