@@ -93,7 +93,10 @@ async def kb_to_audio(queue):
         language = res[0][0]["$l"]
 
         ttm = make_mary_text(text, valence, arousal)
+
         audio = make_audio(ttm, language)
+
+        print("merryTTS work! ")
 
         queue.put({"id": timestamp,
                    "audio": base64.b64encode(audio).decode('ascii'),
@@ -106,8 +109,8 @@ async def kb_to_audio(queue):
 
     kb_client = kb.KnowledgeBaseClient(False)
     kb_ID = (kb_client.register())['details']
-    #kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', "text": "$input"}}, callbfun) #todo change with appropriate tag
-    kb_client.subscribe(kb_ID, {"_data": {"tag": "ENLP_EMOTIVE_ANSWER",
+    kb_client.subscribe("AV_ID", {"_data": {"tag": 'AV_IN_TRANSC_EMOTION', #"text": "$input"}}, callbfun) #todo change with appropriate tag
+    #kb_client.subscribe(kb_ID, {"_data": {"tag": "ENLP_EMOTIVE_ANSWER",
                                             "time_stamp": "$ts",
                                             "text": "$input",
                                             "valence": "$v",
