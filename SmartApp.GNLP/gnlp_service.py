@@ -32,7 +32,7 @@ class GNLP_Service:
 		obj      = res[0]['details'][0]['object']['_data']
 		question = obj['text']
 		lang     = obj['language']
-		ts		 = obj['time_stamp']
+		ts		 = obj['timestamp']
 		print(question)
 		question = question['text']
 		luis_analysis = NLP_Understand(question, language = lang)
@@ -43,7 +43,7 @@ class GNLP_Service:
 			"entities": luis_analysis,
 			"dependencies": spacy_analysis,
 			"user_query": question,
-			"time_stamp": ts
+			"timestamp": ts
 			}
 		)
 		# Logging some infos
@@ -69,7 +69,7 @@ class GNLP_Service:
 			"language" : lang,
 			"text": answer,
 			"user_query": question,
-			"time_stamp": ts
+			"timestamp": ts
 			}
 		)
 
@@ -80,8 +80,8 @@ class GNLP_Service:
 		TAG_CRW_RAW_INFO = "CRAWLER_DATA_ENTRY"
 		TAG_REASONER_OUTPUT = "REASONING_FRAME"
 
-		self.KBC.subscribe(self.ID, {"_data": { "tag": TAG_USER_TRANSCRIPT ,"text": "$d", "language": "$lang"} }, self.analyse)
-		
+		self.KBC.subscribe(self.ID, {"_data": { "tag": TAG_USER_TRANSCRIPT ,"text": "$d", "language": "$lang", "timestamp": "$ts"} }, self.analyse)
+
 		print("Subscribed to the KB")
 
 
