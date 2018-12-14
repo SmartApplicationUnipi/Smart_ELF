@@ -34,7 +34,7 @@ class GNLP_Service:
 		lang     = obj['language']
 		ts		 = obj['timestamp']
 		print(question)
-		question = question['text']
+		#question = question['text']
 		luis_analysis = NLP_Understand(question, language = lang)
 		spacy_analysis = get_dependency_tree(question, language = lang)
 		self.KBC.addFact(self.ID, "NLP_ANALYSIS", 1, 50, {
