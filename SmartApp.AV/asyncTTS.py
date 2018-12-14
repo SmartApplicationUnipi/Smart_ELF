@@ -86,11 +86,12 @@ async def kb_to_audio(queue):
 
         print("data from kb")
 
-        timestamp = res[0]["details"][0]["timestamp"]
-        text = res[0]["details"][0]["text"]
-        valence = res[0]["details"][0]["valence"]
-        arousal = res[0]["details"][0]["arousal"]
-        language = res[0]["details"][0]["language"]
+        result = res["details"][0]["object"]["_data"]
+        timestamp = result["timestamp"]
+        text = result["text"]
+        valence = result["valence"]
+        arousal = result["arousal"]
+        language = result["language"]
 
         ttm = make_mary_text(text, valence, arousal)
 
