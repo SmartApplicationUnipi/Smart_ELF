@@ -6,7 +6,6 @@ import sys
 from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS, DESC_ANSWER, TAG_ANSWER
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
-from DRS_Service import DRSService
 from QA_services import QaService
 from kb import KnowledgeBaseClient
 from Constant_from_kB import ConstantFromkB
@@ -74,17 +73,14 @@ def __main__():
 
     logging.info("\tQA module registered")
     #TODO register tags nedeed?
-    """drs_service = DRSService(kb_ID, logging_lvl)
-    t1 = DRS_thread(drs_service)
-    t1.start()"""
 
     qa_service = QaService(kb_ID,logging_lvl)
-    t2 = Qa_Thread(qa_service)
-    t2.start()
+    t1 = Qa_Thread(qa_service)
+    t1.start()
 
     k_service = ConstantFromkB(kb_ID,logging_lvl)
-    t3 = K_Thread(k_service)
-    t3.start()
+    t2 = K_Thread(k_service)
+    t2.start()
 
 
 

@@ -14,3 +14,6 @@ DESC_ANSWER = 'answer = {"time_stamp": int, "text": testop , "tag": "' + TAG_ANS
 TAG_PROF = "crawler_teacher"
 TAG_COURSE = "crawler_course"
 TAG_ROOM = "crawler_room"
+
+RULE_FILE_NAME = "DRS_rules.fcfg"
+EXPANDED_RULE_FILE_NAME = "DRS_rules+constants.fcfg" #TO BE GIT-IGNORED!
