@@ -28,6 +28,7 @@ def drs_matcher(s,p,QA_services,debug="no"):
             #return the DRS obtained from the first tree of the forest, if it exist
             #TODO: look for a tree with same structure as published by GNLP (provided it exist and it makes sense)
             DRS= res[0]
+            # TODO qggiungere un field query_text con dentro la query da passare al query manager
             QA_services.write_to_KB(DRS, TAG_DRS)
             return True
         else:

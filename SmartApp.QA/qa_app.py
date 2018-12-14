@@ -3,18 +3,21 @@ Entry point of QA application
 """
 
 import sys
-from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS, DESC_ANSWER, TAG_ANSWER
+from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS, DESC_ANSWER, TAG_ANSWER, TAG_BINDINGS, DESC_TAG_BINDINGS, TAG_FINAL_ANSW, DESC_TAG_FINAL_ANSW
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
-from QA_services import QaService
+from TemplateService import TemplateService
 from kb import KnowledgeBaseClient
+from DrsService import DrsService
+from QueryManager import QueryManager
 from Constant_from_kB import ConstantFromkB
+from ResultManager import ResultManager
 import threading
 import argparse
 import logging
 
 class DRS_thread (threading.Thread):
-    """ Thread class for ett service"""
+    """ Thread class for drs service"""
     def __init__(self, drs_obj):
         threading.Thread.__init__(self)
         self.drs_obj = drs_obj
@@ -22,8 +25,26 @@ class DRS_thread (threading.Thread):
     def run(self):
         self.drs_obj.start()
 
-class Qa_Thread (threading.Thread):
-    """ Thread class for Qa service"""
+class ResultManager_thread (threading.Thread):
+    """ Thread class for drs service"""
+    def __init__(self, drs_obj):
+        threading.Thread.__init__(self)
+        self.drs_obj = drs_obj
+
+    def run(self):
+        self.drs_obj.start()
+
+class TemplateService_thread (threading.Thread):
+    """ Thread class for template matcher service"""
+    def __init__(self, qa_obj):
+        threading.Thread.__init__(self)
+        self.qa_obj = qa_obj
+
+    def run(self):
+        self.qa_obj.start()
+
+class QueryManager_thread (threading.Thread):
+    """ Thread class for Query manager service"""
     def __init__(self, qa_obj):
         threading.Thread.__init__(self)
         self.qa_obj = qa_obj
@@ -68,19 +89,40 @@ def __main__():
 
     tags = {
         TAG_DRS : {'desc' : 'DRS structure', 'doc' : DESC_DRS},
-        TAG_ANSWER : {'desc' : 'stupid answer', 'doc' : DESC_ANSWER}
+        TAG_ANSWER : {'desc' : 'stupid answer', 'doc' : DESC_ANSWER},
+        TAG_BINDINGS : {'desc' : 'bindings', 'doc' : DESC_TAG_BINDINGS},
+        TAG_FINAL_ANSW : {'desc' : 'final answer', 'doc' : DESC_TAG_FINAL_ANSW}
+
     }
 
     logging.info("\tQA module registered")
     #TODO register tags nedeed?
 
-    qa_service = QaService(kb_ID,logging_lvl)
-    t1 = Qa_Thread(qa_service)
+
+    kb_client.registerTags(kb_ID, tags)
+
+
+    qa_service = TemplateService(kb_ID,logging_lvl)
+    t1 = TemplateService_thread(qa_service)
     t1.start()
 
     k_service = ConstantFromkB(kb_ID,logging_lvl)
     t2 = K_Thread(k_service)
     t2.start()
+
+    drs_service = DrsService(kb_ID,logging_lvl)
+    t3 = DRS_thread(drs_service)
+    t3.start()
+
+    query_manag_service = QueryManager(kb_ID,logging_lvl)
+    t4 = QueryManager_thread(query_manag_service)
+    t4.start()
+
+    result_manag_service = ResultManager(kb_ID,logging_lvl)
+    t5 = ResultManager_thread(result_manag_service)
+    t5.start()
+
+
 
 
 
