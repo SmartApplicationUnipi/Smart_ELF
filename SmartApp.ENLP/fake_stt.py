@@ -18,7 +18,8 @@ def __main__():
     obj_from_stt = {
 	"tag": TAG_USER_TRANSCRIPT,
 	"text": "We will build a great wall",
-    "language": "en"
+    "language": "en",
+    "timestamp" : 7
 	}
     res = kb_client.addFact(kb_ID, TAG_USER_TRANSCRIPT, 1, 100, obj_from_stt)
     print(res)
