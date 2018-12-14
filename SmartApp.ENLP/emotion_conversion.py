@@ -4,12 +4,16 @@ from math import sqrt
 EMOTIONS_COORD = {
     'excited' : (0.5,0.8),
     'angry' : (-0.8,0.5),
+    'anger' : (-0.8,0.5),
     'bored' : (-0.5,-0.8),
     'happy' : (0.8,0.5),
+    'happiness' : (0.8,0.5),
     'fear' : (-0.6,0.8),
     'sarcasm' : (0.,0.3),
     'sad' : (-0.9,-0.6),
+    'sadness' : (-0.9,-0.6),
     'neutral' : (0.,0.),
+    'calm' : (0.,0.),
     'surprise' : (0., 1.),
     'disgust' : (-0.9, 0.1)
 }
