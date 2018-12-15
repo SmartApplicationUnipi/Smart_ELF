@@ -17,8 +17,12 @@ def __main__():
     kb_client.registerTags(kb_ID, { TAG_USER_TRANSCRIPT : {'desc' : 'Fake by ENLP', 'doc' : 'FAKE by ENLP'} })
     obj_from_stt = {
 	"tag": TAG_USER_TRANSCRIPT,
+    "timestamp" : 7,
+    "ID": "fake_stt",
 	"text": "We will build a great wall",
-    "language": "en"
+    "language": "en",
+    "valence" :0.5,
+    "arousal" : 0.5
 	}
     res = kb_client.addFact(kb_ID, TAG_USER_TRANSCRIPT, 1, 100, obj_from_stt)
     print(res)

@@ -29,23 +29,23 @@ class GNLP_Service:
 		print("Analysing...")
 
 		print(res)
-		question = res[0]['details'][0]['object']['_data']
+		obj      = res[0]['details'][0]['object']['_data']
+		question = obj['text']
+		lang     = obj['language']
+		ts		 = obj['timestamp']
 		print(question)
-		question = question['text']
-		luis_analysis = NLP_Understand(question)
-		print('asd2')
-		spacy_analysis = get_dependency_tree(question)
-		print('asd3')
+		#question = question['text']
+		luis_analysis = NLP_Understand(question, language = lang)
+		spacy_analysis = get_dependency_tree(question, language = lang)
 		self.KBC.addFact(self.ID, "NLP_ANALYSIS", 1, 50, {
 			"tag" : "NLP_ANALYSIS",
+			"language": lang,
 			"entities": luis_analysis,
 			"dependencies": spacy_analysis,
 			"user_query": question,
-			"time_stamp": 1 # TODO
+			"timestamp": ts
 			}
 		)
-
-		print('asd4')
 		# Logging some infos
 
 		pp = pprint.PrettyPrinter()
@@ -53,9 +53,9 @@ class GNLP_Service:
 		pp.pprint(spacy_analysis)
 		print(question)
 
-		self.answer(question)
+		self.answer(question, lang, ts)
 
-	def answer(self, question):
+	def answer(self, question, lang, ts):
 		'''
 		Callback that answer the user query
 		'''
@@ -66,9 +66,10 @@ class GNLP_Service:
 
 		self.KBC.addFact(self.ID, "NLP_ANSWER", 1, 50, {
 			"tag" : "NLP_ANSWER",
+			"language" : lang,
 			"text": answer,
 			"user_query": question,
-			"time_stamp": 1 # TODO
+			"timestamp": ts
 			}
 		)
 
@@ -78,13 +79,9 @@ class GNLP_Service:
 		TAG_USER_TRANSCRIPT = "AV_IN_TRANSC_EMOTION"
 		TAG_CRW_RAW_INFO = "CRAWLER_DATA_ENTRY"
 		TAG_REASONER_OUTPUT = "REASONING_FRAME"
-		#self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_USER_TRANSCRIPT}, "_data" : {"text": "?d} }, self.analyse)
-		self.KBC.subscribe(self.ID, {"_data": { "tag": TAG_USER_TRANSCRIPT ,"text": "$d"} }, self.analyse)
-		# self.KBC.subscribe(self.ID, {"_data" : "$d" }, self.analyse)
-		# self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_CRW_RAW_INFO}, "_data" : {"data": "$input"} }, self.analyse)
-		# self.KBC.subscribe(self.ID, {"_meta": {"_tag": TAG_REASONER_OUTPUT}, "_data" : {"text": "$input"} }, self.answer)
 
-		#subscribe(self.ID, {"text_f_audio": "$input"}, self.callback)
+		self.KBC.subscribe(self.ID, {"_data": { "tag": TAG_USER_TRANSCRIPT ,"text": "$d", "language": "$lang", "timestamp": "$ts"} }, self.analyse)
+
 		print("Subscribed to the KB")
 
 

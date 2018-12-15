@@ -1,4 +1,3 @@
-from nltk.parse import load_parser
 from nltk.sem.drt import DrtParser
 from nltk import *
 from interface_tags import TAG_DRS
@@ -15,7 +14,8 @@ def drs_matcher(s,p,QA_services,debug="no"):
             elif(debug == "no"):
                 res.append(str(tree.label()['SEM'].simplify()))
     #if we have a failure in the parser tree, return False or rethrow exception
-    except Exception():
+    except:
+        print('exception occurred')
         if(debug == "yes"): #forwarding output to do further testing when developing new grammar rules
             raise
         elif(debug == "no"):
