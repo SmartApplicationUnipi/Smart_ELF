@@ -49,6 +49,11 @@ print("AV is running")
 os.chdir("../../SmartApp.ENLP")
 os.system("START /B python enlp_app.py")
 print("ENLP is running")
+
+os.chdir("../../SmartApp.CV")
+os.system("START /B python controller.py")
+print("CV is running")
+
 os.chdir("../SmartApp.GNLP")
 os.system("START /B python gnlp_service.py")
 print("GNLP is running")
@@ -56,7 +61,6 @@ print("GNLP is running")
 time.sleep(5)
 os.system("""START chrome "http://localhost:8080/" """)
 
-os.chdir("../SmartApp.CV")
 os.chdir("../SmartApp.QA")
 os.chdir("../SmartApp.CRW")
 
