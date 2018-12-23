@@ -2,7 +2,7 @@ from nltk.sem.drt import DrtParser
 from nltk import *
 from interface_tags import TAG_DRS
 
-def drs_matcher(s,p,QA_services,debug="no"):
+def drs_matcher(s, p, drs_service, debug="no"):
     res = []
 
     parser = load_parser(p, trace=0, logic_parser=DrtParser())
@@ -29,7 +29,7 @@ def drs_matcher(s,p,QA_services,debug="no"):
             #TODO: look for a tree with same structure as published by GNLP (provided it exist and it makes sense)
             DRS= res[0]
             # TODO qggiungere un field query_text con dentro la query da passare al query manager
-            QA_services.write_to_KB(DRS, TAG_DRS)
+            drs_service.write_to_KB(DRS, TAG_DRS)
             return True
         else:
             print('No DRS could be produced')

@@ -1,3 +1,6 @@
+"""
+Script created to test the inference engine of the Knowledge Base
+"""
 import sys
 from interface_tags import PATH_TO_KB_MODULE
 sys.path.insert(0, PATH_TO_KB_MODULE)

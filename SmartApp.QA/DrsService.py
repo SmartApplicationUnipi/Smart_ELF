@@ -10,14 +10,16 @@ import templates as tp
 #  libreria spacy matcher per
 
 """
-This service is used to answer user's query
+This service is used to extract a DRS from a sentence.
+After the DRS is built this module shoul produce a query which will be forwarded
+to the Query manager module.
 """
 class DrsService:
 
     def __init__(self, kb_ID, logging_lvl):
         self.logging_lvl = logging_lvl
         self.kb_ID = kb_ID
-        #logging.basicConfig(stream=sys.stderr, level=logging_lvl)
+        logging.basicConfig(stream=sys.stderr, level=logging_lvl)
         logging.info('\tDRS Service Handler created')
         self.kb_client = KnowledgeBaseClient(True)
 
@@ -30,30 +32,19 @@ class DrsService:
         return
 
     def answer_query(self, *param):
-        """This function is called by KB once a user ask a question.
-           A number of strategies will be tried, in the following order:
-           - exact template matching (user's query is = to a question in
-                                      simple_queries.py)
-           - tree templates matching
-           - DRS extraction from the provided
+        """This function extract DRS from a sentence and writes it to the KB
         """
-        logging.info("\tcallback DRS called")
+        #TODO write the query
+        logging.info("\tCallback DRS called")
         query = self._get_query_from_kb(param)
+        question_answered = drs_matcher(query, EXPANDED_RULE_FILE_NAME, self)
 
-
-        question_answered = drs_matcher(query, EXPANDED_RULE_FILE_NAME,self)
-        if question_answered==True:
-            pass #should return
-        else:
-            pass #should produce default answer
-        # TODO qggiungere un field query_text con dentro la query da passare al query manager
         response = {
             "tag": TAG_ANSWER,
             "query_text": "Non ho capito. Puoi ripetere?",
             "time_stamp" : 1
         }
         self.write_to_KB(response, TAG_ANSWER)
-        print('Default answer produced')
 
 
 

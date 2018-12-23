@@ -1,3 +1,7 @@
+"""
+This module generate a DRS from a parse tree of a sentence
+CURRENTLY NOT USED. A grammar approach is used instead. See DrsService.py
+"""
 import nltk
 import json
 

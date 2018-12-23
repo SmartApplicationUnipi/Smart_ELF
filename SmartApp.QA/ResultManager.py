@@ -9,7 +9,8 @@ import json as json
 #  libreria spacy matcher per
 
 """
-This service is used to answer user's query
+This service is in charge of choosing the best result and forwarding it to the
+answer generation module.
 """
 class ResultManager:
 

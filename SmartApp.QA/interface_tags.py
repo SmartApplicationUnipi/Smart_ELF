@@ -8,7 +8,7 @@ PATH_TO_KB_MODULE = '../SmartApp.KB/bindings/python/'
 
 DESC_DRS = 'drs = {"time_stamp": int, "drs": drs_structure , "tag": "' + TAG_DRS + '"}'
 
-TAG_ANSWER = "NLP_ANSWER" # TAG TO PASS INFO TO QUERY MANAGER
+TAG_ANSWER = "NLP_ANSWER" # TAG TO PASS INFO TO QUERY MANAGER. SHOULD RENAME THIS
 DESC_ANSWER = 'answer = {"time_stamp": int, "text": testop , "tag": "' + TAG_ANSWER + '"}'
 
 TAG_PROF = "crawler_teacher"

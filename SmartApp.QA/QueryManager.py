@@ -6,10 +6,8 @@ from kb import KnowledgeBaseClient
 import logging
 import json as json
 
-#  libreria spacy matcher per
-
 """
-This service is used to answer user's query
+This service is needed to choose and perform one or more query against the KB
 """
 class QueryManager:
 
@@ -19,7 +17,6 @@ class QueryManager:
         #logging.basicConfig(stream=sys.stderr, level=logging_lvl)
         logging.info('\tQuery manager Service Handler created')
         self.kb_client = KnowledgeBaseClient(True)
-
 
     def write_to_KB(self, fact, tag):
         """
@@ -41,20 +38,15 @@ class QueryManager:
         }
         self.write_to_KB(fact, TAG_BINDINGS)
 
-
     def _get_query_from_kb(self, response):
         """Exctract the user query from the kb response object"""
         answer_arr = response[0] # first field of the tuple. It contains the resp
-        #print(answer_arr)
         query = answer_arr["details"][0]["object"]["_data"]["query_text"]
         return query
-
-
 
     def start(self):
         """Subscribe and wait for data"""
         self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_ANSWER, "query_text": "$input"}}, self.perform_query) #
-        #self.kb_client.subscribe(self.kb_ID, {"_data": {"tag": TAG_USER_TRANSCRIPT, "text": "$input", "language": "$lang"}}, self.answer_query) # from the 'gnlp' module
         logging.info("\tQuery manager service started")
 
 

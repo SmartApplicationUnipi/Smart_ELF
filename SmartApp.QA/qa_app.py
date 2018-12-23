@@ -3,7 +3,8 @@ Entry point of QA application
 """
 
 import sys
-from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS, DESC_ANSWER, TAG_ANSWER, TAG_BINDINGS, DESC_TAG_BINDINGS, TAG_FINAL_ANSW, DESC_TAG_FINAL_ANSW
+from interface_tags import PATH_TO_KB_MODULE, TAG_DRS, DESC_DRS, DESC_ANSWER,\
+TAG_ANSWER, TAG_BINDINGS, DESC_TAG_BINDINGS, TAG_FINAL_ANSW, DESC_TAG_FINAL_ANSW
 sys.path.insert(0, PATH_TO_KB_MODULE)
 
 from TemplateService import TemplateService
@@ -26,7 +27,7 @@ class DRS_thread (threading.Thread):
         self.drs_obj.start()
 
 class ResultManager_thread (threading.Thread):
-    """ Thread class for drs service"""
+    """ Thread class for Result manager service"""
     def __init__(self, drs_obj):
         threading.Thread.__init__(self)
         self.drs_obj = drs_obj
@@ -63,7 +64,7 @@ class K_Thread (threading.Thread):
 
 def _get_cl_args():
     """
-    This function will read args from commanda line intarface
+    This function will read args from command line interface
     """
     parser = argparse.ArgumentParser(description="Start the QA module's services")
     parser.add_argument('--debug', default=logging.INFO, help= "DEBUG: shows debug info")
@@ -96,11 +97,8 @@ def __main__():
     }
 
     logging.info("\tQA module registered")
-    #TODO register tags nedeed?
-
 
     kb_client.registerTags(kb_ID, tags)
-
 
     qa_service = TemplateService(kb_ID,logging_lvl)
     t1 = TemplateService_thread(qa_service)
@@ -121,9 +119,5 @@ def __main__():
     result_manag_service = ResultManager(kb_ID,logging_lvl)
     t5 = ResultManager_thread(result_manag_service)
     t5.start()
-
-
-
-
 
 __main__()

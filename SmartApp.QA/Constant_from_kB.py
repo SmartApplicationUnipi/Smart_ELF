@@ -49,7 +49,7 @@ class ConstantFromkB:
 
     def extract_teachers_from_KB(self,tag, file):
         """This method is the one devoted to extract "constants" information from the KB
-        First it perform a query to retrieve the facts interested, then write them in file (2° parameter)
+        First it perform a query to retrieve the facts needed, then write them in file (2° parameter)
         """
 
         #answer query

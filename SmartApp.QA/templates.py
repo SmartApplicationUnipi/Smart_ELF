@@ -17,10 +17,8 @@ def __main__():
     check_exact_match(input_q, dict_q, dict_answ, ["professor", "professore"])
     check_exact_match(input_q, dict_q_corso, dict_answ_corso, ["corso", "corso di"])
 
-
-
 def init_templates_dict():
-    """TODO should be a class method of gnlp Service
+    """
     dict_q is a dictionary with queries
         - key= query sentence
         - value= sentence_id
@@ -34,7 +32,6 @@ def init_templates_dict():
         dict_q[preprocess_sentence(tup[1])] = tup[0]
 
     dict_answ = {}
-
     for tup in query_prof_t:
         dict_answ[tup[0]] = (tup[1], tup[2])
 
@@ -43,7 +40,6 @@ def init_templates_dict():
         dict_q_corso[preprocess_sentence(tup[1])] = tup[0]
 
     dict_answ_corso = {}
-
     for tup in query_corso_t:
         dict_answ_corso[tup[0]] = (tup[1], tup[2])
 
@@ -60,7 +56,7 @@ def init_templates_dict():
 
 
 def check_exact_match(input_q, dict_q, dict_answ, kwrd_list):
-    """TODO should be a class method of gnlp Service
+    """
     Silliest matching attempt: a list of keywords to find in the user's sentence
     After removing professor's name, we check inside dict_q for a match.
     If found, a query is retrieved from dict_answ and sent to KB,

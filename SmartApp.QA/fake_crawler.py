@@ -1,8 +1,6 @@
 """
 This is a fake GNLP fact inserter
-
 """
-
 import sys
 from interface_tags import PATH_TO_KB_MODULE, TAG_ANSWER
 
