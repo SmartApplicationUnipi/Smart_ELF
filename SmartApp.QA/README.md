@@ -4,7 +4,7 @@ This module is composed by various parts which concurrently perform their analys
 Different type of processing of user's query take place when the STT module publish its tuple in the KB.
 
 # Blocks
-Each block runs concurrently in its own thread. There are 3 parts at the moment
+Each block runs concurrently in its own thread. There are 5 parts at the moment:
 
 - DRS Service
 - GNLP service (located in SmartApp.GNLP)
