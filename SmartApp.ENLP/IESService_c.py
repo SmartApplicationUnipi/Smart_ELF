@@ -44,7 +44,7 @@ class IESService:
         idle_time_update seconds
         """
         self.timer.cancel()
-        # do stuff do stuff
+
         new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, (-0.5,-0.8) )
         fact = {
             "time_stamp": str(datetime.datetime.now()),
@@ -53,12 +53,12 @@ class IESService:
             "tag": TAG_ELF_EMOTION
         }
         self.write_to_KB(fact, TAG_ELF_EMOTION)
-        # continue doing stuff
+
         self.timer = threading.Timer(self.idle_time_update, self.timed_update)
         self.timer.start()
 
     def on_user_interaction(self, *params):
-        # stuff-
+
         logging.info("\tcallback IES called")
         self.timer.cancel()
         user_coord, emotion = self.get_mean_user_emotion()
@@ -69,15 +69,17 @@ class IESService:
 
             if (emotion == self.last_user_emotion):
                 self.threshold += 1
-                new_emotion_point = user_coord
+            else:
+                self.threshold = 0
+
             if (self.threshold >= self.max_threshold):
                 # travel with modifier
                 self.dist_modifier = 1.1
-                new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
             else:
                 self.dist_modifier = 1.0
-                logging.debug("\tCurrent user coord: " + str(user_coord) + "Closest Emotion category: " + str(emotion))
-                new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
+
+            logging.debug("\tCurrent user coord: " + str(user_coord) + "Closest Emotion category: " + str(emotion))
+            new_emotion_point = self.travel_in_emotion_space(self.elf_emotion_coord, user_coord)
 
             fact = {
                 "time_stamp": str(datetime.datetime.now()),

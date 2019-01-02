@@ -49,7 +49,7 @@ class EttService:
             print("ETT: No IES, using default")
             ies = (0., 0.)
 
-        a_fact = prepare_answer(answer, ies, timestamp,language)#TODO: add language forwarding!!!!
+        a_fact = prepare_answer(answer, ies, timestamp,language)
         self.write_to_KB(a_fact, TAG_COLORED_ANSWER)
 
     def start(self):

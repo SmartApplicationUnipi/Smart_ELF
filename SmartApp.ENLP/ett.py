@@ -17,7 +17,7 @@ def put_imperative(text,language):
 
     return "uff..." + imperative_text + "!"
 
-def add_sarcasm(text,language): #TODO: add random negations or "probably" here or there
+def add_sarcasm(text,language):
     """
     Adds some ironic nonsense typical of sarcasm
     """
@@ -37,7 +37,6 @@ def color_answer(answer, emotion, language="en"):
     Changes the text of the answer with the emotion described by
     the given valence and arousal
     """
-    #TODO: check language format
 
     if(emotion=='sad' or emotion=='bored'):
         colored_answer = "ok..." + answer
