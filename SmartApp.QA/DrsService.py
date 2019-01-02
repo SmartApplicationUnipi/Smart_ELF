@@ -67,5 +67,5 @@ class DrsService:
 if __name__ == "__main__":
 
     global myID
-    service_qa = QaService(myID,logging_lvl=logging.DEBUG)
-    service_qa.start()
+    service_drs = DrsService(myID,logging_lvl=logging.DEBUG)
+    service_drs.start()
