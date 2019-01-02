@@ -29,28 +29,28 @@ def init_templates_dict():
 
     dict_q = {}
     for tup in query_prof:
-        dict_q[preprocess_sentence(tup[1])] = tup[0]
+        dict_q[preprocess_sentence(tup)] = query_prof.index(tup)
 
     dict_answ = {}
-    for tup in query_prof_t:
-        dict_answ[tup[0]] = (tup[1], tup[2])
+    for i in dict_q.values():
+        dict_answ[i] = query_prof_t[i] # (Q, A)
 
     dict_q_corso = {}
     for tup in query_corso:
-        dict_q_corso[preprocess_sentence(tup[1])] = tup[0]
+        dict_q_corso[preprocess_sentence(tup)] = query_corso.index(tup)
 
     dict_answ_corso = {}
-    for tup in query_corso_t:
-        dict_answ_corso[tup[0]] = (tup[1], tup[2])
+    for i in dict_q_corso.values():
+        dict_answ_corso[i] = query_corso_t[i] # (Q, A)
 
     dict_q_aule = {}
     for tup in query_aule:
-        dict_q_aule[preprocess_sentence(tup[1])] = tup[0]
+        dict_q_aule[preprocess_sentence(tup)] = query_aule.index(tup)
 
     dict_answ_aule = {}
-    for tup in query_aule_t:
-        dict_answ_aule[tup[0]] = (tup[1], tup[2])
-    # repeat for all the tuples?
+    for i in dict_q_aule.values():
+        dict_answ_aule[i] = query_aule_t[i] # (Q, A)
+
 
     return dict_q, dict_answ, dict_q_corso, dict_answ_corso, dict_q_aule, dict_answ_aule
 
