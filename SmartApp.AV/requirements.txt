@@ -15,7 +15,7 @@ janus==0.4.0
 kiwisolver==1.0.1
 lxml==4.2.5
 pkg-resources==0.0.0
-protobuf==3.6.1
+protobuf==3.18.3
 pyasn1==0.4.4
 pyasn1-modules==0.2.2
 pyAudioAnalysis==0.2.5
